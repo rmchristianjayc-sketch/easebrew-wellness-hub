@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const PRODUCTS = [
@@ -207,6 +207,88 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   );
 }
 
+// ✅ PWA Install Banner Component
+function InstallBanner() {
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showBanner, setShowBanner] = useState(false);
+  const [installed, setInstalled] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    // Check if already installed
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      setInstalled(true);
+      return;
+    }
+    // Check if already dismissed
+    const wasDismissed = localStorage.getItem("pwa-banner-dismissed");
+    if (wasDismissed) return;
+
+    const handler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowBanner(true);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === "accepted") {
+      setInstalled(true);
+      setShowBanner(false);
+    }
+    setDeferredPrompt(null);
+  };
+
+  const handleDismiss = () => {
+    setShowBanner(false);
+    setDismissed(true);
+    localStorage.setItem("pwa-banner-dismissed", "true");
+  };
+
+  if (installed || !showBanner || dismissed) return null;
+
+  return (
+    <div style={{
+      position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
+      width: "100%", maxWidth: 680, zIndex: 9999,
+      background: G, padding: "20px 24px",
+      boxShadow: "0 -4px 24px rgba(0,0,0,0.25)",
+      borderTop: `4px solid ${GOLD}`,
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <span style={{ fontSize: 40, flexShrink: 0 }}>📲</span>
+        <div style={{ flex: 1 }}>
+          <p style={{ fontSize: 17, fontWeight: 700, color: "#fff", margin: "0 0 4px 0" }}>
+            I-install ang R&M Easebrew App!
+          </p>
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.8)", margin: 0 }}>
+            I-save sa inyong phone — madaling buksan anumang oras!
+          </p>
+        </div>
+        <button
+          onClick={handleDismiss}
+          style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.6)", fontSize: 24, cursor: "pointer", padding: "4px", flexShrink: 0 }}
+        >✕</button>
+      </div>
+      <button
+        onClick={handleInstall}
+        style={{
+          marginTop: 14, width: "100%", background: GOLD, color: G,
+          border: "none", borderRadius: 14, padding: "16px",
+          fontSize: 18, fontWeight: 700, cursor: "pointer",
+        }}
+      >
+        ✅ Oo! I-install sa Aking Phone →
+      </button>
+    </div>
+  );
+}
+
 export default function Home() {
   const [selectedTier, setSelectedTier] = useState(1499);
   const [tipIndex, setTipIndex] = useState(0);
@@ -216,6 +298,9 @@ export default function Home() {
 
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", padding: "0 0 80px 0" }}>
+
+      {/* ✅ PWA Install Banner */}
+      <InstallBanner />
 
       {/* ===== HERO ===== */}
       <div style={{
