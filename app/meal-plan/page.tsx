@@ -1,0 +1,326 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+
+const G = "#39613B";
+const GOLD = "#FED255";
+const AMBER = "#C0863B";
+const CREAM = "#EEE5D4";
+const DARK = "#1B201A";
+const MID = "#4E504F";
+
+const MEAL_PLAN = [
+  { day: 1, week: "Week 1", weekday: "Lunes", agahan: "Easebrew + Oatmeal na may saging na saba at honey", tanghalian: "Sinigang na salmon + Brown rice + Kangkong", merienda: "Boiled kamote + Ginger tea", hapunan: "Ginisang ampalaya with itlog + Brown rice", calories: "~1,650 kcal", nutrients: "Omega-3, Iron, Vit C", focus: "Anti-inflammation" },
+  { day: 2, week: "Week 1", weekday: "Martes", agahan: "Easebrew + Itlog na maalat + Sariwa na kamatis", tanghalian: "Monggo na may malunggay at hipon + Brown rice", merienda: "Buko juice (fresh, walang asukal)", hapunan: "Tinolang manok + Brown rice (may malunggay)", calories: "~1,600 kcal", nutrients: "Calcium, Protein, Vit A", focus: "Bone & Joint Health" },
+  { day: 3, week: "Week 1", weekday: "Miyerkules", agahan: "Easebrew + Pandesal (2) + Peanut butter", tanghalian: "Nilagang baka (lean) + Sayote, sitaw, pechay + Brown rice", merienda: "Turmeric-ginger juice (luya + gatas)", hapunan: "Ginataang kalabasa at sitaw + Grilled tilapia + Brown rice", calories: "~1,700 kcal", nutrients: "Curcumin, Protein, Zinc", focus: "Joint Lubrication" },
+  { day: 4, week: "Week 1", weekday: "Huwebes", agahan: "Easebrew + Scrambled eggs (2) + Sautéed kangkong", tanghalian: "Paksiw na bangus + Ampalaya salad + Brown rice", merienda: "Banana + Unsalted peanuts", hapunan: "Chicken tinola + May papaya at malunggay + Brown rice", calories: "~1,620 kcal", nutrients: "Iron, Potassium, Vit B12", focus: "Muscle Recovery" },
+  { day: 5, week: "Week 1", weekday: "Biyernes", agahan: "Easebrew + Lugaw with luya at bawang + Boiled egg", tanghalian: "Sinigang na baboy (lean) + Kangkong, labanos + Brown rice", merienda: "Cucumber water + Boiled saging na saba", hapunan: "Grilled tilapia + Ensaladang talong + Brown rice", calories: "~1,580 kcal", nutrients: "Omega-3, Antioxidants, Fiber", focus: "Detox & Digestion" },
+  { day: 6, week: "Week 1", weekday: "Sabado", agahan: "Easebrew + Champorado (dark chocolate) + Tuyo", tanghalian: "Kare-kare (lean beef) + Mga gulay + Brown rice", merienda: "Fresh fruit salad (mangga, papaya, melon)", hapunan: "Nilagang baka (lean) + Labanos, pechay + Brown rice", calories: "~1,750 kcal", nutrients: "Antioxidants, Vit C, Collagen", focus: "Skin & Joint Repair" },
+  { day: 7, week: "Week 1", weekday: "Linggo", agahan: "Easebrew + Arroz caldo (brown rice) + May luya + Boiled egg", tanghalian: "Pinakbet + Grilled tanigue + Brown rice", merienda: "Buko pandan (homemade, kaunting asukal)", hapunan: "Pork sinigang (lean) + May labanos, sitaw, kangkong + Brown rice", calories: "~1,680 kcal", nutrients: "Immune Boosters, Fiber, Vit C", focus: "Full Body Wellness" },
+  { day: 8, week: "Week 2", weekday: "Lunes", agahan: "Easebrew + Toasted wheat bread (2) + Scrambled eggs + Tomato", tanghalian: "Tinolang bangus + May malunggay at luya + Brown rice", merienda: "Boiled mais + Ginger tea", hapunan: "Ginisang repolyo at carrots with chicken strips + Brown rice", calories: "~1,600 kcal", nutrients: "Vit C, Beta-carotene, Protein", focus: "Immune Support" },
+  { day: 9, week: "Week 2", weekday: "Martes", agahan: "Easebrew + Boiled kamote at saging na saba", tanghalian: "Sinigang na hipon + May labanos at kangkong + Brown rice", merienda: "Watermelon slices + Sparkling water", hapunan: "Tortang talong + Fresh tomato salad + Brown rice", calories: "~1,550 kcal", nutrients: "Lycopene, Omega-3, Vit A", focus: "Heart Health" },
+  { day: 10, week: "Week 2", weekday: "Miyerkules", agahan: "Easebrew + Oatmeal with papaya at chia seeds", tanghalian: "Chicken adobo (konting suka at toyo) + Ensaladang pako + Brown rice", merienda: "Apple + Unsalted almonds", hapunan: "Ginataang gulay + Grilled isda + Brown rice", calories: "~1,650 kcal", nutrients: "Fiber, Healthy Fats, Antioxidants", focus: "Anti-inflammation" },
+  { day: 11, week: "Week 2", weekday: "Huwebes", agahan: "Easebrew + Pandesal (2) + Hard-boiled eggs (2) + Cucumber", tanghalian: "Beef bulalo (lean) + May mais at pechay + Brown rice", merienda: "Banana shake (gatas, saging, walang asukal)", hapunan: "Ginisang ampalaya with ground pork (lean) + Brown rice", calories: "~1,680 kcal", nutrients: "Collagen, Calcium, Fiber", focus: "Bone Strength" },
+  { day: 12, week: "Week 2", weekday: "Biyernes", agahan: "Easebrew + Lugaw with malunggay + Boiled egg", tanghalian: "Paksiw na pata (konti lang) + Kangkong + Brown rice", merienda: "Buko juice (fresh) + Crackers (3 pcs)", hapunan: "Sinigang na manok + May kamatis at kangkong + Brown rice", calories: "~1,590 kcal", nutrients: "Protein, Vit C, Iron", focus: "Energy Restore" },
+  { day: 13, week: "Week 2", weekday: "Sabado", agahan: "Easebrew + Whole wheat sinangag + Pritong itlog (2) + Tomato", tanghalian: "Laing (gabi leaves sa gata) + Grilled bangus + Brown rice", merienda: "Mixed fruit (mangga, pakwan, papaya)", hapunan: "Beef caldereta (lean) + May patatas at carrots + Brown rice", calories: "~1,780 kcal", nutrients: "Vit A, C, Calcium, Iron", focus: "Full Nutrition" },
+  { day: 14, week: "Week 2", weekday: "Linggo", agahan: "Easebrew + Arroz caldo (brown rice) + Baby boiled eggs (2)", tanghalian: "Lechon manok (1/4, walang balat) + Pinakbet + Brown rice", merienda: "Mais con hielo (brown sugar, konti gatas)", hapunan: "Seafood sinigang (hipon at isda) + Brown rice", calories: "~1,700 kcal", nutrients: "Omega-3, Protein, Vit C", focus: "Weekend Recovery" },
+  { day: 15, week: "Week 3", weekday: "Lunes", agahan: "Easebrew + Oatmeal pancake (oats, itlog, saging)", tanghalian: "Sinigang na salmon sa miso + May sitaw at kangkong + Brown rice", merienda: "Celery sticks + Peanut butter dip", hapunan: "Ginisang repolyo with tuna + Brown rice", calories: "~1,600 kcal", nutrients: "Omega-3, Fiber, Probiotics", focus: "Gut Health" },
+  { day: 16, week: "Week 3", weekday: "Martes", agahan: "Easebrew + Boiled itlog (2) + Kamatis at pipino salad + Wheat toast", tanghalian: "Nilaga (manok) + May patatas, sayote, pechay + Brown rice", merienda: "Green mango shake (walang asukal, may gatas)", hapunan: "Ginataang sitaw at kalabasa + Grilled tanigue + Brown rice", calories: "~1,640 kcal", nutrients: "Vit C, Beta-carotene, Healthy Fats", focus: "Skin Glow" },
+  { day: 17, week: "Week 3", weekday: "Miyerkules", agahan: "Easebrew + Lugaw with chicken at malunggay + Boiled egg", tanghalian: "Fish tinola (lapu-lapu o tanigue) + May malunggay + Brown rice", merienda: "Buko juice (fresh, walang asukal)", hapunan: "Chopsuey (carrots, sayote, atay ng manok) + Brown rice", calories: "~1,620 kcal", nutrients: "Iron, Vit A, B12, Folate", focus: "Blood Building" },
+  { day: 18, week: "Week 3", weekday: "Huwebes", agahan: "Easebrew + Whole wheat pandesal (2) + Cheese + Tomato", tanghalian: "Pinangat na isda (pompano o tilapia) + May kamatis at luya + Brown rice", merienda: "Papaya slices + Warm luya tea", hapunan: "Beef stir fry (lean, broccoli, carrots) + Brown rice", calories: "~1,700 kcal", nutrients: "Calcium, Vit K, Protein", focus: "Joint Support" },
+  { day: 19, week: "Week 3", weekday: "Biyernes", agahan: "Easebrew + Champorado (brown glutinous rice) + Tuyo", tanghalian: "Sinigang na manok + May kangkong, labanos, sitaw + Brown rice", merienda: "Banana (2 pcs) + Unsalted peanuts", hapunan: "Paksiw na bangus + Ensaladang talong at kamatis + Brown rice", calories: "~1,580 kcal", nutrients: "Antioxidants, Potassium, Omega-3", focus: "Stress Relief" },
+  { day: 20, week: "Week 3", weekday: "Sabado", agahan: "Easebrew + Whole wheat sinangag + Lechon manok (2 pcs) + Tomato", tanghalian: "Kare-kare (oxtail, lean) + Mga gulay + 1 tsp bagoong + Brown rice", merienda: "Halo-halo (konting asukal, no ice cream)", hapunan: "Tinolang hipon + May papaya at malunggay + Brown rice", calories: "~1,820 kcal", nutrients: "Collagen, Fiber, Vit A", focus: "Cheat Day (Balanced)" },
+  { day: 21, week: "Week 3", weekday: "Linggo", agahan: "Easebrew + Arroz caldo (brown rice) + May luya, bawang + 2 boiled eggs", tanghalian: "Lechon manok (1/4, walang balat) + Ensalada + Brown rice", merienda: "Mais con buko (natural, kaunting asukal)", hapunan: "Beef nilaga + May repolyo at pechay + Brown rice", calories: "~1,720 kcal", nutrients: "Protein, Iron, Vit C", focus: "Family Wellness" },
+  { day: 22, week: "Week 4", weekday: "Lunes", agahan: "Easebrew + Oatmeal with mangga at flaxseeds", tanghalian: "Sinigang na baboy (lean) + May labanos, kangkong, sitaw + Brown rice", merienda: "Guyabano juice (fresh, walang asukal)", hapunan: "Ginisang pechay with shrimp + Brown rice", calories: "~1,590 kcal", nutrients: "ALA Omega-3, Vit C, Fiber", focus: "Cholesterol Control" },
+  { day: 23, week: "Week 4", weekday: "Martes", agahan: "Easebrew + Boiled kamote + Scrambled eggs (2) + Cucumber", tanghalian: "Tinolang manok + May papaya, malunggay, luya + Brown rice", merienda: "Watermelon (2 cups) + Warm turmeric milk", hapunan: "Ginataang isda (tilapia sa gata) + May sili at luya + Brown rice", calories: "~1,650 kcal", nutrients: "Curcumin, Omega-3, Vit A", focus: "Anti-inflammation" },
+  { day: 24, week: "Week 4", weekday: "Miyerkules", agahan: "Easebrew + Pandesal (2) + Boiled itlog (2) + Kamatis salad", tanghalian: "Monggo na may pork ribs at malunggay + Brown rice", merienda: "Buko juice (fresh) + Boiled saging na saba", hapunan: "Chicken adobo (white) + Ensaladang pako + Brown rice", calories: "~1,700 kcal", nutrients: "Calcium, Folate, Protein", focus: "Bone & Muscle" },
+  { day: 25, week: "Week 4", weekday: "Huwebes", agahan: "Easebrew + Lugaw (brown rice) + May luya at bawang + Boiled egg", tanghalian: "Grilled liempo (lean part) + Atsarang papaya + Brown rice", merienda: "Apple at celery sticks + Peanut butter dip", hapunan: "Sinigang na bangus sa miso + May talong at kangkong + Brown rice", calories: "~1,660 kcal", nutrients: "Probiotics, Omega-3, Fiber", focus: "Gut & Joint Health" },
+  { day: 26, week: "Week 4", weekday: "Biyernes", agahan: "Easebrew + Oatmeal with papaya at honey", tanghalian: "Seafood chopsuey (hipon, squid, gulay) + Brown rice", merienda: "Green mango with bagoong (konti)", hapunan: "Ginisang kamote tops with tinapa + Brown rice", calories: "~1,580 kcal", nutrients: "Iodine, Vit C, Antioxidants", focus: "Thyroid & Energy" },
+  { day: 27, week: "Week 4", weekday: "Sabado", agahan: "Easebrew + Tapsilog (beef tapa, sinangag, itlog)", tanghalian: "Kare-kare (tanigue) + Mga gulay + 1 tsp bagoong + Brown rice", merienda: "Fruit salad (papaya, mangga, melon) walang condensada", hapunan: "Beef caldereta (lean) + May patatas at carrots + Brown rice", calories: "~1,800 kcal", nutrients: "Protein, Vit A, C, Iron", focus: "Weekend Boost" },
+  { day: 28, week: "Week 4", weekday: "Linggo", agahan: "Easebrew + Arroz caldo + May luya, bawang + Boiled eggs (2)", tanghalian: "Lechon kawali (konti, walang taba) + Pinakbet + Brown rice", merienda: "Buko pandan (homemade) + Warm luya tea", hapunan: "Sinigang na isda (tanigue) + May labanos at pechay + Brown rice", calories: "~1,720 kcal", nutrients: "Omega-3, Antioxidants, Vit C", focus: "Rest Day Reset" },
+  { day: 29, week: "Week 5", weekday: "Lunes", agahan: "Easebrew + Oatmeal with chia seeds at fresh strawberry", tanghalian: "Sinigang na salmon + May kangkong at labanos + Brown rice", merienda: "Papaya slices + Ginger tea", hapunan: "Ginisang ampalaya with tinapa (flaked) + Brown rice", calories: "~1,580 kcal", nutrients: "Omega-3, Vit C, Antioxidants", focus: "Week 5 Reset" },
+  { day: 30, week: "Week 5", weekday: "Martes", agahan: "Easebrew + Boiled saging na saba (2) + Scrambled eggs (2) + Kamatis", tanghalian: "Monggo na may malunggay at hipon + Brown rice", merienda: "Banana shake (walang asukal)", hapunan: "Tinolang isda + May malunggay at luya + Brown rice", calories: "~1,600 kcal", nutrients: "Calcium, Protein, Vit A", focus: "Midpoint Check" },
+  { day: 31, week: "Week 5", weekday: "Miyerkules", agahan: "Easebrew + Pandesal (2) + Peanut butter + Sliced banana", tanghalian: "Chicken curry Filipino style + May patatas at carrots + Brown rice", merienda: "Boiled kamote + Turmeric ginger juice", hapunan: "Ginataang kalabasa at hipon + Brown rice", calories: "~1,680 kcal", nutrients: "Beta-carotene, Curcumin, Omega-3", focus: "Anti-inflammation" },
+  { day: 32, week: "Week 5", weekday: "Huwebes", agahan: "Easebrew + Scrambled eggs (2) + Sautéed malunggay + Wheat toast", tanghalian: "Paksiw na isda (pompano) + Ensaladang talong + Brown rice", merienda: "Mixed nuts (almonds, peanuts, cashews)", hapunan: "Ginisang sitaw with ground chicken + Brown rice", calories: "~1,640 kcal", nutrients: "Healthy Fats, Calcium, Protein", focus: "Muscle Build" },
+  { day: 33, week: "Week 5", weekday: "Biyernes", agahan: "Easebrew + Lugaw with toasted bawang + Boiled egg + Sliced luya", tanghalian: "Sinigang na baboy (lean) + May sitaw at kangkong + Brown rice", merienda: "Fresh buko juice + Unsalted crackers", hapunan: "Grilled tanigue + Pickled atsarang papaya + Brown rice", calories: "~1,590 kcal", nutrients: "Probiotics, Omega-3, Enzymes", focus: "Digestion Day" },
+  { day: 34, week: "Week 5", weekday: "Sabado", agahan: "Easebrew + Sinangag (brown rice) + Itlog na maalat + Sliced kamatis", tanghalian: "Kare-kare (beef tripe, lean) + Mga gulay + 1 tsp bagoong + Brown rice", merienda: "Mangga at papaya slices + Buko water", hapunan: "Pinakbet na may bagnet (konti) + Grilled bangus + Brown rice", calories: "~1,790 kcal", nutrients: "Collagen, Vit A, C, Fiber", focus: "Weekend Recharge" },
+  { day: 35, week: "Week 5", weekday: "Linggo", agahan: "Easebrew + Arroz caldo + May malunggay at luya + 2 boiled eggs", tanghalian: "Chicken inasal (walang balat) + Ensalada + Brown rice", merienda: "Buko salad (homemade, kaunting gatas)", hapunan: "Sinigang na hipon + May labanos at kangkong + Brown rice", calories: "~1,700 kcal", nutrients: "Protein, Vit C, Omega-3", focus: "Family Sunday" },
+  { day: 36, week: "Week 6", weekday: "Lunes", agahan: "Easebrew + Oatmeal with saging at honey + Chia seeds", tanghalian: "Sinigang na salmon sa bayabas + May kangkong at sitaw + Brown rice", merienda: "Guava juice (fresh) + Boiled saging na saba", hapunan: "Ginisang kangkong with tokwa at bagoong + Brown rice", calories: "~1,610 kcal", nutrients: "Vit C, Plant Protein, Omega-3", focus: "Plant Boost" },
+  { day: 37, week: "Week 6", weekday: "Martes", agahan: "Easebrew + Whole wheat toast (2) + Avocado spread + Boiled egg", tanghalian: "Beef nilaga + May sayote, patatas, pechay + Brown rice", merienda: "Cucumber infused water + Apple slices", hapunan: "Ginataang sitaw at kalabasa + Grilled bangus + Brown rice", calories: "~1,670 kcal", nutrients: "Healthy Fats, Vit K, Fiber", focus: "Heart Health" },
+  { day: 38, week: "Week 6", weekday: "Miyerkules", agahan: "Easebrew + Lugaw with chicken at malunggay", tanghalian: "Fish kinilaw (tanigue, suka, luya, sibuyas) + Brown rice", merienda: "Warm luya-calamansi juice + Boiled kamote", hapunan: "Chicken pochero + May saging na saba at repolyo + Brown rice", calories: "~1,630 kcal", nutrients: "Probiotics, Vit C, Protein", focus: "Immunity Boost" },
+  { day: 39, week: "Week 6", weekday: "Huwebes", agahan: "Easebrew + Pandesal (2) + Scrambled eggs (2) + Kamatis at pipino", tanghalian: "Pinangat na tilapia + May kamatis at luya + Brown rice", merienda: "Papaya shake (walang asukal)", hapunan: "Beef stir fry (lean, sitaw, carrots, broccoli) + Brown rice", calories: "~1,700 kcal", nutrients: "Enzymes, Vit K, Protein", focus: "Flexibility Support" },
+  { day: 40, week: "Week 6", weekday: "Biyernes", agahan: "Easebrew + Oatmeal pancake (oats, itlog, saging) + Honey drizzle", tanghalian: "Sinigang na manok + May labanos at kangkong + Brown rice", merienda: "Pineapple chunks + Warm ginger tea", hapunan: "Paksiw na bangus + Ensaladang kamatis at sibuyas + Brown rice", calories: "~1,600 kcal", nutrients: "Bromelain, Vit C, Omega-3", focus: "End-of-Week Cleanse" },
+  { day: 41, week: "Week 6", weekday: "Sabado", agahan: "Easebrew + Sinangag + Lechon manok (2, walang balat) + Kamatis", tanghalian: "Crispy pata (konti, lean part) + Sawsawan: suka at toyo + Brown rice", merienda: "Halo-halo (light version, walang ice cream)", hapunan: "Seafood sinigang (hipon, squid, isda) + May labanos + Brown rice", calories: "~1,830 kcal", nutrients: "Collagen, Iodine, Fiber, Vit C", focus: "Treat Day (Balanced)" },
+  { day: 42, week: "Week 6", weekday: "Linggo", agahan: "Easebrew + Arroz caldo + May luya at bawang + 2 boiled eggs", tanghalian: "Lechon manok (1/4, walang balat) + Pinakbet + Brown rice", merienda: "Buko pandan (homemade) + Buko juice", hapunan: "Chicken tinola + May papaya at malunggay + Brown rice", calories: "~1,710 kcal", nutrients: "Immune Boosters, Vit A, Protein", focus: "Linggo ng Pamilya" },
+  { day: 43, week: "Week 7", weekday: "Lunes", agahan: "Easebrew + Oatmeal with turmeric at ginger + Sliced banana", tanghalian: "Sinigang na bangus sa sampalok + May kangkong, labanos, sitaw + Brown rice", merienda: "Luya-calamansi juice + Boiled mais", hapunan: "Ginisang ampalaya with egg at hipon + Brown rice", calories: "~1,620 kcal", nutrients: "Curcumin, Omega-3, Vit C", focus: "Final Stretch Anti-Inflam" },
+  { day: 44, week: "Week 7", weekday: "Martes", agahan: "Easebrew + Boiled kamote at saging + Scrambled eggs (2)", tanghalian: "Monggo na may malunggay at bangus (fried, konti) + Brown rice", merienda: "Watermelon slices + Warm turmeric milk", hapunan: "Ginataang isda (tilapia) + May sili at luya + Brown rice", calories: "~1,660 kcal", nutrients: "Calcium, Vit A, Curcumin", focus: "Bone & Joint Day" },
+  { day: 45, week: "Week 7", weekday: "Miyerkules", agahan: "Easebrew + Lugaw with malunggay at boiled egg + Toasted bawang", tanghalian: "Chicken adobo (white/gata) + Ensaladang pako + Brown rice", merienda: "Buko juice (fresh) + Papaya slices", hapunan: "Beef at gulay stir fry (broccoli, carrots, bawang) + Brown rice", calories: "~1,650 kcal", nutrients: "Vit K, Protein, Fiber", focus: "Midweek Strength" },
+  { day: 46, week: "Week 7", weekday: "Huwebes", agahan: "Easebrew + Pandesal (2) + Hard-boiled eggs (2) + Tomato at pipino", tanghalian: "Tinolang bangus + May malunggay at papaya + Brown rice", merienda: "Mixed nuts at fruit (apple, almonds, peanuts)", hapunan: "Ginisang sitaw at kalabasa with ground pork (lean) + Brown rice", calories: "~1,680 kcal", nutrients: "Fiber, Beta-carotene, Healthy Fats", focus: "Sustained Energy" },
+  { day: 47, week: "Week 7", weekday: "Biyernes", agahan: "Easebrew + Champorado (brown malagkit) + Tuyo", tanghalian: "Sinigang na hipon sa sampalok + May labanos at kangkong + Brown rice", merienda: "Banana (2 pcs) + Warm luya tea", hapunan: "Grilled tanigue + Ensaladang kamatis at sibuyas + Brown rice", calories: "~1,590 kcal", nutrients: "Antioxidants, Omega-3, Vit C", focus: "Pre-Weekend Cleanse" },
+  { day: 48, week: "Week 7", weekday: "Sabado", agahan: "Easebrew + Sinangag (brown rice) + Tapsilog (beef tapa, itlog)", tanghalian: "Kare-kare (seafood: hipon, tahong, pusit) + 1 tsp bagoong + Brown rice", merienda: "Mango shake (walang asukal) + Unsalted crackers", hapunan: "Pinakbet na may bagnet (konti) + Grilled bangus + Brown rice", calories: "~1,810 kcal", nutrients: "Iodine, Protein, Vit A, C", focus: "Last Saturday Boost" },
+  { day: 49, week: "Week 7", weekday: "Linggo", agahan: "Easebrew + Arroz caldo + May luya, bawang, malunggay + 2 boiled eggs", tanghalian: "Lechon manok (1/4, walang balat) + Sautéed kangkong + Brown rice", merienda: "Buko pandan + Buko juice", hapunan: "Beef sinigang + May labanos, kangkong, sitaw + Brown rice", calories: "~1,720 kcal", nutrients: "Immune Boosters, Omega-3, Iron", focus: "Penultimate Day" },
+  { day: 50, week: "Week 7", weekday: "Lunes (Day 50! 🎉)", agahan: "Easebrew + Special arroz caldo (brown rice, luya, bawang, malunggay) + 2 boiled eggs 🎉", tanghalian: "Sinigang na salmon sa sampalok + May kangkong, labanos, sitaw + Brown rice", merienda: "Fruit platter (mangga, papaya, pakwan) + Easebrew 2nd cup 🎉", hapunan: "Special nilaga (beef + gulay) + Grilled bangus + Brown rice 🌿", calories: "~1,750 kcal", nutrients: "Full Spectrum Nutrients", focus: "🎉 50 Day Completion!" },
+];
+
+const WEEKS = ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6", "Week 7"];
+
+const FOCUS_COLORS: Record<string, string> = {
+  "Anti-inflammation": "#E8F5E0",
+  "Bone & Joint Health": "#E6F1FB",
+  "Joint Lubrication": "#E8F5E0",
+  "Muscle Recovery": "#FEF9E7",
+  "Detox & Digestion": "#E8F5E0",
+  "Skin & Joint Repair": "#FEF9E7",
+  "Full Body Wellness": "#E8F5E0",
+  "Heart Health": "#FEF0F0",
+  "Gut Health": "#E8F5E0",
+  "Blood Building": "#FEF0F0",
+  "Bone Strength": "#E6F1FB",
+  "Cheat Day (Balanced)": "#FFFBF0",
+  "Family Wellness": "#E8F5E0",
+  "Weekend Boost": "#FEF9E7",
+  "Cholesterol Control": "#E8F5E0",
+  "Treat Day (Balanced)": "#FFFBF0",
+  "🎉 50 Day Completion!": "#FEF9E7",
+};
+
+export default function MealPlanPage() {
+  const [selectedWeek, setSelectedWeek] = useState("Week 1");
+  const [completedDays, setCompletedDays] = useState<number[]>([]);
+  const [expandedDay, setExpandedDay] = useState<number | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("easebrew-mealplan");
+    if (saved) setCompletedDays(JSON.parse(saved));
+  }, []);
+
+  const toggleComplete = (day: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const updated = completedDays.includes(day)
+      ? completedDays.filter(d => d !== day)
+      : [...completedDays, day];
+    setCompletedDays(updated);
+    localStorage.setItem("easebrew-mealplan", JSON.stringify(updated));
+  };
+
+  const filteredDays = MEAL_PLAN.filter(d => d.week === selectedWeek);
+  const progress = Math.round((completedDays.length / 50) * 100);
+
+  return (
+    <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 100 }}>
+
+      {/* HEADER */}
+      <div style={{ background: G, padding: "24px 24px 20px", color: "#fff" }}>
+        <Link href="/" style={{ color: GOLD, fontSize: 14, textDecoration: "none", display: "block", marginBottom: 12 }}>
+          ← Bumalik sa Hub
+        </Link>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>🥗 50-Day Meal Plan</h1>
+            <p style={{ fontSize: 14, opacity: 0.8, margin: "4px 0 0 0" }}>Anti-Inflammation Pinoy Meals</p>
+          </div>
+          <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "10px 16px" }}>
+            <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: GOLD }}>{completedDays.length}</p>
+            <p style={{ fontSize: 12, margin: 0, opacity: 0.8 }}>sa 50 araw</p>
+          </div>
+        </div>
+        {/* Progress Bar */}
+        <div style={{ marginTop: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+            <p style={{ fontSize: 13, margin: 0, opacity: 0.8 }}>Progress</p>
+            <p style={{ fontSize: 13, margin: 0, color: GOLD, fontWeight: 700 }}>{progress}%</p>
+          </div>
+          <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 999, height: 8 }}>
+            <div style={{ width: `${progress}%`, background: GOLD, height: 8, borderRadius: 999, transition: "width 0.5s ease" }} />
+          </div>
+        </div>
+      </div>
+
+      {/* DAILY REMINDER STRIP */}
+      <div style={{ background: "#FFFFFB", borderBottom: `2px solid ${CREAM}`, padding: "12px 20px", display: "flex", gap: 20, overflowX: "auto" }}>
+        {[
+          { icon: "☕", text: "Easebrew tuwing umaga" },
+          { icon: "💧", text: "8 glasses tubig" },
+          { icon: "🌿", text: "Avocado Oil sa gabi" },
+          { icon: "🚶", text: "15-min walk pagkatapos kumain" },
+        ].map((tip, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+            <span style={{ fontSize: 18 }}>{tip.icon}</span>
+            <span style={{ fontSize: 13, color: G, fontWeight: 600, whiteSpace: "nowrap" }}>{tip.text}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* WEEK SELECTOR */}
+      <div style={{ padding: "20px 20px 0" }}>
+        <p style={{ fontSize: 15, color: MID, fontWeight: 600, margin: "0 0 10px 0" }}>Piliin ang linggo:</p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {WEEKS.map(w => (
+            <button
+              key={w}
+              onClick={() => { setSelectedWeek(w); setExpandedDay(null); }}
+              style={{
+                padding: "10px 16px", borderRadius: 12,
+                border: selectedWeek === w ? `2.5px solid ${G}` : "2px solid #C5B99A",
+                background: selectedWeek === w ? G : "#FFFFFB",
+                color: selectedWeek === w ? "#fff" : MID,
+                fontSize: 14, fontWeight: selectedWeek === w ? 700 : 500,
+                cursor: "pointer",
+              }}
+            >{w}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* DAY CARDS */}
+      <div style={{ padding: "20px 20px 0" }}>
+        {filteredDays.map((d) => {
+          const isDone = completedDays.includes(d.day);
+          const isExpanded = expandedDay === d.day;
+          const bgColor = FOCUS_COLORS[d.focus] || "#FFFFFB";
+
+          return (
+            <div
+              key={d.day}
+              onClick={() => setExpandedDay(isExpanded ? null : d.day)}
+              style={{
+                background: isDone ? "#E8F5E0" : "#FFFFFB",
+                border: `2px solid ${isDone ? G : "#C5B99A"}`,
+                borderRadius: 16,
+                padding: "16px 18px",
+                marginBottom: 12,
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              {/* Card Header */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{
+                    width: 44, height: 44,
+                    borderRadius: 12,
+                    background: isDone ? G : CREAM,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    flexShrink: 0,
+                  }}>
+                    <span style={{ fontSize: 16, fontWeight: 700, color: isDone ? "#fff" : G }}>
+                      {isDone ? "✓" : d.day}
+                    </span>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0 }}>
+                      Araw {d.day} — {d.weekday}
+                    </p>
+                    <p style={{ fontSize: 13, color: MID, margin: "2px 0 0 0" }}>{d.calories}</p>
+                  </div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{
+                    background: bgColor,
+                    color: G,
+                    borderRadius: 8,
+                    padding: "3px 10px",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    border: `1px solid ${G}`,
+                    display: "none",
+                  }}>{d.focus}</span>
+                  <span style={{ fontSize: 20, color: MID }}>{isExpanded ? "▲" : "▼"}</span>
+                </div>
+              </div>
+
+              {/* Focus Badge */}
+              <div style={{ marginTop: 8 }}>
+                <span style={{
+                  background: bgColor,
+                  color: G,
+                  borderRadius: 20,
+                  padding: "3px 12px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                }}>🎯 {d.focus}</span>
+              </div>
+
+              {/* Expanded Content */}
+              {isExpanded && (
+                <div style={{ marginTop: 16, borderTop: `1px solid ${CREAM}`, paddingTop: 14 }}>
+                  {[
+                    { label: "☕ Agahan (Breakfast)", value: d.agahan },
+                    { label: "🍽 Tanghalian (Lunch)", value: d.tanghalian },
+                    { label: "🥤 Merienda (Snack)", value: d.merienda },
+                    { label: "🍲 Hapunan (Dinner)", value: d.hapunan },
+                  ].map((meal, i) => (
+                    <div key={i} style={{ marginBottom: 12 }}>
+                      <p style={{ fontSize: 12, fontWeight: 700, color: G, margin: "0 0 4px 0", textTransform: "uppercase", letterSpacing: 0.8 }}>{meal.label}</p>
+                      <p style={{ fontSize: 15, color: DARK, margin: 0, lineHeight: 1.5 }}>{meal.value}</p>
+                    </div>
+                  ))}
+
+                  <div style={{ background: CREAM, borderRadius: 10, padding: "10px 14px", marginBottom: 14 }}>
+                    <p style={{ fontSize: 13, color: AMBER, fontWeight: 700, margin: "0 0 2px 0" }}>💊 Key Nutrients</p>
+                    <p style={{ fontSize: 14, color: DARK, margin: 0 }}>{d.nutrients}</p>
+                  </div>
+
+                  <button
+                    onClick={(e) => toggleComplete(d.day, e)}
+                    style={{
+                      width: "100%",
+                      padding: "14px",
+                      background: isDone ? "#ef4444" : G,
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 12,
+                      fontSize: 16,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {isDone ? "✗ I-undo ang Done" : "✅ Tapos na ang Araw na Ito!"}
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* NOTES SECTION */}
+      <div style={{ padding: "24px 20px 0" }}>
+        <div style={{ background: G, borderRadius: 18, padding: "20px 24px", color: "#fff" }}>
+          <h3 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 12px 0", color: GOLD }}>💡 Daily Reminders</h3>
+          {[
+            "☕ 1 sachet Easebrew tuwing umaga — bago kumain o kasabay ng agahan",
+            "🌿 Avocado Miracle Oil — i-massage sa masakit na parte bago matulog",
+            "💧 8 glasses ng tubig araw-araw — mahalaga para sa joints",
+            "🚶 15-min walk pagkatapos kumain — para sa digestion at joint mobility",
+            "🍚 Brown rice (3/4 cup cooked) — lower glycemic index kaysa white rice",
+            "🧄 Palaging may luya at bawang — natural anti-inflammatory ingredients",
+          ].map((tip, i) => (
+            <p key={i} style={{ fontSize: 15, margin: "0 0 8px 0", opacity: 0.95 }}>{tip}</p>
+          ))}
+        </div>
+      </div>
+
+      {/* BOTTOM NAV */}
+      <div style={{
+        position: "fixed", bottom: 0, left: "50%",
+        transform: "translateX(-50%)",
+        width: "100%", maxWidth: 680,
+        background: "#fff",
+        borderTop: `2px solid ${CREAM}`,
+        padding: "12px 24px",
+        display: "flex", justifyContent: "center",
+      }}>
+        <Link href="/" style={{
+          background: G, color: "#fff",
+          borderRadius: 12, padding: "12px 32px",
+          fontSize: 16, fontWeight: 700,
+          textDecoration: "none",
+        }}>
+          🏠 Bumalik sa Hub
+        </Link>
+      </div>
+    </div>
+  );
+}
