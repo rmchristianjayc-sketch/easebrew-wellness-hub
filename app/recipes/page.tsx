@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const G = "#39613B";
@@ -807,21 +807,21 @@ export default function RecipesPage() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [expandedRecipe, setExpandedRecipe] = useState<number | null>(null);
-  const [favorites, setFavorites] = useState<number[]>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("easebrew-recipe-favorites");
-      return saved ? JSON.parse(saved) : [];
-    }
-    return [];
-  });
+
+  // ✅ FIXED: useEffect pattern — consistent sa server + client render, walang hydration mismatch
+  const [favorites, setFavorites] = useState<number[]>([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("easebrew-recipe-favorites");
+    if (saved) setFavorites(JSON.parse(saved));
+  }, []);
 
   const toggleFavorite = (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
     const updated = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
     setFavorites(updated);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("easebrew-recipe-favorites", JSON.stringify(updated));
-    }
+    // ✅ FIXED: hindi na kailangan ng typeof window check — nasa client na tayo dito
+    localStorage.setItem("easebrew-recipe-favorites", JSON.stringify(updated));
   };
 
   const filtered = RECIPES.filter(r => {
