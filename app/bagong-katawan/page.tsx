@@ -11,9 +11,9 @@ const DARK = "#1B201A";
 const MID = "#4E504F";
 
 const PHASE_COLORS = {
-  1: { bg: "#E8F5E0", color: "#39613B", border: "#39613B", label: "🌱 PHASE 1", sub: "FOUNDATION", days: "Araw 1–30" },
-  2: { bg: "#E6F1FB", color: "#185FA5", border: "#185FA5", label: "💪 PHASE 2", sub: "PROGRESSION", days: "Araw 31–60" },
-  3: { bg: "#FEF0E0", color: "#C0863B", border: "#C0863B", label: "🏆 PHASE 3", sub: "TRANSFORMATION", days: "Araw 61–90" },
+  1: { bg: "#E8F5E0", color: "#39613B", border: "#39613B", label: "🌱 PHASE 1", sub: "FOUNDATION", days: "Day 1–30" },
+  2: { bg: "#E6F1FB", color: "#185FA5", border: "#185FA5", label: "💪 PHASE 2", sub: "PROGRESSION", days: "Day 31–60" },
+  3: { bg: "#FEF0E0", color: "#C0863B", border: "#C0863B", label: "🏆 PHASE 3", sub: "TRANSFORMATION", days: "Day 61–90" },
 };
 
 type DayEntry = {
@@ -124,7 +124,6 @@ export default function BagongKatawanPage() {
   const [completedDays, setCompletedDays] = useState<number[]>([]);
   const [trackData, setTrackData] = useState<Record<number, DayEntry>>({});
 
-  // Progress tracker state
   const [measurements, setMeasurements] = useState({
     timbang1: "", timbang30: "", timbang60: "", timbang90: "",
     waist1: "", waist30: "", waist60: "", waist90: "",
@@ -170,24 +169,24 @@ export default function BagongKatawanPage() {
       {/* HEADER */}
       <div style={{ background: G, padding: "24px 24px 20px", color: "#fff" }}>
         <Link href="/" style={{ color: GOLD, fontSize: 14, textDecoration: "none", display: "block", marginBottom: 12 }}>
-          ← Bumalik sa Hub
+          ← Back to Hub
         </Link>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>🏆 Bagong Katawan sa 90 Days</h1>
-            <p style={{ fontSize: 14, opacity: 0.8, margin: "4px 0 0 0" }}>Kumpleto na Wellness Program • 3 Phases</p>
+            <p style={{ fontSize: 14, opacity: 0.8, margin: "4px 0 0 0" }}>Complete Wellness Program • 3 Phases</p>
           </div>
           <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "10px 14px", flexShrink: 0 }}>
             <p style={{ fontSize: 26, fontWeight: 700, margin: 0, color: GOLD }}>{completedDays.length}</p>
-            <p style={{ fontSize: 11, margin: 0, opacity: 0.8 }}>/ 90 araw</p>
+            <p style={{ fontSize: 11, margin: 0, opacity: 0.8 }}>/ 90 days</p>
           </div>
         </div>
 
         {/* Progress Bar */}
         <div style={{ marginTop: 14 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-            <p style={{ fontSize: 13, margin: 0, opacity: 0.8 }}>{progress}% kumpleto</p>
-            <p style={{ fontSize: 13, margin: 0, color: GOLD, fontWeight: 700 }}>{90 - completedDays.length} araw na lang!</p>
+            <p style={{ fontSize: 13, margin: 0, opacity: 0.8 }}>{progress}% complete</p>
+            <p style={{ fontSize: 13, margin: 0, color: GOLD, fontWeight: 700 }}>{90 - completedDays.length} days to go!</p>
           </div>
           <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 999, height: 10 }}>
             <div style={{ width: `${progress}%`, background: GOLD, height: 10, borderRadius: 999, transition: "width 0.5s ease" }} />
@@ -285,7 +284,7 @@ export default function BagongKatawanPage() {
                         </div>
                         <div>
                           <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0 }}>
-                            Araw {d.day} {d.day === 90 ? "🏆" : ""}
+                            Day {d.day} {d.day === 90 ? "🏆" : ""}
                           </p>
                           <p style={{ fontSize: 12, color: MID, margin: "2px 0 0 0" }}>
                             {pc.label} {d.week} • {isRest ? "💤 Rest Day" : "💪 Active Day"}
@@ -300,7 +299,7 @@ export default function BagongKatawanPage() {
                       <span style={{ background: pc.bg, color: pc.color, borderRadius: 20, padding: "3px 12px", fontSize: 12, fontWeight: 600, border: `1px solid ${pc.border}` }}>
                         🎯 {d.focus}
                       </span>
-                      {isDone && <span style={{ marginLeft: 8, background: "#E8F5E0", color: G, borderRadius: 20, padding: "3px 10px", fontSize: 12, fontWeight: 700 }}>✅ Tapos na!</span>}
+                      {isDone && <span style={{ marginLeft: 8, background: "#E8F5E0", color: G, borderRadius: 20, padding: "3px 10px", fontSize: 12, fontWeight: 700 }}>✅ Done!</span>}
                     </div>
 
                     {/* Expanded */}
@@ -309,7 +308,7 @@ export default function BagongKatawanPage() {
 
                         {/* Meal Plan */}
                         <div style={{ background: "#E8F5E0", borderRadius: 12, padding: "12px 14px", marginBottom: 10 }}>
-                          <p style={{ fontSize: 12, fontWeight: 700, color: G, margin: "0 0 8px 0", textTransform: "uppercase", letterSpacing: 0.8 }}>🍽️ Meal Plan ng Araw</p>
+                          <p style={{ fontSize: 12, fontWeight: 700, color: G, margin: "0 0 8px 0", textTransform: "uppercase", letterSpacing: 0.8 }}>🍽️ Today's Meal Plan</p>
                           {[
                             { label: "☀️ Agahan", val: d.agahan },
                             { label: "🌤 Tanghalian", val: d.tanghalian },
@@ -332,13 +331,13 @@ export default function BagongKatawanPage() {
                         {/* Easebrew reminder */}
                         <div style={{ background: "#FFFBF0", border: `1.5px solid ${GOLD}`, borderRadius: 12, padding: "10px 14px", marginBottom: 14 }}>
                           <p style={{ fontSize: 13, color: AMBER, margin: 0 }}>
-                            ☕ <strong>Easebrew</strong> — 30 mins bago mag-almusal • 🌿 <strong>Avocado Oil</strong> — gabi bago matulog
+                            ☕ <strong>Easebrew</strong> — 30 mins before breakfast • 🌿 <strong>Avocado Oil</strong> — gabi bago matulog
                           </p>
                         </div>
 
                         {/* Daily Tracker */}
                         <div style={{ background: CREAM, borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
-                          <p style={{ fontSize: 14, fontWeight: 700, color: G, margin: "0 0 10px 0" }}>📊 I-track ang araw na ito</p>
+                          <p style={{ fontSize: 14, fontWeight: 700, color: G, margin: "0 0 10px 0" }}>📊 Track this day</p>
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 10 }}>
                             {[
                               { key: "easebrew", label: "☕ Easebrew", val: track.easebrew },
@@ -373,7 +372,7 @@ export default function BagongKatawanPage() {
                             ))}
                           </div>
                           <div onClick={e => e.stopPropagation()}>
-                            <textarea placeholder="Notes ng araw na ito..." value={track.notes}
+                            <textarea placeholder="Notes para sa araw na ito..." value={track.notes}
                               onChange={e => saveTrack(d.day, { ...track, notes: e.target.value })}
                               rows={2} style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1.5px solid #ddd", fontSize: 14, background: "#fff", resize: "none", boxSizing: "border-box" as const, color: DARK }} />
                           </div>
@@ -384,7 +383,7 @@ export default function BagongKatawanPage() {
                           background: isDone ? "#ef4444" : G,
                           color: "#fff", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: "pointer",
                         }}>
-                          {isDone ? "✗ I-undo" : d.day === 90 ? "🏆 90 Days Complete!" : "✅ Araw na Ito — Tapos Na!"}
+                          {isDone ? "✗ Undo" : d.day === 90 ? "🏆 90 Days Complete!" : "✅ Mark Day as Done!"}
                         </button>
                       </div>
                     )}
@@ -403,9 +402,9 @@ export default function BagongKatawanPage() {
           {/* Overall Stats */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
             {[
-              { label: "Araw Tapos", val: completedDays.length, total: "/90", color: G },
+              { label: "Days Done", val: completedDays.length, total: "/90", color: G },
               { label: "Progress", val: progress + "%", total: "", color: AMBER },
-              { label: "Natitirang Araw", val: 90 - completedDays.length, total: "", color: "#185FA5" },
+              { label: "Days Left", val: 90 - completedDays.length, total: "", color: "#185FA5" },
             ].map((stat, i) => (
               <div key={i} style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 14, padding: "16px 12px", textAlign: "center" as const }}>
                 <p style={{ fontSize: 26, fontWeight: 700, color: stat.color, margin: 0 }}>{stat.val}<span style={{ fontSize: 14 }}>{stat.total}</span></p>
@@ -439,8 +438,8 @@ export default function BagongKatawanPage() {
           <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 16, padding: "18px 18px", marginBottom: 20 }}>
             <p style={{ fontSize: 15, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>📏 Body Measurements</p>
             {[
-              { key: "timbang", label: "⚖️ Timbang (kg)" },
-              { key: "waist", label: "📐 Baywang / Waist (cm)" },
+              { key: "timbang", label: "⚖️ Weight (kg)" },
+              { key: "waist", label: "📐 Waist (cm)" },
               { key: "pain", label: "🩺 Pain Score (1-10)" },
             ].map(row => (
               <div key={row.key} style={{ marginBottom: 14 }}>
@@ -478,11 +477,11 @@ export default function BagongKatawanPage() {
               </p>
               <p style={{ fontSize: 16, fontWeight: 700, color: AMBER, margin: "0 0 6px 0" }}>
                 {completedDays.length >= 90 ? "BAGONG KATAWAN NA! 90 DAYS COMPLETE!" :
-                  completedDays.length >= 60 ? "Phase 2 Tapos Na! Papalapit na ang finish line!" :
+                  completedDays.length >= 60 ? "Phase 2 Done! Papalapit na ang finish line!" :
                     "Phase 1 Complete! Nagtatayo ka na ng bagong katawan!"}
               </p>
               <p style={{ fontSize: 14, color: MID, margin: 0 }}>
-                {completedDays.length} araw ng pagsisikap. Ikaw ay kahanga-hanga. 🌿☕
+                {completedDays.length} days of effort. You're amazing. 🌿☕
               </p>
             </div>
           )}
@@ -495,13 +494,13 @@ export default function BagongKatawanPage() {
 
           {/* Easebrew Guide */}
           <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 16, padding: "18px 18px", marginBottom: 16 }}>
-            <p style={{ fontSize: 15, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>☕ Easebrew — Tamang Paggamit</p>
+            <p style={{ fontSize: 15, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>☕ Easebrew — Proper Use</p>
             {[
-              { label: "Paghahanda", val: "1 sachet sa 150-180ml mainit na tubig (80-85°C). Huwag sobrang mainit." },
-              { label: "Pinakamabuting Oras", val: "Umaga (7-9AM) bago kumain. Phase 2-3: dagdag ng hapon (3-5PM)." },
-              { label: "Iwasang Lagyan Ng", val: "Puting asukal — gamitin ang muscovado o wala na lang." },
-              { label: "Kung May Ulcer", val: "Uminom pagkatapos kumain ng konti. Huwag inumin nang walang laman." },
-              { label: "Para sa Max Benefit", val: "Consistent na pag-inom. 21 araw para maging gawi. 90 araw — permanent." },
+              { label: "Preparation", val: "1 sachet sa 150-180ml mainit na tubig (80-85°C). Huwag sobrang mainit." },
+              { label: "Best Time", val: "Umaga (7-9AM) bago kumain. Phase 2-3: dagdag ng hapon (3-5PM)." },
+              { label: "Avoid Adding", val: "Puting asukal — gamitin ang muscovado o wala na lang." },
+              { label: "If May Ulcer", val: "Uminom pagkatapos kumain ng konti. Huwag inumin nang walang laman." },
+              { label: "For Max Benefit", val: "Consistent na pag-inom. 21 days para maging gawi. 90 days — permanent." },
             ].map((item, i) => (
               <div key={i} style={{ display: "flex", gap: 10, marginBottom: 10, alignItems: "flex-start" }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: AMBER, minWidth: 130, flexShrink: 0 }}>{item.label}</span>
@@ -514,11 +513,11 @@ export default function BagongKatawanPage() {
           <div style={{ background: "#FEF0F0", border: "2px solid #ef4444", borderRadius: 16, padding: "18px 18px", marginBottom: 16 }}>
             <p style={{ fontSize: 15, fontWeight: 700, color: "#ef4444", margin: "0 0 12px 0" }}>🚨 Emergency Pain Management</p>
             {[
-              { icon: "🔥", tip: "Mainit na Compress — Para sa stiff joints sa umaga. 15-20 min." },
-              { icon: "🧊", tip: "Malamig na Compress — Para sa namamaga at inflamed joints. 15-20 min." },
+              { icon: "🔥", tip: "Hot Compress — Para sa stiff joints sa umaga. 15-20 min." },
+              { icon: "🧊", tip: "Cold Compress — Para sa namamaga at inflamed joints. 15-20 min." },
               { icon: "🌿", tip: "Avocado Oil + Gentle Massage — Circular motion, 10-15 min." },
               { icon: "☕", tip: "Easebrew + Rest — Uminom, humiga nang komportable." },
-              { icon: "🦵", tip: "I-elevate ang affected limb — Para sa tuhod/paa, i-raise itaas ng puso level." },
+              { icon: "🦵", tip: "Elevate ang affected limb — Para sa tuhod/paa, i-raise itaas ng puso level." },
               { icon: "🫁", tip: "Breathing Exercise — 5 counts inhale, 5 counts exhale. Nagpapababa ng pain." },
             ].map((item, i) => (
               <p key={i} style={{ fontSize: 14, margin: "0 0 8px 0", color: DARK, lineHeight: 1.6 }}>
@@ -534,15 +533,15 @@ export default function BagongKatawanPage() {
           <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 16, padding: "18px 18px", marginBottom: 16 }}>
             <p style={{ fontSize: 15, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>🥗 Anti-Inflammation Food Guide</p>
             <div style={{ marginBottom: 12 }}>
-              <p style={{ fontSize: 13, fontWeight: 700, color: "#2E7D32", margin: "0 0 6px 0" }}>🟢 KUMAIN NG MARAMI</p>
+              <p style={{ fontSize: 13, fontWeight: 700, color: "#2E7D32", margin: "0 0 6px 0" }}>🟢 EAT MORE</p>
               <p style={{ fontSize: 13, color: DARK, lineHeight: 1.7 }}>Salmon, Bangus, Sardinas (Omega-3) • Malunggay, Ampalaya, Kangkong • Luya, Bawang, Sibuyas • Turmeric/Dilaw • Brown Rice at Oatmeal • Olive Oil / Coconut Oil • Berde at Dilaw na Prutas</p>
             </div>
             <div style={{ marginBottom: 12 }}>
-              <p style={{ fontSize: 13, fontWeight: 700, color: "#C0863B", margin: "0 0 6px 0" }}>🟡 KAUNTING KAUNTI LANG</p>
+              <p style={{ fontSize: 13, fontWeight: 700, color: "#C0863B", margin: "0 0 6px 0" }}>🟡 LIMIT LANG</p>
               <p style={{ fontSize: 13, color: DARK, lineHeight: 1.7 }}>Puting Bigas • Puting Tinapay • Asukal (muscovado na lang) • Pork at Beef (lean cuts) • Itlog (3-4/linggo) • Dairy Products</p>
             </div>
             <div>
-              <p style={{ fontSize: 13, fontWeight: 700, color: "#ef4444", margin: "0 0 6px 0" }}>🔴 IWASAN HABANG BUHAY</p>
+              <p style={{ fontSize: 13, fontWeight: 700, color: "#ef4444", margin: "0 0 6px 0" }}>🔴 AVOID</p>
               <p style={{ fontSize: 13, color: DARK, lineHeight: 1.7 }}>Instant Noodles • Canned Food na may preservatives • Softdrinks • Fastfood • Sobrang pritong pagkain • Alcohol • Margarine</p>
             </div>
           </div>
@@ -551,9 +550,9 @@ export default function BagongKatawanPage() {
           <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 16, padding: "18px 18px", marginBottom: 16 }}>
             <p style={{ fontSize: 15, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>🎯 Phase Goals Summary</p>
             {([
-              { phase: "🌱 Phase 1 (Araw 1-30)", color: "#39613B", bg: "#E8F5E0", goals: ["Easebrew EVERY morning — 0 skip", "Avocado Oil bawat gabi", "Maglakad 15-20 min araw-araw", "Gulay sa bawat kain", "8 glasses tubig araw-araw", "Tulog ng 7-8 oras"] },
-              { phase: "💪 Phase 2 (Araw 31-60)", color: "#185FA5", bg: "#E6F1FB", goals: ["Easebrew 2x daily — umaga + hapon", "Exercise intensity — dagdag 10 min", "Pain Score: bumaba ng 2-3 points", "100% gulay sa bawat kain", "Weekly measurements update"] },
-              { phase: "🏆 Phase 3 (Araw 61-90)", color: "#C0863B", bg: "#FEF0E0", goals: ["Pain Score: 50%+ reduction vs Day 1", "Exercise — gawi na, hindi kailangan ng reminder", "Anti-inflammation eating — natural na", "Day 90 full assessment at measurements"] },
+              { phase: "🌱 Phase 1 (Day 1-30)", color: "#39613B", bg: "#E8F5E0", goals: ["Easebrew EVERY morning — 0 skip", "Avocado Oil bawat gabi", "Maglakad 15-20 min araw-araw", "Gulay sa bawat kain", "8 glasses of water daily", "Sleep 7-8 hours"] },
+              { phase: "💪 Phase 2 (Day 31-60)", color: "#185FA5", bg: "#E6F1FB", goals: ["Easebrew 2x daily — umaga + hapon", "Exercise intensity — dagdag 10 min", "Pain Score: bumaba ng 2-3 points", "100% gulay sa bawat kain", "Weekly measurements update"] },
+              { phase: "🏆 Phase 3 (Day 61-90)", color: "#C0863B", bg: "#FEF0E0", goals: ["Pain Score: 50%+ reduction vs Day 1", "Exercise — gawi na, hindi kailangan ng reminder", "Anti-inflammation eating — natural na", "Day 90 full assessment at measurements"] },
             ]).map((item, i) => (
               <div key={i} style={{ background: item.bg, borderRadius: 12, padding: "12px 14px", marginBottom: 10 }}>
                 <p style={{ fontSize: 14, fontWeight: 700, color: item.color, margin: "0 0 8px 0" }}>{item.phase}</p>
@@ -574,7 +573,7 @@ export default function BagongKatawanPage() {
         display: "flex", justifyContent: "center",
       }}>
         <Link href="/" style={{ background: G, color: "#fff", borderRadius: 12, padding: "12px 32px", fontSize: 16, fontWeight: 700, textDecoration: "none" }}>
-          🏠 Bumalik sa Hub
+          🏠 Back to Hub
         </Link>
       </div>
     </div>

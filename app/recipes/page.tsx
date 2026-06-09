@@ -791,7 +791,7 @@ const RECIPES: Recipe[] = [
   },
 ];
 
-const ALL_CATEGORIES = ["Lahat", ...Array.from(new Set(RECIPES.map(r => r.category)))];
+const ALL_CATEGORIES = ["All", ...Array.from(new Set(RECIPES.map(r => r.category)))];
 
 const NUTRITION_HIGHLIGHT: Record<string, string> = {
   MAXIMUM: "#7B1FA2",
@@ -805,7 +805,7 @@ const NUTRITION_HIGHLIGHT: Record<string, string> = {
 
 export default function RecipesPage() {
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Lahat");
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [expandedRecipe, setExpandedRecipe] = useState<number | null>(null);
   const [favorites, setFavorites] = useState<number[]>(() => {
     if (typeof window !== "undefined") {
@@ -825,7 +825,7 @@ export default function RecipesPage() {
   };
 
   const filtered = RECIPES.filter(r => {
-    const matchCat = selectedCategory === "Lahat" || r.category === selectedCategory;
+    const matchCat = selectedCategory === "All" || r.category === selectedCategory;
     const matchSearch = search === "" ||
       r.name.toLowerCase().includes(search.toLowerCase()) ||
       r.benefit.toLowerCase().includes(search.toLowerCase()) ||
@@ -840,16 +840,16 @@ export default function RecipesPage() {
       {/* HEADER */}
       <div style={{ background: G, padding: "24px 24px 20px", color: "#fff" }}>
         <Link href="/" style={{ color: GOLD, fontSize: 14, textDecoration: "none", display: "block", marginBottom: 12 }}>
-          ← Bumalik sa Hub
+          ← Back to Hub
         </Link>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>🍽️ Pinoy Anti-Inflammation Recipes</h1>
             <p style={{ fontSize: 14, opacity: 0.8, margin: "4px 0 0 0" }}>30 Masustansiyang Lutong Pilipino</p>
           </div>
-          <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "10px 16px" }}>
+          <div style={{ textAlign: "center" as const, background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "10px 16px" }}>
             <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: GOLD }}>{favorites.length}</p>
-            <p style={{ fontSize: 12, margin: 0, opacity: 0.8 }}>paborito</p>
+            <p style={{ fontSize: 12, margin: 0, opacity: 0.8 }}>favorites</p>
           </div>
         </div>
 
@@ -857,7 +857,7 @@ export default function RecipesPage() {
         <div style={{ marginTop: 14 }}>
           <input
             type="text"
-            placeholder="🔍 Maghanap ng recipe, ingredients, o benefit..."
+            placeholder="🔍 Search recipes, ingredients, or benefits..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             style={{
@@ -870,7 +870,7 @@ export default function RecipesPage() {
       </div>
 
       {/* DAILY TIP STRIP */}
-      <div style={{ background: "#FFFBF0", borderBottom: `2px solid ${CREAM}`, padding: "10px 20px", display: "flex", gap: 20, overflowX: "auto" }}>
+      <div style={{ background: "#FFFBF0", borderBottom: `2px solid ${CREAM}`, padding: "10px 20px", display: "flex", gap: 20, overflowX: "auto" as const }}>
         {[
           { icon: "☕", text: "Easebrew 30 mins bago kumain" },
           { icon: "🌿", text: "Avocado Oil massage after meal" },
@@ -879,14 +879,14 @@ export default function RecipesPage() {
         ].map((tip, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
             <span style={{ fontSize: 16 }}>{tip.icon}</span>
-            <span style={{ fontSize: 12, color: G, fontWeight: 600, whiteSpace: "nowrap" }}>{tip.text}</span>
+            <span style={{ fontSize: 12, color: G, fontWeight: 600, whiteSpace: "nowrap" as const }}>{tip.text}</span>
           </div>
         ))}
       </div>
 
       {/* CATEGORY FILTER */}
       <div style={{ padding: "16px 20px 0" }}>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
           {ALL_CATEGORIES.map(cat => {
             const info = CATEGORY_COLORS[cat];
             return (
@@ -906,7 +906,7 @@ export default function RecipesPage() {
             );
           })}
         </div>
-        <p style={{ fontSize: 14, color: MID, margin: "10px 0 0 0" }}>{filtered.length} recipe{filtered.length !== 1 ? "s" : ""} nakita</p>
+        <p style={{ fontSize: 14, color: MID, margin: "10px 0 0 0" }}>{filtered.length} recipe{filtered.length !== 1 ? "s" : ""} found</p>
       </div>
 
       {/* RECIPE CARDS */}
@@ -959,7 +959,7 @@ export default function RecipesPage() {
                 </div>
 
                 {/* Badges */}
-                <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" as const, alignItems: "center" }}>
                   <span style={{
                     background: catInfo.bg, color: catInfo.color, borderRadius: 20,
                     padding: "3px 10px", fontSize: 12, fontWeight: 700, border: `1px solid ${catInfo.color}`,
@@ -992,12 +992,12 @@ export default function RecipesPage() {
                     {/* Quick Info */}
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 14 }}>
                       {[
-                        { label: "Servings", value: recipe.servings + " tao" },
+                        { label: "Servings", value: recipe.servings + " pax" },
                         { label: "Prep", value: recipe.prepTime },
                         { label: "Cook", value: recipe.cookTime },
                         { label: "Difficulty", value: recipe.difficulty },
                       ].map((info, i) => (
-                        <div key={i} style={{ background: CREAM, borderRadius: 10, padding: "10px 8px", textAlign: "center" }}>
+                        <div key={i} style={{ background: CREAM, borderRadius: 10, padding: "10px 8px", textAlign: "center" as const }}>
                           <p style={{ fontSize: 11, color: MID, margin: "0 0 2px 0" }}>{info.label}</p>
                           <p style={{ fontSize: 13, fontWeight: 700, color: G, margin: 0 }}>{info.value}</p>
                         </div>
@@ -1006,8 +1006,8 @@ export default function RecipesPage() {
 
                     {/* Ingredients */}
                     <div style={{ background: "#E8F5E0", borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: G, margin: "0 0 10px 0", textTransform: "uppercase", letterSpacing: 0.8 }}>
-                        🥬 Mga Sangkap
+                      <p style={{ fontSize: 13, fontWeight: 700, color: G, margin: "0 0 10px 0", textTransform: "uppercase" as const, letterSpacing: 0.8 }}>
+                        🥬 Ingredients
                       </p>
                       {recipe.ingredients.map((ing, i) => (
                         <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: 6, borderBottom: i < recipe.ingredients.length - 1 ? `1px solid rgba(57,97,59,0.15)` : "none", marginBottom: 6 }}>
@@ -1015,15 +1015,15 @@ export default function RecipesPage() {
                             <span style={{ fontSize: 14, fontWeight: 700, color: AMBER, minWidth: 60, flexShrink: 0 }}>{ing.qty}</span>
                             <span style={{ fontSize: 14, color: DARK }}>{ing.ingredient}</span>
                           </div>
-                          {ing.notes && <span style={{ fontSize: 12, color: MID, textAlign: "right", marginLeft: 8, maxWidth: "40%", flexShrink: 0 }}>— {ing.notes}</span>}
+                          {ing.notes && <span style={{ fontSize: 12, color: MID, textAlign: "right" as const, marginLeft: 8, maxWidth: "40%", flexShrink: 0 }}>— {ing.notes}</span>}
                         </div>
                       ))}
                     </div>
 
                     {/* Cooking Steps */}
                     <div style={{ background: "#FFFFFB", border: `1.5px solid ${AMBER}`, borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: AMBER, margin: "0 0 10px 0", textTransform: "uppercase", letterSpacing: 0.8 }}>
-                        👨‍🍳 Mga Hakbang sa Pagluluto
+                      <p style={{ fontSize: 13, fontWeight: 700, color: AMBER, margin: "0 0 10px 0", textTransform: "uppercase" as const, letterSpacing: 0.8 }}>
+                        👨‍🍳 Cooking Steps
                       </p>
                       {recipe.steps.map((step, i) => (
                         <div key={i} style={{ display: "flex", gap: 12, marginBottom: 10, alignItems: "flex-start" }}>
@@ -1041,10 +1041,10 @@ export default function RecipesPage() {
 
                     {/* Nutrition */}
                     <div style={{ background: CREAM, borderRadius: 12, padding: "14px 16px", marginBottom: 4 }}>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: G, margin: "0 0 10px 0", textTransform: "uppercase", letterSpacing: 0.8 }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: G, margin: "0 0 10px 0", textTransform: "uppercase" as const, letterSpacing: 0.8 }}>
                         📊 Nutrition Info (per serving)
                       </p>
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
                         {Object.entries(recipe.nutrition).map(([key, val]) => {
                           const isHighlight = NUTRITION_HIGHLIGHT[val];
                           return (
@@ -1065,8 +1065,8 @@ export default function RecipesPage() {
                 )}
 
                 {/* Collapse arrow */}
-                <div style={{ textAlign: "center", marginTop: 8 }}>
-                  <span style={{ fontSize: 14, color: MID }}>{isExpanded ? "▲ I-collapse" : "▼ Tingnan ang recipe"}</span>
+                <div style={{ textAlign: "center" as const, marginTop: 8 }}>
+                  <span style={{ fontSize: 14, color: MID }}>{isExpanded ? "▲ Collapse" : "▼ View recipe"}</span>
                 </div>
               </div>
             </div>
@@ -1074,10 +1074,10 @@ export default function RecipesPage() {
         })}
 
         {filtered.length === 0 && (
-          <div style={{ textAlign: "center", padding: "40px 20px", color: MID }}>
+          <div style={{ textAlign: "center" as const, padding: "40px 20px", color: MID }}>
             <p style={{ fontSize: 40, margin: "0 0 12px 0" }}>🔍</p>
-            <p style={{ fontSize: 16, fontWeight: 600 }}>Walang recipe na nahanap</p>
-            <p style={{ fontSize: 14 }}>Subukan ang ibang salita o category</p>
+            <p style={{ fontSize: 16, fontWeight: 600 }}>No recipes found</p>
+            <p style={{ fontSize: 14 }}>Try a different search or category</p>
           </div>
         )}
       </div>
@@ -1090,7 +1090,7 @@ export default function RecipesPage() {
         display: "flex", justifyContent: "center",
       }}>
         <Link href="/" style={{ background: G, color: "#fff", borderRadius: 12, padding: "12px 32px", fontSize: 16, fontWeight: 700, textDecoration: "none" }}>
-          🏠 Bumalik sa Hub
+          🏠 Back to Hub
         </Link>
       </div>
     </div>

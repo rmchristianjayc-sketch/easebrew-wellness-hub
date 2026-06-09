@@ -52,15 +52,15 @@ const MEAL_PLAN = [
   { day: 39, week: "Week 6", weekday: "Huwebes", agahan: "Easebrew + Pandesal (2) + Scrambled eggs (2) + Kamatis at pipino", tanghalian: "Pinangat na tilapia + May kamatis at luya + Brown rice", merienda: "Papaya shake (walang asukal)", hapunan: "Beef stir fry (lean, sitaw, carrots, broccoli) + Brown rice", calories: "~1,700 kcal", nutrients: "Enzymes, Vit K, Protein", focus: "Flexibility Support" },
   { day: 40, week: "Week 6", weekday: "Biyernes", agahan: "Easebrew + Oatmeal pancake (oats, itlog, saging) + Honey drizzle", tanghalian: "Sinigang na manok + May labanos at kangkong + Brown rice", merienda: "Pineapple chunks + Warm ginger tea", hapunan: "Paksiw na bangus + Ensaladang kamatis at sibuyas + Brown rice", calories: "~1,600 kcal", nutrients: "Bromelain, Vit C, Omega-3", focus: "End-of-Week Cleanse" },
   { day: 41, week: "Week 6", weekday: "Sabado", agahan: "Easebrew + Sinangag + Lechon manok (2, walang balat) + Kamatis", tanghalian: "Crispy pata (konti, lean part) + Sawsawan: suka at toyo + Brown rice", merienda: "Halo-halo (light version, walang ice cream)", hapunan: "Seafood sinigang (hipon, squid, isda) + May labanos + Brown rice", calories: "~1,830 kcal", nutrients: "Collagen, Iodine, Fiber, Vit C", focus: "Treat Day (Balanced)" },
-  { day: 42, week: "Week 6", weekday: "Linggo", agahan: "Easebrew + Arroz caldo + May luya at bawang + 2 boiled eggs", tanghalian: "Lechon manok (1/4, walang balat) + Pinakbet + Brown rice", merienda: "Buko pandan (homemade) + Buko juice", hapunan: "Chicken tinola + May papaya at malunggay + Brown rice", calories: "~1,710 kcal", nutrients: "Immune Boosters, Vit A, Protein", focus: "Linggo ng Pamilya" },
-  { day: 43, week: "Week 7", weekday: "Lunes", agahan: "Easebrew + Oatmeal with turmeric at ginger + Sliced banana", tanghalian: "Sinigang na bangus sa sampalok + May kangkong, labanos, sitaw + Brown rice", merienda: "Luya-calamansi juice + Boiled mais", hapunan: "Ginisang ampalaya with egg at hipon + Brown rice", calories: "~1,620 kcal", nutrients: "Curcumin, Omega-3, Vit C", focus: "Final Stretch Anti-Inflam" },
+  { day: 42, week: "Week 6", weekday: "Linggo", agahan: "Easebrew + Arroz caldo + May luya at bawang + 2 boiled eggs", tanghalian: "Lechon manok (1/4, walang balat) + Pinakbet + Brown rice", merienda: "Buko pandan (homemade) + Buko juice", hapunan: "Chicken tinola + May papaya at malunggay + Brown rice", calories: "~1,710 kcal", nutrients: "Immune Boosters, Vit A, Protein", focus: "Family Sunday" },
+  { day: 43, week: "Week 7", weekday: "Lunes", agahan: "Easebrew + Oatmeal with turmeric at ginger + Sliced banana", tanghalian: "Sinigang na bangus sa sampalok + May kangkong, labanos, sitaw + Brown rice", merienda: "Luya-calamansi juice + Boiled mais", hapunan: "Ginisang ampalaya with egg at hipon + Brown rice", calories: "~1,620 kcal", nutrients: "Curcumin, Omega-3, Vit C", focus: "Anti-inflammation" },
   { day: 44, week: "Week 7", weekday: "Martes", agahan: "Easebrew + Boiled kamote at saging + Scrambled eggs (2)", tanghalian: "Monggo na may malunggay at bangus (fried, konti) + Brown rice", merienda: "Watermelon slices + Warm turmeric milk", hapunan: "Ginataang isda (tilapia) + May sili at luya + Brown rice", calories: "~1,660 kcal", nutrients: "Calcium, Vit A, Curcumin", focus: "Bone & Joint Day" },
   { day: 45, week: "Week 7", weekday: "Miyerkules", agahan: "Easebrew + Lugaw with malunggay at boiled egg + Toasted bawang", tanghalian: "Chicken adobo (white/gata) + Ensaladang pako + Brown rice", merienda: "Buko juice (fresh) + Papaya slices", hapunan: "Beef at gulay stir fry (broccoli, carrots, bawang) + Brown rice", calories: "~1,650 kcal", nutrients: "Vit K, Protein, Fiber", focus: "Midweek Strength" },
   { day: 46, week: "Week 7", weekday: "Huwebes", agahan: "Easebrew + Pandesal (2) + Hard-boiled eggs (2) + Tomato at pipino", tanghalian: "Tinolang bangus + May malunggay at papaya + Brown rice", merienda: "Mixed nuts at fruit (apple, almonds, peanuts)", hapunan: "Ginisang sitaw at kalabasa with ground pork (lean) + Brown rice", calories: "~1,680 kcal", nutrients: "Fiber, Beta-carotene, Healthy Fats", focus: "Sustained Energy" },
   { day: 47, week: "Week 7", weekday: "Biyernes", agahan: "Easebrew + Champorado (brown malagkit) + Tuyo", tanghalian: "Sinigang na hipon sa sampalok + May labanos at kangkong + Brown rice", merienda: "Banana (2 pcs) + Warm luya tea", hapunan: "Grilled tanigue + Ensaladang kamatis at sibuyas + Brown rice", calories: "~1,590 kcal", nutrients: "Antioxidants, Omega-3, Vit C", focus: "Pre-Weekend Cleanse" },
   { day: 48, week: "Week 7", weekday: "Sabado", agahan: "Easebrew + Sinangag (brown rice) + Tapsilog (beef tapa, itlog)", tanghalian: "Kare-kare (seafood: hipon, tahong, pusit) + 1 tsp bagoong + Brown rice", merienda: "Mango shake (walang asukal) + Unsalted crackers", hapunan: "Pinakbet na may bagnet (konti) + Grilled bangus + Brown rice", calories: "~1,810 kcal", nutrients: "Iodine, Protein, Vit A, C", focus: "Last Saturday Boost" },
-  { day: 49, week: "Week 7", weekday: "Linggo", agahan: "Easebrew + Arroz caldo + May luya, bawang, malunggay + 2 boiled eggs", tanghalian: "Lechon manok (1/4, walang balat) + Sautéed kangkong + Brown rice", merienda: "Buko pandan + Buko juice", hapunan: "Beef sinigang + May labanos, kangkong, sitaw + Brown rice", calories: "~1,720 kcal", nutrients: "Immune Boosters, Omega-3, Iron", focus: "Penultimate Day" },
-  { day: 50, week: "Week 7", weekday: "Lunes (Day 50! 🎉)", agahan: "Easebrew + Special arroz caldo (brown rice, luya, bawang, malunggay) + 2 boiled eggs 🎉", tanghalian: "Sinigang na salmon sa sampalok + May kangkong, labanos, sitaw + Brown rice", merienda: "Fruit platter (mangga, papaya, pakwan) + Easebrew 2nd cup 🎉", hapunan: "Special nilaga (beef + gulay) + Grilled bangus + Brown rice 🌿", calories: "~1,750 kcal", nutrients: "Full Spectrum Nutrients", focus: "🎉 50 Day Completion!" },
+  { day: 49, week: "Week 7", weekday: "Linggo", agahan: "Easebrew + Arroz caldo + May luya, bawang, malunggay + 2 boiled eggs", tanghalian: "Lechon manok (1/4, walang balat) + Sautéed kangkong + Brown rice", merienda: "Buko pandan + Buko juice", hapunan: "Beef sinigang + May labanos, kangkong, sitaw + Brown rice", calories: "~1,720 kcal", nutrients: "Immune Boosters, Omega-3, Iron", focus: "Almost There!" },
+  { day: 50, week: "Week 7", weekday: "Lunes 🎉", agahan: "Easebrew + Special arroz caldo (brown rice, luya, bawang, malunggay) + 2 boiled eggs 🎉", tanghalian: "Sinigang na salmon sa sampalok + May kangkong, labanos, sitaw + Brown rice", merienda: "Fruit platter (mangga, papaya, pakwan) + Easebrew 2nd cup 🎉", hapunan: "Special nilaga (beef + gulay) + Grilled bangus + Brown rice 🌿", calories: "~1,750 kcal", nutrients: "Full Spectrum Nutrients", focus: "🎉 Day 50 Complete!" },
 ];
 
 const WEEKS = ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6", "Week 7"];
@@ -82,7 +82,7 @@ const FOCUS_COLORS: Record<string, string> = {
   "Weekend Boost": "#FEF9E7",
   "Cholesterol Control": "#E8F5E0",
   "Treat Day (Balanced)": "#FFFBF0",
-  "🎉 50 Day Completion!": "#FEF9E7",
+  "🎉 Day 50 Complete!": "#FEF9E7",
 };
 
 export default function MealPlanPage() {
@@ -113,19 +113,18 @@ export default function MealPlanPage() {
       {/* HEADER */}
       <div style={{ background: G, padding: "24px 24px 20px", color: "#fff" }}>
         <Link href="/" style={{ color: GOLD, fontSize: 14, textDecoration: "none", display: "block", marginBottom: 12 }}>
-          ← Bumalik sa Hub
+          ← Back to Hub
         </Link>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>🥗 50-Day Meal Plan</h1>
             <p style={{ fontSize: 14, opacity: 0.8, margin: "4px 0 0 0" }}>Anti-Inflammation Pinoy Meals</p>
           </div>
-          <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "10px 16px" }}>
+          <div style={{ textAlign: "center" as const, background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "10px 16px" }}>
             <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: GOLD }}>{completedDays.length}</p>
-            <p style={{ fontSize: 12, margin: 0, opacity: 0.8 }}>sa 50 araw</p>
+            <p style={{ fontSize: 12, margin: 0, opacity: 0.8 }}>of 50 days</p>
           </div>
         </div>
-        {/* Progress Bar */}
         <div style={{ marginTop: 14 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
             <p style={{ fontSize: 13, margin: 0, opacity: 0.8 }}>Progress</p>
@@ -138,37 +137,32 @@ export default function MealPlanPage() {
       </div>
 
       {/* DAILY REMINDER STRIP */}
-      <div style={{ background: "#FFFFFB", borderBottom: `2px solid ${CREAM}`, padding: "12px 20px", display: "flex", gap: 20, overflowX: "auto" }}>
+      <div style={{ background: "#FFFFFB", borderBottom: `2px solid ${CREAM}`, padding: "12px 20px", display: "flex", gap: 20, overflowX: "auto" as const }}>
         {[
-          { icon: "☕", text: "Easebrew tuwing umaga" },
-          { icon: "💧", text: "8 glasses tubig" },
+          { icon: "☕", text: "Easebrew every morning" },
+          { icon: "💧", text: "8 glasses of water" },
           { icon: "🌿", text: "Avocado Oil sa gabi" },
-          { icon: "🚶", text: "15-min walk pagkatapos kumain" },
+          { icon: "🚶", text: "15-min walk after kumain" },
         ].map((tip, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
             <span style={{ fontSize: 18 }}>{tip.icon}</span>
-            <span style={{ fontSize: 13, color: G, fontWeight: 600, whiteSpace: "nowrap" }}>{tip.text}</span>
+            <span style={{ fontSize: 13, color: G, fontWeight: 600, whiteSpace: "nowrap" as const }}>{tip.text}</span>
           </div>
         ))}
       </div>
 
       {/* WEEK SELECTOR */}
       <div style={{ padding: "20px 20px 0" }}>
-        <p style={{ fontSize: 15, color: MID, fontWeight: 600, margin: "0 0 10px 0" }}>Piliin ang linggo:</p>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <p style={{ fontSize: 15, color: MID, fontWeight: 600, margin: "0 0 10px 0" }}>Select week:</p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
           {WEEKS.map(w => (
-            <button
-              key={w}
-              onClick={() => { setSelectedWeek(w); setExpandedDay(null); }}
-              style={{
-                padding: "10px 16px", borderRadius: 12,
-                border: selectedWeek === w ? `2.5px solid ${G}` : "2px solid #C5B99A",
-                background: selectedWeek === w ? G : "#FFFFFB",
-                color: selectedWeek === w ? "#fff" : MID,
-                fontSize: 14, fontWeight: selectedWeek === w ? 700 : 500,
-                cursor: "pointer",
-              }}
-            >{w}</button>
+            <button key={w} onClick={() => { setSelectedWeek(w); setExpandedDay(null); }} style={{
+              padding: "10px 16px", borderRadius: 12,
+              border: selectedWeek === w ? `2.5px solid ${G}` : "2px solid #C5B99A",
+              background: selectedWeek === w ? G : "#FFFFFB",
+              color: selectedWeek === w ? "#fff" : MID,
+              fontSize: 14, fontWeight: selectedWeek === w ? 700 : 500, cursor: "pointer",
+            }}>{w}</button>
           ))}
         </div>
       </div>
@@ -179,30 +173,18 @@ export default function MealPlanPage() {
           const isDone = completedDays.includes(d.day);
           const isExpanded = expandedDay === d.day;
           const bgColor = FOCUS_COLORS[d.focus] || "#FFFFFB";
-
           return (
-            <div
-              key={d.day}
-              onClick={() => setExpandedDay(isExpanded ? null : d.day)}
-              style={{
-                background: isDone ? "#E8F5E0" : "#FFFFFB",
-                border: `2px solid ${isDone ? G : "#C5B99A"}`,
-                borderRadius: 16,
-                padding: "16px 18px",
-                marginBottom: 12,
-                cursor: "pointer",
-                transition: "all 0.2s",
-              }}
-            >
-              {/* Card Header */}
+            <div key={d.day} onClick={() => setExpandedDay(isExpanded ? null : d.day)} style={{
+              background: isDone ? "#E8F5E0" : "#FFFFFB",
+              border: `2px solid ${isDone ? G : "#C5B99A"}`,
+              borderRadius: 16, padding: "16px 18px", marginBottom: 12, cursor: "pointer",
+            }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{
-                    width: 44, height: 44,
-                    borderRadius: 12,
+                    width: 44, height: 44, borderRadius: 12,
                     background: isDone ? G : CREAM,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    flexShrink: 0,
+                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                   }}>
                     <span style={{ fontSize: 16, fontWeight: 700, color: isDone ? "#fff" : G }}>
                       {isDone ? "✓" : d.day}
@@ -210,73 +192,44 @@ export default function MealPlanPage() {
                   </div>
                   <div>
                     <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0 }}>
-                      Araw {d.day} — {d.weekday}
+                      Day {d.day} — {d.weekday}
                     </p>
                     <p style={{ fontSize: 13, color: MID, margin: "2px 0 0 0" }}>{d.calories}</p>
                   </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{
-                    background: bgColor,
-                    color: G,
-                    borderRadius: 8,
-                    padding: "3px 10px",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    border: `1px solid ${G}`,
-                    display: "none",
-                  }}>{d.focus}</span>
-                  <span style={{ fontSize: 20, color: MID }}>{isExpanded ? "▲" : "▼"}</span>
-                </div>
+                <span style={{ fontSize: 20, color: MID }}>{isExpanded ? "▲" : "▼"}</span>
               </div>
 
-              {/* Focus Badge */}
               <div style={{ marginTop: 8 }}>
-                <span style={{
-                  background: bgColor,
-                  color: G,
-                  borderRadius: 20,
-                  padding: "3px 12px",
-                  fontSize: 12,
-                  fontWeight: 700,
-                }}>🎯 {d.focus}</span>
+                <span style={{ background: bgColor, color: G, borderRadius: 20, padding: "3px 12px", fontSize: 12, fontWeight: 700 }}>
+                  🎯 {d.focus}
+                </span>
               </div>
 
-              {/* Expanded Content */}
               {isExpanded && (
                 <div style={{ marginTop: 16, borderTop: `1px solid ${CREAM}`, paddingTop: 14 }}>
                   {[
-                    { label: "☕ Agahan (Breakfast)", value: d.agahan },
-                    { label: "🍽 Tanghalian (Lunch)", value: d.tanghalian },
-                    { label: "🥤 Merienda (Snack)", value: d.merienda },
-                    { label: "🍲 Hapunan (Dinner)", value: d.hapunan },
+                    { label: "☕ Breakfast", value: d.agahan },
+                    { label: "🍽 Lunch", value: d.tanghalian },
+                    { label: "🥤 Snack", value: d.merienda },
+                    { label: "🍲 Dinner", value: d.hapunan },
                   ].map((meal, i) => (
                     <div key={i} style={{ marginBottom: 12 }}>
-                      <p style={{ fontSize: 12, fontWeight: 700, color: G, margin: "0 0 4px 0", textTransform: "uppercase", letterSpacing: 0.8 }}>{meal.label}</p>
+                      <p style={{ fontSize: 12, fontWeight: 700, color: G, margin: "0 0 4px 0", textTransform: "uppercase" as const, letterSpacing: 0.8 }}>{meal.label}</p>
                       <p style={{ fontSize: 15, color: DARK, margin: 0, lineHeight: 1.5 }}>{meal.value}</p>
                     </div>
                   ))}
-
                   <div style={{ background: CREAM, borderRadius: 10, padding: "10px 14px", marginBottom: 14 }}>
                     <p style={{ fontSize: 13, color: AMBER, fontWeight: 700, margin: "0 0 2px 0" }}>💊 Key Nutrients</p>
                     <p style={{ fontSize: 14, color: DARK, margin: 0 }}>{d.nutrients}</p>
                   </div>
-
-                  <button
-                    onClick={(e) => toggleComplete(d.day, e)}
-                    style={{
-                      width: "100%",
-                      padding: "14px",
-                      background: isDone ? "#ef4444" : G,
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: 12,
-                      fontSize: 16,
-                      fontWeight: 700,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {isDone ? "✗ I-undo ang Done" : "✅ Tapos na ang Araw na Ito!"}
+                  <button onClick={(e) => toggleComplete(d.day, e)} style={{
+                    width: "100%", padding: "14px",
+                    background: isDone ? "#ef4444" : G,
+                    color: "#fff", border: "none", borderRadius: 12,
+                    fontSize: 16, fontWeight: 700, cursor: "pointer",
+                  }}>
+                    {isDone ? "✗ Undo" : "✅ Done na ang Day na Ito!"}
                   </button>
                 </div>
               )}
@@ -290,12 +243,12 @@ export default function MealPlanPage() {
         <div style={{ background: G, borderRadius: 18, padding: "20px 24px", color: "#fff" }}>
           <h3 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 12px 0", color: GOLD }}>💡 Daily Reminders</h3>
           {[
-            "☕ 1 sachet Easebrew tuwing umaga — bago kumain o kasabay ng agahan",
+            "☕ 1 sachet Easebrew every morning — bago kumain o kasabay ng breakfast",
             "🌿 Avocado Miracle Oil — i-massage sa masakit na parte bago matulog",
-            "💧 8 glasses ng tubig araw-araw — mahalaga para sa joints",
-            "🚶 15-min walk pagkatapos kumain — para sa digestion at joint mobility",
+            "💧 8 glasses ng water daily — mahalaga para sa joints",
+            "🚶 15-min walk after kumain — para sa digestion at joint mobility",
             "🍚 Brown rice (3/4 cup cooked) — lower glycemic index kaysa white rice",
-            "🧄 Palaging may luya at bawang — natural anti-inflammatory ingredients",
+            "🧄 Laging may luya at bawang — natural anti-inflammatory ingredients",
           ].map((tip, i) => (
             <p key={i} style={{ fontSize: 15, margin: "0 0 8px 0", opacity: 0.95 }}>{tip}</p>
           ))}
@@ -304,23 +257,18 @@ export default function MealPlanPage() {
 
       {/* BOTTOM NAV */}
       <div style={{
-        position: "fixed", bottom: 0, left: "50%",
-        transform: "translateX(-50%)",
-        width: "100%", maxWidth: 680,
-        background: "#fff",
-        borderTop: `2px solid ${CREAM}`,
-        padding: "12px 24px",
+        position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
+        width: "100%", maxWidth: 680, background: "#fff",
+        borderTop: `2px solid ${CREAM}`, padding: "12px 24px",
         display: "flex", justifyContent: "center",
       }}>
         <Link href="/" style={{
-          background: G, color: "#fff",
-          borderRadius: 12, padding: "12px 32px",
-          fontSize: 16, fontWeight: 700,
-          textDecoration: "none",
+          background: G, color: "#fff", borderRadius: 12,
+          padding: "12px 32px", fontSize: 16, fontWeight: 700, textDecoration: "none",
         }}>
-          🏠 Bumalik sa Hub
+          🏠 Back to Hub
         </Link>
       </div>
-    </div>
+    </div> 
   );
 }
