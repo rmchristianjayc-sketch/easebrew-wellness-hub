@@ -3,6 +3,35 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
+// ============================================================
+// ⚙️ CONFIG — I-update ang mga links na ito
+// ============================================================
+const FACEBOOK_URL = "https://www.facebook.com/YOUR_PAGE_HERE"; // ← palitan ng actual FB page URL
+const ORDER_URL = "https://YOUR_ORDER_LINK_HERE";               // ← palitan ng actual order/shopee/lazada link
+const BAGONG_KATAWAN_ORDER_URL = "https://YOUR_ORDER_LINK_HERE"; // ← para sa ₱499 program checkout
+
+// YouTube Video IDs — palitan ng actual video IDs
+// Example: kung ang URL ay https://www.youtube.com/watch?v=dQw4w9WgXcQ
+// ang VIDEO_ID ay "dQw4w9WgXcQ"
+const VIDEOS = [
+  {
+    id: "YOUR_VIDEO_ID_1",        // ← palitan
+    title: "Paano I-prepare ang Easebrew",
+    desc: "Ang tamang paraan para ma-maximize ang herbal benefits ng Easebrew.",
+  },
+  {
+    id: "YOUR_VIDEO_ID_2",        // ← palitan
+    title: "Paano Mag-massage ng Avocado Oil",
+    desc: "Step-by-step massage technique para sa joint pain relief.",
+  },
+  {
+    id: "YOUR_VIDEO_ID_3",        // ← palitan
+    title: "Simple Exercises para sa Joint Pain",
+    desc: "Low-impact exercises na safe para sa matatanda at may arthritis.",
+  },
+];
+// ============================================================
+
 const PRODUCTS = [
   {
     id: 1,
@@ -12,7 +41,6 @@ const PRODUCTS = [
     value: "₱149",
     tier: 999,
     tierLabel: "₱999+ order",
-    downloadUrl: "#",
     isApp: true,
     appUrl: "/tracker",
   },
@@ -24,7 +52,6 @@ const PRODUCTS = [
     value: "₱199",
     tier: 1499,
     tierLabel: "₱1,499+ order",
-    downloadUrl: "#",
     isApp: true,
     appUrl: "/meal-plan",
   },
@@ -36,7 +63,6 @@ const PRODUCTS = [
     value: "₱199",
     tier: 1499,
     tierLabel: "₱1,499+ order",
-    downloadUrl: "#",
     isApp: true,
     appUrl: "/exercise",
   },
@@ -48,7 +74,6 @@ const PRODUCTS = [
     value: "₱249",
     tier: 2998,
     tierLabel: "₱2,998+ order",
-    downloadUrl: "#",
     isApp: true,
     appUrl: "/recipes",
   },
@@ -207,6 +232,42 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   );
 }
 
+// ✅ YouTube Video Embed Component
+function YouTubeEmbed({ videoId, title }: { videoId: string; title: string }) {
+  const isPlaceholder = videoId.startsWith("YOUR_VIDEO_ID");
+
+  if (isPlaceholder) {
+    return (
+      <div style={{
+        background: "#1B201A", borderRadius: 18, aspectRatio: "16/9",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        border: `2px solid ${G}`,
+      }}>
+        <div style={{ textAlign: "center", color: "#fff" }}>
+          <div style={{ fontSize: 60, marginBottom: 10, color: GOLD }}>▶</div>
+          <p style={{ fontSize: 13, opacity: 0.55, margin: 0 }}>
+            I-update ang VIDEOS config sa itaas ng file
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ borderRadius: 18, overflow: "hidden", aspectRatio: "16/9", border: `2px solid ${G}` }}>
+      <iframe
+        width="100%"
+        height="100%"
+        src={`https://www.youtube.com/embed/${videoId}`}
+        title={title}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        style={{ display: "block", border: "none" }}
+      />
+    </div>
+  );
+}
+
 // ✅ PWA Install Banner — Android + iOS
 function InstallBanner() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -257,7 +318,6 @@ function InstallBanner() {
 
   if (installed || dismissed) return null;
 
-  // Android Banner
   if (showAndroid) {
     return (
       <div style={{
@@ -290,7 +350,6 @@ function InstallBanner() {
     );
   }
 
-  // iOS Guide
   if (showIOS) {
     return (
       <div style={{
@@ -445,9 +504,10 @@ export default function Home() {
                 </div>
                 <h3 style={{ fontSize: 20, fontWeight: 700, color: "#8A7D6A", margin: "0 0 8px 0" }}>{p.name}</h3>
                 <p style={{ fontSize: 17, color: "#A89880", margin: "0 0 20px 0", lineHeight: 1.65 }}>{p.desc}</p>
-                <button onClick={() => window.open("#", "_blank")} style={{ background: "#FFFFFB", color: G, border: `2px solid ${G}`, borderRadius: 12, padding: "14px 24px", fontSize: 16, fontWeight: 700, cursor: "pointer", width: "100%" }}>
+                {/* ✅ FIXED: was window.open("#") — now links to actual order page */}
+                <a href={ORDER_URL} target="_blank" rel="noopener noreferrer" style={{ display: "block", background: "#FFFFFB", color: G, border: `2px solid ${G}`, borderRadius: 12, padding: "14px 24px", fontSize: 16, fontWeight: 700, cursor: "pointer", width: "100%", textAlign: "center", textDecoration: "none", boxSizing: "border-box" as const }}>
                   Mag-order pa para ma-unlock ito →
-                </button>
+                </a>
               </div>
             ))}
           </>
@@ -460,19 +520,11 @@ export default function Home() {
         <p style={{ fontSize: 17, color: MID, marginBottom: 24, lineHeight: 1.65 }}>
           Panoorin ito para malaman kung paano gamitin ang inyong products nang tama.
         </p>
-        {[
-          { title: "Paano I-prepare ang Easebrew", desc: "Ang tamang paraan para ma-maximize ang herbal benefits ng Easebrew.", placeholder: "VIDEO 1" },
-          { title: "Paano Mag-massage ng Avocado Oil", desc: "Step-by-step massage technique para sa joint pain relief.", placeholder: "VIDEO 2" },
-          { title: "Simple Exercises para sa Joint Pain", desc: "Low-impact exercises na safe para sa matatanda at may arthritis.", placeholder: "VIDEO 3" },
-        ].map((v, i) => (
+        {/* ✅ FIXED: now uses YouTubeEmbed component — i-update lang ang VIDEOS config sa itaas */}
+        {VIDEOS.map((v, i) => (
           <div key={i} style={{ marginBottom: 32 }}>
-            <div style={{ background: "#1B201A", borderRadius: 18, aspectRatio: "16/9", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14, border: `2px solid ${G}` }}>
-              <div style={{ textAlign: "center", color: "#fff" }}>
-                <div style={{ fontSize: 60, marginBottom: 10, color: GOLD }}>▶</div>
-                <p style={{ fontSize: 14, opacity: 0.55, margin: 0 }}>{v.placeholder} — I-replace ng YouTube embed</p>
-              </div>
-            </div>
-            <h3 style={{ fontSize: 20, fontWeight: 700, color: DARK, margin: "0 0 6px 0" }}>{v.title}</h3>
+            <YouTubeEmbed videoId={v.id} title={v.title} />
+            <h3 style={{ fontSize: 20, fontWeight: 700, color: DARK, margin: "14px 0 6px 0" }}>{v.title}</h3>
             <p style={{ fontSize: 17, color: MID, margin: 0, lineHeight: 1.65 }}>{v.desc}</p>
           </div>
         ))}
@@ -519,7 +571,7 @@ export default function Home() {
         ))}
       </div>
 
-      {/* UPSELL */}
+      {/* UPSELL — 90-DAY PROGRAM */}
       <div style={{ padding: "48px 24px 0" }}>
         <div style={{ background: G, borderRadius: 22, padding: "40px 24px", color: "#fff", textAlign: "center", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -30, right: -30, width: 160, height: 160, background: "rgba(254,210,85,0.12)", borderRadius: "50%" }} />
@@ -544,9 +596,15 @@ export default function Home() {
             <span style={{ fontSize: 40, fontWeight: 700, color: GOLD }}>₱499</span>
             <span style={{ fontSize: 16, opacity: 0.8, marginLeft: 10 }}>one-time payment lang</span>
           </div>
-          <button onClick={() => window.open("#", "_blank")} style={{ background: GOLD, color: G, border: "none", borderRadius: 14, padding: "20px 32px", fontSize: 20, fontWeight: 700, cursor: "pointer", width: "100%" }}>
-            Oo! Gusto ko ito! →
-          </button>
+          {/* ✅ FIXED: Two buttons — I-start kung may program na, mag-order kung wala pa */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <Link href="/bagong-katawan" style={{ background: GOLD, color: G, border: "none", borderRadius: 14, padding: "20px 32px", fontSize: 20, fontWeight: 700, cursor: "pointer", width: "100%", textAlign: "center", textDecoration: "none", display: "block", boxSizing: "border-box" as const }}>
+              🏆 I-start ang 90-Day Program →
+            </Link>
+            <a href={BAGONG_KATAWAN_ORDER_URL} target="_blank" rel="noopener noreferrer" style={{ background: "rgba(255,255,255,0.15)", color: "#fff", border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: 14, padding: "14px 32px", fontSize: 16, fontWeight: 600, cursor: "pointer", width: "100%", textAlign: "center", textDecoration: "none", display: "block", boxSizing: "border-box" as const }}>
+              🛒 Mag-order ng 90-Day Program
+            </a>
+          </div>
           <p style={{ fontSize: 14, opacity: 0.7, margin: "16px 0 0 0" }}>COD available • Free shipping • Nationwide</p>
         </div>
       </div>
@@ -603,12 +661,14 @@ export default function Home() {
           Para sa mga Pilipinong naghahanap ng natural na lunas sa body pain at inflammation.
         </p>
         <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
-          <button onClick={() => window.open("#", "_blank")} style={{ background: G, color: "#fff", border: "none", borderRadius: 12, padding: "18px 32px", fontSize: 18, fontWeight: 700, cursor: "pointer", width: "100%", maxWidth: 340 }}>
+          {/* ✅ FIXED: was window.open("#") — now uses FACEBOOK_URL config */}
+          <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" style={{ background: G, color: "#fff", borderRadius: 12, padding: "18px 32px", fontSize: 18, fontWeight: 700, textDecoration: "none", width: "100%", maxWidth: 340, display: "block", textAlign: "center", boxSizing: "border-box" as const }}>
             📘 Follow kami sa Facebook
-          </button>
-          <button onClick={() => window.open("#", "_blank")} style={{ background: GOLD, color: G, border: "none", borderRadius: 12, padding: "18px 32px", fontSize: 18, fontWeight: 700, cursor: "pointer", width: "100%", maxWidth: 340 }}>
+          </a>
+          {/* ✅ FIXED: was window.open("#") — now uses ORDER_URL config */}
+          <a href={ORDER_URL} target="_blank" rel="noopener noreferrer" style={{ background: GOLD, color: G, borderRadius: 12, padding: "18px 32px", fontSize: 18, fontWeight: 700, textDecoration: "none", width: "100%", maxWidth: 340, display: "block", textAlign: "center", boxSizing: "border-box" as const }}>
             🛒 Mag-order Ulit
-          </button>
+          </a>
         </div>
         <p style={{ fontSize: 14, color: MID, marginTop: 32, lineHeight: 1.7 }}>
           COD | Free Shipping | Nationwide Delivery<br />
