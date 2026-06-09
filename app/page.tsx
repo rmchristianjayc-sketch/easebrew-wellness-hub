@@ -44,7 +44,7 @@ const PRODUCTS = [
     id: 4,
     icon: "📖",
     name: "Pinoy Anti-Inflammation Recipe Book",
-    desc: "30 masustansiyang Pinoy recipes na anti-inflammatory.",
+    desc: "30 healthy Pinoy recipes na anti-inflammatory.",
     value: "₱249",
     tier: 2998,
     tierLabel: "₱2,998+ order",
@@ -55,7 +55,7 @@ const PRODUCTS = [
 ];
 
 const WELLNESS_TIPS = [
-  "Inumin ang Easebrew 30 mins bago kumain para sa pinakamabuting effect.",
+  "Inumin ang Easebrew 30 mins bago kumain para sa best effect.",
   "Uminom ng 8 glasses ng tubig araw-araw — ang dehydration ay nagpapalala ng joint pain.",
   "I-massage ang Avocado Miracle Oil sa affected joints bago matulog gabi-gabi.",
   "Maglakad ng 15 mins pagkatapos kumain para sa mas magandang digestion.",
@@ -89,7 +89,7 @@ const RECIPES = [
 const FAQS = [
   {
     q: "Kailan ko dapat inumin ang Easebrew?",
-    a: "Pinakamabuti sa umaga (7-9AM), 30 mins bago kumain. Para sa mas mataas na benepisyo, pwede ring uminom ng pangalawang baso sa hapon (3-5PM).",
+    a: "Best sa umaga (7-9AM), 30 mins bago kumain. Para sa mas mataas na benepisyo, pwede ring uminom ng pangalawang baso sa hapon (3-5PM).",
   },
   {
     q: "Pwede ba ang may ulcer?",
@@ -97,23 +97,23 @@ const FAQS = [
   },
   {
     q: "Kailan ko mararamdaman ang effect?",
-    a: "Karamihan sa mga customers ay nakakaramdam ng pagbabago sa loob ng 7-14 days ng consistent na pag-inom. Para sa mas malalim na effect — 30-90 days.",
+    a: "Karamihan sa mga customers ay nakakaramdam ng change sa loob ng 7-14 days ng consistent na pag-inom. Para sa mas malalim na effect — 30-90 days.",
   },
   {
     q: "Paano gamitin ang Avocado Miracle Oil?",
-    a: "I-massage ng 5-10 mins bawat gabi sa masakit na parte. Pinakamabuti pagkatapos ng mainit na shower — mas bukas ang pores, mas mabilis masipsip.",
+    a: "I-massage ng 5-10 mins bawat gabi sa masakit na parte. Best pagkatapos ng mainit na shower — mas bukas ang pores, mas mabilis masipsip.",
   },
   {
     q: "Ilang sachet bawat araw?",
     a: "1 sachet araw-araw para sa maintenance. Para sa mas matinding joint pain, pwedeng 2 sachets — umaga at hapon.",
   },
   {
-    q: "Paano ko ma-a-access ang aking libreng digital products?",
+    q: "Paano ko ma-access ang aking libreng digital products?",
     a: "I-tap ang button sa bawat product card. Para sa Body Pain Tracker, Meal Plan, Exercise Guide, at Recipe Book — may interactive app na direkta sa iyong phone!",
   },
   {
     q: "May side effects ba ang Easebrew?",
-    a: "Ang Easebrew ay gawa sa natural na herbs. Walang kilalang side effects para sa karamihan. Kung may allergy o maintenance medicine — kumonsulta muna sa doktor.",
+    a: "Ang Easebrew ay gawa sa natural na herbs. Walang known side effects para sa karamihan. Kung may allergy o maintenance medicine — kumonsulta muna sa doktor.",
   },
   {
     q: "COD ba at free shipping?",
@@ -152,16 +152,16 @@ const TESTIMONIALS = [
 ];
 
 const REMINDERS = [
-  { time: "Umaga", icon: "☕", text: "Inumin ang Easebrew 30 mins bago kumain", bg: "#E8F5E0", border: "#39613B", textColor: "#39613B" },
-  { time: "Tanghali", icon: "🚶", text: "Maglakad ng 15 mins pagkatapos kumain", bg: "#FEF9E7", border: "#C0863B", textColor: "#C0863B" },
-  { time: "Hapon", icon: "💧", text: "Uminom ng 8 glasses ng tubig ngayon", bg: "#FFFBF0", border: "#FED255", textColor: "#8B6914" },
-  { time: "Gabi", icon: "🌿", text: "I-massage ang Avocado Oil sa masakit na parte", bg: "#F4F8F0", border: "#7DAE2F", textColor: "#39613B" },
+  { time: "Morning", icon: "☕", text: "Inumin ang Easebrew 30 mins bago kumain", bg: "#E8F5E0", border: "#39613B", textColor: "#39613B" },
+  { time: "Lunch", icon: "🚶", text: "Maglakad ng 15 mins pagkatapos kumain", bg: "#FEF9E7", border: "#C0863B", textColor: "#C0863B" },
+  { time: "Afternoon", icon: "💧", text: "Uminom ng 8 glasses ng tubig ngayon", bg: "#FFFBF0", border: "#FED255", textColor: "#8B6914" },
+  { time: "Night", icon: "🌿", text: "I-massage ang Avocado Oil sa masakit na parte", bg: "#F4F8F0", border: "#7DAE2F", textColor: "#39613B" },
 ];
 
 const PROGRESS_GUIDE = [
   { period: "Week 1–2", title: "Simula ng Pagbabago", desc: "Mararamdaman mo ang unang effect — mas gaan ang pakiramdam sa umaga, mas okay ang energy.", bg: "#E8F5E0", border: "#39613B", color: "#39613B" },
-  { period: "Week 3–4", title: "Makikita na ang Pagbabago", desc: "Ang mga taong malapit sa iyo ay mag-no-notice ng pagbabago. Mas magaan na ang galaw, mas baba na ang pain score.", bg: "#FEF9E7", border: "#C0863B", color: "#C0863B" },
-  { period: "Month 2", title: "Tuloy-tuloy na Progress", desc: "Ang anti-inflammation routine ay nagiging natural na gawi. Hindi mo na kailangan ng reminder.", bg: "#FFFBF0", border: "#FED255", color: "#8B6914" },
+  { period: "Week 3–4", title: "Makikita na ang Change", desc: "Ang mga taong malapit sa iyo ay mag-no-notice. Mas magaan na ang galaw, mas baba na ang pain score.", bg: "#FEF9E7", border: "#C0863B", color: "#C0863B" },
+  { period: "Month 2", title: "Tuloy-tuloy na Progress", desc: "Ang anti-inflammation routine ay nagiging natural na habit. Hindi mo na kailangan ng reminder.", bg: "#FFFBF0", border: "#FED255", color: "#8B6914" },
   { period: "Month 3", title: "Bagong Katawan, Bagong Buhay", desc: "50%+ reduction ng pain score. Mas aktibo, mas masaya, mas malusog. Ito ang Bagong Katawan.", bg: "#F4F8F0", border: "#7DAE2F", color: "#39613B" },
 ];
 
@@ -207,7 +207,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   );
 }
 
-// ✅ PWA Install Banner — Android + iOS Support
+// ✅ PWA Install Banner — Android + iOS
 function InstallBanner() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showAndroid, setShowAndroid] = useState(false);
@@ -216,27 +216,21 @@ function InstallBanner() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    // Already installed as PWA
     if (window.matchMedia("(display-mode: standalone)").matches) {
       setInstalled(true);
       return;
     }
-
-    // Already dismissed before
     const wasDismissed = localStorage.getItem("pwa-banner-dismissed");
     if (wasDismissed) return;
 
-    // Detect iOS
     const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
     const isSafari = /safari/i.test(navigator.userAgent) && !/chrome/i.test(navigator.userAgent);
 
     if (isIOS && isSafari) {
-      // Show iOS guide after 2 seconds
       setTimeout(() => setShowIOS(true), 2000);
       return;
     }
 
-    // Android / Chrome — beforeinstallprompt
     const handler = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -250,10 +244,7 @@ function InstallBanner() {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === "accepted") {
-      setInstalled(true);
-      setShowAndroid(false);
-    }
+    if (outcome === "accepted") { setInstalled(true); setShowAndroid(false); }
     setDeferredPrompt(null);
   };
 
@@ -266,7 +257,7 @@ function InstallBanner() {
 
   if (installed || dismissed) return null;
 
-  // ── ANDROID BANNER ──
+  // Android Banner
   if (showAndroid) {
     return (
       <div style={{
@@ -293,13 +284,13 @@ function InstallBanner() {
           border: "none", borderRadius: 14, padding: "16px",
           fontSize: 18, fontWeight: 700, cursor: "pointer",
         }}>
-          ✅ Oo! I-install sa Aking Phone →
+          ✅ Yes! I-install sa Aking Phone →
         </button>
       </div>
     );
   }
 
-  // ── iOS GUIDE ──
+  // iOS Guide
   if (showIOS) {
     return (
       <div style={{
@@ -310,49 +301,44 @@ function InstallBanner() {
         borderTop: `4px solid ${GOLD}`,
         borderRadius: "20px 20px 0 0",
       }}>
-        {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <span style={{ fontSize: 32 }}>📱</span>
             <div>
-              <p style={{ fontSize: 17, fontWeight: 700, color: DARK, margin: 0 }}>I-save sa iPhone mo!</p>
+              <p style={{ fontSize: 17, fontWeight: 700, color: DARK, margin: 0 }}>I-save sa iyong iPhone!</p>
               <p style={{ fontSize: 13, color: MID, margin: 0 }}>Para madaling buksan anytime</p>
             </div>
           </div>
           <button onClick={handleDismiss} style={{ background: "#f0f0f0", border: "none", borderRadius: 999, width: 32, height: 32, fontSize: 18, cursor: "pointer", color: MID, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
         </div>
-
-        {/* Steps */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 14 }}>
           {[
-            { step: "1", icon: "🌐", text: "Buksan ang site na ito sa", highlight: "Safari" },
-            { step: "2", icon: "⬆️", text: "I-tap ang", highlight: "Share button (⬆️) sa ibaba" },
-            { step: "3", icon: "➕", text: "Piliin ang", highlight: '"Add to Home Screen"' },
-            { step: "4", icon: "✅", text: "I-tap ang", highlight: '"Add" — tapos na!'  },
+            { step: "1", icon: "🌐", label: "Open sa", highlight: "Safari" },
+            { step: "2", icon: "⬆️", label: "I-tap ang", highlight: "Share button (⬆️) sa ibaba ng screen" },
+            { step: "3", icon: "➕", label: "Piliin ang", highlight: '"Add to Home Screen"' },
+            { step: "4", icon: "✅", label: "I-tap ang", highlight: '"Add" — done na!' },
           ].map((s) => (
             <div key={s.step} style={{
-              display: "flex", alignItems: "center", gap: 14,
-              background: "#F4FAF0", borderRadius: 12, padding: "12px 16px",
-              border: `1.5px solid #C5D9BC`,
+              display: "flex", alignItems: "center", gap: 12,
+              background: "#F4FAF0", borderRadius: 12, padding: "12px 14px",
+              border: "1.5px solid #C5D9BC",
             }}>
               <div style={{
-                width: 30, height: 30, borderRadius: 999,
+                width: 28, height: 28, borderRadius: 999,
                 background: G, color: "#fff",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 14, fontWeight: 700, flexShrink: 0,
+                fontSize: 13, fontWeight: 700, flexShrink: 0,
               }}>{s.step}</div>
-              <span style={{ fontSize: 22, flexShrink: 0 }}>{s.icon}</span>
+              <span style={{ fontSize: 20, flexShrink: 0 }}>{s.icon}</span>
               <p style={{ fontSize: 15, margin: 0, color: DARK, lineHeight: 1.4 }}>
-                {s.text} <strong style={{ color: G }}>{s.highlight}</strong>
+                {s.label} <strong style={{ color: G }}>{s.highlight}</strong>
               </p>
             </div>
           ))}
         </div>
-
-        {/* Note */}
         <div style={{ background: "#FEF9E7", borderRadius: 10, padding: "10px 14px", border: `1px solid ${GOLD}` }}>
           <p style={{ fontSize: 13, color: AMBER, margin: 0, textAlign: "center", fontWeight: 600 }}>
-            ⚠️ Gamitin ang Safari — hindi Chrome ang dapat gamitin sa iPhone
+            ⚠️ Use Safari — hindi Chrome ang gagamitin sa iPhone
           </p>
         </div>
       </div>
@@ -372,15 +358,10 @@ export default function Home() {
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", padding: "0 0 80px 0" }}>
 
-      {/* ✅ PWA Install Banner */}
       <InstallBanner />
 
-      {/* ===== HERO ===== */}
-      <div style={{
-        background: G, padding: "52px 24px 44px",
-        textAlign: "center", color: "#fff",
-        position: "relative", overflow: "hidden",
-      }}>
+      {/* HERO */}
+      <div style={{ background: G, padding: "52px 24px 44px", textAlign: "center", color: "#fff", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: -40, right: -40, width: 200, height: 200, background: "rgba(125,174,47,0.15)", borderRadius: "50%" }} />
         <div style={{ position: "absolute", bottom: -30, left: -30, width: 150, height: 150, background: "rgba(254,210,85,0.1)", borderRadius: "50%" }} />
         <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 20, padding: "6px 18px", fontSize: 13, fontWeight: 700, marginBottom: 20, letterSpacing: 1 }}>
@@ -397,9 +378,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ===== DAILY REMINDERS ===== */}
+      {/* DAILY REMINDERS */}
       <div style={{ padding: "44px 24px 0" }}>
-        <h2 style={{ fontSize: 26, fontWeight: 700, color: G, marginBottom: 8 }}>Ang Daily Routine Ninyo</h2>
+        <h2 style={{ fontSize: 26, fontWeight: 700, color: G, marginBottom: 8 }}>Your Daily Routine</h2>
         <p style={{ fontSize: 17, color: MID, marginBottom: 24, lineHeight: 1.65 }}>
           Sundin ito every day para sa pinakamabilis na results.
         </p>
@@ -416,13 +397,12 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ===== FREE DOWNLOADS ===== */}
+      {/* FREE GIFTS */}
       <div style={{ padding: "48px 24px 0" }}>
-        <h2 style={{ fontSize: 26, fontWeight: 700, color: G, marginBottom: 8 }}>Ang Inyong Libreng Gifts 🎁</h2>
+        <h2 style={{ fontSize: 26, fontWeight: 700, color: G, marginBottom: 8 }}>Your Free Gifts 🎁</h2>
         <p style={{ fontSize: 17, color: MID, marginBottom: 20, lineHeight: 1.65 }}>
           Piliin ang halaga ng inyong order para makita ang mga unlocked na products.
         </p>
-
         <div style={{ display: "flex", gap: 10, marginBottom: 28, flexWrap: "wrap" }}>
           {[999, 1499, 2998].map((t) => (
             <button key={t} onClick={() => setSelectedTier(t)} style={{
@@ -474,14 +454,14 @@ export default function Home() {
         )}
       </div>
 
-      {/* ===== WELLNESS VIDEOS ===== */}
+      {/* WELLNESS VIDEOS */}
       <div style={{ padding: "48px 24px 0" }}>
-        <h2 style={{ fontSize: 26, fontWeight: 700, color: G, marginBottom: 8 }}>Mga Video para sa Inyo 🎬</h2>
+        <h2 style={{ fontSize: 26, fontWeight: 700, color: G, marginBottom: 8 }}>Videos para sa Inyo 🎬</h2>
         <p style={{ fontSize: 17, color: MID, marginBottom: 24, lineHeight: 1.65 }}>
           Panoorin ito para malaman kung paano gamitin ang inyong products nang tama.
         </p>
         {[
-          { title: "Paano Ihanda ang Easebrew", desc: "Ang tamang paraan para ma-maximize ang herbal benefits ng Easebrew.", placeholder: "VIDEO 1" },
+          { title: "Paano I-prepare ang Easebrew", desc: "Ang tamang paraan para ma-maximize ang herbal benefits ng Easebrew.", placeholder: "VIDEO 1" },
           { title: "Paano Mag-massage ng Avocado Oil", desc: "Step-by-step massage technique para sa joint pain relief.", placeholder: "VIDEO 2" },
           { title: "Simple Exercises para sa Joint Pain", desc: "Low-impact exercises na safe para sa matatanda at may arthritis.", placeholder: "VIDEO 3" },
         ].map((v, i) => (
@@ -498,11 +478,11 @@ export default function Home() {
         ))}
       </div>
 
-      {/* ===== RECIPE PREVIEW ===== */}
+      {/* RECIPE PREVIEW */}
       <div style={{ padding: "48px 24px 0" }}>
         <h2 style={{ fontSize: 26, fontWeight: 700, color: G, marginBottom: 8 }}>Recipe Preview 🍲</h2>
         <p style={{ fontSize: 17, color: MID, marginBottom: 24, lineHeight: 1.65 }}>
-          Tatlong recipes mula sa aming libreng Recipe Book.
+          3 recipes mula sa aming libreng Recipe Book.
         </p>
         {RECIPES.map((r, i) => (
           <div key={i} style={{ background: "#FFFFFB", border: "1.5px solid #C5B99A", borderRadius: 18, padding: "20px 24px", marginBottom: 14 }}>
@@ -524,9 +504,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ===== 90-DAY PROGRESS GUIDE ===== */}
+      {/* 90-DAY JOURNEY */}
       <div style={{ padding: "48px 24px 0" }}>
-        <h2 style={{ fontSize: 26, fontWeight: 700, color: G, marginBottom: 8 }}>Ang Inyong 90-Day Journey 📅</h2>
+        <h2 style={{ fontSize: 26, fontWeight: 700, color: G, marginBottom: 8 }}>Your 90-Day Journey 📅</h2>
         <p style={{ fontSize: 17, color: MID, marginBottom: 24, lineHeight: 1.65 }}>
           Ito ang mararamdaman ninyo sa bawat phase ng wellness journey.
         </p>
@@ -539,7 +519,7 @@ export default function Home() {
         ))}
       </div>
 
-      {/* ===== UPSELL ===== */}
+      {/* UPSELL */}
       <div style={{ padding: "48px 24px 0" }}>
         <div style={{ background: G, borderRadius: 22, padding: "40px 24px", color: "#fff", textAlign: "center", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -30, right: -30, width: 160, height: 160, background: "rgba(254,210,85,0.12)", borderRadius: "50%" }} />
@@ -547,11 +527,11 @@ export default function Home() {
           <div style={{ fontSize: 52, marginBottom: 14 }}>🏆</div>
           <h2 style={{ fontSize: 27, fontWeight: 700, margin: "0 0 14px 0", lineHeight: 1.3 }}>Bagong Katawan sa 90 Days Program</h2>
           <p style={{ fontSize: 17, opacity: 0.9, margin: "0 0 24px 0", lineHeight: 1.7 }}>
-            Ang pinaka-complete na wellness program. 90-day master plan, full exercise program, weekly check-in guide, at lahat ng digital products — sa iisang programa.
+            Ang pinaka-complete na wellness program. 90-day master plan, full exercise program, weekly check-in guide, at lahat ng digital products — lahat kasama!
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28, textAlign: "left" }}>
             {[
-              "✅ 90-Day Master Plan na may araw-araw na schedule",
+              "✅ 90-Day Master Plan na may daily schedule",
               "✅ 3 Phases ng progressive wellness program",
               "✅ Full exercise library para sa joint pain",
               "✅ Weekly milestone check-ins",
@@ -571,10 +551,10 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ===== TESTIMONIALS ===== */}
+      {/* TESTIMONIALS */}
       <div style={{ padding: "48px 24px 0" }}>
         <h2 style={{ fontSize: 26, fontWeight: 700, color: G, marginBottom: 8 }}>Sinasabi ng mga Customers 💬</h2>
-        <p style={{ fontSize: 17, color: MID, marginBottom: 24, lineHeight: 1.65 }}>Tunay na kwento mula sa mga katulad ninyo.</p>
+        <p style={{ fontSize: 17, color: MID, marginBottom: 24, lineHeight: 1.65 }}>Real stories mula sa mga katulad ninyo.</p>
         {TESTIMONIALS.map((t, i) => (
           <div key={i} style={{ background: "#FFFFFB", border: "1.5px solid #C5B99A", borderRadius: 18, padding: "24px", marginBottom: 16 }}>
             <StarRating count={t.stars} />
@@ -593,27 +573,27 @@ export default function Home() {
         ))}
       </div>
 
-      {/* ===== WELLNESS TIP ===== */}
+      {/* WELLNESS TIP */}
       <div style={{ padding: "48px 24px 0" }}>
-        <h2 style={{ fontSize: 26, fontWeight: 700, color: G, marginBottom: 24 }}>Tip ng Araw 💡</h2>
+        <h2 style={{ fontSize: 26, fontWeight: 700, color: G, marginBottom: 24 }}>Tip of the Day 💡</h2>
         <div style={{ background: "#FFFFFB", borderLeft: `6px solid ${AMBER}`, borderRadius: 14, padding: "24px", marginBottom: 16 }}>
           <p style={{ fontSize: 19, color: DARK, margin: 0, lineHeight: 1.75 }}>🌿 {WELLNESS_TIPS[tipIndex]}</p>
         </div>
         <button onClick={() => setTipIndex((i) => (i + 1) % WELLNESS_TIPS.length)} style={{ background: "#FFFFFB", border: `2px solid ${G}`, borderRadius: 12, padding: "15px 24px", fontSize: 17, fontWeight: 600, color: G, cursor: "pointer", width: "100%" }}>
-          Next tip →
+          Next Tip →
         </button>
       </div>
 
-      {/* ===== FAQ ===== */}
+      {/* FAQ */}
       <div style={{ padding: "48px 24px 0" }}>
-        <h2 style={{ fontSize: 26, fontWeight: 700, color: G, marginBottom: 8 }}>Mga Madalas na Tanong ❓</h2>
+        <h2 style={{ fontSize: 26, fontWeight: 700, color: G, marginBottom: 8 }}>Common Questions ❓</h2>
         <p style={{ fontSize: 17, color: MID, marginBottom: 8, lineHeight: 1.65 }}>I-tap ang tanong para makita ang sagot.</p>
         <div style={{ background: "#FFFFFB", border: "1.5px solid #C5B99A", borderRadius: 18, padding: "8px 24px" }}>
           {FAQS.map((faq, i) => (<FAQItem key={i} q={faq.q} a={faq.a} />))}
         </div>
       </div>
 
-      {/* ===== FOOTER ===== */}
+      {/* FOOTER */}
       <div style={{ padding: "48px 24px 0", textAlign: "center", borderTop: `3px solid ${G}`, marginTop: 52 }}>
         <div style={{ display: "inline-block", background: G, color: GOLD, borderRadius: 16, padding: "10px 24px", fontSize: 20, fontWeight: 700, marginBottom: 16, letterSpacing: 0.5 }}>
           R&M EaseBrew
@@ -624,7 +604,7 @@ export default function Home() {
         </p>
         <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
           <button onClick={() => window.open("#", "_blank")} style={{ background: G, color: "#fff", border: "none", borderRadius: 12, padding: "18px 32px", fontSize: 18, fontWeight: 700, cursor: "pointer", width: "100%", maxWidth: 340 }}>
-            📘 Sundan kami sa Facebook
+            📘 Follow kami sa Facebook
           </button>
           <button onClick={() => window.open("#", "_blank")} style={{ background: GOLD, color: G, border: "none", borderRadius: 12, padding: "18px 32px", fontSize: 18, fontWeight: 700, cursor: "pointer", width: "100%", maxWidth: 340 }}>
             🛒 Mag-order Ulit
@@ -632,7 +612,7 @@ export default function Home() {
         </div>
         <p style={{ fontSize: 14, color: MID, marginTop: 32, lineHeight: 1.7 }}>
           COD | Free Shipping | Nationwide Delivery<br />
-          © 2025 EaseBrew Herbal Coffee. Lahat ng karapatan ay nakalaan.
+          © 2025 EaseBrew Herbal Coffee. All rights reserved.
         </p>
       </div>
 
