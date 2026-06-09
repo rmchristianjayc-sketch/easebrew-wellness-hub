@@ -6,28 +6,73 @@ import Link from "next/link";
 // ============================================================
 // ⚙️ CONFIG — I-update ang mga links na ito
 // ============================================================
-const FACEBOOK_URL = "https://www.facebook.com/YOUR_PAGE_HERE"; // ← palitan ng actual FB page URL
 const ORDER_URL = "https://YOUR_ORDER_LINK_HERE";               // ← palitan ng actual order/shopee/lazada link
 const BAGONG_KATAWAN_ORDER_URL = "https://YOUR_ORDER_LINK_HERE"; // ← para sa ₱499 program checkout
 
 // YouTube Video IDs — palitan ng actual video IDs
-// Example: kung ang URL ay https://www.youtube.com/watch?v=dQw4w9WgXcQ
-// ang VIDEO_ID ay "dQw4w9WgXcQ"
 const VIDEOS = [
   {
-    id: "YOUR_VIDEO_ID_1",        // ← palitan
+    id: "YOUR_VIDEO_ID_1",
     title: "Paano I-prepare ang Easebrew",
     desc: "Ang tamang paraan para ma-maximize ang herbal benefits ng Easebrew.",
   },
   {
-    id: "YOUR_VIDEO_ID_2",        // ← palitan
+    id: "YOUR_VIDEO_ID_2",
     title: "Paano Mag-massage ng Avocado Oil",
     desc: "Step-by-step massage technique para sa joint pain relief.",
   },
   {
-    id: "YOUR_VIDEO_ID_3",        // ← palitan
+    id: "YOUR_VIDEO_ID_3",
     title: "Simple Exercises para sa Joint Pain",
     desc: "Low-impact exercises na safe para sa matatanda at may arthritis.",
+  },
+];
+
+// ============================================================
+// 👥 AGENT DIRECTORY
+// ============================================================
+const AGENTS = [
+  {
+    name: "Coach Josephine",
+    number: "0917 701 1252",
+    facebook: "https://www.facebook.com/josephine.easebrew.main",
+    fbName: "Josephine Easebrew Main",
+    emoji: "🌿",
+  },
+  {
+    name: "Coach Nino",
+    number: "0968 880 4440",
+    facebook: "https://www.facebook.com/easebrew.nina",
+    fbName: "Easebrew Niña",
+    emoji: "☕",
+  },
+  {
+    name: "Coach Mark",
+    number: "0917 117 8216",
+    facebook: "https://www.facebook.com/profile.php?id=61577427472374",
+    fbName: "RM Mark",
+    emoji: "💪",
+  },
+  {
+    name: "Coach Raisah",
+    number: "0970 968 9164",
+    facebook: "https://www.facebook.com/profile.php?id=61579641330542",
+    fbName: "RM Raisah",
+    emoji: "🌸",
+  },
+  {
+    name: "Coach Jo Ann",
+    number: "0951 685 1019",
+    facebook: "https://www.facebook.com/profile.php?id=61590474596913",
+    fbName: "Coach Jo Ann",
+    emoji: "🌻",
+  },
+  {
+    name: "Coach Mike",
+    number: "0951 598 6840",
+    facebook: "https://www.facebook.com/profile.php?id=61576324811239",
+    fbName: "Easebrew Mike",
+    emoji: "🏆",
   },
 ];
 // ============================================================
@@ -232,10 +277,8 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   );
 }
 
-// ✅ YouTube Video Embed Component
 function YouTubeEmbed({ videoId, title }: { videoId: string; title: string }) {
   const isPlaceholder = videoId.startsWith("YOUR_VIDEO_ID");
-
   if (isPlaceholder) {
     return (
       <div style={{
@@ -252,7 +295,6 @@ function YouTubeEmbed({ videoId, title }: { videoId: string; title: string }) {
       </div>
     );
   }
-
   return (
     <div style={{ borderRadius: 18, overflow: "hidden", aspectRatio: "16/9", border: `2px solid ${G}` }}>
       <iframe
@@ -268,7 +310,6 @@ function YouTubeEmbed({ videoId, title }: { videoId: string; title: string }) {
   );
 }
 
-// ✅ PWA Install Banner — Android + iOS
 function InstallBanner() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showAndroid, setShowAndroid] = useState(false);
@@ -504,7 +545,6 @@ export default function Home() {
                 </div>
                 <h3 style={{ fontSize: 20, fontWeight: 700, color: "#8A7D6A", margin: "0 0 8px 0" }}>{p.name}</h3>
                 <p style={{ fontSize: 17, color: "#A89880", margin: "0 0 20px 0", lineHeight: 1.65 }}>{p.desc}</p>
-                {/* ✅ FIXED: was window.open("#") — now links to actual order page */}
                 <a href={ORDER_URL} target="_blank" rel="noopener noreferrer" style={{ display: "block", background: "#FFFFFB", color: G, border: `2px solid ${G}`, borderRadius: 12, padding: "14px 24px", fontSize: 16, fontWeight: 700, cursor: "pointer", width: "100%", textAlign: "center", textDecoration: "none", boxSizing: "border-box" as const }}>
                   Mag-order pa para ma-unlock ito →
                 </a>
@@ -520,7 +560,6 @@ export default function Home() {
         <p style={{ fontSize: 17, color: MID, marginBottom: 24, lineHeight: 1.65 }}>
           Panoorin ito para malaman kung paano gamitin ang inyong products nang tama.
         </p>
-        {/* ✅ FIXED: now uses YouTubeEmbed component — i-update lang ang VIDEOS config sa itaas */}
         {VIDEOS.map((v, i) => (
           <div key={i} style={{ marginBottom: 32 }}>
             <YouTubeEmbed videoId={v.id} title={v.title} />
@@ -596,7 +635,6 @@ export default function Home() {
             <span style={{ fontSize: 40, fontWeight: 700, color: GOLD }}>₱499</span>
             <span style={{ fontSize: 16, opacity: 0.8, marginLeft: 10 }}>one-time payment lang</span>
           </div>
-          {/* ✅ FIXED: Two buttons — I-start kung may program na, mag-order kung wala pa */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <Link href="/bagong-katawan" style={{ background: GOLD, color: G, border: "none", borderRadius: 14, padding: "20px 32px", fontSize: 20, fontWeight: 700, cursor: "pointer", width: "100%", textAlign: "center", textDecoration: "none", display: "block", boxSizing: "border-box" as const }}>
               🏆 I-start ang 90-Day Program →
@@ -606,6 +644,71 @@ export default function Home() {
             </a>
           </div>
           <p style={{ fontSize: 14, opacity: 0.7, margin: "16px 0 0 0" }}>COD available • Free shipping • Nationwide</p>
+        </div>
+      </div>
+
+      {/* ✅ NEW: AGENT DIRECTORY */}
+      <div style={{ padding: "48px 24px 0" }}>
+        <h2 style={{ fontSize: 26, fontWeight: 700, color: G, marginBottom: 8 }}>Makipag-ugnayan sa Aming Coaches 👥</h2>
+        <p style={{ fontSize: 17, color: MID, marginBottom: 24, lineHeight: 1.65 }}>
+          May katanungan? Handa kaming tumulong sa inyo! Makipag-usap sa aming mga wellness coach.
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {AGENTS.map((agent, i) => (
+            <div key={i} style={{
+              background: "#FFFFFB",
+              border: `2px solid #C5B99A`,
+              borderRadius: 18,
+              padding: "20px 22px",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+                <div style={{
+                  width: 52, height: 52, borderRadius: 16,
+                  background: "#E8F5E0", border: `2px solid ${G}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 26, flexShrink: 0,
+                }}>
+                  {agent.emoji}
+                </div>
+                <div>
+                  <h3 style={{ fontSize: 19, fontWeight: 700, color: DARK, margin: 0 }}>{agent.name}</h3>
+                  <p style={{ fontSize: 14, color: G, margin: "3px 0 0 0", fontWeight: 600 }}>R&M EaseBrew Wellness Coach</p>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 10 }}>
+                {/* Call button */}
+                <a
+                  href={`tel:${agent.number.replace(/\s/g, "")}`}
+                  style={{
+                    flex: 1,
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    background: G, color: "#fff",
+                    borderRadius: 12, padding: "13px 10px",
+                    fontSize: 15, fontWeight: 700, textDecoration: "none",
+                    textAlign: "center" as const,
+                  }}
+                >
+                  📞 {agent.number}
+                </a>
+                {/* Facebook button */}
+                <a
+                  href={agent.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    flex: 1,
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    background: "#1877F2", color: "#fff",
+                    borderRadius: 12, padding: "13px 10px",
+                    fontSize: 15, fontWeight: 700, textDecoration: "none",
+                    textAlign: "center" as const,
+                  }}
+                >
+                  📘 Facebook
+                </a>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -622,7 +725,7 @@ export default function Home() {
                 <p style={{ fontSize: 17, fontWeight: 700, color: DARK, margin: 0 }}>{t.name}, {t.age}</p>
                 <p style={{ fontSize: 15, color: MID, margin: 0 }}>{t.location}</p>
               </div>
-              <div style={{ textAlign: "right" }}>
+              <div style={{ textAlign: "right" as const }}>
                 <p style={{ fontSize: 13, color: MID, margin: "0 0 2px 0" }}>Pain Score</p>
                 <p style={{ fontSize: 15, fontWeight: 700, color: G, margin: 0 }}>{t.painBefore} → {t.painAfter} ✅</p>
               </div>
@@ -660,16 +763,9 @@ export default function Home() {
         <p style={{ fontSize: 17, color: MID, margin: "0 0 24px 0", lineHeight: 1.65 }}>
           Para sa mga Pilipinong naghahanap ng natural na lunas sa body pain at inflammation.
         </p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
-          {/* ✅ FIXED: was window.open("#") — now uses FACEBOOK_URL config */}
-          <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" style={{ background: G, color: "#fff", borderRadius: 12, padding: "18px 32px", fontSize: 18, fontWeight: 700, textDecoration: "none", width: "100%", maxWidth: 340, display: "block", textAlign: "center", boxSizing: "border-box" as const }}>
-            📘 Follow kami sa Facebook
-          </a>
-          {/* ✅ FIXED: was window.open("#") — now uses ORDER_URL config */}
-          <a href={ORDER_URL} target="_blank" rel="noopener noreferrer" style={{ background: GOLD, color: G, borderRadius: 12, padding: "18px 32px", fontSize: 18, fontWeight: 700, textDecoration: "none", width: "100%", maxWidth: 340, display: "block", textAlign: "center", boxSizing: "border-box" as const }}>
-            🛒 Mag-order Ulit
-          </a>
-        </div>
+        <a href={ORDER_URL} target="_blank" rel="noopener noreferrer" style={{ background: GOLD, color: G, borderRadius: 12, padding: "18px 32px", fontSize: 18, fontWeight: 700, textDecoration: "none", width: "100%", maxWidth: 340, display: "block", textAlign: "center", boxSizing: "border-box" as const, margin: "0 auto" }}>
+          🛒 Mag-order Ulit
+        </a>
         <p style={{ fontSize: 14, color: MID, marginTop: 32, lineHeight: 1.7 }}>
           COD | Free Shipping | Nationwide Delivery<br />
           © 2025 EaseBrew Herbal Coffee. All rights reserved.
