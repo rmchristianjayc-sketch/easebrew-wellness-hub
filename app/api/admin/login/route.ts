@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     // Determine role
     let role: 'owner' | 'coach' | null = null;
 
-    if (username === 'owner' && password === OWNER_SECRET) {
+    if (username === 'admin' && password === OWNER_SECRET) {
       role = 'owner';
     } else if (username === 'coach' && password === COACH_SECRET) {
       role = 'coach';
