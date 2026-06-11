@@ -1,35 +1,39 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const G = "#39613B";
-const GOLD = "#FED255";
+const G     = "#39613B";
+const GOLD  = "#FED255";
 const AMBER = "#C0863B";
 const CREAM = "#EEE5D4";
-const DARK = "#1B201A";
-const MID = "#4E504F";
+const DARK  = "#1B201A";
+const MID   = "#4E504F";
+const WHITE = "#FFFFFB";
 
-const PAIN_LOCATIONS = [
-  "Tuhod", "Likod", "Balikat", "Kamay", "Paa",
-  "Leeg", "Balakang", "Braso", "Dibdib", "Ulo"
+// ── Pain levels — 5 simple choices ──────────────────────────
+const PAIN_LEVELS = [
+  { score: 1, emoji: "😊", label: "Wala",       color: "#22c55e" },
+  { score: 3, emoji: "🙂", label: "Konti",      color: "#84cc16" },
+  { score: 5, emoji: "😐", label: "May Sakit",  color: "#eab308" },
+  { score: 7, emoji: "😣", label: "Matindi",    color: "#f97316" },
+  { score: 9, emoji: "😭", label: "Sobrang Sakit", color: "#ef4444" },
 ];
 
-const MOOD_LABELS = ["", "😢 Malungkot", "😕 Not Okay", "😐 Okay Lang", "🙂 Masaya", "😄 Very Happy"];
-const RELIEF_LABELS = ["", "😣 No Relief", "😕 Konti Lang", "😐 May Tulong", "🙂 Malaking Tulong", "😄 Sobrang Gaan"];
+const PAIN_LOCATIONS = [
+  "Tuhod", "Likod", "Balikat", "Kamay",
+  "Paa",   "Leeg",  "Balakang", "Ulo",
+];
 
 type DayEntry = {
   date: string;
   painScore: number;
   painLocation: string;
-  easebrew: boolean;
+  easebrewUmaga: boolean;
+  easebrewGabi: boolean;
   avocadoOil: boolean;
-  tubig: number;
-  exercise: number;
-  tulog: number;
   mood: number;
-  reliefFeel: number;
-  gamot: string;
   notes: string;
 };
 
@@ -37,487 +41,462 @@ const emptyEntry = (): DayEntry => ({
   date: new Date().toISOString().split("T")[0],
   painScore: 0,
   painLocation: "",
-  easebrew: false,
+  easebrewUmaga: false,
+  easebrewGabi: false,
   avocadoOil: false,
-  tubig: 0,
-  exercise: 0,
-  tulog: 0,
   mood: 0,
-  reliefFeel: 0,
-  gamot: "",
   notes: "",
 });
 
+const MOOD_OPTIONS = [
+  { val: 1, emoji: "😢", label: "Malungkot" },
+  { val: 2, emoji: "😕", label: "Hindi OK" },
+  { val: 3, emoji: "😐", label: "OK Lang"  },
+  { val: 4, emoji: "🙂", label: "Masaya"   },
+  { val: 5, emoji: "😄", label: "Masayang-Masaya" },
+];
+
 function getPainColor(score: number) {
   if (score <= 2) return "#22c55e";
-  if (score <= 4) return "#eab308";
-  if (score <= 6) return "#f97316";
+  if (score <= 4) return "#84cc16";
+  if (score <= 6) return "#eab308";
+  if (score <= 8) return "#f97316";
   return "#ef4444";
 }
 
-function getPainLabel(score: number) {
-  if (score === 0) return "Hindi pa nire-rate";
-  if (score <= 2) return "🟢 Halos Wala";
-  if (score <= 4) return "🟡 Mild";
-  if (score <= 6) return "🟠 Moderate";
-  if (score <= 8) return "🔴 Matindi";
-  return "🔴 Sobrang Sakit";
+function getPainEmoji(score: number) {
+  if (score <= 2) return "😊";
+  if (score <= 4) return "🙂";
+  if (score <= 6) return "😐";
+  if (score <= 8) return "😣";
+  return "😭";
 }
 
 export default function TrackerPage() {
-  const [entries, setEntries] = useState<DayEntry[]>([]);
-  const [currentDay, setCurrentDay] = useState(0);
-  const [view, setView] = useState<"today" | "history" | "summary" | "journal">("today");
-  const [todayEntry, setTodayEntry] = useState<DayEntry>(emptyEntry());
-  const [saved, setSaved] = useState(false);
-  const [journalText, setJournalText] = useState<Record<number, string>>({});
+  const router = useRouter();
+  const [entries, setEntries]       = useState<DayEntry[]>([]);
+  const [today, setToday]           = useState<DayEntry>(emptyEntry());
+  const [view, setView]             = useState<"ngayon" | "history">("ngayon");
+  const [saved, setSaved]           = useState(false);
+  const [checking, setChecking]     = useState(true);
 
+  // ── Session check ────────────────────────────────────────
   useEffect(() => {
-    const saved = localStorage.getItem("easebrew-tracker");
-    const savedJournal = localStorage.getItem("easebrew-journal");
-    if (saved) {
-      const data = JSON.parse(saved);
-      setEntries(data.entries || []);
-      setCurrentDay(data.entries?.length || 0);
-      if (data.entries?.length > 0) {
-        const last = data.entries[data.entries.length - 1];
-        const today = new Date().toISOString().split("T")[0];
-        if (last.date === today) {
-          setTodayEntry(last);
-        }
-      }
-    }
-    if (savedJournal) {
-      setJournalText(JSON.parse(savedJournal));
-    }
-  }, []);
+    const match = document.cookie.split(";").find(c => c.trim().startsWith("eb_session="));
+    if (!match) { router.replace("/verify"); return; }
+    try {
+      const s = JSON.parse(decodeURIComponent(match.split("=").slice(1).join("=")));
+      if (!s.expires_at || new Date(s.expires_at) < new Date()) { router.replace("/verify"); return; }
+    } catch { router.replace("/verify"); return; }
+    setChecking(false);
+  }, [router]);
 
+  // ── Load saved data ──────────────────────────────────────
+  useEffect(() => {
+    if (checking) return;
+    const raw = localStorage.getItem("easebrew-tracker-v2");
+    if (!raw) return;
+    const data = JSON.parse(raw) as DayEntry[];
+    setEntries(data);
+    const todayStr = new Date().toISOString().split("T")[0];
+    const existing = data.find(e => e.date === todayStr);
+    if (existing) setToday(existing);
+  }, [checking]);
+
+  if (checking) return (
+    <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <p style={{ color: G, fontSize: 20, fontWeight: 700 }}>☕ Sandali lang...</p>
+    </div>
+  );
+
+  // ── Save ─────────────────────────────────────────────────
   const saveEntry = () => {
-    const today = new Date().toISOString().split("T")[0];
-    const existing = entries.findIndex(e => e.date === today);
-    let newEntries;
-    if (existing >= 0) {
-      newEntries = [...entries];
-      newEntries[existing] = { ...todayEntry, date: today };
-    } else {
-      newEntries = [...entries, { ...todayEntry, date: today }];
-    }
-    setEntries(newEntries);
-    setCurrentDay(newEntries.length);
-    localStorage.setItem("easebrew-tracker", JSON.stringify({ entries: newEntries }));
+    const todayStr = new Date().toISOString().split("T")[0];
+    const entry = { ...today, date: todayStr };
+    const idx = entries.findIndex(e => e.date === todayStr);
+    const updated = idx >= 0
+      ? entries.map((e, i) => i === idx ? entry : e)
+      : [...entries, entry];
+    setEntries(updated);
+    localStorage.setItem("easebrew-tracker-v2", JSON.stringify(updated));
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setTimeout(() => setSaved(false), 2500);
   };
 
-  const saveJournal = (week: number, text: string) => {
-    const newJournal = { ...journalText, [week]: text };
-    setJournalText(newJournal);
-    localStorage.setItem("easebrew-journal", JSON.stringify(newJournal));
-  };
-
-  const avgPain = entries.length > 0
-    ? (entries.reduce((a, b) => a + b.painScore, 0) / entries.length).toFixed(1)
+  const totalDays   = entries.length;
+  const avgPain     = totalDays > 0
+    ? (entries.reduce((a, b) => a + b.painScore, 0) / totalDays).toFixed(1)
     : "—";
-
-  const easebrewRate = entries.length > 0
-    ? Math.round((entries.filter(e => e.easebrew).length / entries.length) * 100)
+  const consistRate = totalDays > 0
+    ? Math.round((entries.filter(e => e.easebrewUmaga && e.easebrewGabi).length / totalDays) * 100)
     : 0;
 
-  const weeklyAvg = (week: number) => {
-    const start = week * 7;
-    const end = Math.min(start + 7, entries.length);
-    const slice = entries.slice(start, end);
-    if (slice.length === 0) return null;
-    return (slice.reduce((a, b) => a + b.painScore, 0) / slice.length).toFixed(1);
-  };
+  const todayStr = new Date().toLocaleDateString("fil-PH", {
+    weekday: "long", year: "numeric", month: "long", day: "numeric",
+  });
 
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 100 }}>
+    <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 100, fontFamily: "Georgia, serif" }}>
 
-      {/* HEADER */}
-      <div style={{ background: G, padding: "24px 24px 20px", color: "#fff" }}>
-        <Link href="/" style={{ color: GOLD, fontSize: 14, textDecoration: "none", display: "block", marginBottom: 12 }}>
-          ← Back to Hub
+      {/* ── HEADER ────────────────────────────────────────── */}
+      <div style={{ background: G, padding: "24px 24px 0", color: WHITE }}>
+        <Link href="/" style={{ color: GOLD, fontSize: 15, textDecoration: "none", display: "block", marginBottom: 14, fontWeight: 600 }}>
+          ← Bumalik sa Hub
         </Link>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>📊 Body Pain Tracker</h1>
-            <p style={{ fontSize: 14, opacity: 0.8, margin: "4px 0 0 0" }}>30-Day Wellness Journal</p>
+            <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>📊 Pain Tracker</h1>
+            <p style={{ fontSize: 15, opacity: 0.8, margin: "4px 0 0 0" }}>I-track ang iyong progress araw-araw</p>
           </div>
-          <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "10px 16px" }}>
-            <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: GOLD }}>Day {currentDay}</p>
-            <p style={{ fontSize: 12, margin: 0, opacity: 0.8 }}>of 30</p>
+          <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 14, padding: "10px 18px" }}>
+            <p style={{ fontSize: 32, fontWeight: 700, margin: 0, color: GOLD }}>Day {totalDays}</p>
+            <p style={{ fontSize: 13, margin: 0, opacity: 0.8 }}>logged na</p>
           </div>
         </div>
 
-        {/* Progress Bar */}
-        <div style={{ marginTop: 16, background: "rgba(255,255,255,0.2)", borderRadius: 999, height: 8 }}>
-          <div style={{
-            width: `${Math.min((currentDay / 30) * 100, 100)}%`,
-            background: GOLD, height: 8, borderRadius: 999,
-            transition: "width 0.5s ease"
-          }} />
+        {/* Quick stats */}
+        <div style={{ display: "flex", gap: 10, marginBottom: 0 }}>
+          <div style={{ flex: 1, background: "rgba(255,255,255,0.12)", borderRadius: 12, padding: "10px 14px", textAlign: "center" as const }}>
+            <p style={{ fontSize: 22, fontWeight: 700, color: GOLD, margin: 0 }}>{avgPain}</p>
+            <p style={{ fontSize: 12, opacity: 0.8, margin: 0 }}>Avg Pain</p>
+          </div>
+          <div style={{ flex: 1, background: "rgba(255,255,255,0.12)", borderRadius: 12, padding: "10px 14px", textAlign: "center" as const }}>
+            <p style={{ fontSize: 22, fontWeight: 700, color: GOLD, margin: 0 }}>{consistRate}%</p>
+            <p style={{ fontSize: 12, opacity: 0.8, margin: 0 }}>2x/day rate</p>
+          </div>
+          <div style={{ flex: 1, background: "rgba(255,255,255,0.12)", borderRadius: 12, padding: "10px 14px", textAlign: "center" as const }}>
+            <p style={{ fontSize: 22, fontWeight: 700, color: GOLD, margin: 0 }}>{totalDays}</p>
+            <p style={{ fontSize: 12, opacity: 0.8, margin: 0 }}>Araw</p>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div style={{ display: "flex", marginTop: 16 }}>
+          {(["ngayon", "history"] as const).map(t => (
+            <button key={t} onClick={() => setView(t)} style={{
+              flex: 1, padding: "16px 8px", border: "none", background: "transparent",
+              fontSize: 18, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif",
+              color: view === t ? GOLD : "rgba(255,255,255,0.6)",
+              borderBottom: view === t ? `4px solid ${GOLD}` : "4px solid transparent",
+            }}>
+              {t === "ngayon" ? "📝 Ngayon" : "📅 History"}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* NAV TABS */}
-      <div style={{ display: "flex", background: "#fff", borderBottom: `2px solid ${CREAM}` }}>
-        {[
-          { key: "today", label: "📝 Today" },
-          { key: "history", label: "📅 History" },
-          { key: "summary", label: "📊 Summary" },
-          { key: "journal", label: "✍️ Journal" },
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setView(tab.key as "today" | "history" | "summary" | "journal")}
-            style={{
-              flex: 1, padding: "14px 4px", border: "none",
-              background: "transparent", fontSize: 13,
-              fontWeight: view === tab.key ? 700 : 400,
-              color: view === tab.key ? G : MID,
-              borderBottom: view === tab.key ? `3px solid ${G}` : "3px solid transparent",
-              cursor: "pointer",
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* TODAY VIEW */}
-      {view === "today" && (
+      {/* ═══ NGAYON TAB ═══════════════════════════════════════ */}
+      {view === "ngayon" && (
         <div style={{ padding: "24px 20px" }}>
-          <p style={{ fontSize: 15, color: MID, marginBottom: 20 }}>
-            {new Date().toLocaleDateString("en-PH", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+
+          {/* Date */}
+          <p style={{ fontSize: 16, color: MID, margin: "0 0 24px 0", textAlign: "center", fontWeight: 600 }}>
+            📅 {todayStr}
           </p>
 
-          {/* Pain Score */}
-          <div style={{ background: "#fff", borderRadius: 16, padding: 20, marginBottom: 16 }}>
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: DARK, margin: "0 0 6px 0" }}>😣 Pain Score ngayon</h3>
-            <p style={{ fontSize: 13, color: MID, margin: "0 0 16px 0" }}>1 = Halos wala, 10 = Sobrang sakit</p>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-              {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                <button
-                  key={n}
-                  onClick={() => setTodayEntry(e => ({ ...e, painScore: n }))}
-                  style={{
-                    width: 44, height: 44, borderRadius: 12,
-                    border: todayEntry.painScore === n ? `3px solid ${getPainColor(n)}` : "2px solid #e0e0e0",
-                    background: todayEntry.painScore === n ? getPainColor(n) : "#fff",
-                    color: todayEntry.painScore === n ? "#fff" : DARK,
-                    fontSize: 16, fontWeight: 700, cursor: "pointer",
-                  }}
-                >{n}</button>
-              ))}
+          {/* ── EASEBREW 2x CHECK ───────────────────────────── */}
+          <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>☕ EaseBrew ngayon</h2>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0" }}>Na-inom mo na ba ang EaseBrew mo?</p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {/* Umaga */}
+              <button
+                onClick={() => setToday(e => ({ ...e, easebrewUmaga: !e.easebrewUmaga }))}
+                style={{
+                  width: "100%", padding: "20px 24px", borderRadius: 16, border: "none",
+                  background: today.easebrewUmaga ? G : "#F0F0E8",
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  cursor: "pointer", transition: "all 0.2s",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                  <span style={{ fontSize: 34 }}>🌅</span>
+                  <div style={{ textAlign: "left" as const }}>
+                    <p style={{ fontSize: 19, fontWeight: 700, color: today.easebrewUmaga ? WHITE : DARK, margin: 0 }}>Umaga</p>
+                    <p style={{ fontSize: 14, color: today.easebrewUmaga ? "rgba(255,255,255,0.8)" : MID, margin: 0 }}>1st sachet ng araw</p>
+                  </div>
+                </div>
+                <span style={{ fontSize: 36 }}>{today.easebrewUmaga ? "✅" : "⬜"}</span>
+              </button>
+
+              {/* Gabi */}
+              <button
+                onClick={() => setToday(e => ({ ...e, easebrewGabi: !e.easebrewGabi }))}
+                style={{
+                  width: "100%", padding: "20px 24px", borderRadius: 16, border: "none",
+                  background: today.easebrewGabi ? G : "#F0F0E8",
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  cursor: "pointer", transition: "all 0.2s",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                  <span style={{ fontSize: 34 }}>🌙</span>
+                  <div style={{ textAlign: "left" as const }}>
+                    <p style={{ fontSize: 19, fontWeight: 700, color: today.easebrewGabi ? WHITE : DARK, margin: 0 }}>Gabi</p>
+                    <p style={{ fontSize: 14, color: today.easebrewGabi ? "rgba(255,255,255,0.8)" : MID, margin: 0 }}>2nd sachet ng araw</p>
+                  </div>
+                </div>
+                <span style={{ fontSize: 36 }}>{today.easebrewGabi ? "✅" : "⬜"}</span>
+              </button>
+
+              {/* Avocado Oil */}
+              <button
+                onClick={() => setToday(e => ({ ...e, avocadoOil: !e.avocadoOil }))}
+                style={{
+                  width: "100%", padding: "20px 24px", borderRadius: 16, border: "none",
+                  background: today.avocadoOil ? "#2D5A1B" : "#F0F0E8",
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  cursor: "pointer", transition: "all 0.2s",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                  <span style={{ fontSize: 34 }}>🌿</span>
+                  <div style={{ textAlign: "left" as const }}>
+                    <p style={{ fontSize: 19, fontWeight: 700, color: today.avocadoOil ? WHITE : DARK, margin: 0 }}>Avocado Oil</p>
+                    <p style={{ fontSize: 14, color: today.avocadoOil ? "rgba(255,255,255,0.8)" : MID, margin: 0 }}>Na-massage na bago matulog</p>
+                  </div>
+                </div>
+                <span style={{ fontSize: 36 }}>{today.avocadoOil ? "✅" : "⬜"}</span>
+              </button>
             </div>
-            {todayEntry.painScore > 0 && (
-              <p style={{ fontSize: 15, color: getPainColor(todayEntry.painScore), fontWeight: 600, margin: 0 }}>
-                {getPainLabel(todayEntry.painScore)}
-              </p>
+
+            {/* Encouragement */}
+            {today.easebrewUmaga && today.easebrewGabi && (
+              <div style={{ marginTop: 14, background: "#E8F5E0", borderRadius: 12, padding: "14px 16px", textAlign: "center" as const }}>
+                <p style={{ fontSize: 17, color: G, fontWeight: 700, margin: 0 }}>
+                  🎉 Magaling! 2x na ngayon! Tuloy lang!
+                </p>
+              </div>
+            )}
+            {(today.easebrewUmaga || today.easebrewGabi) && !(today.easebrewUmaga && today.easebrewGabi) && (
+              <div style={{ marginTop: 14, background: "#FEF9E7", borderRadius: 12, padding: "14px 16px", textAlign: "center" as const }}>
+                <p style={{ fontSize: 16, color: AMBER, fontWeight: 600, margin: 0 }}>
+                  💪 Isang beses pa! Huwag kalimutang uminom {today.easebrewUmaga ? "ngayong gabi" : "ngayong umaga"}!
+                </p>
+              </div>
             )}
           </div>
 
-          {/* Pain Location */}
-          <div style={{ background: "#fff", borderRadius: 16, padding: 20, marginBottom: 16 }}>
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: DARK, margin: "0 0 12px 0" }}>📍 Pain Location</h3>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {PAIN_LOCATIONS.map(loc => (
+          {/* ── PAIN LEVEL ──────────────────────────────────── */}
+          <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>😣 Gaano kasakit ngayon?</h2>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0" }}>Piliin ang pinaka-tama para sa inyong pakiramdam</p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {PAIN_LEVELS.map(p => (
                 <button
-                  key={loc}
-                  onClick={() => setTodayEntry(e => ({ ...e, painLocation: loc }))}
+                  key={p.score}
+                  onClick={() => setToday(e => ({ ...e, painScore: p.score }))}
                   style={{
-                    padding: "8px 14px", borderRadius: 20,
-                    border: todayEntry.painLocation === loc ? `2px solid ${G}` : "2px solid #e0e0e0",
-                    background: todayEntry.painLocation === loc ? G : "#fff",
-                    color: todayEntry.painLocation === loc ? "#fff" : DARK,
-                    fontSize: 14, fontWeight: 500, cursor: "pointer",
+                    width: "100%", padding: "18px 20px", borderRadius: 16,
+                    border: today.painScore === p.score ? `3px solid ${p.color}` : "2.5px solid #E0D8CC",
+                    background: today.painScore === p.score ? p.color : WHITE,
+                    display: "flex", alignItems: "center", gap: 16,
+                    cursor: "pointer", transition: "all 0.15s",
                   }}
-                >{loc}</button>
+                >
+                  <span style={{ fontSize: 36, flexShrink: 0 }}>{p.emoji}</span>
+                  <span style={{ fontSize: 20, fontWeight: 700, color: today.painScore === p.score ? WHITE : DARK }}>
+                    {p.label}
+                  </span>
+                  {today.painScore === p.score && (
+                    <span style={{ marginLeft: "auto", fontSize: 26 }}>✅</span>
+                  )}
+                </button>
               ))}
             </div>
           </div>
 
-          {/* Wellness Checklist */}
-          <div style={{ background: "#fff", borderRadius: 16, padding: 20, marginBottom: 16 }}>
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: DARK, margin: "0 0 16px 0" }}>☕ Wellness Checklist</h3>
-            {[
-              { key: "easebrew", label: "☕ Na-inom ang Easebrew ngayon", val: todayEntry.easebrew },
-              { key: "avocadoOil", label: "🌿 Na-massage ang Avocado Oil", val: todayEntry.avocadoOil },
-            ].map(item => (
-              <div
-                key={item.key}
-                onClick={() => setTodayEntry(e => ({ ...e, [item.key]: !item.val }))}
-                style={{
-                  display: "flex", justifyContent: "space-between", alignItems: "center",
-                  padding: "14px 16px", borderRadius: 12, marginBottom: 10,
-                  background: item.val ? "#E8F5E0" : "#f5f5f5",
-                  border: item.val ? `2px solid ${G}` : "2px solid #e0e0e0",
-                  cursor: "pointer",
-                }}
-              >
-                <p style={{ fontSize: 16, margin: 0, fontWeight: 500, color: DARK }}>{item.label}</p>
-                <span style={{ fontSize: 24 }}>{item.val ? "✅" : "⬜"}</span>
-              </div>
-            ))}
+          {/* ── PAIN LOCATION ───────────────────────────────── */}
+          <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>📍 Saan sumasakit?</h2>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 16px 0" }}>I-tap ang pinakamasakit na parte</p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+              {PAIN_LOCATIONS.map(loc => (
+                <button
+                  key={loc}
+                  onClick={() => setToday(e => ({ ...e, painLocation: today.painLocation === loc ? "" : loc }))}
+                  style={{
+                    padding: "14px 20px", borderRadius: 14, border: "none",
+                    background: today.painLocation === loc ? G : "#F0EDE6",
+                    color: today.painLocation === loc ? WHITE : DARK,
+                    fontSize: 17, fontWeight: 600, cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {today.painLocation === loc ? "✅ " : ""}{loc}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Numbers */}
-          <div style={{ background: "#fff", borderRadius: 16, padding: 20, marginBottom: 16 }}>
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: DARK, margin: "0 0 16px 0" }}>📊 Numbers ngayon</h3>
-            {[
-              { key: "tubig", label: "💧 Tubig (glasses)", max: 12, unit: "glasses" },
-              { key: "exercise", label: "🏃 Exercise (minutes)", max: 120, unit: "mins" },
-              { key: "tulog", label: "😴 Tulog (hours)", max: 12, unit: "hrs" },
-            ].map(item => (
-              <div key={item.key} style={{ marginBottom: 16 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                  <p style={{ fontSize: 15, margin: 0, color: DARK }}>{item.label}</p>
-                  <p style={{ fontSize: 15, fontWeight: 700, margin: 0, color: G }}>
-                    {todayEntry[item.key as keyof DayEntry] as number} {item.unit}
-                  </p>
-                </div>
-                <input
-                  type="range" min={0} max={item.max}
-                  value={todayEntry[item.key as keyof DayEntry] as number}
-                  onChange={e => setTodayEntry(prev => ({ ...prev, [item.key]: Number(e.target.value) }))}
-                  style={{ width: "100%", accentColor: G }}
-                />
-              </div>
-            ))}
+          {/* ── MOOD ────────────────────────────────────────── */}
+          <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>😊 Paano ang mood mo?</h2>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 16px 0" }}>I-tap ang naglalarawan sa inyong mood</p>
+            <div style={{ display: "flex", gap: 8 }}>
+              {MOOD_OPTIONS.map(m => (
+                <button
+                  key={m.val}
+                  onClick={() => setToday(e => ({ ...e, mood: m.val }))}
+                  style={{
+                    flex: 1, padding: "14px 4px", borderRadius: 14,
+                    border: today.mood === m.val ? `3px solid ${G}` : "2px solid #E0D8CC",
+                    background: today.mood === m.val ? "#E8F5E0" : WHITE,
+                    display: "flex", flexDirection: "column", alignItems: "center",
+                    gap: 4, cursor: "pointer", transition: "all 0.15s",
+                  }}
+                >
+                  <span style={{ fontSize: 28 }}>{m.emoji}</span>
+                  <span style={{ fontSize: 11, color: today.mood === m.val ? G : MID, fontWeight: 600, textAlign: "center" as const, lineHeight: 1.2 }}>
+                    {m.label}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Mood + Relief */}
-          <div style={{ background: "#fff", borderRadius: 16, padding: 20, marginBottom: 16 }}>
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: DARK, margin: "0 0 16px 0" }}>😊 Mood at Relief</h3>
-            {[
-              { key: "mood", label: "😊 Mood ngayon", labels: MOOD_LABELS },
-              { key: "reliefFeel", label: "💊 Naramdaman ang relief?", labels: RELIEF_LABELS },
-            ].map(item => (
-              <div key={item.key} style={{ marginBottom: 16 }}>
-                <p style={{ fontSize: 15, margin: "0 0 8px 0", color: DARK, fontWeight: 500 }}>{item.label}</p>
-                <div style={{ display: "flex", gap: 8 }}>
-                  {[1,2,3,4,5].map(n => (
-                    <button
-                      key={n}
-                      onClick={() => setTodayEntry(e => ({ ...e, [item.key]: n }))}
-                      style={{
-                        flex: 1, padding: "10px 0", borderRadius: 10,
-                        border: (todayEntry[item.key as keyof DayEntry] as number) === n
-                          ? `2.5px solid ${G}` : "2px solid #e0e0e0",
-                        background: (todayEntry[item.key as keyof DayEntry] as number) === n
-                          ? "#E8F5E0" : "#fff",
-                        fontSize: 18, cursor: "pointer",
-                      }}
-                    >{n}</button>
-                  ))}
-                </div>
-                {(todayEntry[item.key as keyof DayEntry] as number) > 0 && (
-                  <p style={{ fontSize: 13, color: G, margin: "6px 0 0 0" }}>
-                    {item.labels[todayEntry[item.key as keyof DayEntry] as number]}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Gamot + Notes */}
-          <div style={{ background: "#fff", borderRadius: 16, padding: 20, marginBottom: 20 }}>
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: DARK, margin: "0 0 16px 0" }}>💊 Medicine at Notes</h3>
-            <p style={{ fontSize: 14, color: MID, margin: "0 0 6px 0" }}>Medicine na nainom (optional)</p>
-            <input
-              type="text"
-              placeholder="e.g. Biogesic, Alaxan..."
-              value={todayEntry.gamot}
-              onChange={e => setTodayEntry(prev => ({ ...prev, gamot: e.target.value }))}
-              style={{
-                width: "100%", padding: "12px 14px", borderRadius: 10,
-                border: "2px solid #e0e0e0", fontSize: 16,
-                background: "#FFFFFB", marginBottom: 14,
-                boxSizing: "border-box" as const,
-              }}
-            />
-            <p style={{ fontSize: 14, color: MID, margin: "0 0 6px 0" }}>Notes / Observations</p>
+          {/* ── NOTES ───────────────────────────────────────── */}
+          <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 20, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>✍️ Ano ang nararamdaman mo?</h2>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 14px 0" }}>Optional — isulat lang kung gusto mo</p>
             <textarea
-              placeholder="Ano ang nararamdaman mo ngayon? May napansin kang pagbabago?"
-              value={todayEntry.notes}
-              onChange={e => setTodayEntry(prev => ({ ...prev, notes: e.target.value }))}
-              rows={3}
+              placeholder="Halimbawa: Mas gaan na ang tuhod ko ngayon, nakakaabot na ako ng mesa nang hindi sumasakit..."
+              value={today.notes}
+              onChange={e => setToday(prev => ({ ...prev, notes: e.target.value }))}
+              rows={4}
               style={{
-                width: "100%", padding: "12px 14px", borderRadius: 10,
-                border: "2px solid #e0e0e0", fontSize: 16,
-                background: "#FFFFFB", resize: "none",
-                boxSizing: "border-box" as const,
+                width: "100%", padding: "16px", borderRadius: 14,
+                border: "2px solid #E0D8CC", fontSize: 17,
+                background: WHITE, resize: "none",
+                boxSizing: "border-box" as const, color: DARK,
+                fontFamily: "Georgia, serif", lineHeight: 1.6,
               }}
             />
           </div>
 
-          {/* Save Button */}
+          {/* ── SAVE BUTTON ─────────────────────────────────── */}
           <button
             onClick={saveEntry}
             style={{
-              width: "100%", padding: "18px",
+              width: "100%", padding: "22px",
               background: saved ? "#22c55e" : G,
-              color: "#fff", border: "none",
-              borderRadius: 14, fontSize: 19,
-              fontWeight: 700, cursor: "pointer",
-              transition: "background 0.3s",
+              color: WHITE, border: "none", borderRadius: 18,
+              fontSize: 22, fontWeight: 700, cursor: "pointer",
+              transition: "background 0.3s", fontFamily: "Georgia, serif",
+              boxShadow: "0 4px 16px rgba(57,97,59,0.3)",
             }}
           >
-            {saved ? "✅ Saved na!" : "💾 I-save ang Entry ngayon"}
+            {saved ? "✅ Nai-save na! Magaling!" : "💾 I-save ang Record Ko"}
           </button>
+
+          <p style={{ textAlign: "center", fontSize: 15, color: MID, marginTop: 14, lineHeight: 1.6 }}>
+            Gawin ito araw-araw para makita ang inyong progress! 💪
+          </p>
         </div>
       )}
 
-      {/* HISTORY VIEW */}
+      {/* ═══ HISTORY TAB ══════════════════════════════════════ */}
       {view === "history" && (
         <div style={{ padding: "24px 20px" }}>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: G, marginBottom: 16 }}>📅 Pain History</h2>
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>📅 Inyong Record</h2>
+          <p style={{ fontSize: 16, color: MID, margin: "0 0 20px 0" }}>Tingnan ang inyong progress araw-araw</p>
+
           {entries.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "40px 20px", color: MID }}>
-              <p style={{ fontSize: 48 }}>📋</p>
-              <p style={{ fontSize: 17 }}>Wala pang entries. I-log ang first day mo!</p>
+            <div style={{ textAlign: "center", padding: "48px 20px", background: WHITE, borderRadius: 20 }}>
+              <p style={{ fontSize: 56, marginBottom: 12 }}>📋</p>
+              <p style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Wala pang record</p>
+              <p style={{ fontSize: 17, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>I-tap ang "Ngayon" para simulan ang inyong unang entry!</p>
+              <button
+                onClick={() => setView("ngayon")}
+                style={{ background: G, color: WHITE, border: "none", borderRadius: 14, padding: "18px 32px", fontSize: 18, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif" }}
+              >
+                📝 Magsimula Na →
+              </button>
             </div>
           ) : (
-            [...entries].reverse().map((entry, i) => (
-              <div key={i} style={{
-                background: "#fff", borderRadius: 14, padding: 16,
-                marginBottom: 12, borderLeft: `4px solid ${getPainColor(entry.painScore)}`
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0 }}>
-                    {new Date(entry.date).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" })}
-                  </p>
-                  <span style={{
-                    background: getPainColor(entry.painScore),
-                    color: "#fff", borderRadius: 8,
-                    padding: "2px 10px", fontSize: 14, fontWeight: 700
-                  }}>
-                    Pain: {entry.painScore}/10
-                  </span>
-                </div>
-                <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                  {entry.painLocation && <span style={{ fontSize: 13, color: MID }}>📍 {entry.painLocation}</span>}
-                  <span style={{ fontSize: 13, color: entry.easebrew ? G : "#aaa" }}>
-                    {entry.easebrew ? "☕✅" : "☕❌"} Easebrew
-                  </span>
-                  <span style={{ fontSize: 13, color: entry.avocadoOil ? G : "#aaa" }}>
-                    {entry.avocadoOil ? "🌿✅" : "🌿❌"} Avocado Oil
-                  </span>
-                  <span style={{ fontSize: 13, color: MID }}>💧 {entry.tubig} glasses</span>
-                  <span style={{ fontSize: 13, color: MID }}>😴 {entry.tulog} hrs</span>
-                  <span style={{ fontSize: 13, color: MID }}>😊 Mood: {entry.mood}/5</span>
-                </div>
-                {entry.notes && (
-                  <p style={{ fontSize: 14, color: MID, margin: "8px 0 0 0", fontStyle: "italic" }}>
-                    "{entry.notes}"
-                  </p>
-                )}
+            <>
+              {/* Summary card */}
+              <div style={{ background: G, borderRadius: 20, padding: "22px 20px", marginBottom: 20, display: "flex", gap: 12 }}>
+                {[
+                  { label: "Araw", value: `${totalDays}` },
+                  { label: "Avg Pain", value: avgPain },
+                  { label: "2x/day", value: `${consistRate}%` },
+                ].map((s, i) => (
+                  <div key={i} style={{ flex: 1, textAlign: "center" as const }}>
+                    <p style={{ fontSize: 28, fontWeight: 700, color: GOLD, margin: 0 }}>{s.value}</p>
+                    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", margin: 0 }}>{s.label}</p>
+                  </div>
+                ))}
               </div>
-            ))
+
+              {[...entries].reverse().map((entry, i) => (
+                <div key={i} style={{
+                  background: WHITE, borderRadius: 18, padding: "20px",
+                  marginBottom: 12, borderLeft: `5px solid ${getPainColor(entry.painScore)}`,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                    <p style={{ fontSize: 17, fontWeight: 700, color: DARK, margin: 0 }}>
+                      {new Date(entry.date + "T00:00:00").toLocaleDateString("fil-PH", { weekday: "short", month: "short", day: "numeric" })}
+                    </p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 24 }}>{getPainEmoji(entry.painScore)}</span>
+                      <span style={{
+                        background: getPainColor(entry.painScore), color: WHITE,
+                        borderRadius: 10, padding: "4px 12px", fontSize: 15, fontWeight: 700,
+                      }}>
+                        {entry.painScore}/10
+                      </span>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: entry.notes ? 10 : 0 }}>
+                    <span style={{ fontSize: 15, background: entry.easebrewUmaga ? "#E8F5E0" : "#F5F0E8", color: entry.easebrewUmaga ? G : "#aaa", borderRadius: 8, padding: "5px 12px", fontWeight: 600 }}>
+                      {entry.easebrewUmaga ? "☕✅" : "☕❌"} Umaga
+                    </span>
+                    <span style={{ fontSize: 15, background: entry.easebrewGabi ? "#E8F5E0" : "#F5F0E8", color: entry.easebrewGabi ? G : "#aaa", borderRadius: 8, padding: "5px 12px", fontWeight: 600 }}>
+                      {entry.easebrewGabi ? "☕✅" : "☕❌"} Gabi
+                    </span>
+                    {entry.avocadoOil && (
+                      <span style={{ fontSize: 15, background: "#E8F5E0", color: G, borderRadius: 8, padding: "5px 12px", fontWeight: 600 }}>
+                        🌿✅ Avocado Oil
+                      </span>
+                    )}
+                    {entry.painLocation && (
+                      <span style={{ fontSize: 15, background: "#F0EDE6", color: MID, borderRadius: 8, padding: "5px 12px" }}>
+                        📍 {entry.painLocation}
+                      </span>
+                    )}
+                  </div>
+
+                  {entry.notes ? (
+                    <p style={{ fontSize: 15, color: MID, margin: 0, fontStyle: "italic", lineHeight: 1.6 }}>
+                      "{entry.notes}"
+                    </p>
+                  ) : null}
+                </div>
+              ))}
+            </>
           )}
         </div>
       )}
 
-      {/* SUMMARY VIEW */}
-      {view === "summary" && (
-        <div style={{ padding: "24px 20px" }}>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: G, marginBottom: 16 }}>📊 Your Progress</h2>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
-            {[
-              { label: "Days Logged", value: `${entries.length}/30`, icon: "📅" },
-              { label: "Average Pain", value: avgPain, icon: "😣" },
-              { label: "Easebrew Rate", value: `${easebrewRate}%`, icon: "☕" },
-              { label: "Days Remaining", value: `${Math.max(0, 30 - entries.length)}`, icon: "⏳" },
-            ].map((stat, i) => (
-              <div key={i} style={{ background: "#fff", borderRadius: 14, padding: "16px", textAlign: "center" as const }}>
-                <p style={{ fontSize: 28, margin: "0 0 4px 0" }}>{stat.icon}</p>
-                <p style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 4px 0" }}>{stat.value}</p>
-                <p style={{ fontSize: 13, color: MID, margin: 0 }}>{stat.label}</p>
-              </div>
-            ))}
-          </div>
-
-          <h3 style={{ fontSize: 17, fontWeight: 700, color: G, marginBottom: 12 }}>Weekly Progress</h3>
-          {[0, 1, 2, 3].map(week => {
-            const avg = weeklyAvg(week);
-            return (
-              <div key={week} style={{
-                background: "#fff", borderRadius: 14, padding: 16,
-                marginBottom: 10, display: "flex",
-                justifyContent: "space-between", alignItems: "center"
-              }}>
-                <div>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0 }}>Week {week + 1}</p>
-                  <p style={{ fontSize: 13, color: MID, margin: "2px 0 0 0" }}>
-                    Day {week * 7 + 1}–{Math.min((week + 1) * 7, 30)}
-                  </p>
-                </div>
-                <div style={{ textAlign: "right" as const }}>
-                  {avg ? (
-                    <>
-                      <p style={{ fontSize: 22, fontWeight: 700, color: getPainColor(Number(avg)), margin: 0 }}>{avg}</p>
-                      <p style={{ fontSize: 12, color: MID, margin: 0 }}>avg pain</p>
-                    </>
-                  ) : (
-                    <p style={{ fontSize: 14, color: "#ccc", margin: 0 }}>Not yet</p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* JOURNAL VIEW */}
-      {view === "journal" && (
-        <div style={{ padding: "24px 20px" }}>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: G, marginBottom: 8 }}>✍️ Wellness Journal</h2>
-          <p style={{ fontSize: 15, color: MID, marginBottom: 20 }}>
-            Isulat ang nararamdaman mo, ang laban mo, at ang tagumpay mo.
-          </p>
-          {[
-            { week: 1, title: "🌱 Week 1 — Simula ng Journey (Day 1-7)", questions: ["Bakit ko sinimulang gamitin ang Easebrew?", "Ano ang pinaka-masakit na parte ng katawan ko?", "Ano ang gusto kong maramdaman pagkatapos ng 30 days?"] },
-            { week: 2, title: "💪 Week 2 — Unang Pagbabago (Day 8-14)", questions: ["May napansin ba akong change sa nakaraang week?", "Paano ko nararamdaman ang Easebrew sa katawan ko?"] },
-            { week: 3, title: "🌟 Week 3 — Progress Ko (Day 15-21)", questions: ["Kung ikukumpara ko ang sarili ko ngayon sa Week 1 — ano ang difference?", "Ano ang pinaka-epektibong part ng routine ko?"] },
-            { week: 4, title: "🏆 Week 4 — Bagong Katawan (Day 22-30)", questions: ["Ano ang pinakamalaking pagbabago na naramdaman ko?", "Irerekomenda ko ba ang Easebrew sa pamilya at kaibigan ko? Bakit?"] },
-          ].map(section => (
-            <div key={section.week} style={{ background: "#fff", borderRadius: 16, padding: 20, marginBottom: 16 }}>
-              <h3 style={{ fontSize: 17, fontWeight: 700, color: G, margin: "0 0 10px 0" }}>{section.title}</h3>
-              {section.questions.map((q, qi) => (
-                <p key={qi} style={{ fontSize: 14, color: AMBER, margin: "0 0 8px 0" }}>❓ {q}</p>
-              ))}
-              <textarea
-                placeholder="Isulat ang nararamdaman mo dito..."
-                value={journalText[section.week] || ""}
-                onChange={e => saveJournal(section.week, e.target.value)}
-                rows={4}
-                style={{
-                  width: "100%", padding: "12px 14px",
-                  borderRadius: 10, border: `2px solid ${CREAM}`,
-                  fontSize: 16, background: "#FFFFFB",
-                  resize: "none", marginTop: 8,
-                  boxSizing: "border-box" as const, color: DARK,
-                }}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* BOTTOM NAV */}
+      {/* ── BOTTOM NAV ──────────────────────────────────────── */}
       <div style={{
         position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
-        width: "100%", maxWidth: 680, background: "#fff",
-        borderTop: `2px solid ${CREAM}`, padding: "12px 24px",
+        width: "100%", maxWidth: 680, background: WHITE,
+        borderTop: `2px solid ${CREAM}`, padding: "14px 24px",
         display: "flex", justifyContent: "center",
+        boxShadow: "0 -4px 16px rgba(0,0,0,0.08)",
       }}>
         <Link href="/" style={{
-          background: G, color: "#fff", borderRadius: 12,
-          padding: "12px 32px", fontSize: 16, fontWeight: 700, textDecoration: "none",
+          background: G, color: WHITE, borderRadius: 14,
+          padding: "16px 40px", fontSize: 18, fontWeight: 700,
+          textDecoration: "none", fontFamily: "Georgia, serif",
         }}>
-          🏠 Back to Hub
+          🏠 Bumalik sa Hub
         </Link>
       </div>
     </div>

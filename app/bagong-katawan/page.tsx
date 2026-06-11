@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const G = "#39613B";
@@ -115,15 +116,22 @@ const PLAN = [
   { day: 90, phase: 3, week: "Wk5", agahan: "Easebrew ☕ + Oatmeal + Mixed Fruits", tanghalian: "Monggo + Malunggay + B.Rice", merienda: "Kamote + Ginger Tea", hapunan: "Pesang Isda + B.Rice", exercise: "Compound Exercises 40 min — FINAL DAY! 🏆", focus: "🎉 90 DAYS COMPLETE — BAGONG KATAWAN NA!" },
 ];
 
-const TABS = ["📅 90-Day Plan", "📊 Progress", "🌿 Reference"];
+const TABS = ["📅 90-Day Plan", "📊 Progress", "🌿 Gabay"];
 
 export default function BagongKatawanPage() {
+  const router = useRouter();
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    const verified = sessionStorage.getItem("easebrew-verified");
+    if (!verified) { router.replace("/verify"); } else { setChecking(false); }
+  }, [router]);
+
   const [activeTab, setActiveTab] = useState(0);
   const [activePhase, setActivePhase] = useState(1);
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
   const [completedDays, setCompletedDays] = useState<number[]>([]);
   const [trackData, setTrackData] = useState<Record<number, DayEntry>>({});
-
   const [measurements, setMeasurements] = useState({
     timbang1: "", timbang30: "", timbang60: "", timbang90: "",
     waist1: "", waist30: "", waist60: "", waist90: "",
@@ -131,13 +139,25 @@ export default function BagongKatawanPage() {
   });
 
   useEffect(() => {
-    const saved = localStorage.getItem("easebrew-90days");
-    const savedTrack = localStorage.getItem("easebrew-90days-track");
-    const savedMeas = localStorage.getItem("easebrew-90days-meas");
-    if (saved) setCompletedDays(JSON.parse(saved));
-    if (savedTrack) setTrackData(JSON.parse(savedTrack));
-    if (savedMeas) setMeasurements(JSON.parse(savedMeas));
-  }, []);
+    if (checking) return;
+    try {
+      const saved = localStorage.getItem("easebrew-90days");
+      const savedTrack = localStorage.getItem("easebrew-90days-track");
+      const savedMeas = localStorage.getItem("easebrew-90days-meas");
+      if (saved) setCompletedDays(JSON.parse(saved));
+      if (savedTrack) setTrackData(JSON.parse(savedTrack));
+      if (savedMeas) setMeasurements(JSON.parse(savedMeas));
+    } catch {}
+  }, [checking]);
+
+  if (checking) return (
+    <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ textAlign: "center" }}>
+        <p style={{ fontSize: 48, margin: "0 0 12px 0" }}>🏆</p>
+        <p style={{ fontSize: 20, color: G, fontWeight: 700 }}>Loading Bagong Katawan...</p>
+      </div>
+    </div>
+  );
 
   const toggleComplete = (day: number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -164,47 +184,52 @@ export default function BagongKatawanPage() {
   const phase3Done = PLAN.filter(d => d.phase === 3 && completedDays.includes(d.day)).length;
 
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 100 }}>
+    <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 110 }}>
 
-      {/* HEADER */}
-      <div style={{ background: G, padding: "24px 24px 20px", color: "#fff" }}>
-        <Link href="/" style={{ color: GOLD, fontSize: 14, textDecoration: "none", display: "block", marginBottom: 12 }}>
-          ← Back to Hub
+      {/* ── HEADER ── */}
+      <div style={{ background: G, padding: "36px 24px 28px", color: "#fff" }}>
+        <Link href="/" style={{ color: GOLD, fontSize: 16, fontWeight: 600, textDecoration: "none", display: "block", marginBottom: 16 }}>
+          ← Bumalik sa Hub
         </Link>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
           <div style={{ flex: 1 }}>
-            <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>🏆 Bagong Katawan sa 90 Days</h1>
-            <p style={{ fontSize: 14, opacity: 0.8, margin: "4px 0 0 0" }}>Complete Wellness Program • 3 Phases</p>
+            <h1 style={{ fontSize: 26, fontWeight: 700, margin: "0 0 6px 0", lineHeight: 1.3 }}>
+              🏆 Bagong Katawan sa 90 Days
+            </h1>
+            <p style={{ fontSize: 16, opacity: 0.85, margin: 0 }}>Complete Wellness Program • 3 Phases</p>
           </div>
-          <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "10px 14px", flexShrink: 0 }}>
-            <p style={{ fontSize: 26, fontWeight: 700, margin: 0, color: GOLD }}>{completedDays.length}</p>
-            <p style={{ fontSize: 11, margin: 0, opacity: 0.8 }}>/ 90 days</p>
+          <div style={{
+            textAlign: "center", background: "rgba(255,255,255,0.15)",
+            borderRadius: 16, padding: "14px 18px", flexShrink: 0,
+          }}>
+            <p style={{ fontSize: 32, fontWeight: 700, margin: 0, color: GOLD }}>{completedDays.length}</p>
+            <p style={{ fontSize: 13, margin: 0, opacity: 0.85 }}>/ 90 araw</p>
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div style={{ marginTop: 14 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-            <p style={{ fontSize: 13, margin: 0, opacity: 0.8 }}>{progress}% complete</p>
-            <p style={{ fontSize: 13, margin: 0, color: GOLD, fontWeight: 700 }}>{90 - completedDays.length} days to go!</p>
+        <div style={{ marginTop: 18 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+            <p style={{ fontSize: 15, margin: 0, opacity: 0.85, fontWeight: 600 }}>{progress}% kumpleto</p>
+            <p style={{ fontSize: 15, margin: 0, color: GOLD, fontWeight: 700 }}>{90 - completedDays.length} araw pa!</p>
           </div>
-          <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 999, height: 10 }}>
-            <div style={{ width: `${progress}%`, background: GOLD, height: 10, borderRadius: 999, transition: "width 0.5s ease" }} />
+          <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: 999, height: 14 }}>
+            <div style={{ width: `${progress}%`, background: GOLD, height: 14, borderRadius: 999, transition: "width 0.5s ease" }} />
           </div>
         </div>
 
         {/* Phase Mini Progress */}
-        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+        <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
           {([1, 2, 3] as const).map(ph => {
             const done = ph === 1 ? phase1Done : ph === 2 ? phase2Done : phase3Done;
             const pct = Math.round((done / 30) * 100);
             const pc = PHASE_COLORS[ph];
             return (
-              <div key={ph} style={{ flex: 1, background: "rgba(255,255,255,0.1)", borderRadius: 10, padding: "8px 10px" }}>
-                <p style={{ fontSize: 11, margin: "0 0 4px 0", opacity: 0.8 }}>{pc.label}</p>
-                <p style={{ fontSize: 13, fontWeight: 700, margin: "0 0 4px 0", color: GOLD }}>{done}/30</p>
-                <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 999, height: 4 }}>
-                  <div style={{ width: `${pct}%`, background: GOLD, height: 4, borderRadius: 999 }} />
+              <div key={ph} style={{ flex: 1, background: "rgba(255,255,255,0.12)", borderRadius: 12, padding: "10px 12px" }}>
+                <p style={{ fontSize: 12, margin: "0 0 4px 0", opacity: 0.85 }}>{pc.label}</p>
+                <p style={{ fontSize: 16, fontWeight: 700, margin: "0 0 6px 0", color: GOLD }}>{done}/30</p>
+                <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 999, height: 6 }}>
+                  <div style={{ width: `${pct}%`, background: GOLD, height: 6, borderRadius: 999 }} />
                 </div>
               </div>
             );
@@ -212,38 +237,45 @@ export default function BagongKatawanPage() {
         </div>
       </div>
 
-      {/* TABS */}
+      {/* ── TABS ── */}
       <div style={{ display: "flex", background: "#fff", borderBottom: `2px solid ${CREAM}` }}>
         {TABS.map((tab, i) => (
           <button key={i} onClick={() => setActiveTab(i)} style={{
-            flex: 1, padding: "14px 8px", border: "none", cursor: "pointer",
+            flex: 1, padding: "16px 6px", border: "none", cursor: "pointer",
             background: activeTab === i ? G : "#fff",
             color: activeTab === i ? "#fff" : MID,
-            fontSize: 13, fontWeight: activeTab === i ? 700 : 500,
+            fontSize: 14, fontWeight: activeTab === i ? 700 : 500,
             borderBottom: activeTab === i ? `3px solid ${GOLD}` : "3px solid transparent",
+            transition: "all 0.2s",
           }}>{tab}</button>
         ))}
       </div>
 
-      {/* TAB: 90-DAY PLAN */}
+      {/* ══════════════════════════════════════
+          TAB 0 — 90-DAY PLAN
+      ══════════════════════════════════════ */}
       {activeTab === 0 && (
         <div>
           {/* Phase Selector */}
-          <div style={{ padding: "16px 20px 0" }}>
-            <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ padding: "20px 20px 0" }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>Piliin ang Phase</h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {([1, 2, 3] as const).map(ph => {
                 const pc = PHASE_COLORS[ph];
+                const done = ph === 1 ? phase1Done : ph === 2 ? phase2Done : phase3Done;
                 return (
                   <button key={ph} onClick={() => { setActivePhase(ph); setExpandedDay(null); }} style={{
-                    flex: 1, padding: "12px 8px", borderRadius: 14,
-                    border: activePhase === ph ? `2.5px solid ${pc.border}` : "2px solid #C5B99A",
+                    padding: "18px 20px", borderRadius: 16,
+                    border: activePhase === ph ? `3px solid ${pc.border}` : "2px solid #C5B99A",
                     background: activePhase === ph ? pc.bg : "#FFFFFB",
-                    color: activePhase === ph ? pc.color : MID,
-                    cursor: "pointer", textAlign: "center" as const,
+                    cursor: "pointer", textAlign: "left",
+                    display: "flex", justifyContent: "space-between", alignItems: "center",
                   }}>
-                    <p style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>{pc.label}</p>
-                    <p style={{ fontSize: 11, margin: "2px 0 0 0" }}>{pc.days}</p>
-                    <p style={{ fontSize: 11, margin: "2px 0 0 0", fontWeight: 600 }}>{pc.sub}</p>
+                    <div>
+                      <p style={{ fontSize: 18, fontWeight: 700, color: pc.color, margin: "0 0 4px 0" }}>{pc.label} — {pc.sub}</p>
+                      <p style={{ fontSize: 15, color: MID, margin: 0 }}>{pc.days} · {done}/30 araw tapos na</p>
+                    </div>
+                    <span style={{ fontSize: 22, color: pc.color }}>{activePhase === ph ? "▼" : "▶"}</span>
                   </button>
                 );
               })}
@@ -251,7 +283,7 @@ export default function BagongKatawanPage() {
           </div>
 
           {/* Day Cards */}
-          <div style={{ padding: "16px 20px 0" }}>
+          <div style={{ padding: "20px 20px 0" }}>
             {filteredDays.map(d => {
               const isDone = completedDays.includes(d.day);
               const isExpanded = expandedDay === d.day;
@@ -260,134 +292,164 @@ export default function BagongKatawanPage() {
               const track = trackData[d.day] || emptyDay();
 
               return (
-                <div key={d.day} style={{ marginBottom: 12 }}>
+                <div key={d.day} style={{ marginBottom: 14 }}>
+                  {/* Day Header */}
                   <div
                     onClick={() => setExpandedDay(isExpanded ? null : d.day)}
                     style={{
                       background: isDone ? "#E8F5E0" : "#FFFFFB",
                       border: `2px solid ${isDone ? G : "#C5B99A"}`,
-                      borderRadius: 16, padding: "14px 16px", cursor: "pointer",
+                      borderRadius: 18, padding: "18px 20px", cursor: "pointer",
+                      minHeight: 80,
                     }}
                   >
-                    {/* Card Header */}
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                        {/* Day circle */}
                         <div style={{
-                          width: 44, height: 44, borderRadius: 12,
+                          width: 54, height: 54, borderRadius: 14,
                           background: isDone ? G : pc.bg,
                           border: `2px solid ${isDone ? G : pc.border}`,
                           display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                         }}>
-                          <span style={{ fontSize: 15, fontWeight: 700, color: isDone ? "#fff" : pc.color }}>
+                          <span style={{ fontSize: isDone ? 24 : 18, fontWeight: 700, color: isDone ? "#fff" : pc.color }}>
                             {isDone ? "✓" : d.day}
                           </span>
                         </div>
                         <div>
-                          <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0 }}>
-                            Day {d.day} {d.day === 90 ? "🏆" : ""}
+                          <p style={{ fontSize: 19, fontWeight: 700, color: DARK, margin: "0 0 4px 0" }}>
+                            Araw {d.day} {d.day === 90 ? "🏆" : ""}
                           </p>
-                          <p style={{ fontSize: 12, color: MID, margin: "2px 0 0 0" }}>
-                            {pc.label} {d.week} • {isRest ? "💤 Rest Day" : "💪 Active Day"}
+                          <p style={{ fontSize: 14, color: MID, margin: 0 }}>
+                            {pc.label} {d.week} · {isRest ? "💤 Rest Day" : "💪 Active Day"}
                           </p>
                         </div>
                       </div>
-                      <span style={{ fontSize: 18, color: MID }}>{isExpanded ? "▲" : "▼"}</span>
+                      <div style={{
+                        width: 44, height: 44, borderRadius: 999,
+                        background: isExpanded ? G : "#F0EAE0",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 18, color: isExpanded ? "#fff" : G, flexShrink: 0,
+                      }}>
+                        {isExpanded ? "▲" : "▼"}
+                      </div>
                     </div>
 
                     {/* Focus badge */}
-                    <div style={{ marginTop: 8 }}>
-                      <span style={{ background: pc.bg, color: pc.color, borderRadius: 20, padding: "3px 12px", fontSize: 12, fontWeight: 600, border: `1px solid ${pc.border}` }}>
+                    <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      <span style={{ background: pc.bg, color: pc.color, borderRadius: 20, padding: "5px 14px", fontSize: 14, fontWeight: 600, border: `1px solid ${pc.border}` }}>
                         🎯 {d.focus}
                       </span>
-                      {isDone && <span style={{ marginLeft: 8, background: "#E8F5E0", color: G, borderRadius: 20, padding: "3px 10px", fontSize: 12, fontWeight: 700 }}>✅ Done!</span>}
+                      {isDone && <span style={{ background: "#E8F5E0", color: G, borderRadius: 20, padding: "5px 12px", fontSize: 14, fontWeight: 700 }}>✅ Tapos na!</span>}
                     </div>
+                  </div>
 
-                    {/* Expanded */}
-                    {isExpanded && (
-                      <div style={{ marginTop: 14, borderTop: `1px solid ${CREAM}`, paddingTop: 14 }}>
+                  {/* Expanded Content */}
+                  {isExpanded && (
+                    <div style={{ background: "#FFFFFB", border: `2px solid #C5B99A`, borderTop: "none", borderRadius: "0 0 18px 18px", padding: "20px" }}>
 
-                        {/* Meal Plan */}
-                        <div style={{ background: "#E8F5E0", borderRadius: 12, padding: "12px 14px", marginBottom: 10 }}>
-                          <p style={{ fontSize: 12, fontWeight: 700, color: G, margin: "0 0 8px 0", textTransform: "uppercase", letterSpacing: 0.8 }}>🍽️ Today's Meal Plan</p>
+                      {/* Meal Plan */}
+                      <div style={{ background: "#E8F5E0", borderRadius: 14, padding: "16px 18px", marginBottom: 14 }}>
+                        <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>🍽️ Pagkain Ngayon</p>
+                        {[
+                          { label: "☀️ Agahan", val: d.agahan },
+                          { label: "🌤 Tanghalian", val: d.tanghalian },
+                          { label: "🫖 Merienda", val: d.merienda },
+                          { label: "🌙 Hapunan", val: d.hapunan },
+                        ].map((item, i) => (
+                          <div key={i} style={{ display: "flex", gap: 10, marginBottom: i < 3 ? 10 : 0, alignItems: "flex-start" }}>
+                            <span style={{ fontSize: 15, color: AMBER, fontWeight: 700, minWidth: 100, flexShrink: 0 }}>{item.label}</span>
+                            <span style={{ fontSize: 15, color: DARK, lineHeight: 1.5 }}>{item.val}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Exercise */}
+                      <div style={{ background: isRest ? "#F5F5F5" : "#E6F1FB", borderRadius: 14, padding: "16px 18px", marginBottom: 14 }}>
+                        <p style={{ fontSize: 16, fontWeight: 700, color: "#185FA5", margin: "0 0 8px 0" }}>💪 Exercise Ngayon</p>
+                        <p style={{ fontSize: 16, color: DARK, margin: 0, lineHeight: 1.6 }}>{d.exercise}</p>
+                      </div>
+
+                      {/* Easebrew reminder */}
+                      <div style={{ background: "#FFFBF0", border: `2px solid ${GOLD}`, borderRadius: 14, padding: "14px 18px", marginBottom: 18 }}>
+                        <p style={{ fontSize: 15, color: AMBER, margin: 0, lineHeight: 1.6 }}>
+                          ☕ <strong>Easebrew</strong> — uminom 30 minuto bago kumain<br />
+                          🌿 <strong>Avocado Oil</strong> — i-massage gabi bago matulog
+                        </p>
+                      </div>
+
+                      {/* Daily Tracker */}
+                      <div style={{ background: CREAM, borderRadius: 14, padding: "16px 18px", marginBottom: 16 }}>
+                        <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>📊 I-Track ang Araw na Ito</p>
+
+                        {/* Checkboxes — large */}
+                        <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
                           {[
-                            { label: "☀️ Agahan", val: d.agahan },
-                            { label: "🌤 Tanghalian", val: d.tanghalian },
-                            { label: "🫖 Merienda", val: d.merienda },
-                            { label: "🌙 Hapunan", val: d.hapunan },
-                          ].map((item, i) => (
-                            <div key={i} style={{ display: "flex", gap: 8, marginBottom: 4 }}>
-                              <span style={{ fontSize: 13, color: AMBER, minWidth: 90, flexShrink: 0 }}>{item.label}</span>
-                              <span style={{ fontSize: 13, color: DARK }}>{item.val}</span>
+                            { key: "easebrew", label: "☕ Easebrew", val: track.easebrew },
+                            { key: "exercise", label: "💪 Exercise", val: track.exercise },
+                            { key: "avocado", label: "🌿 Avocado Oil", val: track.avocado },
+                          ].map(item => (
+                            <div key={item.key}
+                              onClick={e => { e.stopPropagation(); saveTrack(d.day, { ...track, [item.key]: !item.val }); }}
+                              style={{
+                                flex: 1,
+                                background: item.val ? "#E8F5E0" : "#fff",
+                                border: `2px solid ${item.val ? G : "#ddd"}`,
+                                borderRadius: 12, padding: "14px 8px", cursor: "pointer", textAlign: "center",
+                              }}>
+                              <p style={{ fontSize: 13, margin: "0 0 6px 0", color: DARK, fontWeight: 600 }}>{item.label}</p>
+                              <span style={{ fontSize: 26 }}>{item.val ? "✅" : "⬜"}</span>
                             </div>
                           ))}
                         </div>
 
-                        {/* Exercise */}
-                        <div style={{ background: isRest ? "#F5F5F5" : "#E6F1FB", borderRadius: 12, padding: "12px 14px", marginBottom: 10 }}>
-                          <p style={{ fontSize: 12, fontWeight: 700, color: "#185FA5", margin: "0 0 6px 0", textTransform: "uppercase", letterSpacing: 0.8 }}>💪 Exercise</p>
-                          <p style={{ fontSize: 14, color: DARK, margin: 0 }}>{d.exercise}</p>
+                        {/* Number inputs */}
+                        <div style={{ display: "flex", gap: 10, marginBottom: 14 }} onClick={e => e.stopPropagation()}>
+                          {[
+                            { key: "tubig", label: "💧 Tubig", sub: "(glasses)", val: track.tubig, max: 12 },
+                            { key: "painScore", label: "😣 Sakit", sub: "(1-10)", val: track.painScore, max: 10 },
+                            { key: "energyScore", label: "⚡ Lakas", sub: "(1-10)", val: track.energyScore, max: 10 },
+                          ].map(item => (
+                            <div key={item.key} style={{ flex: 1, background: "#fff", border: "1.5px solid #ddd", borderRadius: 12, padding: "12px 8px", textAlign: "center" }}>
+                              <p style={{ fontSize: 14, fontWeight: 700, margin: "0 0 2px 0", color: DARK }}>{item.label}</p>
+                              <p style={{ fontSize: 12, color: MID, margin: "0 0 8px 0" }}>{item.sub}</p>
+                              <input type="number" min={0} max={item.max} value={item.val || ""}
+                                onChange={e => saveTrack(d.day, { ...track, [item.key]: Number(e.target.value) })}
+                                style={{ width: "100%", padding: "8px 4px", borderRadius: 8, border: "1.5px solid #ddd", fontSize: 20, textAlign: "center", background: "transparent", color: DARK, boxSizing: "border-box", fontWeight: 700 }} />
+                            </div>
+                          ))}
                         </div>
 
-                        {/* Easebrew reminder */}
-                        <div style={{ background: "#FFFBF0", border: `1.5px solid ${GOLD}`, borderRadius: 12, padding: "10px 14px", marginBottom: 14 }}>
-                          <p style={{ fontSize: 13, color: AMBER, margin: 0 }}>
-                            ☕ <strong>Easebrew</strong> — 30 mins before breakfast • 🌿 <strong>Avocado Oil</strong> — gabi bago matulog
-                          </p>
+                        {/* Notes */}
+                        <div onClick={e => e.stopPropagation()}>
+                          <p style={{ fontSize: 15, fontWeight: 600, color: MID, margin: "0 0 8px 0" }}>📝 Mga Tala Mo</p>
+                          <textarea
+                            placeholder="Ano ang naramdaman mo ngayon?..."
+                            value={track.notes}
+                            onChange={e => saveTrack(d.day, { ...track, notes: e.target.value })}
+                            rows={2}
+                            style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid #ddd", fontSize: 16, background: "#fff", resize: "none", boxSizing: "border-box", color: DARK, lineHeight: 1.6 }}
+                          />
                         </div>
-
-                        {/* Daily Tracker */}
-                        <div style={{ background: CREAM, borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
-                          <p style={{ fontSize: 14, fontWeight: 700, color: G, margin: "0 0 10px 0" }}>📊 Track this day</p>
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 10 }}>
-                            {[
-                              { key: "easebrew", label: "☕ Easebrew", val: track.easebrew },
-                              { key: "exercise", label: "💪 Exercise", val: track.exercise },
-                              { key: "avocado", label: "🌿 Avocado Oil", val: track.avocado },
-                            ].map(item => (
-                              <div key={item.key}
-                                onClick={e => { e.stopPropagation(); saveTrack(d.day, { ...track, [item.key]: !item.val }); }}
-                                style={{
-                                  background: item.val ? "#E8F5E0" : "#fff",
-                                  border: `1.5px solid ${item.val ? G : "#ddd"}`,
-                                  borderRadius: 10, padding: "10px 8px", cursor: "pointer", textAlign: "center" as const,
-                                }}>
-                                <p style={{ fontSize: 12, margin: "0 0 4px 0", color: DARK }}>{item.label}</p>
-                                <span style={{ fontSize: 20 }}>{item.val ? "✅" : "⬜"}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 10 }}
-                            onClick={e => e.stopPropagation()}>
-                            {[
-                              { key: "tubig", label: "💧 Tubig (glasses)", val: track.tubig, max: 12 },
-                              { key: "painScore", label: "😣 Pain (1-10)", val: track.painScore, max: 10 },
-                              { key: "energyScore", label: "⚡ Energy (1-10)", val: track.energyScore, max: 10 },
-                            ].map(item => (
-                              <div key={item.key} style={{ background: "#fff", border: "1.5px solid #ddd", borderRadius: 10, padding: "8px" }}>
-                                <p style={{ fontSize: 11, margin: "0 0 4px 0", color: DARK }}>{item.label}</p>
-                                <input type="number" min={0} max={item.max} value={item.val || ""}
-                                  onChange={e => saveTrack(d.day, { ...track, [item.key]: Number(e.target.value) })}
-                                  style={{ width: "100%", padding: "4px", borderRadius: 6, border: "1px solid #ddd", fontSize: 16, textAlign: "center", background: "transparent", color: DARK, boxSizing: "border-box" as const }} />
-                              </div>
-                            ))}
-                          </div>
-                          <div onClick={e => e.stopPropagation()}>
-                            <textarea placeholder="Notes para sa araw na ito..." value={track.notes}
-                              onChange={e => saveTrack(d.day, { ...track, notes: e.target.value })}
-                              rows={2} style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1.5px solid #ddd", fontSize: 14, background: "#fff", resize: "none", boxSizing: "border-box" as const, color: DARK }} />
-                          </div>
-                        </div>
-
-                        <button onClick={e => toggleComplete(d.day, e)} style={{
-                          width: "100%", padding: "13px",
-                          background: isDone ? "#ef4444" : G,
-                          color: "#fff", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: "pointer",
-                        }}>
-                          {isDone ? "✗ Undo" : d.day === 90 ? "🏆 90 Days Complete!" : "✅ Mark Day as Done!"}
-                        </button>
                       </div>
-                    )}
-                  </div>
+
+                      {/* Mark Done — very large button */}
+                      <button onClick={e => toggleComplete(d.day, e)} style={{
+                        width: "100%", padding: "22px",
+                        background: isDone ? "#dc2626" : G,
+                        color: "#fff", border: "none", borderRadius: 16,
+                        fontSize: 20, fontWeight: 700, cursor: "pointer",
+                        letterSpacing: 0.5,
+                      }}>
+                        {isDone ? "✗ I-undo" : d.day === 90 ? "🏆 90 Days Complete na!" : "✅ Tapos na ang Araw na Ito!"}
+                      </button>
+                      {!isDone && (
+                        <p style={{ textAlign: "center", fontSize: 14, color: MID, margin: "10px 0 0 0" }}>
+                          I-tap pagkatapos ma-complete ang araw
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -395,39 +457,43 @@ export default function BagongKatawanPage() {
         </div>
       )}
 
-      {/* TAB: PROGRESS */}
+      {/* ══════════════════════════════════════
+          TAB 1 — PROGRESS
+      ══════════════════════════════════════ */}
       {activeTab === 1 && (
         <div style={{ padding: "20px 20px 0" }}>
 
-          {/* Overall Stats */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
+          {/* Big 3 stats */}
+          <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
             {[
-              { label: "Days Done", val: completedDays.length, total: "/90", color: G },
-              { label: "Progress", val: progress + "%", total: "", color: AMBER },
-              { label: "Days Left", val: 90 - completedDays.length, total: "", color: "#185FA5" },
+              { label: "Araw Tapos", val: completedDays.length, suffix: "/90", color: G },
+              { label: "Progress", val: progress + "%", suffix: "", color: AMBER },
+              { label: "Nalalabing Araw", val: 90 - completedDays.length, suffix: "", color: "#185FA5" },
             ].map((stat, i) => (
-              <div key={i} style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 14, padding: "16px 12px", textAlign: "center" as const }}>
-                <p style={{ fontSize: 26, fontWeight: 700, color: stat.color, margin: 0 }}>{stat.val}<span style={{ fontSize: 14 }}>{stat.total}</span></p>
-                <p style={{ fontSize: 12, color: MID, margin: "4px 0 0 0" }}>{stat.label}</p>
+              <div key={i} style={{ flex: 1, background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 16, padding: "18px 10px", textAlign: "center" }}>
+                <p style={{ fontSize: 28, fontWeight: 700, color: stat.color, margin: 0 }}>
+                  {stat.val}<span style={{ fontSize: 15 }}>{stat.suffix}</span>
+                </p>
+                <p style={{ fontSize: 13, color: MID, margin: "6px 0 0 0", lineHeight: 1.4 }}>{stat.label}</p>
               </div>
             ))}
           </div>
 
-          {/* Phase Progress */}
-          <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 16, padding: "18px 18px", marginBottom: 20 }}>
-            <p style={{ fontSize: 15, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>📊 Progress per Phase</p>
+          {/* Phase progress bars */}
+          <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 18, padding: "20px", marginBottom: 20 }}>
+            <p style={{ fontSize: 18, fontWeight: 700, color: G, margin: "0 0 16px 0" }}>📊 Progress bawat Phase</p>
             {([1, 2, 3] as const).map(ph => {
               const done = ph === 1 ? phase1Done : ph === 2 ? phase2Done : phase3Done;
               const pct = Math.round((done / 30) * 100);
               const pc = PHASE_COLORS[ph];
               return (
-                <div key={ph} style={{ marginBottom: 14 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontSize: 14, fontWeight: 600, color: pc.color }}>{pc.label} — {pc.sub}</span>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: pc.color }}>{done}/30 ({pct}%)</span>
+                <div key={ph} style={{ marginBottom: 18 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                    <span style={{ fontSize: 16, fontWeight: 700, color: pc.color }}>{pc.label} — {pc.sub}</span>
+                    <span style={{ fontSize: 16, fontWeight: 700, color: pc.color }}>{done}/30 ({pct}%)</span>
                   </div>
-                  <div style={{ background: CREAM, borderRadius: 999, height: 12 }}>
-                    <div style={{ width: `${pct}%`, background: pc.color, height: 12, borderRadius: 999, transition: "width 0.5s" }} />
+                  <div style={{ background: CREAM, borderRadius: 999, height: 16 }}>
+                    <div style={{ width: `${pct}%`, background: pc.color, height: 16, borderRadius: 999, transition: "width 0.5s" }} />
                   </div>
                 </div>
               );
@@ -435,30 +501,31 @@ export default function BagongKatawanPage() {
           </div>
 
           {/* Measurements */}
-          <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 16, padding: "18px 18px", marginBottom: 20 }}>
-            <p style={{ fontSize: 15, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>📏 Body Measurements</p>
+          <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 18, padding: "20px", marginBottom: 20 }}>
+            <p style={{ fontSize: 18, fontWeight: 700, color: G, margin: "0 0 16px 0" }}>📏 Sukat Mo</p>
             {[
-              { key: "timbang", label: "⚖️ Weight (kg)" },
-              { key: "waist", label: "📐 Waist (cm)" },
-              { key: "pain", label: "🩺 Pain Score (1-10)" },
+              { key: "timbang", label: "⚖️ Timbang (kg)" },
+              { key: "waist", label: "📐 Baywang (cm)" },
+              { key: "pain", label: "🩺 Sakit Score (1-10)" },
             ].map(row => (
-              <div key={row.key} style={{ marginBottom: 14 }}>
-                <p style={{ fontSize: 13, fontWeight: 600, color: MID, margin: "0 0 8px 0" }}>{row.label}</p>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8 }}>
+              <div key={row.key} style={{ marginBottom: 18 }}>
+                <p style={{ fontSize: 16, fontWeight: 600, color: MID, margin: "0 0 10px 0" }}>{row.label}</p>
+                <div style={{ display: "flex", gap: 8 }}>
                   {["1", "30", "60", "90"].map(checkpoint => {
                     const k = `${row.key}${checkpoint}` as keyof typeof measurements;
                     return (
-                      <div key={checkpoint} style={{ textAlign: "center" as const }}>
-                        <p style={{ fontSize: 11, color: MID, margin: "0 0 4px 0" }}>Day {checkpoint}</p>
+                      <div key={checkpoint} style={{ flex: 1, textAlign: "center" }}>
+                        <p style={{ fontSize: 13, color: MID, margin: "0 0 6px 0", fontWeight: 600 }}>Araw {checkpoint}</p>
                         <input
                           type="number"
                           value={measurements[k]}
                           onChange={e => saveMeasurements({ ...measurements, [k]: e.target.value })}
                           placeholder="—"
                           style={{
-                            width: "100%", padding: "8px 4px", borderRadius: 8, border: "1.5px solid #ddd",
-                            fontSize: 15, textAlign: "center", background: measurements[k] ? "#E8F5E0" : "#fff",
-                            color: DARK, boxSizing: "border-box" as const,
+                            width: "100%", padding: "10px 4px", borderRadius: 10, border: "1.5px solid #ddd",
+                            fontSize: 18, textAlign: "center",
+                            background: measurements[k] ? "#E8F5E0" : "#fff",
+                            color: DARK, boxSizing: "border-box", fontWeight: 700,
                           }}
                         />
                       </div>
@@ -469,113 +536,120 @@ export default function BagongKatawanPage() {
             ))}
           </div>
 
-          {/* Motivation */}
+          {/* Milestone celebration */}
           {completedDays.length >= 30 && (
-            <div style={{ background: "#FFFBF0", border: `2px solid ${GOLD}`, borderRadius: 16, padding: "18px 18px", marginBottom: 20, textAlign: "center" as const }}>
-              <p style={{ fontSize: 30, margin: "0 0 8px 0" }}>
+            <div style={{ background: "#FFFBF0", border: `2px solid ${GOLD}`, borderRadius: 18, padding: "24px", marginBottom: 20, textAlign: "center" }}>
+              <p style={{ fontSize: 48, margin: "0 0 10px 0" }}>
                 {completedDays.length >= 90 ? "🏆" : completedDays.length >= 60 ? "💪" : "🌱"}
               </p>
-              <p style={{ fontSize: 16, fontWeight: 700, color: AMBER, margin: "0 0 6px 0" }}>
+              <p style={{ fontSize: 20, fontWeight: 700, color: AMBER, margin: "0 0 8px 0", lineHeight: 1.4 }}>
                 {completedDays.length >= 90 ? "BAGONG KATAWAN NA! 90 DAYS COMPLETE!" :
                   completedDays.length >= 60 ? "Phase 2 Done! Papalapit na ang finish line!" :
                     "Phase 1 Complete! Nagtatayo ka na ng bagong katawan!"}
               </p>
-              <p style={{ fontSize: 14, color: MID, margin: 0 }}>
-                {completedDays.length} days of effort. You're amazing. 🌿☕
+              <p style={{ fontSize: 16, color: MID, margin: 0 }}>
+                {completedDays.length} araw ng pagsisikap. Kahanga-hanga ka. 🌿☕
               </p>
             </div>
           )}
         </div>
       )}
 
-      {/* TAB: REFERENCE */}
+      {/* ══════════════════════════════════════
+          TAB 2 — REFERENCE / GABAY
+      ══════════════════════════════════════ */}
       {activeTab === 2 && (
         <div style={{ padding: "20px 20px 0" }}>
 
-          {/* Easebrew Guide */}
-          <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 16, padding: "18px 18px", marginBottom: 16 }}>
-            <p style={{ fontSize: 15, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>☕ Easebrew — Proper Use</p>
+          {/* Easebrew guide */}
+          <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 18, padding: "20px", marginBottom: 16 }}>
+            <p style={{ fontSize: 18, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>☕ Tamang Pag-inom ng Easebrew</p>
             {[
-              { label: "Preparation", val: "1 sachet sa 150-180ml mainit na tubig (80-85°C). Huwag sobrang mainit." },
-              { label: "Best Time", val: "Umaga (7-9AM) bago kumain. Phase 2-3: dagdag ng hapon (3-5PM)." },
-              { label: "Avoid Adding", val: "Puting asukal — gamitin ang muscovado o wala na lang." },
-              { label: "If May Ulcer", val: "Uminom pagkatapos kumain ng konti. Huwag inumin nang walang laman." },
-              { label: "For Max Benefit", val: "Consistent na pag-inom. 21 days para maging gawi. 90 days — permanent." },
+              { label: "Paghahanda", val: "1 sachet sa 150-180ml mainit na tubig. Huwag sobrang mainit." },
+              { label: "Pinakamainam", val: "Umaga (7-9AM) bago kumain. Phase 2-3: dagdag ng hapon (3-5PM)." },
+              { label: "Huwag Dagdag", val: "Puting asukal — gamitin ang muscovado o wala na lang." },
+              { label: "May Ulcer", val: "Uminom pagkatapos kumain ng konti. Huwag nang walang laman." },
+              { label: "Para sa Best", val: "Consistent na pag-inom. 21 araw para maging gawi. 90 araw — permanent." },
             ].map((item, i) => (
-              <div key={i} style={{ display: "flex", gap: 10, marginBottom: 10, alignItems: "flex-start" }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: AMBER, minWidth: 130, flexShrink: 0 }}>{item.label}</span>
-                <span style={{ fontSize: 13, color: DARK, lineHeight: 1.5 }}>{item.val}</span>
+              <div key={i} style={{ display: "flex", gap: 12, marginBottom: i < 4 ? 12 : 0, alignItems: "flex-start", padding: "12px 14px", background: "#F6F2EA", borderRadius: 12 }}>
+                <span style={{ fontSize: 15, fontWeight: 700, color: AMBER, minWidth: 110, flexShrink: 0 }}>{item.label}</span>
+                <span style={{ fontSize: 15, color: DARK, lineHeight: 1.5 }}>{item.val}</span>
               </div>
             ))}
           </div>
 
-          {/* Emergency Pain Tips */}
-          <div style={{ background: "#FEF0F0", border: "2px solid #ef4444", borderRadius: 16, padding: "18px 18px", marginBottom: 16 }}>
-            <p style={{ fontSize: 15, fontWeight: 700, color: "#ef4444", margin: "0 0 12px 0" }}>🚨 Emergency Pain Management</p>
+          {/* Emergency pain */}
+          <div style={{ background: "#FEF2F2", border: "2px solid #ef4444", borderRadius: 18, padding: "20px", marginBottom: 16 }}>
+            <p style={{ fontSize: 18, fontWeight: 700, color: "#dc2626", margin: "0 0 14px 0" }}>🚨 Kapag Sobrang Sakit</p>
             {[
-              { icon: "🔥", tip: "Hot Compress — Para sa stiff joints sa umaga. 15-20 min." },
-              { icon: "🧊", tip: "Cold Compress — Para sa namamaga at inflamed joints. 15-20 min." },
-              { icon: "🌿", tip: "Avocado Oil + Gentle Massage — Circular motion, 10-15 min." },
-              { icon: "☕", tip: "Easebrew + Rest — Uminom, humiga nang komportable." },
-              { icon: "🦵", tip: "Elevate ang affected limb — Para sa tuhod/paa, i-raise itaas ng puso level." },
-              { icon: "🫁", tip: "Breathing Exercise — 5 counts inhale, 5 counts exhale. Nagpapababa ng pain." },
+              { icon: "🔥", tip: "Hot Compress — Para sa matigas na joints sa umaga. 15-20 minuto." },
+              { icon: "🧊", tip: "Cold Compress — Para sa namamaga at inflamed joints. 15-20 minuto." },
+              { icon: "🌿", tip: "Avocado Oil + Massage — Circular motion, 10-15 minuto." },
+              { icon: "☕", tip: "Easebrew + Pahinga — Uminom, humiga nang komportable." },
+              { icon: "🦵", tip: "I-elevate ang masakit na parte — Para sa tuhod/paa, i-raise itaas ng puso level." },
+              { icon: "🫁", tip: "Breathing — 5 counts inhale, 5 counts exhale. Nagpapababa ng sakit." },
             ].map((item, i) => (
-              <p key={i} style={{ fontSize: 14, margin: "0 0 8px 0", color: DARK, lineHeight: 1.6 }}>
-                {item.icon} {item.tip}
-              </p>
+              <div key={i} style={{ display: "flex", gap: 12, marginBottom: i < 5 ? 10 : 0, alignItems: "flex-start", padding: "12px 14px", background: "#FFF5F5", borderRadius: 12 }}>
+                <span style={{ fontSize: 24, flexShrink: 0 }}>{item.icon}</span>
+                <p style={{ fontSize: 16, margin: 0, color: DARK, lineHeight: 1.5 }}>{item.tip}</p>
+              </div>
             ))}
-            <p style={{ fontSize: 13, fontWeight: 700, color: "#ef4444", margin: "10px 0 0 0" }}>
-              ⚠️ Kung 8+ ang pain score at hindi bumababa kahit 24 hrs — kumonsulta sa doktor.
+            <p style={{ fontSize: 15, fontWeight: 700, color: "#dc2626", margin: "14px 0 0 0", padding: "12px 14px", background: "#FEE2E2", borderRadius: 12 }}>
+              ⚠️ Kung 8+ ang pain score at hindi bumababa kahit 24 oras — kumonsulta sa doktor.
             </p>
           </div>
 
-          {/* Food Guide */}
-          <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 16, padding: "18px 18px", marginBottom: 16 }}>
-            <p style={{ fontSize: 15, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>🥗 Anti-Inflammation Food Guide</p>
-            <div style={{ marginBottom: 12 }}>
-              <p style={{ fontSize: 13, fontWeight: 700, color: "#2E7D32", margin: "0 0 6px 0" }}>🟢 EAT MORE</p>
-              <p style={{ fontSize: 13, color: DARK, lineHeight: 1.7 }}>Salmon, Bangus, Sardinas (Omega-3) • Malunggay, Ampalaya, Kangkong • Luya, Bawang, Sibuyas • Turmeric/Dilaw • Brown Rice at Oatmeal • Olive Oil / Coconut Oil • Berde at Dilaw na Prutas</p>
-            </div>
-            <div style={{ marginBottom: 12 }}>
-              <p style={{ fontSize: 13, fontWeight: 700, color: "#C0863B", margin: "0 0 6px 0" }}>🟡 LIMIT LANG</p>
-              <p style={{ fontSize: 13, color: DARK, lineHeight: 1.7 }}>Puting Bigas • Puting Tinapay • Asukal (muscovado na lang) • Pork at Beef (lean cuts) • Itlog (3-4/linggo) • Dairy Products</p>
-            </div>
-            <div>
-              <p style={{ fontSize: 13, fontWeight: 700, color: "#ef4444", margin: "0 0 6px 0" }}>🔴 AVOID</p>
-              <p style={{ fontSize: 13, color: DARK, lineHeight: 1.7 }}>Instant Noodles • Canned Food na may preservatives • Softdrinks • Fastfood • Sobrang pritong pagkain • Alcohol • Margarine</p>
-            </div>
+          {/* Food guide */}
+          <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 18, padding: "20px", marginBottom: 16 }}>
+            <p style={{ fontSize: 18, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>🥗 Anti-Inflammation Food Guide</p>
+            {[
+              { bg: "#E8F5E0", titleColor: "#2E7D32", title: "🟢 KAININ — MARAMI", text: "Salmon, Bangus, Sardinas (Omega-3) • Malunggay, Ampalaya, Kangkong • Luya, Bawang, Sibuyas • Turmeric/Dilaw • Brown Rice at Oatmeal • Olive Oil / Coconut Oil • Berde at Dilaw na Prutas" },
+              { bg: "#FEF9E7", titleColor: AMBER, title: "🟡 KAININ — KONTI LANG", text: "Puting Bigas • Puting Tinapay • Asukal (muscovado na lang) • Pork at Beef (lean cuts) • Itlog (3-4 bawat linggo) • Dairy Products" },
+              { bg: "#FEF2F2", titleColor: "#dc2626", title: "🔴 IWASAN", text: "Instant Noodles • Canned Food na may preservatives • Softdrinks • Fastfood • Sobrang pritong pagkain • Alcohol • Margarine" },
+            ].map((sec, i) => (
+              <div key={i} style={{ background: sec.bg, borderRadius: 14, padding: "14px 16px", marginBottom: i < 2 ? 12 : 0 }}>
+                <p style={{ fontSize: 16, fontWeight: 700, color: sec.titleColor, margin: "0 0 8px 0" }}>{sec.title}</p>
+                <p style={{ fontSize: 15, color: DARK, margin: 0, lineHeight: 1.7 }}>{sec.text}</p>
+              </div>
+            ))}
           </div>
 
-          {/* Phase Goals Summary */}
-          <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 16, padding: "18px 18px", marginBottom: 16 }}>
-            <p style={{ fontSize: 15, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>🎯 Phase Goals Summary</p>
-            {([
-              { phase: "🌱 Phase 1 (Day 1-30)", color: "#39613B", bg: "#E8F5E0", goals: ["Easebrew EVERY morning — 0 skip", "Avocado Oil bawat gabi", "Maglakad 15-20 min araw-araw", "Gulay sa bawat kain", "8 glasses of water daily", "Sleep 7-8 hours"] },
-              { phase: "💪 Phase 2 (Day 31-60)", color: "#185FA5", bg: "#E6F1FB", goals: ["Easebrew 2x daily — umaga + hapon", "Exercise intensity — dagdag 10 min", "Pain Score: bumaba ng 2-3 points", "100% gulay sa bawat kain", "Weekly measurements update"] },
-              { phase: "🏆 Phase 3 (Day 61-90)", color: "#C0863B", bg: "#FEF0E0", goals: ["Pain Score: 50%+ reduction vs Day 1", "Exercise — gawi na, hindi kailangan ng reminder", "Anti-inflammation eating — natural na", "Day 90 full assessment at measurements"] },
-            ]).map((item, i) => (
-              <div key={i} style={{ background: item.bg, borderRadius: 12, padding: "12px 14px", marginBottom: 10 }}>
-                <p style={{ fontSize: 14, fontWeight: 700, color: item.color, margin: "0 0 8px 0" }}>{item.phase}</p>
+          {/* Phase goals */}
+          <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 18, padding: "20px", marginBottom: 16 }}>
+            <p style={{ fontSize: 18, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>🎯 Goals bawat Phase</p>
+            {[
+              { phase: "🌱 Phase 1 (Araw 1-30)", color: "#39613B", bg: "#E8F5E0", goals: ["Easebrew BAWAT umaga — walang skip", "Avocado Oil bawat gabi", "Maglakad 15-20 minuto araw-araw", "Gulay sa bawat kain", "8 glasses ng tubig araw-araw", "Tulog 7-8 oras"] },
+              { phase: "💪 Phase 2 (Araw 31-60)", color: "#185FA5", bg: "#E6F1FB", goals: ["Easebrew 2x araw — umaga at hapon", "Exercise — dagdagan ng 10 minuto", "Pain Score: bumaba ng 2-3 points", "100% gulay sa bawat kain", "I-update ang sukat lingguhan"] },
+              { phase: "🏆 Phase 3 (Araw 61-90)", color: "#C0863B", bg: "#FEF0E0", goals: ["Pain Score: 50%+ pagbaba vs Araw 1", "Exercise — gawi na, natural na lang", "Anti-inflammation eating — instinct na", "Araw 90: complete assessment at sukat"] },
+            ].map((item, i) => (
+              <div key={i} style={{ background: item.bg, borderRadius: 14, padding: "16px 18px", marginBottom: i < 2 ? 12 : 0 }}>
+                <p style={{ fontSize: 17, fontWeight: 700, color: item.color, margin: "0 0 10px 0" }}>{item.phase}</p>
                 {item.goals.map((g, j) => (
-                  <p key={j} style={{ fontSize: 13, margin: "0 0 4px 0", color: DARK }}>✅ {g}</p>
+                  <p key={j} style={{ fontSize: 15, margin: "0 0 6px 0", color: DARK, lineHeight: 1.5 }}>✅ {g}</p>
                 ))}
               </div>
             ))}
           </div>
+
         </div>
       )}
 
-      {/* BOTTOM NAV */}
+      {/* ── BOTTOM NAV ── */}
       <div style={{
         position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
         width: "100%", maxWidth: 680, background: "#fff",
-        borderTop: `2px solid ${CREAM}`, padding: "12px 24px",
+        borderTop: `2px solid ${CREAM}`, padding: "14px 24px",
         display: "flex", justifyContent: "center",
       }}>
-        <Link href="/" style={{ background: G, color: "#fff", borderRadius: 12, padding: "12px 32px", fontSize: 16, fontWeight: 700, textDecoration: "none" }}>
-          🏠 Back to Hub
+        <Link href="/" style={{
+          background: G, color: "#fff", borderRadius: 14,
+          padding: "16px 48px", fontSize: 18, fontWeight: 700,
+          textDecoration: "none",
+        }}>
+          🏠 Bumalik sa Hub
         </Link>
       </div>
+
     </div>
   );
 }

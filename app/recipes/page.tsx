@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const G = "#39613B";
@@ -11,34 +12,35 @@ const DARK = "#1B201A";
 const MID = "#4E504F";
 
 type Recipe = {
-  id: number;
-  name: string;
-  category: string;
-  benefit: string;
-  servings: string;
-  prepTime: string;
-  cookTime: string;
-  calories: string;
-  difficulty: string;
-  stars: number;
-  description: string;
-  easebrewTip: string;
+  id: number; name: string; category: string; benefit: string;
+  servings: string; prepTime: string; cookTime: string; calories: string;
+  difficulty: string; stars: number; description: string; easebrewTip: string;
   ingredients: { qty: string; unit: string; ingredient: string; notes: string }[];
   steps: string[];
   nutrition: Record<string, string>;
 };
 
 const CATEGORY_COLORS: Record<string, { bg: string; color: string; icon: string }> = {
-  "Soup / Sabaw": { bg: "#E6F1FB", color: "#185FA5", icon: "🍲" },
-  "Gulay Dish": { bg: "#E8F5E0", color: "#39613B", icon: "🥬" },
-  "Fish Dish": { bg: "#E0F7FA", color: "#00838F", icon: "🐟" },
-  "Meat Dish": { bg: "#FEF0E0", color: "#C0863B", icon: "🍖" },
-  "Lugaw / Porridge": { bg: "#FFFBF0", color: "#B8860B", icon: "🍚" },
-  "Breakfast": { bg: "#FFF3E0", color: "#E65100", icon: "☀️" },
-  "Salad / Side": { bg: "#F3E5F5", color: "#7B1FA2", icon: "🥗" },
-  "Salad / Dessert": { bg: "#FCE4EC", color: "#C2185B", icon: "🥗" },
-  "Dessert / Merienda": { bg: "#FCE4EC", color: "#C2185B", icon: "🍮" },
-  "Power Bowl": { bg: "#E8F5E0", color: "#2E7D32", icon: "🏆" },
+  "Soup / Sabaw":      { bg: "#E6F1FB", color: "#185FA5", icon: "🍲" },
+  "Gulay Dish":        { bg: "#E8F5E0", color: "#39613B", icon: "🥬" },
+  "Fish Dish":         { bg: "#E0F7FA", color: "#00838F", icon: "🐟" },
+  "Meat Dish":         { bg: "#FEF0E0", color: "#C0863B", icon: "🍖" },
+  "Lugaw / Porridge":  { bg: "#FFFBF0", color: "#B8860B", icon: "🍚" },
+  "Breakfast":         { bg: "#FFF3E0", color: "#E65100", icon: "☀️" },
+  "Salad / Side":      { bg: "#F3E5F5", color: "#7B1FA2", icon: "🥗" },
+  "Salad / Dessert":   { bg: "#FCE4EC", color: "#C2185B", icon: "🥗" },
+  "Dessert / Merienda":{ bg: "#FCE4EC", color: "#C2185B", icon: "🍮" },
+  "Power Bowl":        { bg: "#E8F5E0", color: "#2E7D32", icon: "🏆" },
+};
+
+const NUTRITION_HIGHLIGHT: Record<string, string> = {
+  MAXIMUM:    "#7B1FA2",
+  EXCELLENT:  "#2E7D32",
+  "VERY HIGH":"#1565C0",
+  HIGH:       "#39613B",
+  GOOD:       "#C0863B",
+  MEDIUM:     "#9E9E9E",
+  YES:        "#2E7D32",
 };
 
 const RECIPES: Recipe[] = [
@@ -50,7 +52,7 @@ const RECIPES: Recipe[] = [
     ingredients: [
       { qty: "400g", unit: "", ingredient: "Salmon fillet", notes: "hiwain ng 4 piraso" },
       { qty: "2L", unit: "", ingredient: "Tubig", notes: "para sa sabaw" },
-      { qty: "1 pack", unit: "40g", ingredient: "Sinigang mix (sampalok)", notes: "o 3 pcs sariwang sampalok" },
+      { qty: "1 pack 40g", unit: "", ingredient: "Sinigang mix (sampalok)", notes: "o 3 pcs sariwang sampalok" },
       { qty: "2 medium", unit: "", ingredient: "Kamatis", notes: "hati ng apat" },
       { qty: "1 medium", unit: "", ingredient: "Sibuyas", notes: "hati ng apat" },
       { qty: "200g", unit: "", ingredient: "Kangkong", notes: "hiwain" },
@@ -155,7 +157,7 @@ const RECIPES: Recipe[] = [
     id: 5, name: "Nilagang Baka (Lean Cuts)", category: "Meat Dish", benefit: "Collagen + Bone & Joint Health",
     servings: "4", prepTime: "15 mins", cookTime: "90 mins", calories: "380 kcal", difficulty: "Medium", stars: 4,
     description: "Ang nilagang baka gamit ang lean cuts ay nagbibigay ng natural collagen na nakakatulong sa joint lubrication. Ang bone broth nito ay mayaman sa minerals na nagpapatibay ng buto.",
-    easebrewTip: "Para sa mas mabuting joint support, uminom ng Easebrew Herbal Coffee pagkatapos ng nilagang baka. Ang combination ng collagen at herbal compounds ay nagpapalakas ng joint health.",
+    easebrewTip: "Para sa mas mabuting joint support, uminom ng Easebrew Herbal Coffee pagkatapos ng nilagang baka.",
     ingredients: [
       { qty: "500g", unit: "", ingredient: "Beef shank o brisket (lean)", notes: "hiwain ng 2-inch" },
       { qty: "1 medium", unit: "", ingredient: "Kamote", notes: "hiwain ng malaki" },
@@ -210,7 +212,7 @@ const RECIPES: Recipe[] = [
     id: 7, name: "Arroz Caldo with Ginger & Bawang", category: "Lugaw / Porridge", benefit: "Anti-Inflammation + Gut Warmth",
     servings: "4", prepTime: "10 mins", cookTime: "40 mins", calories: "310 kcal", difficulty: "Easy", stars: 5,
     description: "Ang arroz caldo ay hindi lang comfort food — ito ay therapeutic na pagkain. Ang luya ay isa sa pinakamakapangyarihang natural anti-inflammatory available sa Pilipinas.",
-    easebrewTip: "BEST PAIRING: Easebrew Herbal Coffee kasama ang arroz caldo sa umaga — double anti-inflammatory effect ng luya sa arroz caldo at herbal compounds ng Easebrew!",
+    easebrewTip: "BEST PAIRING: Easebrew Herbal Coffee kasama ang arroz caldo sa umaga — double anti-inflammatory effect!",
     ingredients: [
       { qty: "1 cup (200g)", unit: "", ingredient: "Malagkit rice o regular rice", notes: "hugasan" },
       { qty: "400g", unit: "", ingredient: "Manok (bone-in)", notes: "hiwain ng maliit" },
@@ -287,7 +289,7 @@ const RECIPES: Recipe[] = [
     id: 10, name: "Ginger-Turmeric Lugaw", category: "Lugaw / Porridge", benefit: "MAXIMUM Anti-Inflammation",
     servings: "4", prepTime: "10 mins", cookTime: "35 mins", calories: "270 kcal", difficulty: "Easy", stars: 5,
     description: "Ito ang pinaka-anti-inflammatory na lugaw recipe sa book na ito. Ang turmeric (dilaw) ay naglalaman ng curcumin — isa sa pinakamakapangyarihang anti-inflammatory compounds sa mundo.",
-    easebrewTip: "ULTIMATE ANTI-INFLAMMATION MORNING: Easebrew Herbal Coffee + Ginger-Turmeric Lugaw = pinakamalakas na anti-inflammatory breakfast para sa mga may rayuma at joint pain!",
+    easebrewTip: "ULTIMATE ANTI-INFLAMMATION MORNING: Easebrew Herbal Coffee + Ginger-Turmeric Lugaw = pinakamalakas na anti-inflammatory breakfast!",
     ingredients: [
       { qty: "1 cup (200g)", unit: "", ingredient: "Bigas (malagkit o regular)", notes: "hugasan" },
       { qty: "2 inch", unit: "", ingredient: "Luya (ginger)", notes: "hiwain ng manipis" },
@@ -306,7 +308,7 @@ const RECIPES: Recipe[] = [
       "Ibuhos ang tubig o broth. Pakuluan.",
       "Bawasan sa medium-low heat. Lutuin ng 25-30 minuto, haluin paminsan-minsan.",
       "Magdagdag ng tubig kung masyadong malapot. Season ng patis.",
-      "Ihain na may topping na green onion. HUWAG KALIMUTAN ang black pepper — ito ang nagpapalakas ng curcumin absorption ng hanggang 2000%!",
+      "Ihain na may topping na green onion. HUWAG KALIMUTAN ang black pepper — nagpapalakas ng curcumin absorption ng hanggang 2000%!",
     ],
     nutrition: { Calories: "270 kcal", Protein: "8g", Fat: "5g", Carbs: "48g", Curcumin: "VERY HIGH", "Anti-Inflammation": "MAXIMUM", "Gut Health": "EXCELLENT" },
   },
@@ -314,7 +316,7 @@ const RECIPES: Recipe[] = [
     id: 11, name: "Chicken Tinola with Papaya", category: "Soup / Sabaw", benefit: "Joint Lubrication + Immune",
     servings: "4", prepTime: "15 mins", cookTime: "35 mins", calories: "285 kcal", difficulty: "Easy", stars: 5,
     description: "Ang papaya sa tinola ay nagdadagdag ng papain enzyme na natural na anti-inflammatory at nakakatulong sa digestion. Ang malunggay ay nagbibigay ng calcium at iron para sa bone health.",
-    easebrewTip: "Ang Easebrew Herbal Coffee ay perpektong breakfast drink bago ang tanghaliang tinola. Nagsasama-sama ang herbal benefits ng dalawa para sa mas malakas na immune system.",
+    easebrewTip: "Ang Easebrew Herbal Coffee ay perpektong breakfast drink bago ang tanghaliang tinola.",
     ingredients: [
       { qty: "600g", unit: "", ingredient: "Manok (bone-in)", notes: "hiwain" },
       { qty: "1 medium", unit: "", ingredient: "Hilaw na papaya", notes: "hiwain ng wedge" },
@@ -339,7 +341,7 @@ const RECIPES: Recipe[] = [
     id: 12, name: "Ensaladang Talong", category: "Salad / Side", benefit: "Antioxidant + Low Calorie",
     servings: "4", prepTime: "10 mins", cookTime: "15 mins", calories: "120 kcal", difficulty: "Easy", stars: 4,
     description: "Ang talong ay mayaman sa nasunin at chlorogenic acid — powerful antioxidants na nakakatulong sa inflammation. Mababang calorie pero filling na side dish.",
-    easebrewTip: "Ihain ang ensaladang talong kasama ang Easebrew Herbal Coffee bilang light merienda — low calorie at anti-inflammatory na pagkain.",
+    easebrewTip: "Ihain ang ensaladang talong kasama ang Easebrew Herbal Coffee bilang light merienda.",
     ingredients: [
       { qty: "4 medium", unit: "", ingredient: "Talong (eggplant)", notes: "ihaw o ilagay sa open flame" },
       { qty: "3 medium", unit: "", ingredient: "Kamatis", notes: "tadtarin ng maliit" },
@@ -362,7 +364,7 @@ const RECIPES: Recipe[] = [
     id: 13, name: "Grilled Tilapia sa Dahon ng Saging", category: "Fish Dish", benefit: "Lean Protein + Omega-3",
     servings: "4", prepTime: "15 mins", cookTime: "20 mins", calories: "240 kcal", difficulty: "Medium", stars: 4,
     description: "Ang tilapia ay lean fish na puno ng protein at omega-3. Ang pagluluto sa dahon ng saging ay nagdadagdag ng natural na lasa at nagpapanatili ng nutrients ng isda.",
-    easebrewTip: "Ihain ang grilled tilapia kasama ang Easebrew Herbal Coffee pagkatapos ng trabaho — nagpapahinga ang katawan at nagsasahilot ang herbal compounds.",
+    easebrewTip: "Ihain ang grilled tilapia kasama ang Easebrew Herbal Coffee pagkatapos ng trabaho.",
     ingredients: [
       { qty: "4 pcs", unit: "", ingredient: "Tilapia", notes: "medium size, linisin" },
       { qty: "4 sheets", unit: "", ingredient: "Dahon ng saging", notes: "hugasan at i-wilt sa apoy" },
@@ -385,8 +387,8 @@ const RECIPES: Recipe[] = [
   {
     id: 14, name: "Ginisang Kangkong with Bawang", category: "Gulay Dish", benefit: "Iron + Anti-Inflammation",
     servings: "4", prepTime: "5 mins", cookTime: "10 mins", calories: "110 kcal", difficulty: "Easy", stars: 4,
-    description: "Ang kangkong ay isa sa pinakamurang at pinakanutritional na gulay sa Pilipinas. Mayaman ito sa iron, calcium, at Vitamins A at C — lahat ay nakakatulong sa anti-inflammation.",
-    easebrewTip: "Ang kangkong dish ay mabilis gawin — perpekto pag may Easebrew Herbal Coffee ka nang naghihintay. Quick meal, triple health benefits!",
+    description: "Ang kangkong ay isa sa pinakamurang at pinakanutritional na gulay sa Pilipinas. Mayaman ito sa iron, calcium, at Vitamins A at C.",
+    easebrewTip: "Ang kangkong dish ay mabilis gawin — perpekto pag may Easebrew Herbal Coffee ka nang naghihintay.",
     ingredients: [
       { qty: "400g", unit: "", ingredient: "Kangkong", notes: "hugasan at hiwain ang stems at dahon" },
       { qty: "5 cloves", unit: "", ingredient: "Bawang", notes: "marami! — tadtarin ng manipis" },
@@ -401,15 +403,15 @@ const RECIPES: Recipe[] = [
       "Idagdag ang dahon ng kangkong. Haluin agad.",
       "Idagdag ang oyster sauce, soy sauce, at konting tubig.",
       "Haluin ng mabilis sa high heat — 2-3 minuto lang. Huwag sobrang luto.",
-      "Season ng pepper. Ihain AGAD — mas masustansiya ang fresh na kangkong.",
+      "Season ng pepper. Ihain AGAD.",
     ],
     nutrition: { Calories: "110 kcal", Protein: "5g", Fat: "7g", Carbs: "8g", Iron: "VERY HIGH", Calcium: "HIGH", "Vitamins A & C": "HIGH" },
   },
   {
     id: 15, name: "Champorado with Dark Chocolate", category: "Breakfast", benefit: "Antioxidant + Morning Energy",
     servings: "4", prepTime: "5 mins", cookTime: "20 mins", calories: "320 kcal", difficulty: "Easy", stars: 3,
-    description: "Ang dark chocolate ay naglalaman ng flavonoids — powerful antioxidants na nakakatulong sa inflammation at cardiovascular health. Mas masustansiya kaysa regular na champorado na may tablea.",
-    easebrewTip: "PERFECT DUO: Easebrew Herbal Coffee + Champorado with Dark Chocolate = masustansiya at anti-inflammatory na breakfast na masarap pa!",
+    description: "Ang dark chocolate ay naglalaman ng flavonoids — powerful antioxidants na nakakatulong sa inflammation at cardiovascular health.",
+    easebrewTip: "PERFECT DUO: Easebrew Herbal Coffee + Champorado with Dark Chocolate = masustansiya at anti-inflammatory na breakfast!",
     ingredients: [
       { qty: "1 cup (200g)", unit: "", ingredient: "Malagkit rice", notes: "hugasan" },
       { qty: "80g", unit: "", ingredient: "Dark chocolate (70%+ cacao)", notes: "o 4 pcs tablea — tadtarin" },
@@ -424,7 +426,7 @@ const RECIPES: Recipe[] = [
       "Idagdag ang dark chocolate at cocoa powder. Haluin hanggang matunaw.",
       "Ibuhos ang gata o low-fat milk. Haluin ng maigi.",
       "Idagdag ang brown sugar at asin. Lutuin ng 5 minuto pa sa low heat.",
-      "Ihain sa bowl. Lagyan ng topping na evaporated milk. Masarap nang mainit!",
+      "Ihain sa bowl. Lagyan ng topping na evaporated milk.",
     ],
     nutrition: { Calories: "320 kcal", Protein: "8g", Fat: "10g", Carbs: "50g", Flavonoids: "HIGH", Antioxidants: "HIGH", Energy: "GOOD" },
   },
@@ -432,7 +434,7 @@ const RECIPES: Recipe[] = [
     id: 16, name: "Pesang Isda", category: "Fish Dish", benefit: "Lean Protein + Ginger Detox",
     servings: "4", prepTime: "10 mins", cookTime: "20 mins", calories: "230 kcal", difficulty: "Easy", stars: 4,
     description: "Ang pesang isda ay isa sa pinaka-clean at pinaka-healthy na paraan ng pagluluto ng isda. Walang mantika — pinakuluan lang sa ginger-based broth.",
-    easebrewTip: "Uminom ng Easebrew Herbal Coffee bago o pagkatapos ng pesang isda para sa double ginger at herbal anti-inflammatory effect.",
+    easebrewTip: "Uminom ng Easebrew Herbal Coffee bago o pagkatapos ng pesang isda para sa double ginger effect.",
     ingredients: [
       { qty: "600g", unit: "", ingredient: "Isda (bangus, tilapia, o lapu-lapu)", notes: "hiwain" },
       { qty: "2 inch", unit: "", ingredient: "Luya", notes: "hiwain ng julienne — maraming luya!" },
@@ -455,7 +457,7 @@ const RECIPES: Recipe[] = [
     id: 17, name: "Ginisang Upo with Hipon", category: "Gulay Dish", benefit: "Hydrating + Low Calorie",
     servings: "4", prepTime: "10 mins", cookTime: "15 mins", calories: "160 kcal", difficulty: "Easy", stars: 3,
     description: "Ang upo (bottle gourd) ay 95% tubig — isa sa pinakahydrating na gulay. Nakakatulong ito sa joint lubrication dahil sa mataas na water content nito.",
-    easebrewTip: "Perpektong light dinner ang ginisang upo kasama ang Easebrew Herbal Coffee — low calorie pero hydrating at nakakarelax sa gabi.",
+    easebrewTip: "Perpektong light dinner ang ginisang upo kasama ang Easebrew Herbal Coffee.",
     ingredients: [
       { qty: "1 large", unit: "", ingredient: "Upo (bottle gourd)", notes: "balakan at hiwain ng cubes" },
       { qty: "200g", unit: "", ingredient: "Hipon (shrimp)", notes: "o pork — optional" },
@@ -476,8 +478,8 @@ const RECIPES: Recipe[] = [
   {
     id: 18, name: "Turmeric Chicken Adobo", category: "Meat Dish", benefit: "Anti-Inflammation Twist on Adobo",
     servings: "4", prepTime: "15 mins", cookTime: "40 mins", calories: "350 kcal", difficulty: "Easy", stars: 5,
-    description: "Ang adobo ay paboritong Pinoy dish — at naging mas healthy at anti-inflammatory kapag dinagdagan ng turmeric. Ang curcumin sa turmeric ay nagpapalakas ng anti-inflammatory effect ng traditional adobo.",
-    easebrewTip: "Ang Easebrew Herbal Coffee pagkatapos ng turmeric adobo ay nagdadagdag pa ng anti-inflammatory layer. Tatlong beses mas powerful kaysa regular na adobo!",
+    description: "Ang adobo ay paboritong Pinoy dish — at naging mas healthy at anti-inflammatory kapag dinagdagan ng turmeric. Ang curcumin sa turmeric ay nagpapalakas ng anti-inflammatory effect.",
+    easebrewTip: "Ang Easebrew Herbal Coffee pagkatapos ng turmeric adobo ay nagdadagdag pa ng anti-inflammatory layer.",
     ingredients: [
       { qty: "600g", unit: "", ingredient: "Manok (bone-in pieces)", notes: "legs, thighs, o pork" },
       { qty: "0.5 cup", unit: "", ingredient: "Suka (cane vinegar)", notes: "" },
@@ -501,7 +503,7 @@ const RECIPES: Recipe[] = [
   {
     id: 19, name: "Buko at Papaya Salad", category: "Salad / Dessert", benefit: "Enzyme-Rich + Digestive Aid",
     servings: "4", prepTime: "15 mins", cookTime: "0 mins", calories: "160 kcal", difficulty: "Easy", stars: 4,
-    description: "Ang papaya ay naglalaman ng papain enzyme na natural na anti-inflammatory at nakakatulong sa digestion at joint pain. Ang buko ay nagbibigay ng healthy MCT fats at electrolytes.",
+    description: "Ang papaya ay naglalaman ng papain enzyme na natural na anti-inflammatory at nakakatulong sa digestion at joint pain.",
     easebrewTip: "Ihain ang buko at papaya salad bilang merienda kasama ang Easebrew Herbal Coffee — fresh, enzyme-rich, at herbal na combination!",
     ingredients: [
       { qty: "2 cups", unit: "", ingredient: "Hinog na papaya", notes: "hiwain ng cubes" },
@@ -524,7 +526,7 @@ const RECIPES: Recipe[] = [
   {
     id: 20, name: "Monggo Soup with Ampalaya", category: "Soup / Sabaw", benefit: "Double Anti-Inflammation Power",
     servings: "4", prepTime: "10 mins", cookTime: "45 mins", calories: "240 kcal", difficulty: "Easy", stars: 5,
-    description: "Pinagsama ang dalawang super anti-inflammatory na ingredients — monggo at ampalaya. Ito ang pinaka-anti-inflammatory na soup sa recipe book bukod sa ginger-turmeric lugaw.",
+    description: "Pinagsama ang dalawang super anti-inflammatory na ingredients — monggo at ampalaya. Ultimate anti-inflammation soup.",
     easebrewTip: "Ang Easebrew Herbal Coffee + Monggo with Ampalaya ay ang ultimate anti-inflammation meal combination para sa mga may arthritis at joint pain.",
     ingredients: [
       { qty: "1 cup (200g)", unit: "", ingredient: "Monggo (mung beans)", notes: "ibabad ng 2 oras" },
@@ -549,7 +551,7 @@ const RECIPES: Recipe[] = [
   {
     id: 21, name: "Salmon sa Kamatis at Luya", category: "Fish Dish", benefit: "Omega-3 + Lycopene Boost",
     servings: "4", prepTime: "10 mins", cookTime: "20 mins", calories: "330 kcal", difficulty: "Easy", stars: 5,
-    description: "Ang lycopene sa kamatis ay nagpapalakas ng anti-inflammatory effect ng omega-3 ng salmon. Sama-sama itong lumalaban sa joint inflammation at nagpoprotekta sa cardiovascular system.",
+    description: "Ang lycopene sa kamatis ay nagpapalakas ng anti-inflammatory effect ng omega-3 ng salmon.",
     easebrewTip: "Easebrew Herbal Coffee pagkatapos ng salmon-kamatis dish para sa maximum anti-inflammation combo.",
     ingredients: [
       { qty: "400g", unit: "", ingredient: "Salmon fillet", notes: "hiwain ng 4" },
@@ -573,7 +575,7 @@ const RECIPES: Recipe[] = [
   {
     id: 22, name: "Ginisang Repolyo with Carrots", category: "Gulay Dish", benefit: "Gut Health + Antioxidant",
     servings: "4", prepTime: "10 mins", cookTime: "12 mins", calories: "130 kcal", difficulty: "Easy", stars: 4,
-    description: "Ang repolyo ay mayaman sa Vitamin K at sulforaphane na nagpoprotekta sa joints. Ang carrots ay nagdadagdag ng beta-carotene at Vitamin A na mahalaga sa anti-inflammation.",
+    description: "Ang repolyo ay mayaman sa Vitamin K at sulforaphane na nagpoprotekta sa joints. Ang carrots ay nagdadagdag ng beta-carotene.",
     easebrewTip: "Simple at mabilis na side dish na mapagsamahan ng Easebrew Herbal Coffee para sa healthy meal.",
     ingredients: [
       { qty: "0.5 head", unit: "", ingredient: "Repolyo", notes: "hiwain ng manipis" },
@@ -596,8 +598,8 @@ const RECIPES: Recipe[] = [
   {
     id: 23, name: "Nilagang Manok (Light Broth)", category: "Soup / Sabaw", benefit: "Collagen + Bone Support",
     servings: "4", prepTime: "15 mins", cookTime: "45 mins", calories: "270 kcal", difficulty: "Easy", stars: 4,
-    description: "Ang chicken bone broth ay mayaman sa collagen, glucosamine, at chondroitin — lahat ay natural na nagpoprotekta sa joints. Mas light kaysa sa nilagang baka pero may kasinghalaga.",
-    easebrewTip: "Ang combination ng chicken bone broth at Easebrew Herbal Coffee ay nagbibigay ng comprehensive joint support mula sa loob at labas ng katawan.",
+    description: "Ang chicken bone broth ay mayaman sa collagen, glucosamine, at chondroitin — lahat ay natural na nagpoprotekta sa joints.",
+    easebrewTip: "Ang combination ng chicken bone broth at Easebrew Herbal Coffee ay nagbibigay ng comprehensive joint support.",
     ingredients: [
       { qty: "600g", unit: "", ingredient: "Manok (bone-in, whole pieces)", notes: "" },
       { qty: "2 medium", unit: "", ingredient: "Kamote", notes: "hiwain" },
@@ -620,7 +622,7 @@ const RECIPES: Recipe[] = [
   {
     id: 24, name: "Steamed Bangus with Ginger", category: "Fish Dish", benefit: "Clean Protein + Detox",
     servings: "4", prepTime: "10 mins", cookTime: "20 mins", calories: "240 kcal", difficulty: "Easy", stars: 4,
-    description: "Ang steaming ay isa sa pinakaclean na paraan ng pagluluto — pinapanatili ang lahat ng nutrients. Walang labis na langis, walang nawala na vitamins.",
+    description: "Ang steaming ay isa sa pinakaclean na paraan ng pagluluto — pinapanatili ang lahat ng nutrients. Walang labis na langis.",
     easebrewTip: "Ihain ang steamed bangus kasama ang Easebrew Herbal Coffee — clean eating para sa mas malusog na katawan.",
     ingredients: [
       { qty: "600g", unit: "", ingredient: "Bangus", notes: "hiwain ng 4 piraso" },
@@ -643,7 +645,7 @@ const RECIPES: Recipe[] = [
   {
     id: 25, name: "Ginataang Monggo", category: "Dessert / Merienda", benefit: "Plant Protein + Satisfying",
     servings: "4", prepTime: "10 mins", cookTime: "40 mins", calories: "290 kcal", difficulty: "Easy", stars: 3,
-    description: "Ang ginataang monggo ay masustansiya at nakakarelax na dessert. Ang monggo ay nagbibigay ng plant protein at fiber, ang gata ay nagdadagdag ng healthy MCT fats.",
+    description: "Ang ginataang monggo ay masustansiya at nakakarelax na dessert. Ang monggo ay nagbibigay ng plant protein at fiber.",
     easebrewTip: "Ihain ang ginataang monggo kasama ang Easebrew Herbal Coffee bilang merienda — satisfying at anti-inflammatory na pair.",
     ingredients: [
       { qty: "1 cup (200g)", unit: "", ingredient: "Monggo", notes: "ibabad ng 2 oras" },
@@ -688,8 +690,8 @@ const RECIPES: Recipe[] = [
   {
     id: 27, name: "Lentil at Malunggay Soup", category: "Soup / Sabaw", benefit: "Iron + Bone Density",
     servings: "4", prepTime: "10 mins", cookTime: "30 mins", calories: "260 kcal", difficulty: "Easy", stars: 4,
-    description: "Ang lentil ay puno ng iron, folate, at plant protein. Kapag pinagsama ang lentil at malunggay, nagiging bone-density-boosting powerhouse soup ito. Perpekto para sa may osteoporosis.",
-    easebrewTip: "Ang Easebrew Herbal Coffee pagkatapos ng lentil-malunggay soup ay nagkukumpleto ng wellness routine — herbal coffee + iron-rich soup = strong bones and joints.",
+    description: "Ang lentil ay puno ng iron, folate, at plant protein. Kapag pinagsama ang lentil at malunggay, nagiging bone-density-boosting powerhouse soup ito.",
+    easebrewTip: "Ang Easebrew Herbal Coffee pagkatapos ng lentil-malunggay soup ay nagkukumpleto ng wellness routine.",
     ingredients: [
       { qty: "1 cup (200g)", unit: "", ingredient: "Red lentils", notes: "hugasan" },
       { qty: "1.5 cups", unit: "", ingredient: "Malunggay leaves", notes: "sariwa" },
@@ -713,7 +715,7 @@ const RECIPES: Recipe[] = [
   {
     id: 28, name: "Baked Tilapia with Herbs", category: "Fish Dish", benefit: "Lean Protein + Low Fat",
     servings: "4", prepTime: "15 mins", cookTime: "25 mins", calories: "220 kcal", difficulty: "Easy", stars: 4,
-    description: "Ang baked fish ay mas healthy kaysa pritong isda. Ang herbs tulad ng rosemary at oregano ay nagdadagdag ng anti-inflammatory compounds. Masarap at mukhang fancy pero madaling gawin.",
+    description: "Ang baked fish ay mas healthy kaysa pritong isda. Ang herbs tulad ng rosemary at oregano ay nagdadagdag ng anti-inflammatory compounds.",
     easebrewTip: "Ihain ang baked tilapia kasama ang Easebrew Herbal Coffee — healthy dinner na parang nasa restaurant!",
     ingredients: [
       { qty: "4 medium", unit: "", ingredient: "Tilapia", notes: "linisin" },
@@ -738,7 +740,7 @@ const RECIPES: Recipe[] = [
     id: 29, name: "Pork Sinigang (Lean Cuts)", category: "Soup / Sabaw", benefit: "Vitamin C + Joint Support",
     servings: "4", prepTime: "15 mins", cookTime: "45 mins", calories: "350 kcal", difficulty: "Medium", stars: 4,
     description: "Ang sinigang na baboy ay masustansiya kapag ginagamit ang lean cuts. Ang sampalok ay nagbibigay ng Vitamin C na mahalaga sa collagen production para sa joint health.",
-    easebrewTip: "Ang Easebrew Herbal Coffee pagkatapos ng sinigang ay nagdadagdag ng herbal warmth at anti-inflammatory boost sa dulo ng araw.",
+    easebrewTip: "Ang Easebrew Herbal Coffee pagkatapos ng sinigang ay nagdadagdag ng herbal warmth at anti-inflammatory boost.",
     ingredients: [
       { qty: "500g", unit: "", ingredient: "Pork kasim o loin (lean)", notes: "hiwain ng 2-inch" },
       { qty: "1 pack (40g)", unit: "", ingredient: "Sinigang mix (sampalok)", notes: "o 4 pcs sariwang sampalok" },
@@ -763,8 +765,8 @@ const RECIPES: Recipe[] = [
   {
     id: 30, name: "Anti-Inflammation Power Bowl", category: "Power Bowl", benefit: "COMPLETE Anti-Inflammation Meal",
     servings: "4", prepTime: "20 mins", cookTime: "30 mins", calories: "420 kcal", difficulty: "Medium", stars: 5,
-    description: "Ang Power Bowl na ito ay pinagsama ang pinakamabuting anti-inflammatory ingredients — brown rice, salmon, malunggay, turmeric, at ginger. Ito ang pinaka-complete na anti-inflammatory meal.",
-    easebrewTip: "CELEBRATION MEAL: Easebrew Herbal Coffee + Anti-Inflammation Power Bowl = ang pinaka-anti-inflammatory na meal combo sa buong recipe book. Perfect kapag araw ng pahinga at self-care!",
+    description: "Pinagsama ang pinakamabuting anti-inflammatory ingredients — brown rice, salmon, malunggay, turmeric, at ginger. Pinaka-complete na anti-inflammatory meal.",
+    easebrewTip: "CELEBRATION MEAL: Easebrew Herbal Coffee + Anti-Inflammation Power Bowl = ang pinaka-anti-inflammatory na meal combo sa buong recipe book!",
     ingredients: [
       { qty: "1.5 cups", unit: "", ingredient: "Brown rice (cooked)", notes: "3/4 cup per person" },
       { qty: "300g", unit: "", ingredient: "Salmon fillet", notes: "grilled o baked" },
@@ -791,41 +793,50 @@ const RECIPES: Recipe[] = [
   },
 ];
 
-const ALL_CATEGORIES = ["All", ...Array.from(new Set(RECIPES.map(r => r.category)))];
-
-const NUTRITION_HIGHLIGHT: Record<string, string> = {
-  MAXIMUM: "#7B1FA2",
-  EXCELLENT: "#2E7D32",
-  "VERY HIGH": "#1565C0",
-  HIGH: "#39613B",
-  GOOD: "#C0863B",
-  MEDIUM: "#9E9E9E",
-  YES: "#2E7D32",
-};
+const ALL_CATEGORIES = ["All", "❤️ Favorites", ...Array.from(new Set(RECIPES.map(r => r.category)))];
 
 export default function RecipesPage() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [expandedRecipe, setExpandedRecipe] = useState<number | null>(null);
-
-  // ✅ FIXED: useEffect pattern — consistent sa server + client render, walang hydration mismatch
   const [favorites, setFavorites] = useState<number[]>([]);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem("easebrew-recipe-favorites");
-    if (saved) setFavorites(JSON.parse(saved));
-  }, []);
+    const session = sessionStorage.getItem("easebrew-verified");
+    if (!session) { router.replace("/verify"); } else { setChecking(false); }
+  }, [router]);
+
+  useEffect(() => {
+    if (checking) return;
+    try {
+      const saved = localStorage.getItem("easebrew-recipe-favorites");
+      if (saved) setFavorites(JSON.parse(saved));
+    } catch {}
+  }, [checking]);
+
+  if (checking) return (
+    <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ textAlign: "center" }}>
+        <p style={{ fontSize: 48, margin: "0 0 12px 0" }}>🍽️</p>
+        <p style={{ fontSize: 20, color: G, fontWeight: 700 }}>Loading Recipes...</p>
+      </div>
+    </div>
+  );
 
   const toggleFavorite = (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
     const updated = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
     setFavorites(updated);
-    // ✅ FIXED: hindi na kailangan ng typeof window check — nasa client na tayo dito
     localStorage.setItem("easebrew-recipe-favorites", JSON.stringify(updated));
   };
 
   const filtered = RECIPES.filter(r => {
-    const matchCat = selectedCategory === "All" || r.category === selectedCategory;
+    const matchCat =
+      selectedCategory === "All" ? true :
+      selectedCategory === "❤️ Favorites" ? favorites.includes(r.id) :
+      r.category === selectedCategory;
     const matchSearch = search === "" ||
       r.name.toLowerCase().includes(search.toLowerCase()) ||
       r.benefit.toLowerCase().includes(search.toLowerCase()) ||
@@ -835,81 +846,84 @@ export default function RecipesPage() {
   });
 
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 100 }}>
+    <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 110 }}>
 
-      {/* HEADER */}
-      <div style={{ background: G, padding: "24px 24px 20px", color: "#fff" }}>
-        <Link href="/" style={{ color: GOLD, fontSize: 14, textDecoration: "none", display: "block", marginBottom: 12 }}>
-          ← Back to Hub
+      {/* ── HEADER ── */}
+      <div style={{ background: G, padding: "36px 24px 24px", color: "#fff" }}>
+        <Link href="/" style={{ color: GOLD, fontSize: 16, fontWeight: 600, textDecoration: "none", display: "block", marginBottom: 16 }}>
+          ← Bumalik sa Hub
         </Link>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
           <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>🍽️ Pinoy Anti-Inflammation Recipes</h1>
-            <p style={{ fontSize: 14, opacity: 0.8, margin: "4px 0 0 0" }}>30 Masustansiyang Lutong Pilipino</p>
+            <h1 style={{ fontSize: 26, fontWeight: 700, margin: "0 0 6px 0", lineHeight: 1.3 }}>
+              🍽️ Pinoy Anti-Inflammation Recipes
+            </h1>
+            <p style={{ fontSize: 16, opacity: 0.85, margin: 0 }}>30 Masustansiyang Lutong Pilipino</p>
           </div>
-          <div style={{ textAlign: "center" as const, background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "10px 16px" }}>
+          <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 14, padding: "12px 16px", flexShrink: 0 }}>
             <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: GOLD }}>{favorites.length}</p>
-            <p style={{ fontSize: 12, margin: 0, opacity: 0.8 }}>favorites</p>
+            <p style={{ fontSize: 13, margin: 0, opacity: 0.85 }}>favorites</p>
           </div>
         </div>
 
-        {/* Search */}
-        <div style={{ marginTop: 14 }}>
+        {/* Search bar — larger */}
+        <div style={{ marginTop: 16 }}>
           <input
             type="text"
-            placeholder="🔍 Search recipes, ingredients, or benefits..."
+            placeholder="🔍  Hanapin ang recipe..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             style={{
-              width: "100%", padding: "12px 16px", borderRadius: 12, border: "none",
-              fontSize: 15, background: "rgba(255,255,255,0.95)", color: DARK,
-              boxSizing: "border-box" as const,
+              width: "100%", padding: "14px 18px", borderRadius: 14, border: "none",
+              fontSize: 17, background: "rgba(255,255,255,0.97)", color: DARK,
+              boxSizing: "border-box",
             }}
           />
         </div>
       </div>
 
-      {/* DAILY TIP STRIP */}
-      <div style={{ background: "#FFFBF0", borderBottom: `2px solid ${CREAM}`, padding: "10px 20px", display: "flex", gap: 20, overflowX: "auto" as const }}>
+      {/* ── DAILY TIP STRIP ── */}
+      <div style={{ background: GOLD, padding: "12px 20px", display: "flex", gap: 20, overflowX: "auto" }}>
         {[
           { icon: "☕", text: "Easebrew 30 mins bago kumain" },
-          { icon: "🌿", text: "Avocado Oil massage after meal" },
+          { icon: "🌿", text: "Avocado Oil pagkatapos kumain" },
           { icon: "💧", text: "8+ glasses tubig araw-araw" },
           { icon: "🫚", text: "Brown rice bilang base" },
         ].map((tip, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-            <span style={{ fontSize: 16 }}>{tip.icon}</span>
-            <span style={{ fontSize: 12, color: G, fontWeight: 600, whiteSpace: "nowrap" as const }}>{tip.text}</span>
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+            <span style={{ fontSize: 20 }}>{tip.icon}</span>
+            <span style={{ fontSize: 14, color: G, fontWeight: 700, whiteSpace: "nowrap" }}>{tip.text}</span>
           </div>
         ))}
       </div>
 
-      {/* CATEGORY FILTER */}
-      <div style={{ padding: "16px 20px 0" }}>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
+      {/* ── CATEGORY FILTER — scrollable row ── */}
+      <div style={{ padding: "18px 20px 0" }}>
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
           {ALL_CATEGORIES.map(cat => {
-            const info = CATEGORY_COLORS[cat];
+            const raw = cat.replace("❤️ ", "");
+            const info = CATEGORY_COLORS[raw];
+            const isActive = selectedCategory === cat;
             return (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                style={{
-                  padding: "8px 14px", borderRadius: 20,
-                  border: selectedCategory === cat ? `2px solid ${G}` : "2px solid #C5B99A",
-                  background: selectedCategory === cat ? G : "#FFFFFB",
-                  color: selectedCategory === cat ? "#fff" : MID,
-                  fontSize: 13, fontWeight: selectedCategory === cat ? 700 : 500, cursor: "pointer",
-                }}
-              >
+              <button key={cat} onClick={() => setSelectedCategory(cat)} style={{
+                padding: "10px 16px", borderRadius: 22, flexShrink: 0,
+                border: isActive ? `2px solid ${G}` : "2px solid #C5B99A",
+                background: isActive ? G : "#FFFFFB",
+                color: isActive ? "#fff" : MID,
+                fontSize: 15, fontWeight: isActive ? 700 : 500, cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}>
                 {info ? `${info.icon} ` : ""}{cat}
               </button>
             );
           })}
         </div>
-        <p style={{ fontSize: 14, color: MID, margin: "10px 0 0 0" }}>{filtered.length} recipe{filtered.length !== 1 ? "s" : ""} found</p>
+        <p style={{ fontSize: 15, color: MID, margin: "12px 0 0 0", fontWeight: 600 }}>
+          {filtered.length} recipe{filtered.length !== 1 ? "s" : ""} ang nahanap
+        </p>
       </div>
 
-      {/* RECIPE CARDS */}
+      {/* ── RECIPE CARDS ── */}
       <div style={{ padding: "16px 20px 0" }}>
         {filtered.map(recipe => {
           const isExpanded = expandedRecipe === recipe.id;
@@ -917,182 +931,195 @@ export default function RecipesPage() {
           const catInfo = CATEGORY_COLORS[recipe.category] || { bg: CREAM, color: G, icon: "🍴" };
 
           return (
-            <div key={recipe.id} style={{ marginBottom: 14 }}>
+            <div key={recipe.id} style={{ marginBottom: 16 }}>
               <div
                 onClick={() => setExpandedRecipe(isExpanded ? null : recipe.id)}
                 style={{
                   background: "#FFFFFB",
                   border: `2px solid ${isFav ? AMBER : "#C5B99A"}`,
-                  borderRadius: 16, padding: "16px 18px", cursor: "pointer",
-                  boxShadow: isFav ? `0 2px 8px rgba(192,134,59,0.2)` : "none",
+                  borderRadius: 18, padding: "18px 20px", cursor: "pointer",
+                  boxShadow: isFav ? `0 2px 10px rgba(192,134,59,0.2)` : "none",
                 }}
               >
                 {/* Card Header */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 14, flex: 1 }}>
+                    {/* Icon */}
                     <div style={{
-                      width: 50, height: 50, borderRadius: 12,
+                      width: 58, height: 58, borderRadius: 14,
                       background: catInfo.bg, display: "flex", alignItems: "center",
-                      justifyContent: "center", flexShrink: 0, fontSize: 24,
+                      justifyContent: "center", flexShrink: 0, fontSize: 28,
                       border: `2px solid ${catInfo.color}`,
                     }}>
                       {catInfo.icon}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0 }}>
+                      <p style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "0 0 4px 0", lineHeight: 1.3 }}>
                         #{recipe.id} {recipe.name}
                       </p>
-                      <p style={{ fontSize: 13, color: MID, margin: "2px 0 0 0" }}>
-                        {"⭐".repeat(recipe.stars)} • {recipe.calories}
+                      <p style={{ fontSize: 15, color: MID, margin: 0 }}>
+                        {"⭐".repeat(recipe.stars)} · {recipe.calories}
                       </p>
                     </div>
                   </div>
-                  <button
-                    onClick={(e) => toggleFavorite(recipe.id, e)}
-                    style={{
-                      background: "none", border: "none", fontSize: 22,
-                      cursor: "pointer", padding: "0 0 0 8px",
-                    }}
-                  >
+                  {/* Favorite button — large tap target */}
+                  <button onClick={e => toggleFavorite(recipe.id, e)} style={{
+                    background: "none", border: "none", fontSize: 30,
+                    cursor: "pointer", padding: "0 0 0 10px", lineHeight: 1,
+                    flexShrink: 0,
+                  }}>
                     {isFav ? "❤️" : "🤍"}
                   </button>
                 </div>
 
                 {/* Badges */}
-                <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" as const, alignItems: "center" }}>
-                  <span style={{
-                    background: catInfo.bg, color: catInfo.color, borderRadius: 20,
-                    padding: "3px 10px", fontSize: 12, fontWeight: 700, border: `1px solid ${catInfo.color}`,
-                  }}>
+                <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                  <span style={{ background: catInfo.bg, color: catInfo.color, borderRadius: 20, padding: "5px 12px", fontSize: 13, fontWeight: 700, border: `1px solid ${catInfo.color}` }}>
                     {catInfo.icon} {recipe.category}
                   </span>
-                  <span style={{ background: "#E8F5E0", color: G, borderRadius: 20, padding: "3px 10px", fontSize: 12, fontWeight: 600 }}>
+                  <span style={{ background: "#E8F5E0", color: G, borderRadius: 20, padding: "5px 12px", fontSize: 13, fontWeight: 600 }}>
                     🌿 {recipe.benefit}
                   </span>
-                  <span style={{ background: "#FFFBF0", color: AMBER, borderRadius: 20, padding: "3px 10px", fontSize: 12 }}>
+                  <span style={{ background: "#FFFBF0", color: AMBER, borderRadius: 20, padding: "5px 12px", fontSize: 13 }}>
                     ⏱ {recipe.prepTime} + {recipe.cookTime}
                   </span>
                 </div>
 
-                {/* Expanded Content */}
+                {/* Tap hint */}
+                <div style={{ textAlign: "center", marginTop: 10 }}>
+                  <span style={{ fontSize: 14, color: MID, fontWeight: 600 }}>
+                    {isExpanded ? "▲ I-collapse" : "▼ Tingnan ang recipe"}
+                  </span>
+                </div>
+
+                {/* ── EXPANDED CONTENT ── */}
                 {isExpanded && (
-                  <div style={{ marginTop: 16, borderTop: `1px solid ${CREAM}`, paddingTop: 16 }}>
+                  <div style={{ marginTop: 16, borderTop: `2px solid ${CREAM}`, paddingTop: 16 }}>
 
                     {/* Description */}
-                    <p style={{ fontSize: 14, color: MID, lineHeight: 1.6, margin: "0 0 14px 0" }}>
+                    <p style={{ fontSize: 16, color: MID, lineHeight: 1.7, margin: "0 0 16px 0" }}>
                       📝 {recipe.description}
                     </p>
 
                     {/* Easebrew Tip */}
-                    <div style={{ background: "#FFFBF0", border: `2px solid ${GOLD}`, borderRadius: 12, padding: "12px 16px", marginBottom: 14 }}>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: AMBER, margin: "0 0 4px 0" }}>☕ Easebrew Tip</p>
-                      <p style={{ fontSize: 14, color: DARK, margin: 0, lineHeight: 1.6 }}>{recipe.easebrewTip}</p>
+                    <div style={{ background: "#FFFBF0", border: `2px solid ${GOLD}`, borderRadius: 14, padding: "14px 18px", marginBottom: 16 }}>
+                      <p style={{ fontSize: 15, fontWeight: 700, color: AMBER, margin: "0 0 6px 0" }}>☕ Easebrew Tip</p>
+                      <p style={{ fontSize: 16, color: DARK, margin: 0, lineHeight: 1.6 }}>{recipe.easebrewTip}</p>
                     </div>
 
-                    {/* Quick Info */}
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 14 }}>
+                    {/* Quick Info — 4 tiles */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 16 }}>
                       {[
                         { label: "Servings", value: recipe.servings + " pax" },
                         { label: "Prep", value: recipe.prepTime },
-                        { label: "Cook", value: recipe.cookTime },
-                        { label: "Difficulty", value: recipe.difficulty },
+                        { label: "Luto", value: recipe.cookTime },
+                        { label: "Hirap", value: recipe.difficulty },
                       ].map((info, i) => (
-                        <div key={i} style={{ background: CREAM, borderRadius: 10, padding: "10px 8px", textAlign: "center" as const }}>
-                          <p style={{ fontSize: 11, color: MID, margin: "0 0 2px 0" }}>{info.label}</p>
-                          <p style={{ fontSize: 13, fontWeight: 700, color: G, margin: 0 }}>{info.value}</p>
+                        <div key={i} style={{ background: CREAM, borderRadius: 12, padding: "12px 8px", textAlign: "center" }}>
+                          <p style={{ fontSize: 12, color: MID, margin: "0 0 4px 0" }}>{info.label}</p>
+                          <p style={{ fontSize: 14, fontWeight: 700, color: G, margin: 0 }}>{info.value}</p>
                         </div>
                       ))}
                     </div>
 
                     {/* Ingredients */}
-                    <div style={{ background: "#E8F5E0", borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: G, margin: "0 0 10px 0", textTransform: "uppercase" as const, letterSpacing: 0.8 }}>
-                        🥬 Ingredients
+                    <div style={{ background: "#E8F5E0", borderRadius: 14, padding: "16px 18px", marginBottom: 14 }}>
+                      <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>
+                        🥬 Mga Sangkap
                       </p>
                       {recipe.ingredients.map((ing, i) => (
-                        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: 6, borderBottom: i < recipe.ingredients.length - 1 ? `1px solid rgba(57,97,59,0.15)` : "none", marginBottom: 6 }}>
-                          <div style={{ display: "flex", gap: 8, alignItems: "flex-start", flex: 1 }}>
-                            <span style={{ fontSize: 14, fontWeight: 700, color: AMBER, minWidth: 60, flexShrink: 0 }}>{ing.qty}</span>
-                            <span style={{ fontSize: 14, color: DARK }}>{ing.ingredient}</span>
+                        <div key={i} style={{
+                          display: "flex", justifyContent: "space-between", alignItems: "flex-start",
+                          paddingBottom: 10, borderBottom: i < recipe.ingredients.length - 1 ? `1px solid rgba(57,97,59,0.15)` : "none",
+                          marginBottom: 10,
+                        }}>
+                          <div style={{ display: "flex", gap: 10, alignItems: "flex-start", flex: 1 }}>
+                            <span style={{ fontSize: 15, fontWeight: 700, color: AMBER, minWidth: 70, flexShrink: 0 }}>{ing.qty}</span>
+                            <span style={{ fontSize: 16, color: DARK, lineHeight: 1.4 }}>{ing.ingredient}</span>
                           </div>
-                          {ing.notes && <span style={{ fontSize: 12, color: MID, textAlign: "right" as const, marginLeft: 8, maxWidth: "40%", flexShrink: 0 }}>— {ing.notes}</span>}
+                          {ing.notes && (
+                            <span style={{ fontSize: 13, color: MID, textAlign: "right", marginLeft: 8, maxWidth: "42%", flexShrink: 0, lineHeight: 1.4 }}>
+                              — {ing.notes}
+                            </span>
+                          )}
                         </div>
                       ))}
                     </div>
 
-                    {/* Cooking Steps */}
-                    <div style={{ background: "#FFFFFB", border: `1.5px solid ${AMBER}`, borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: AMBER, margin: "0 0 10px 0", textTransform: "uppercase" as const, letterSpacing: 0.8 }}>
-                        👨‍🍳 Cooking Steps
+                    {/* Steps */}
+                    <div style={{ background: "#FFFFFB", border: `2px solid ${AMBER}`, borderRadius: 14, padding: "16px 18px", marginBottom: 14 }}>
+                      <p style={{ fontSize: 16, fontWeight: 700, color: AMBER, margin: "0 0 14px 0" }}>
+                        👨‍🍳 Paano Lutuin
                       </p>
                       {recipe.steps.map((step, i) => (
-                        <div key={i} style={{ display: "flex", gap: 12, marginBottom: 10, alignItems: "flex-start" }}>
+                        <div key={i} style={{ display: "flex", gap: 14, marginBottom: 14, alignItems: "flex-start" }}>
                           <div style={{
-                            width: 26, height: 26, borderRadius: "50%", background: G,
+                            width: 34, height: 34, borderRadius: "50%", background: G,
                             display: "flex", alignItems: "center", justifyContent: "center",
-                            color: "#fff", fontSize: 13, fontWeight: 700, flexShrink: 0, marginTop: 1,
+                            color: "#fff", fontSize: 16, fontWeight: 700, flexShrink: 0, marginTop: 1,
                           }}>
                             {i + 1}
                           </div>
-                          <p style={{ fontSize: 14, color: DARK, margin: 0, lineHeight: 1.6 }}>{step}</p>
+                          <p style={{ fontSize: 16, color: DARK, margin: 0, lineHeight: 1.6 }}>{step}</p>
                         </div>
                       ))}
                     </div>
 
                     {/* Nutrition */}
-                    <div style={{ background: CREAM, borderRadius: 12, padding: "14px 16px", marginBottom: 4 }}>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: G, margin: "0 0 10px 0", textTransform: "uppercase" as const, letterSpacing: 0.8 }}>
-                        📊 Nutrition Info (per serving)
+                    <div style={{ background: CREAM, borderRadius: 14, padding: "16px 18px" }}>
+                      <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>
+                        📊 Nutrition (per serving)
                       </p>
-                      <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                         {Object.entries(recipe.nutrition).map(([key, val]) => {
-                          const isHighlight = NUTRITION_HIGHLIGHT[val];
+                          const hl = NUTRITION_HIGHLIGHT[val];
                           return (
                             <div key={key} style={{
-                              background: isHighlight ? `${isHighlight}15` : "#fff",
-                              border: `1px solid ${isHighlight || "#ddd"}`,
-                              borderRadius: 8, padding: "6px 12px",
-                              display: "flex", flexDirection: "column" as const, alignItems: "center",
+                              background: hl ? `${hl}18` : "#fff",
+                              border: `1.5px solid ${hl || "#ddd"}`,
+                              borderRadius: 10, padding: "8px 14px",
+                              display: "flex", flexDirection: "column", alignItems: "center",
                             }}>
-                              <span style={{ fontSize: 11, color: MID }}>{key}</span>
-                              <span style={{ fontSize: 14, fontWeight: 700, color: isHighlight || DARK }}>{val}</span>
+                              <span style={{ fontSize: 12, color: MID }}>{key}</span>
+                              <span style={{ fontSize: 15, fontWeight: 700, color: hl || DARK }}>{val}</span>
                             </div>
                           );
                         })}
                       </div>
                     </div>
+
                   </div>
                 )}
-
-                {/* Collapse arrow */}
-                <div style={{ textAlign: "center" as const, marginTop: 8 }}>
-                  <span style={{ fontSize: 14, color: MID }}>{isExpanded ? "▲ Collapse" : "▼ View recipe"}</span>
-                </div>
               </div>
             </div>
           );
         })}
 
         {filtered.length === 0 && (
-          <div style={{ textAlign: "center" as const, padding: "40px 20px", color: MID }}>
-            <p style={{ fontSize: 40, margin: "0 0 12px 0" }}>🔍</p>
-            <p style={{ fontSize: 16, fontWeight: 600 }}>No recipes found</p>
-            <p style={{ fontSize: 14 }}>Try a different search or category</p>
+          <div style={{ textAlign: "center", padding: "48px 20px", color: MID }}>
+            <p style={{ fontSize: 48, margin: "0 0 14px 0" }}>🔍</p>
+            <p style={{ fontSize: 18, fontWeight: 700, margin: "0 0 8px 0" }}>Walang nahanap</p>
+            <p style={{ fontSize: 16 }}>Subukan ng ibang search o category</p>
           </div>
         )}
       </div>
 
-      {/* BOTTOM NAV */}
+      {/* ── BOTTOM NAV ── */}
       <div style={{
         position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
         width: "100%", maxWidth: 680, background: "#fff",
-        borderTop: `2px solid ${CREAM}`, padding: "12px 24px",
+        borderTop: `2px solid ${CREAM}`, padding: "14px 24px",
         display: "flex", justifyContent: "center",
       }}>
-        <Link href="/" style={{ background: G, color: "#fff", borderRadius: 12, padding: "12px 32px", fontSize: 16, fontWeight: 700, textDecoration: "none" }}>
-          🏠 Back to Hub
+        <Link href="/" style={{
+          background: G, color: "#fff", borderRadius: 14,
+          padding: "16px 48px", fontSize: 18, fontWeight: 700,
+          textDecoration: "none",
+        }}>
+          🏠 Bumalik sa Hub
         </Link>
       </div>
+
     </div>
   );
 }
