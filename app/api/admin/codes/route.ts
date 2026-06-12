@@ -15,17 +15,7 @@ async function verifyToken(req: NextRequest) {
   }
 }
 
-// Helper — checks if a code belongs to the given coach (based on notes prefix "[CoachName] ...")
-function isOwnedByCoach(code: any, username: string) {
-  if (!code?.notes) return false;
-  // notes format: "[Coach Rai] some note"
-  const match = code.notes.match(/^\[(.+?)\]/);
-  if (!match) return false;
-  const noteCoach = match[1].trim().toLowerCase();
-  return noteCoach === username.trim().toLowerCase();
-}
-
-// GET — fetch all codes with filters (owner: all, coach: own only)
+// GET — fetch all codes with filters (owner and coach can both view all)
 export async function GET(req: NextRequest) {
   try {
     const admin = await verifyToken(req);
@@ -52,14 +42,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch codes.' }, { status: 500 });
     }
 
-    let codes = data || [];
-
-    // Coach can only see codes they generated
-    if (admin.role === 'coach') {
-      codes = codes.filter(c => isOwnedByCoach(c, admin.username));
-    }
-
-    return NextResponse.json({ success: true, codes });
+    return NextResponse.json({ success: true, codes: data || [] });
 
   } catch (err) {
     console.error('Fetch codes error:', err);
@@ -67,7 +50,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// PATCH — deactivate or reactivate a code
+// PATCH — deactivate or reactivate a code (owner and coach both allowed)
 export async function PATCH(req: NextRequest) {
   try {
     const admin = await verifyToken(req);
@@ -79,22 +62,6 @@ export async function PATCH(req: NextRequest) {
 
     if (!id || !action) {
       return NextResponse.json({ error: 'ID and action are required.' }, { status: 400 });
-    }
-
-    // If coach, verify ownership first
-    if (admin.role !== 'owner') {
-      const { data: existing, error: fetchErr } = await supabaseAdmin
-        .from('access_codes')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (fetchErr || !existing) {
-        return NextResponse.json({ error: 'Code not found.' }, { status: 404 });
-      }
-      if (!isOwnedByCoach(existing, admin.username)) {
-        return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-      }
     }
 
     if (action === 'deactivate') {
@@ -121,7 +88,7 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-// DELETE — delete a code permanently (owner: any code, coach: own codes only)
+// DELETE — delete a code permanently (owner and coach both allowed)
 export async function DELETE(req: NextRequest) {
   try {
     const admin = await verifyToken(req);
@@ -133,22 +100,6 @@ export async function DELETE(req: NextRequest) {
 
     if (!id) {
       return NextResponse.json({ error: 'ID is required.' }, { status: 400 });
-    }
-
-    // If coach, verify ownership before deleting
-    if (admin.role !== 'owner') {
-      const { data: existing, error: fetchErr } = await supabaseAdmin
-        .from('access_codes')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (fetchErr || !existing) {
-        return NextResponse.json({ error: 'Code not found.' }, { status: 404 });
-      }
-      if (!isOwnedByCoach(existing, admin.username)) {
-        return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-      }
     }
 
     const { error } = await supabaseAdmin
