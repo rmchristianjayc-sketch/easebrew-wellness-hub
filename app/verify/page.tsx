@@ -13,13 +13,13 @@ const WHITE   = "#FFFFFB";
 
 // ── DEFAULT PERKS — overridden by /api/content if available ──
 const DEFAULT_PERKS = [
-  { tier: 399,  packs: 1,  label: "1 Pack — ₱399",     gifts: [],                                                                                                                                                 note: "5 araw na access sa Wellness Hub",   highlight: false },
-  { tier: 699,  packs: 2,  label: "2 Packs — ₱699",    gifts: [],                                                                                                                                                 note: "10 araw na access sa Wellness Hub",  highlight: false },
-  { tier: 999,  packs: 3,  label: "3 Packs — ₱999",    gifts: ["📊 Body Pain Tracker + Journal"],                                                                                                                 note: "15 araw na access",                  highlight: false },
-  { tier: 1499, packs: 5,  label: "5 Packs — ₱1,499",  gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide"],                                                             note: "25 araw na access",                  highlight: false },
-  { tier: 2998, packs: 10, label: "10 Packs — ₱2,998", gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book"],                                     note: "50 araw na access",                  highlight: false },
-  { tier: 4497, packs: 15, label: "15 Packs — ₱4,497", gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Bagong Katawan Program"], note: "75 araw na access",                  highlight: false },
-  { tier: 5996, packs: 20, label: "20 Packs — ₱5,996", gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Program", "🌿 VIP Wellness Bundle"], note: "100 araw na access",           highlight: true  },
+  { tier: 399,  packs: 1,  label: "1 Pack — ₱399",     gifts: [],                                                                                                                                                 note: "10 araw na access sa Wellness Hub",  highlight: false },
+  { tier: 699,  packs: 2,  label: "2 Packs — ₱699",    gifts: [],                                                                                                                                                 note: "20 araw na access sa Wellness Hub",  highlight: false },
+  { tier: 999,  packs: 3,  label: "3 Packs — ₱999",    gifts: ["📊 Body Pain Tracker + Journal"],                                                                                                                 note: "30 araw na access",                  highlight: false },
+  { tier: 1499, packs: 5,  label: "5 Packs — ₱1,499",  gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide"],                                                             note: "45 araw na access",                  highlight: false },
+  { tier: 2998, packs: 10, label: "10 Packs — ₱2,998", gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book"],                                     note: "75 araw na access",                  highlight: false },
+  { tier: 4497, packs: 15, label: "15 Packs — ₱4,497", gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Bagong Katawan Program"], note: "105 araw na access",                 highlight: false },
+  { tier: 5996, packs: 20, label: "20 Packs — ₱5,996", gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Program", "🌿 VIP Wellness Bundle"], note: "135 araw na access",          highlight: true  },
 ];
 
 // Product index map: tier → product ids

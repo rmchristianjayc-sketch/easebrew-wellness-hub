@@ -2,33 +2,34 @@ import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import { supabaseAdmin } from '@/lib/supabase';
 
-// 1 pack = 10 sachets = 5 days (2 sachets per day)
+// ============================================================
+// PRICE CONFIG — updated validity days (consumption + buffer)
+// Formula: actual consumption days + marketing buffer
+// 1 pack = 10 sachets = 5 days (2 sachets/day)
+// ============================================================
 const PRICE_CONFIG: Record<number, { packs: number; validityDays: number; label: string }> = {
-  399:   { packs: 1,  validityDays: 5,   label: '1 Pack — ₱399' },
-  699:   { packs: 2,  validityDays: 10,  label: '2 Packs — ₱699' },
-  999:   { packs: 3,  validityDays: 15,  label: '3 Packs — ₱999' },
-  1499:  { packs: 5,  validityDays: 25,  label: '5 Packs — ₱1,499' },
-  2998:  { packs: 10, validityDays: 50,  label: '10 Packs — ₱2,998' },
-  4497:  { packs: 15, validityDays: 75,  label: '15 Packs — ₱4,497' },
-  5996:  { packs: 20, validityDays: 100, label: '20 Packs — ₱5,996' },
-  7499:  { packs: 25, validityDays: 125, label: '25 Packs — ₱7,499' },
-  8994:  { packs: 30, validityDays: 150, label: '30 Packs — ₱8,994' },
-  11992: { packs: 40, validityDays: 200, label: '40 Packs — ₱11,992' },
-  14990: { packs: 50, validityDays: 250, label: '50 Packs — ₱14,990' },
+  399:   { packs: 1,  validityDays: 10,  label: '1 Pack — ₱399' },
+  699:   { packs: 2,  validityDays: 20,  label: '2 Packs — ₱699' },
+  999:   { packs: 3,  validityDays: 30,  label: '3 Packs — ₱999' },
+  1499:  { packs: 5,  validityDays: 45,  label: '5 Packs — ₱1,499' },
+  2998:  { packs: 10, validityDays: 75,  label: '10 Packs — ₱2,998' },
+  4497:  { packs: 15, validityDays: 105, label: '15 Packs — ₱4,497' },
+  5996:  { packs: 20, validityDays: 135, label: '20 Packs — ₱5,996' },
+  7499:  { packs: 25, validityDays: 165, label: '25 Packs — ₱7,499' },
+  8994:  { packs: 30, validityDays: 195, label: '30 Packs — ₱8,994' },
+  11992: { packs: 40, validityDays: 255, label: '40 Packs — ₱11,992' },
+  14990: { packs: 50, validityDays: 315, label: '50 Packs — ₱14,990' },
 };
 
 const JWT_SECRET = new TextEncoder().encode(process.env.ADMIN_SECRET!);
 
 async function verifyToken(req: NextRequest) {
   const token = req.cookies.get('eb_admin_token')?.value;
-  console.log('Token found:', !!token);
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
-    console.log('Token verified, role:', payload.role);
     return payload as { username: string; role: 'owner' | 'coach' };
-  } catch (err) {
-    console.error('Token verify error:', err);
+  } catch {
     return null;
   }
 }
@@ -43,19 +44,15 @@ function generateCode(): string {
 export async function POST(req: NextRequest) {
   try {
     const admin = await verifyToken(req);
-    console.log('Admin:', admin);
-
     if (!admin) {
       return NextResponse.json({ error: 'Unauthorized. Please login again.' }, { status: 401 });
     }
 
     const body = await req.json();
-    console.log('Request body:', body);
     const { tier, customer_name, notes } = body;
 
     const tierNum = Number(tier);
     if (!tierNum || !PRICE_CONFIG[tierNum]) {
-      console.log('Invalid tier:', tier, 'Available:', Object.keys(PRICE_CONFIG));
       return NextResponse.json({ error: 'Invalid tier selected.' }, { status: 400 });
     }
 
@@ -100,7 +97,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to save code: ' + insertError.message }, { status: 500 });
     }
 
-    console.log('Code generated:', newCode.code);
     return NextResponse.json({ success: true, code: newCode });
 
   } catch (err) {
@@ -126,7 +122,6 @@ export async function GET(req: NextRequest) {
       .order('created_at', { ascending: false })
       .limit(limit);
 
-    // Coach — sariling codes lang ang makikita
     if (admin.role === 'coach') {
       query = query.eq('created_by', admin.username);
     }
