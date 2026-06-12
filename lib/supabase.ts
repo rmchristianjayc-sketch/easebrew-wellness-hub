@@ -71,21 +71,21 @@ export type AdminUser = {
 };
 
 // ============================================================
-// PRICING CONFIG
+// PRICING CONFIG — 1 pack = 10 sachets = 5 days (2x per day)
 // ============================================================
 
 export const PRICE_CONFIG: Record<number, { packs: number; validityDays: number; label: string }> = {
-  399:   { packs: 1,  validityDays: 15,  label: '1 Pack — ₱399' },
-  699:   { packs: 2,  validityDays: 25,  label: '2 Packs — ₱699' },
-  999:   { packs: 3,  validityDays: 35,  label: '3 Packs — ₱999' },
-  1499:  { packs: 5,  validityDays: 55,  label: '5 Packs — ₱1,499' },
-  2998:  { packs: 10, validityDays: 105, label: '10 Packs — ₱2,998' },
-  4497:  { packs: 15, validityDays: 155, label: '15 Packs — ₱4,497' },
-  5996:  { packs: 20, validityDays: 205, label: '20 Packs — ₱5,996' },
-  7499:  { packs: 25, validityDays: 255, label: '25 Packs — ₱7,499' },
-  8994:  { packs: 30, validityDays: 305, label: '30 Packs — ₱8,994' },
-  11992: { packs: 40, validityDays: 405, label: '40 Packs — ₱11,992' },
-  14990: { packs: 50, validityDays: 505, label: '50 Packs — ₱14,990' },
+  399:   { packs: 1,  validityDays: 5,   label: '1 Pack — ₱399' },
+  699:   { packs: 2,  validityDays: 10,  label: '2 Packs — ₱699' },
+  999:   { packs: 3,  validityDays: 15,  label: '3 Packs — ₱999' },
+  1499:  { packs: 5,  validityDays: 25,  label: '5 Packs — ₱1,499' },
+  2998:  { packs: 10, validityDays: 50,  label: '10 Packs — ₱2,998' },
+  4497:  { packs: 15, validityDays: 75,  label: '15 Packs — ₱4,497' },
+  5996:  { packs: 20, validityDays: 100, label: '20 Packs — ₱5,996' },
+  7499:  { packs: 25, validityDays: 125, label: '25 Packs — ₱7,499' },
+  8994:  { packs: 30, validityDays: 150, label: '30 Packs — ₱8,994' },
+  11992: { packs: 40, validityDays: 200, label: '40 Packs — ₱11,992' },
+  14990: { packs: 50, validityDays: 250, label: '50 Packs — ₱14,990' },
 };
 
 // ============================================================
@@ -112,7 +112,6 @@ export function getLocalSession(): CustomerSession | null {
   if (!raw) return null;
   try {
     const session: CustomerSession = JSON.parse(raw);
-    // Check if expired
     if (new Date(session.expires_at) < new Date()) {
       localStorage.removeItem('eb_session');
       return null;
