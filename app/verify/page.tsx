@@ -18,21 +18,107 @@ const PERKS = [
   { tier: 1499,  packs: 5,  label: "5 Packs — ₱1,499",   gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide"],                                                        note: "55 araw na access",                       highlight: false },
   { tier: 2998,  packs: 10, label: "10 Packs — ₱2,998",  gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book"],                                note: "105 araw na access",                      highlight: false },
   { tier: 4497,  packs: 15, label: "15 Packs — ₱4,497",  gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Bagong Katawan Program"], note: "155 araw na access",                  highlight: false },
-  { tier: 5996,  packs: 20, label: "20 Packs — ₱5,996",  gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Program", "🌿 VIP Wellness Bundle"], note: "205 araw na access",             highlight: false },
-  { tier: 7499,  packs: 25, label: "25 Packs — ₱7,499",  gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Program", "🌿 VIP Wellness Bundle"], note: "255 araw na access",             highlight: false },
-  { tier: 8994,  packs: 30, label: "30 Packs — ₱8,994",  gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Program", "🌿 VIP Wellness Bundle"], note: "305 araw na access",             highlight: false },
-  { tier: 11992, packs: 40, label: "40 Packs — ₱11,992", gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Program", "🌿 VIP Wellness Bundle"], note: "405 araw na access",             highlight: false },
-  { tier: 14990, packs: 50, label: "50 Packs — ₱14,990", gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Program", "🌿 VIP Wellness Bundle"], note: "505 araw na access — LAHAT UNLOCKED! 🎉", highlight: true },
+  { tier: 5996,  packs: 20, label: "20 Packs — ₱5,996",  gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Program", "🌿 VIP Wellness Bundle"], note: "205 araw na access",             highlight: true },
 ];
 
 const COACHES = [
-  { name: "Coach Josephine", number: "0917 701 1252", facebook: "https://www.facebook.com/josephine.easebrew.main", photo: "/coaches/josephine.jpg" },
-  { name: "Coach Niña",      number: "0968 880 4440", facebook: "https://www.facebook.com/easebrew.nina",           photo: "/coaches/niña.jpg" },
-  { name: "Coach Mark",      number: "0917 117 8216", facebook: "https://www.facebook.com/profile.php?id=61577427472374", photo: "/coaches/mark.jpg" },
-  { name: "Coach Rai",       number: "0970 968 9164", facebook: "https://www.facebook.com/profile.php?id=61579641330542", photo: "/coaches/rai.jpg" },
-  { name: "Coach Jo Ann",    number: "0951 685 1019", facebook: "https://www.facebook.com/profile.php?id=61590474596913", photo: "/coaches/joann.jpg" },
-  { name: "Coach Mike",      number: "0951 598 6840", facebook: "https://www.facebook.com/profile.php?id=61576324811239", photo: "/coaches/mike.jpg" },
+  { name: "Coach Josephine", number: "09177011252", display: "0917 701 1252", facebook: "https://www.facebook.com/josephine.easebrew.main", photo: "/coaches/josephine.jpg" },
+  { name: "Coach Niña",      number: "09688804440", display: "0968 880 4440", facebook: "https://www.facebook.com/easebrew.nina",           photo: "/coaches/niña.jpg" },
+  { name: "Coach Mark",      number: "09171178216", display: "0917 117 8216", facebook: "https://www.facebook.com/profile.php?id=61577427472374", photo: "/coaches/mark.jpg" },
+  { name: "Coach Rai",       number: "09709689164", display: "0970 968 9164", facebook: "https://www.facebook.com/profile.php?id=61579641330542", photo: "/coaches/rai.jpg" },
+  { name: "Coach Jo Ann",    number: "09516851019", display: "0951 685 1019", facebook: "https://www.facebook.com/profile.php?id=61590474596913", photo: "/coaches/joann.jpg" },
+  { name: "Coach Mike",      number: "09515986840", display: "0951 598 6840", facebook: "https://www.facebook.com/profile.php?id=61576324811239", photo: "/coaches/mike.jpg" },
 ];
+
+// ── Error types para sa iba't ibang messages ─────────────────
+type ErrorType = "invalid" | "expired" | "other_device" | "generic" | null;
+
+function getErrorType(errorMsg: string): ErrorType {
+  if (!errorMsg) return null;
+  const msg = errorMsg.toLowerCase();
+  if (msg.includes("expired")) return "expired";
+  if (msg.includes("another device") || msg.includes("other device")) return "other_device";
+  if (msg.includes("invalid") || msg.includes("not found") || msg.includes("404")) return "invalid";
+  return "generic";
+}
+
+// ── Error message config ──────────────────────────────────────
+const ERROR_CONFIG = {
+  invalid: {
+    icon: "❓",
+    title: "Hindi Nahanap ang Code",
+    message: "Baka may typo — i-check ulit ang code na ibinigay ng inyong coach. O baka hindi pa kayo nag-order?",
+    showCoaches: true,
+    ctaLabel: "Wala pang code? Makipag-ugnayan sa Coach →",
+  },
+  expired: {
+    icon: "⏰",
+    title: "Expired na ang Code",
+    message: "Ang inyong access ay nag-expire na. Mag-order ulit para ma-renew ang access ninyo at makuha ang mga wellness gifts!",
+    showCoaches: true,
+    ctaLabel: "Mag-order Ulit para Ma-renew →",
+  },
+  other_device: {
+    icon: "📱",
+    title: "Ginamit na sa Ibang Device",
+    message: "Ang code na ito ay naka-activate na sa ibang phone. Kung ikaw ang may-ari nito, makipag-ugnayan sa inyong coach para sa bagong code.",
+    showCoaches: true,
+    ctaLabel: "Makipag-ugnayan sa Coach →",
+  },
+  generic: {
+    icon: "⚠️",
+    title: "May Problema",
+    message: "May nangyaring mali. Pakisubukan ulit o makipag-ugnayan sa inyong coach para sa tulong.",
+    showCoaches: true,
+    ctaLabel: "Makipag-ugnayan sa Coach →",
+  },
+};
+
+// ── Coach List Component ──────────────────────────────────────
+function CoachList({ title }: { title: string }) {
+  return (
+    <div style={{ marginTop: 20 }}>
+      <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 14px 0", textAlign: "center" }}>
+        {title}
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {COACHES.map((c, i) => (
+          <div key={i} style={{
+            background: WHITE, border: "2px solid #D9D0C0",
+            borderRadius: 16, padding: "14px 16px",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+              <img src={c.photo} alt={c.name} style={{ width: 44, height: 44, borderRadius: 12, objectFit: "cover", border: `2px solid ${G}`, flexShrink: 0 }} />
+              <div>
+                <p style={{ fontSize: 16, fontWeight: 700, color: DARK, margin: 0 }}>{c.name}</p>
+                <p style={{ fontSize: 12, color: G, margin: "2px 0 0 0", fontWeight: 600 }}>R&M EaseBrew Wellness Coach</p>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <a href={`tel:${c.number}`} style={{
+                flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
+                gap: 6, background: G, color: "#fff", borderRadius: 12,
+                padding: "13px 8px", fontSize: 15, fontWeight: 700, textDecoration: "none",
+              }}>
+                📞 Tumawag
+              </a>
+              <a href={c.facebook} target="_blank" rel="noopener noreferrer" style={{
+                flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
+                gap: 6, background: "#1877F2", color: "#fff", borderRadius: 12,
+                padding: "13px 8px", fontSize: 15, fontWeight: 700, textDecoration: "none",
+              }}>
+                📘 Facebook
+              </a>
+            </div>
+            <p style={{ fontSize: 13, color: MID, margin: "8px 0 0 0", textAlign: "center" }}>
+              📱 {c.display}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function getDeviceId(): string {
   if (typeof window === "undefined") return "";
@@ -74,8 +160,10 @@ export default function VerifyPage() {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [errorType, setErrorType] = useState<ErrorType>(null);
   const [success, setSuccess] = useState(false);
   const [tab, setTab] = useState<Tab>("verify");
+  const [showCoachesInError, setShowCoachesInError] = useState(false);
 
   useEffect(() => {
     if (hasValidSessionCookie()) router.push("/");
@@ -86,9 +174,11 @@ export default function VerifyPage() {
   async function handleVerify() {
     const stripped = code.replace(/[-\s]/g, "").toUpperCase().slice(0, 12);
     const cleanCode = `${stripped.slice(0,4)}-${stripped.slice(4,8)}-${stripped.slice(8,12)}`;
-    if (!isComplete) { setError("Pakiusap, i-type ang buong access code (EASE-XXXX-XXXX)."); return; }
+    if (!isComplete) { setError("Pakiusap, i-type ang buong access code (EASE-XXXX-XXXX)."); setErrorType("generic"); return; }
     setLoading(true);
     setError("");
+    setErrorType(null);
+    setShowCoachesInError(false);
     try {
       const deviceId = getDeviceId();
       const res = await fetch("/api/verify-code", {
@@ -97,19 +187,29 @@ export default function VerifyPage() {
         body: JSON.stringify({ code: cleanCode, device_id: deviceId }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Hindi tama ang code. Pakisubukan ulit."); return; }
+      if (!res.ok) {
+        const eType = getErrorType(data.error || "");
+        setErrorType(eType);
+        setError(data.error || "Hindi tama ang code. Pakisubukan ulit.");
+        // Auto-show coaches para sa invalid/expired agad
+        if (eType === "invalid" || eType === "expired") {
+          setShowCoachesInError(true);
+        }
+        return;
+      }
       localStorage.setItem("eb_session", JSON.stringify(data.session));
       setSessionCookie(data.session, data.session.expires_at);
       setSuccess(true);
       setTimeout(() => router.push("/"), 2000);
     } catch {
       setError("May problema sa koneksyon. Pakisubukan ulit.");
+      setErrorType("generic");
     } finally {
       setLoading(false);
     }
   }
 
-  // ── SUCCESS SCREEN ──────────────────────────────────────────
+  // ── SUCCESS SCREEN ────────────────────────────────────────
   if (success) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Georgia, serif", padding: "24px" }}>
       <div style={{ textAlign: "center", maxWidth: 400, width: "100%" }}>
@@ -130,35 +230,22 @@ export default function VerifyPage() {
     </div>
   );
 
-  // ── TAB BUTTON STYLE ─────────────────────────────────────────
+  // ── TAB BUTTON ────────────────────────────────────────────
   const tabBtn = (t: Tab, label: string) => (
-    <button
-      onClick={() => setTab(t)}
-      style={{
-        flex: 1,
-        padding: "14px 4px",
-        fontSize: "14px",
-        fontWeight: "bold",
-        border: "none",
-        borderBottom: tab === t ? `4px solid ${GOLD}` : "4px solid transparent",
-        background: "transparent",
-        color: tab === t ? GOLD : "rgba(255,255,255,0.65)",
-        cursor: "pointer",
-        transition: "all 0.2s",
-        fontFamily: "Georgia, serif",
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-      }}
-    >
-      {label}
-    </button>
+    <button onClick={() => setTab(t)} style={{
+      flex: 1, padding: "14px 4px", fontSize: "14px", fontWeight: "bold",
+      border: "none", borderBottom: tab === t ? `4px solid ${GOLD}` : "4px solid transparent",
+      background: "transparent", color: tab === t ? GOLD : "rgba(255,255,255,0.65)",
+      cursor: "pointer", transition: "all 0.2s", fontFamily: "Georgia, serif",
+      whiteSpace: "nowrap", overflow: "hidden",
+    }}>{label}</button>
   );
 
   return (
     <div style={{ minHeight: "100vh", background: CREAM, fontFamily: "Georgia, serif" }}>
       <div style={{ maxWidth: "480px", margin: "0 auto" }}>
 
-        {/* ── HERO ─────────────────────────────────────────────── */}
+        {/* ── HERO ──────────────────────────────────────────── */}
         <div style={{ background: G, padding: "36px 28px 0", textAlign: "center", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -30, right: -30, width: 160, height: 160, background: "rgba(125,174,47,0.2)", borderRadius: "50%" }} />
           <div style={{ position: "absolute", top: 20, left: -20, width: 100, height: 100, background: "rgba(254,210,85,0.1)", borderRadius: "50%" }} />
@@ -169,8 +256,6 @@ export default function VerifyPage() {
           <h1 style={{ color: WHITE, fontSize: "26px", fontWeight: "bold", margin: "0 0 24px 0", lineHeight: 1.3 }}>
             Kamusta, Nanay at Tatay! 👋
           </h1>
-
-          {/* ── TABS ───────────────────────────────────────────── */}
           <div style={{ display: "flex", borderTop: "1px solid rgba(255,255,255,0.15)", marginTop: "4px" }}>
             {tabBtn("verify",  "☕ I-Verify")}
             {tabBtn("gifts",   "🎁 Mga Gifts")}
@@ -178,78 +263,142 @@ export default function VerifyPage() {
           </div>
         </div>
 
-        {/* ── TAB CONTENT ──────────────────────────────────────── */}
+        {/* ── TAB CONTENT ───────────────────────────────────── */}
         <div style={{ padding: "28px 20px 60px" }}>
 
-          {/* ═══ VERIFY TAB ═══════════════════════════════════════ */}
+          {/* ═══ VERIFY TAB ═══════════════════════════════════ */}
           {tab === "verify" && (
-            <div style={{ background: WHITE, borderRadius: "24px", padding: "32px 24px", boxShadow: "0 8px 32px rgba(0,0,0,0.10)" }}>
-              <p style={{ fontSize: "17px", color: MID, margin: "0 0 24px 0", lineHeight: 1.65, textAlign: "center" }}>
-                I-type ang access code na ibinigay ng inyong coach.
-              </p>
-
-              <label style={{ fontSize: "17px", color: DARK, fontWeight: "bold", display: "block", marginBottom: "10px" }}>
-                🔑 Access Code
-              </label>
-              <input
-                type="text"
-                value={code}
-                onChange={e => setCode(formatCode(e.target.value))}
-                placeholder="EASE-XXXX-XXXX"
-                maxLength={14}
-                onKeyDown={e => e.key === "Enter" && handleVerify()}
-                style={{
-                  width: "100%", padding: "18px 16px", borderRadius: "16px",
-                  border: `3px solid ${isComplete ? G : "#D9D0C0"}`,
-                  fontSize: "28px", fontWeight: "bold", letterSpacing: "4px",
-                  textAlign: "center", outline: "none", boxSizing: "border-box",
-                  color: G, fontFamily: "monospace",
-                  background: isComplete ? "#F0F8F0" : WHITE, transition: "all 0.2s",
-                }}
-              />
-              <p style={{ color: "#aaa", fontSize: "15px", marginTop: "8px", textAlign: "center" }}>
-                Format: EASE-XXXX-XXXX
-              </p>
-
-              {error && (
-                <div style={{ background: "#fff0f0", border: "2px solid #ffcccc", borderRadius: "12px", padding: "14px 18px", color: "#cc0000", fontSize: "17px", margin: "16px 0", lineHeight: 1.5 }}>
-                  ⚠️ {error}
+            <div>
+              {/* ── Normal state (walang error) ── */}
+              {!errorType && (
+                <div style={{ background: WHITE, borderRadius: "24px", padding: "32px 24px", boxShadow: "0 8px 32px rgba(0,0,0,0.10)" }}>
+                  <p style={{ fontSize: "17px", color: MID, margin: "0 0 24px 0", lineHeight: 1.65, textAlign: "center" }}>
+                    I-type ang access code na ibinigay ng inyong coach.
+                  </p>
+                  <label style={{ fontSize: "17px", color: DARK, fontWeight: "bold", display: "block", marginBottom: "10px" }}>
+                    🔑 Access Code
+                  </label>
+                  <input
+                    type="text" value={code}
+                    onChange={e => setCode(formatCode(e.target.value))}
+                    placeholder="EASE-XXXX-XXXX" maxLength={14}
+                    onKeyDown={e => e.key === "Enter" && handleVerify()}
+                    style={{
+                      width: "100%", padding: "18px 16px", borderRadius: "16px",
+                      border: `3px solid ${isComplete ? G : "#D9D0C0"}`,
+                      fontSize: "28px", fontWeight: "bold", letterSpacing: "4px",
+                      textAlign: "center", outline: "none", boxSizing: "border-box",
+                      color: G, fontFamily: "monospace",
+                      background: isComplete ? "#F0F8F0" : WHITE, transition: "all 0.2s",
+                    }}
+                  />
+                  <p style={{ color: "#aaa", fontSize: "15px", marginTop: "8px", textAlign: "center" }}>
+                    Format: EASE-XXXX-XXXX
+                  </p>
+                  <button onClick={handleVerify} disabled={loading || !isComplete} style={{
+                    width: "100%", background: isComplete ? G : "#C5B99A",
+                    color: "white", border: "none", borderRadius: "16px",
+                    padding: "22px", fontSize: "21px", fontWeight: "bold",
+                    cursor: isComplete ? "pointer" : "not-allowed",
+                    transition: "all 0.2s", marginTop: "8px",
+                  }}>
+                    {loading ? "Sandali lang... ☕" : "Buksan ang Aking Hub ☕"}
+                  </button>
+                  <div style={{ marginTop: "24px", padding: "18px 20px", background: "#F4FAF0", borderRadius: "16px", border: `2px solid ${LIGHT_G}` }}>
+                    <p style={{ fontSize: "17px", fontWeight: "bold", color: G, margin: "0 0 8px 0" }}>
+                      📦 Paano makuha ang code?
+                    </p>
+                    <p style={{ fontSize: "16px", color: MID, margin: 0, lineHeight: 1.7 }}>
+                      Mag-order ng EaseBrew, tapos i-message ang inyong coach. Ibibigay nila ang inyong access code.
+                    </p>
+                  </div>
+                  <p style={{ color: "#bbb", fontSize: "13px", textAlign: "center", marginTop: "20px" }}>
+                    Walang code pa?{" "}
+                    <button onClick={() => setTab("coaches")} style={{ background: "none", border: "none", color: G, fontSize: "13px", fontWeight: "bold", cursor: "pointer", textDecoration: "underline", padding: 0, fontFamily: "Georgia, serif" }}>
+                      Makipag-ugnayan sa Coach →
+                    </button>
+                  </p>
                 </div>
               )}
 
-              <button
-                onClick={handleVerify}
-                disabled={loading || !isComplete}
-                style={{
-                  width: "100%", background: isComplete ? G : "#C5B99A",
-                  color: "white", border: "none", borderRadius: "16px",
-                  padding: "22px", fontSize: "21px", fontWeight: "bold",
-                  cursor: isComplete ? "pointer" : "not-allowed",
-                  transition: "all 0.2s", marginTop: "8px",
-                }}
-              >
-                {loading ? "Sandali lang... ☕" : "Buksan ang Aking Hub ☕"}
-              </button>
+              {/* ── Error state ── */}
+              {errorType && (() => {
+                const cfg = ERROR_CONFIG[errorType] || ERROR_CONFIG.generic;
+                return (
+                  <div>
+                    {/* Error card */}
+                    <div style={{
+                      background: WHITE, borderRadius: "24px", padding: "28px 24px",
+                      boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
+                      border: `2.5px solid ${errorType === "expired" ? AMBER : errorType === "other_device" ? "#185FA5" : "#dc2626"}`,
+                    }}>
+                      {/* Error header */}
+                      <div style={{ textAlign: "center", marginBottom: 20 }}>
+                        <div style={{ fontSize: 52, marginBottom: 10 }}>{cfg.icon}</div>
+                        <h2 style={{ fontSize: 22, fontWeight: 700, color: DARK, margin: "0 0 10px 0" }}>
+                          {cfg.title}
+                        </h2>
+                        <p style={{ fontSize: 16, color: MID, margin: 0, lineHeight: 1.7 }}>
+                          {cfg.message}
+                        </p>
+                      </div>
 
-              <div style={{ marginTop: "24px", padding: "18px 20px", background: "#F4FAF0", borderRadius: "16px", border: `2px solid ${LIGHT_G}` }}>
-                <p style={{ fontSize: "17px", fontWeight: "bold", color: G, margin: "0 0 8px 0" }}>
-                  📦 Paano makuha ang code?
-                </p>
-                <p style={{ fontSize: "16px", color: MID, margin: 0, lineHeight: 1.7 }}>
-                  Mag-order ng EaseBrew, tapos i-message ang inyong coach. Ibibigay nila ang inyong access code.
-                </p>
-              </div>
+                      {/* Try again section */}
+                      <div style={{ background: "#F4FAF0", borderRadius: 16, padding: "18px 20px", marginBottom: 16, border: `1.5px solid ${LIGHT_G}` }}>
+                        <p style={{ fontSize: 15, fontWeight: 700, color: G, margin: "0 0 10px 0" }}>🔑 Subukan ulit</p>
+                        <input
+                          type="text" value={code}
+                          onChange={e => { setCode(formatCode(e.target.value)); setErrorType(null); setError(""); setShowCoachesInError(false); }}
+                          placeholder="EASE-XXXX-XXXX" maxLength={14}
+                          onKeyDown={e => e.key === "Enter" && handleVerify()}
+                          style={{
+                            width: "100%", padding: "14px 16px", borderRadius: "12px",
+                            border: `2px solid #D9D0C0`, fontSize: "22px", fontWeight: "bold",
+                            letterSpacing: "3px", textAlign: "center", outline: "none",
+                            boxSizing: "border-box", color: G, fontFamily: "monospace",
+                            background: WHITE,
+                          }}
+                        />
+                        <button onClick={handleVerify} disabled={loading || !isComplete} style={{
+                          width: "100%", background: isComplete ? G : "#C5B99A",
+                          color: "white", border: "none", borderRadius: "12px",
+                          padding: "16px", fontSize: "17px", fontWeight: "bold",
+                          cursor: isComplete ? "pointer" : "not-allowed", marginTop: 10,
+                        }}>
+                          {loading ? "Sandali lang... ☕" : "I-try Ulit →"}
+                        </button>
+                      </div>
 
-              <p style={{ color: "#bbb", fontSize: "13px", textAlign: "center", marginTop: "20px" }}>
-                Walang code pa?{" "}
-                <button onClick={() => setTab("coaches")} style={{ background: "none", border: "none", color: G, fontSize: "13px", fontWeight: "bold", cursor: "pointer", textDecoration: "underline", padding: 0, fontFamily: "Georgia, serif" }}>
-                  Makipag-ugnayan sa Coach →
-                </button>
-              </p>
+                      {/* CTA to show coaches */}
+                      {!showCoachesInError && (
+                        <button
+                          onClick={() => setShowCoachesInError(true)}
+                          style={{
+                            width: "100%", background: GOLD, color: G, border: "none",
+                            borderRadius: "14px", padding: "18px", fontSize: "17px",
+                            fontWeight: "bold", cursor: "pointer", fontFamily: "Georgia, serif",
+                          }}
+                        >
+                          {cfg.ctaLabel}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Coach list — visible agad para sa invalid/expired */}
+                    {showCoachesInError && (
+                      <CoachList title={
+                        errorType === "expired"
+                          ? "📞 Makipag-ugnayan sa Coach para mag-renew:"
+                          : "📞 Makipag-ugnayan sa Coach para makuha ang code:"
+                      } />
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           )}
 
-          {/* ═══ GIFTS TAB ════════════════════════════════════════ */}
+          {/* ═══ GIFTS TAB ════════════════════════════════════ */}
           {tab === "gifts" && (
             <div>
               <div style={{ textAlign: "center", marginBottom: "24px" }}>
@@ -261,7 +410,6 @@ export default function VerifyPage() {
                   Mas malaking order = mas maraming <strong style={{ color: G }}>LIBRENG</strong> gifts!
                 </p>
               </div>
-
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {PERKS.map((p, i) => (
                   <div key={i} style={{
@@ -297,17 +445,17 @@ export default function VerifyPage() {
                   </div>
                 ))}
               </div>
-
-              <button
-                onClick={() => setTab("verify")}
-                style={{ marginTop: "24px", width: "100%", background: G, color: WHITE, border: "none", borderRadius: "16px", padding: "20px", fontSize: "19px", fontWeight: "bold", cursor: "pointer", fontFamily: "Georgia, serif" }}
-              >
+              <button onClick={() => setTab("verify")} style={{
+                marginTop: "24px", width: "100%", background: G, color: WHITE,
+                border: "none", borderRadius: "16px", padding: "20px", fontSize: "19px",
+                fontWeight: "bold", cursor: "pointer", fontFamily: "Georgia, serif",
+              }}>
                 ☕ I-Verify na ang Code Ko →
               </button>
             </div>
           )}
 
-          {/* ═══ COACHES TAB ══════════════════════════════════════ */}
+          {/* ═══ COACHES TAB ══════════════════════════════════ */}
           {tab === "coaches" && (
             <div>
               <div style={{ textAlign: "center", marginBottom: "24px" }}>
@@ -316,44 +464,10 @@ export default function VerifyPage() {
                   Ang Aming mga Coach
                 </h2>
                 <p style={{ color: MID, fontSize: "17px", margin: 0, lineHeight: 1.6 }}>
-                  I-message sila para mag-order o para sa mga katanungan!
+                  I-message o tawagan sila para mag-order o para sa mga katanungan!
                 </p>
               </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-                {COACHES.map((c, i) => (
-                  <div key={i} style={{ background: WHITE, borderRadius: "18px", padding: "18px 20px", border: "1.5px solid #D9D0C0", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "14px" }}>
-                      <img
-                        src={c.photo}
-                        alt={c.name}
-                        style={{ width: 60, height: 60, borderRadius: "14px", objectFit: "cover", border: `2.5px solid ${G}`, flexShrink: 0 }}
-                      />
-                      <div>
-                        <p style={{ fontSize: "19px", fontWeight: "bold", color: DARK, margin: 0 }}>{c.name}</p>
-                        <p style={{ fontSize: "14px", color: G, margin: "3px 0 0 0", fontWeight: 600 }}>R&M EaseBrew Wellness Coach</p>
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", gap: "10px" }}>
-                      <a
-                        href={`tel:${c.number.replace(/\s/g, "")}`}
-                        style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", background: G, color: "#fff", borderRadius: "12px", padding: "15px 8px", fontSize: "15px", fontWeight: "bold", textDecoration: "none", textAlign: "center" as const }}
-                      >
-                        📞 {c.number}
-                      </a>
-                      <a
-                        href={c.facebook}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", background: "#1877F2", color: "#fff", borderRadius: "12px", padding: "15px 8px", fontSize: "15px", fontWeight: "bold", textDecoration: "none", textAlign: "center" as const }}
-                      >
-                        📘 Facebook
-                      </a>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
+              <CoachList title="Piliin ang coach na gusto ninyong kausapin:" />
               <div style={{ marginTop: "20px", background: "#FEF9E7", borderRadius: "16px", padding: "18px 20px", border: `2px solid ${GOLD}`, textAlign: "center" }}>
                 <p style={{ fontSize: "17px", color: AMBER, fontWeight: "bold", margin: "0 0 6px 0" }}>
                   💬 Huwag mag-atubili!
@@ -362,14 +476,13 @@ export default function VerifyPage() {
                   Lagi kaming nandito para sa inyo. Ang inyong kalusugan ang aming prayoridad. ❤️
                 </p>
               </div>
-
-              <button
-                onClick={() => setTab("verify")}
-                style={{ marginTop: "20px", width: "100%", background: G, color: WHITE, border: "none", borderRadius: "16px", padding: "20px", fontSize: "19px", fontWeight: "bold", cursor: "pointer", fontFamily: "Georgia, serif" }}
-              >
+              <button onClick={() => setTab("verify")} style={{
+                marginTop: "20px", width: "100%", background: G, color: WHITE,
+                border: "none", borderRadius: "16px", padding: "20px", fontSize: "19px",
+                fontWeight: "bold", cursor: "pointer", fontFamily: "Georgia, serif",
+              }}>
                 ☕ I-Verify na ang Code Ko →
               </button>
-
               <p style={{ color: "#bbb", fontSize: "13px", textAlign: "center", marginTop: "16px" }}>
                 R&M EaseBrew Wellness Hub © 2025
               </p>
