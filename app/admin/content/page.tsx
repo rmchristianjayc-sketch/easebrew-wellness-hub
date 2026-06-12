@@ -10,7 +10,21 @@ const SIDEBAR_W = 220;
 
 type ContentItem = { id: string; key: string; value: string; updated_at: string; updated_by: string };
 
-const CONTENT_LABELS: Record<string, { label: string; group: string; multiline?: boolean }> = {
+const CONTENT_LABELS: Record<string, { label: string; group: string; multiline?: boolean; type?: "boolean" }> = {
+  promo_enabled:          { label: "Ipakita ang Promo Banner?", group: "📢 Promo Announcement", type: "boolean" },
+  promo_text:             { label: "Promo Message", group: "📢 Promo Announcement", multiline: true },
+  product_1_name:         { label: "Product 1 — Pangalan (📊 Tracker)", group: "🛍️ Products & Gifts" },
+  product_1_desc:         { label: "Product 1 — Description", group: "🛍️ Products & Gifts", multiline: true },
+  product_2_name:         { label: "Product 2 — Pangalan (🥗 Meal Plan)", group: "🛍️ Products & Gifts" },
+  product_2_desc:         { label: "Product 2 — Description", group: "🛍️ Products & Gifts", multiline: true },
+  product_3_name:         { label: "Product 3 — Pangalan (💪 Exercise Guide)", group: "🛍️ Products & Gifts" },
+  product_3_desc:         { label: "Product 3 — Description", group: "🛍️ Products & Gifts", multiline: true },
+  product_4_name:         { label: "Product 4 — Pangalan (📖 Recipe Book)", group: "🛍️ Products & Gifts" },
+  product_4_desc:         { label: "Product 4 — Description", group: "🛍️ Products & Gifts", multiline: true },
+  product_5_name:         { label: "Product 5 — Pangalan (🏆 Bagong Katawan)", group: "🛍️ Products & Gifts" },
+  product_5_desc:         { label: "Product 5 — Description", group: "🛍️ Products & Gifts", multiline: true },
+  product_6_name:         { label: "Product 6 — Pangalan (🌿 VIP Bundle)", group: "🛍️ Products & Gifts" },
+  product_6_desc:         { label: "Product 6 — Description", group: "🛍️ Products & Gifts", multiline: true },
   hero_title:             { label: "Hero Title", group: "🏠 Homepage" },
   hero_subtitle:          { label: "Hero Subtitle", group: "🏠 Homepage", multiline: true },
   order_url_399:          { label: "Order Link — ₱399 (1 Pack)", group: "🛒 Order Links" },
@@ -104,7 +118,7 @@ export default function ContentPage() {
   const [saved, setSaved] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [activeGroup, setActiveGroup] = useState("🏠 Homepage");
+  const [activeGroup, setActiveGroup] = useState("📢 Promo Announcement");
 
   useEffect(() => { fetchContent(); }, []);
 
@@ -236,7 +250,16 @@ export default function ContentPage() {
                           {meta.label}
                           {hasChange && <span style={{ color: "#f59e0b", marginLeft: 6, fontSize: 11 }}>● Modified</span>}
                         </label>
-                        {meta.multiline ? (
+                        {meta.type === "boolean" ? (
+                          <select value={val === "true" ? "true" : "false"} onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                            style={{ ...fieldStyle, cursor: "pointer" }}
+                            onFocus={e => e.target.style.borderColor = "#f59e0b"}
+                            onBlur={e => e.target.style.borderColor = hasChange ? "#f59e0b" : "#e0e0e0"}
+                          >
+                            <option value="true">✅ Oo — Ipakita</option>
+                            <option value="false">🚫 Hindi — Itago</option>
+                          </select>
+                        ) : meta.multiline ? (
                           <textarea value={val} onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))} rows={3}
                             style={{ ...fieldStyle, resize: "vertical" }}
                             onFocus={e => e.target.style.borderColor = "#f59e0b"}
