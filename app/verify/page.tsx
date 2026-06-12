@@ -19,11 +19,10 @@ const DEFAULT_PERKS = [
   { tier: 1499, packs: 5,  label: "5 Packs — ₱1,499",  gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide"],                                                             note: "55 araw na access",                highlight: false },
   { tier: 2998, packs: 10, label: "10 Packs — ₱2,998", gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book"],                                     note: "105 araw na access",               highlight: false },
   { tier: 4497, packs: 15, label: "15 Packs — ₱4,497", gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Bagong Katawan Program"], note: "155 araw na access",               highlight: false },
-  { tier: 5996, packs: 20, label: "20 Packs — ₱5,996", gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Program", "🌿 VIP Wellness Bundle"], note: "205 araw na access",        highlight: true  },
+  { tier: 5996, packs: 20, label: "20 Packs — ₱5,996", gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Program", "🌿 VIP Wellness Bundle"], note: "205 araw na access", highlight: true  },
 ];
 
-// Product index map: tier → product id (para malaman kung aling product_X_name ang gagamitin)
-// Matches same order as hub page PRODUCTS array
+// Product index map: tier → product ids
 const TIER_TO_PRODUCT_IDS: Record<number, number[]> = {
   399:  [],
   699:  [],
@@ -34,7 +33,10 @@ const TIER_TO_PRODUCT_IDS: Record<number, number[]> = {
   5996: [1, 2, 3, 4, 5, 6],
 };
 
-const COACHES = [
+// ── DEFAULT COACHES — overridden by /api/content if available ──
+type Coach = { name: string; number: string; display: string; facebook: string; photo: string };
+
+const DEFAULT_COACHES: Coach[] = [
   { name: "Coach Josephine", number: "09177011252", display: "0917 701 1252", facebook: "https://www.facebook.com/josephine.easebrew.main",         photo: "/coaches/josephine.jpg" },
   { name: "Coach Niña",      number: "09688804440", display: "0968 880 4440", facebook: "https://www.facebook.com/easebrew.nina",                   photo: "/coaches/niña.jpg"      },
   { name: "Coach Mark",      number: "09171178216", display: "0917 117 8216", facebook: "https://www.facebook.com/profile.php?id=61577427472374",    photo: "/coaches/mark.jpg"      },
@@ -42,6 +44,20 @@ const COACHES = [
   { name: "Coach Jo Ann",    number: "09516851019", display: "0951 685 1019", facebook: "https://www.facebook.com/profile.php?id=61590474596913",    photo: "/coaches/joann.jpg"     },
   { name: "Coach Mike",      number: "09515986840", display: "0951 598 6840", facebook: "https://www.facebook.com/profile.php?id=61576324811239",    photo: "/coaches/mike.jpg"      },
 ];
+
+// Build coaches array from content API response
+function buildCoaches(c: Record<string, string>, defaults: Coach[]): Coach[] {
+  return defaults.map((def, i) => {
+    const n = i + 1;
+    return {
+      name:     c[`coach_${n}_name`]?.trim()     || def.name,
+      number:   c[`coach_${n}_number`]?.trim()   || def.number,
+      display:  c[`coach_${n}_display`]?.trim()  || def.display,
+      facebook: c[`coach_${n}_facebook`]?.trim() || def.facebook,
+      photo:    c[`coach_${n}_photo`]?.trim()    || def.photo,
+    };
+  });
+}
 
 type ErrorType = "invalid" | "expired" | "other_device" | "generic" | null;
 
@@ -61,12 +77,12 @@ const ERROR_CONFIG = {
   generic:      { icon: "⚠️", title: "May Problema",                    message: "May nangyaring mali. Pakisubukan ulit o makipag-ugnayan sa inyong coach para sa tulong.",                                                               showCoaches: true, ctaLabel: "Makipag-ugnayan sa Coach →"                 },
 };
 
-function CoachList({ title }: { title: string }) {
+function CoachList({ title, coaches }: { title: string; coaches: Coach[] }) {
   return (
     <div style={{ marginTop: 20 }}>
       <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 14px 0", textAlign: "center" }}>{title}</p>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {COACHES.map((c, i) => (
+        {coaches.map((c, i) => (
           <div key={i} style={{ background: WHITE, border: "2px solid #D9D0C0", borderRadius: 16, padding: "14px 16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
               <img src={c.photo} alt={c.name} style={{ width: 44, height: 44, borderRadius: 12, objectFit: "cover", border: `2px solid ${G}`, flexShrink: 0 }} />
@@ -122,17 +138,15 @@ function hasValidSessionCookie(): boolean {
 
 type Tab = "verify" | "gifts" | "coaches";
 
-// ── Build gift label from content or fallback to default string ──
+// Build gift label from content or fallback to default string
 function buildGifts(
   productIds: number[],
   contentMap: Record<string, string>,
   defaultGifts: string[]
 ): string[] {
   if (!productIds.length) return [];
-  // If any product name is available in content, rebuild from content
   const hasContent = productIds.some(id => !!contentMap[`product_${id}_name`]?.trim());
   if (!hasContent) return defaultGifts;
-  // Map each product id to its icon+name
   const ICONS: Record<number, string> = { 1: "📊", 2: "🥗", 3: "💪", 4: "📖", 5: "🏆", 6: "🌿" };
   return productIds.map(id => {
     const name = contentMap[`product_${id}_name`]?.trim();
@@ -153,6 +167,7 @@ export default function VerifyPage() {
   // ── Dynamic content state ────────────────────────────────────
   const [perks, setPerks] = useState(DEFAULT_PERKS);
   const [orderUrls, setOrderUrls] = useState<Record<string, string>>({});
+  const [coaches, setCoaches] = useState<Coach[]>(DEFAULT_COACHES);
 
   // ── Fetch public content ─────────────────────────────────────
   useEffect(() => {
@@ -162,12 +177,13 @@ export default function VerifyPage() {
         if (!data?.content) return;
         const c = data.content as Record<string, string>;
 
-        // Collect order URLs
+        // Collect order URLs (tier-based keys)
         const urls: Record<string, string> = {};
-        for (let i = 1; i <= 6; i++) {
-          const u = c[`order_url_${i}`]?.trim();
-          if (u) urls[`order_url_${i}`] = u;
-        }
+        const tierKeys = ["399","699","999","1499","2998","4497","5996","7499","8994","11992","14990"];
+        tierKeys.forEach(t => {
+          const u = c[`order_url_${t}`]?.trim();
+          if (u) urls[`order_url_${t}`] = u;
+        });
         setOrderUrls(urls);
 
         // Override gift names per tier if content has product names
@@ -176,6 +192,9 @@ export default function VerifyPage() {
           const updatedGifts = buildGifts(ids, c, p.gifts);
           return { ...p, gifts: updatedGifts };
         }));
+
+        // Dynamic coaches
+        setCoaches(buildCoaches(c, DEFAULT_COACHES));
       })
       .catch(() => {
         // Silent fail — use defaults
@@ -223,13 +242,9 @@ export default function VerifyPage() {
     }
   }
 
-  // ── Get order button for a given perk ───────────────────────
-  // Uses order_url matching product index if available, else shows coach modal via tab switch
+  // ── Order button — uses tier-based URL or falls back to coaches tab ──
   function OrderButton({ perk }: { perk: typeof DEFAULT_PERKS[0] }) {
-    const ids = TIER_TO_PRODUCT_IDS[perk.tier] ?? [];
-    // Use the highest product id's order URL (most specific for that tier)
-    const lastId = ids[ids.length - 1];
-    const url = lastId ? orderUrls[`order_url_${lastId}`] : undefined;
+    const url = orderUrls[`order_url_${perk.tier}`];
     const btnStyle: React.CSSProperties = {
       display: "block", width: "100%", textAlign: "center",
       background: GOLD, color: G, border: "none", borderRadius: 12,
@@ -386,7 +401,10 @@ export default function VerifyPage() {
                       )}
                     </div>
                     {showCoachesInError && (
-                      <CoachList title={errorType === "expired" ? "📞 Makipag-ugnayan sa Coach para mag-renew:" : "📞 Makipag-ugnayan sa Coach para makuha ang code:"} />
+                      <CoachList
+                        coaches={coaches}
+                        title={errorType === "expired" ? "📞 Makipag-ugnayan sa Coach para mag-renew:" : "📞 Makipag-ugnayan sa Coach para makuha ang code:"}
+                      />
                     )}
                   </div>
                 );
@@ -431,7 +449,6 @@ export default function VerifyPage() {
                       </>
                     )}
 
-                    {/* Order button — uses URL from content if available, else coach tab */}
                     <OrderButton perk={p} />
                   </div>
                 ))}
@@ -455,7 +472,7 @@ export default function VerifyPage() {
                 <h2 style={{ color: G, fontSize: "22px", fontWeight: "bold", margin: "0 0 8px 0" }}>Ang Aming mga Coach</h2>
                 <p style={{ color: MID, fontSize: "17px", margin: 0, lineHeight: 1.6 }}>I-message o tawagan sila para mag-order o para sa mga katanungan!</p>
               </div>
-              <CoachList title="Piliin ang coach na gusto ninyong kausapin:" />
+              <CoachList coaches={coaches} title="Piliin ang coach na gusto ninyong kausapin:" />
               <div style={{ marginTop: "20px", background: "#FEF9E7", borderRadius: "16px", padding: "18px 20px", border: `2px solid ${GOLD}`, textAlign: "center" }}>
                 <p style={{ fontSize: "17px", color: AMBER, fontWeight: "bold", margin: "0 0 6px 0" }}>💬 Huwag mag-atubili!</p>
                 <p style={{ fontSize: "16px", color: MID, margin: 0, lineHeight: 1.6 }}>Lagi kaming nandito para sa inyo. Ang inyong kalusugan ang aming prayoridad. ❤️</p>

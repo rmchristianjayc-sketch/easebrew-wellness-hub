@@ -13,13 +13,14 @@ const VIDEOS = [
   { id: "YOUR_VIDEO_ID_3", title: "Simple Exercises para sa Joint Pain", desc: "Low-impact exercises na safe para sa matatanda at may arthritis." },
 ];
 
-const COACHES = [
-  { name: "Coach Josephine", number: "09177011252", display: "0917 701 1252", facebook: "https://www.facebook.com/josephine.easebrew.main", photo: "/coaches/josephine.jpg" },
-  { name: "Coach Niña",      number: "09688804440", display: "0968 880 4440", facebook: "https://www.facebook.com/easebrew.nina",           photo: "/coaches/niña.jpg" },
-  { name: "Coach Mark",      number: "09171178216", display: "0917 117 8216", facebook: "https://www.facebook.com/profile.php?id=61577427472374", photo: "/coaches/mark.jpg" },
-  { name: "Coach Rai",       number: "09709689164", display: "0970 968 9164", facebook: "https://www.facebook.com/profile.php?id=61579641330542", photo: "/coaches/rai.jpg" },
-  { name: "Coach Jo Ann",    number: "09516851019", display: "0951 685 1019", facebook: "https://www.facebook.com/profile.php?id=61590474596913", photo: "/coaches/joann.jpg" },
-  { name: "Coach Mike",      number: "09515986840", display: "0951 598 6840", facebook: "https://www.facebook.com/profile.php?id=61576324811239", photo: "/coaches/mike.jpg" },
+// DEFAULT coaches — overridden by /api/content if available
+const DEFAULT_COACHES = [
+  { name: "Coach Josephine", number: "09177011252", display: "0917 701 1252", facebook: "https://www.facebook.com/josephine.easebrew.main",         photo: "/coaches/josephine.jpg" },
+  { name: "Coach Niña",      number: "09688804440", display: "0968 880 4440", facebook: "https://www.facebook.com/easebrew.nina",                   photo: "/coaches/niña.jpg"      },
+  { name: "Coach Mark",      number: "09171178216", display: "0917 117 8216", facebook: "https://www.facebook.com/profile.php?id=61577427472374",    photo: "/coaches/mark.jpg"      },
+  { name: "Coach Rai",       number: "09709689164", display: "0970 968 9164", facebook: "https://www.facebook.com/profile.php?id=61579641330542",    photo: "/coaches/rai.jpg"       },
+  { name: "Coach Jo Ann",    number: "09516851019", display: "0951 685 1019", facebook: "https://www.facebook.com/profile.php?id=61590474596913",    photo: "/coaches/joann.jpg"     },
+  { name: "Coach Mike",      number: "09515986840", display: "0951 598 6840", facebook: "https://www.facebook.com/profile.php?id=61576324811239",    photo: "/coaches/mike.jpg"      },
 ];
 
 // DEFAULT products — overridden by /api/content if available
@@ -116,33 +117,32 @@ function getTierLabel(tier: number): string {
 }
 
 // ============================================================
+// COACH TYPE
+// ============================================================
+type Coach = { name: string; number: string; display: string; facebook: string; photo: string };
+
+// Build coaches array from content API response (fallback to defaults per slot)
+function buildCoaches(c: Record<string, string>, defaults: Coach[]): Coach[] {
+  return defaults.map((def, i) => {
+    const n = i + 1;
+    return {
+      name:     c[`coach_${n}_name`]?.trim()     || def.name,
+      number:   c[`coach_${n}_number`]?.trim()   || def.number,
+      display:  c[`coach_${n}_display`]?.trim()  || def.display,
+      facebook: c[`coach_${n}_facebook`]?.trim() || def.facebook,
+      photo:    c[`coach_${n}_photo`]?.trim()    || def.photo,
+    };
+  });
+}
+
+// ============================================================
 // PROMO BANNER
 // ============================================================
 function PromoBanner({ text, onDismiss }: { text: string; onDismiss: () => void }) {
   return (
-    <div style={{
-      background: GOLD, borderBottom: `3px solid ${AMBER}`,
-      padding: "14px 20px",
-      display: "flex", alignItems: "center", gap: 12,
-    }}>
-      <p style={{
-        flex: 1, fontSize: 16, fontWeight: 700, color: DARK,
-        margin: 0, lineHeight: 1.5,
-      }}>
-        {text}
-      </p>
-      <button
-        onClick={onDismiss}
-        aria-label="Isara ang promo"
-        style={{
-          background: "rgba(0,0,0,0.12)", border: "none", borderRadius: 999,
-          width: 34, height: 34, fontSize: 18, cursor: "pointer",
-          color: DARK, display: "flex", alignItems: "center", justifyContent: "center",
-          flexShrink: 0,
-        }}
-      >
-        ✕
-      </button>
+    <div style={{ background: GOLD, borderBottom: `3px solid ${AMBER}`, padding: "14px 20px", display: "flex", alignItems: "center", gap: 12 }}>
+      <p style={{ flex: 1, fontSize: 16, fontWeight: 700, color: DARK, margin: 0, lineHeight: 1.5 }}>{text}</p>
+      <button onClick={onDismiss} aria-label="Isara ang promo" style={{ background: "rgba(0,0,0,0.12)", border: "none", borderRadius: 999, width: 34, height: 34, fontSize: 18, cursor: "pointer", color: DARK, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
     </div>
   );
 }
@@ -150,25 +150,10 @@ function PromoBanner({ text, onDismiss }: { text: string; onDismiss: () => void 
 // ============================================================
 // COACH PICKER MODAL
 // ============================================================
-function CoachModal({ onClose }: { onClose: () => void }) {
+function CoachModal({ coaches, onClose }: { coaches: Coach[]; onClose: () => void }) {
   return (
-    <div
-      onClick={onClose}
-      style={{
-        position: "fixed", inset: 0, zIndex: 9999,
-        background: "rgba(0,0,0,0.6)",
-        display: "flex", alignItems: "flex-end", justifyContent: "center",
-      }}
-    >
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{
-          background: WHITE, borderRadius: "24px 24px 0 0",
-          width: "100%", maxWidth: 680,
-          maxHeight: "85vh", overflowY: "auto",
-          padding: "0 0 32px 0",
-        }}
-      >
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: WHITE, borderRadius: "24px 24px 0 0", width: "100%", maxWidth: 680, maxHeight: "85vh", overflowY: "auto", padding: "0 0 32px 0" }}>
         <div style={{ display: "flex", justifyContent: "center", padding: "14px 0 4px" }}>
           <div style={{ width: 48, height: 5, borderRadius: 999, background: "#D9D0C0" }} />
         </div>
@@ -178,18 +163,11 @@ function CoachModal({ onClose }: { onClose: () => void }) {
               <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 4px 0" }}>👥 Piliin ang Inyong Coach</h2>
               <p style={{ fontSize: 15, color: MID, margin: 0 }}>Tumawag o mag-message para mag-order</p>
             </div>
-            <button
-              onClick={onClose}
-              style={{
-                background: "#F0EDE6", border: "none", borderRadius: 999,
-                width: 40, height: 40, fontSize: 20, cursor: "pointer",
-                color: MID, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-              }}
-            >✕</button>
+            <button onClick={onClose} style={{ background: "#F0EDE6", border: "none", borderRadius: 999, width: 40, height: 40, fontSize: 20, cursor: "pointer", color: MID, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
           </div>
         </div>
         <div style={{ padding: "0 20px", display: "flex", flexDirection: "column", gap: 12 }}>
-          {COACHES.map((c, i) => (
+          {coaches.map((c, i) => (
             <div key={i} style={{ background: "#FAFAF5", border: "2px solid #D9D0C0", borderRadius: 18, padding: "16px 18px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                 <img src={c.photo} alt={c.name} style={{ width: 52, height: 52, borderRadius: 14, objectFit: "cover", border: `2px solid ${G}`, flexShrink: 0 }} />
@@ -345,11 +323,12 @@ export default function Home() {
   const [tab, setTab] = useState<Tab>("home");
   const [showCoachModal, setShowCoachModal] = useState(false);
 
-  // ── PROMO + DYNAMIC PRODUCTS STATE ──────────────────────────
+  // ── DYNAMIC STATE ────────────────────────────────────────────
   const [promoText, setPromoText] = useState<string>("");
   const [promoEnabled, setPromoEnabled] = useState(false);
   const [promoDismissed, setPromoDismissed] = useState(false);
   const [products, setProducts] = useState(DEFAULT_PRODUCTS);
+  const [coaches, setCoaches] = useState<Coach[]>(DEFAULT_COACHES);
 
   // ── FETCH PUBLIC CONTENT ─────────────────────────────────────
   useEffect(() => {
@@ -365,12 +344,15 @@ export default function Home() {
           setPromoText(c.promo_text.trim());
         }
 
-        // Override product names/descs (fallback to default if empty)
+        // Dynamic product names/descs
         setProducts(prev => prev.map(p => ({
           ...p,
           name: c[`product_${p.id}_name`]?.trim() || p.name,
-          desc: c[`product_${p.id}_desc`]?.trim() || p.desc,
+          desc: c[`product_${p.id}_desc`]?.trim()  || p.desc,
         })));
+
+        // Dynamic coaches
+        setCoaches(buildCoaches(c, DEFAULT_COACHES));
       })
       .catch(() => {
         // Silent fail — fallback to hardcoded defaults
@@ -411,15 +393,13 @@ export default function Home() {
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh" }}>
       <InstallBanner />
-      {showCoachModal && <CoachModal onClose={() => setShowCoachModal(false)} />}
+      {showCoachModal && <CoachModal coaches={coaches} onClose={() => setShowCoachModal(false)} />}
 
       {/* ── STICKY HEADER + TABS ─────────────────────────────── */}
       <div style={{ background: G, position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 12px rgba(0,0,0,0.15)" }}>
-        {/* PROMO BANNER — inside sticky header para laging visible */}
         {promoEnabled && !promoDismissed && (
           <PromoBanner text={promoText} onDismiss={() => setPromoDismissed(true)} />
         )}
-
         <div style={{ padding: "16px 20px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
             <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 12, padding: "3px 12px", fontSize: 11, fontWeight: 700, letterSpacing: 1 }}>☕ EVERYDAY WE CARE</div>
@@ -645,7 +625,7 @@ export default function Home() {
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Ang Aming mga Coach 👥</h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>May katanungan? Handa kaming tumulong sa inyo, Nanay at Tatay!</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {COACHES.map((c, i) => (
+              {coaches.map((c, i) => (
                 <div key={i} style={{ background: WHITE, border: "2px solid #C5B99A", borderRadius: 18, padding: "18px 20px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
                     <img src={c.photo} alt={c.name} style={{ width: 60, height: 60, borderRadius: 16, objectFit: "cover", border: `2.5px solid ${G}`, flexShrink: 0 }} />
