@@ -107,7 +107,10 @@ export async function DELETE(req: NextRequest) {
       .delete()
       .eq('id', id);
 
-    if (error) return NextResponse.json({ error: 'Failed to delete code.' }, { status: 500 });
+    if (error) {
+      console.error('Supabase delete error:', error);
+      return NextResponse.json({ error: `Failed to delete code: ${error.message}` }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
 
