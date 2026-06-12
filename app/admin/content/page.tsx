@@ -11,51 +11,108 @@ const SIDEBAR_W = 220;
 type ContentItem = { id: string; key: string; value: string; updated_at: string; updated_by: string };
 
 const CONTENT_LABELS: Record<string, { label: string; group: string; multiline?: boolean; type?: "boolean" }> = {
-  promo_enabled:          { label: "Ipakita ang Promo Banner?", group: "📢 Promo Announcement", type: "boolean" },
-  promo_text:             { label: "Promo Message", group: "📢 Promo Announcement", multiline: true },
-  product_1_name:         { label: "Product 1 — Pangalan (📊 Tracker)", group: "🛍️ Products & Gifts" },
-  product_1_desc:         { label: "Product 1 — Description", group: "🛍️ Products & Gifts", multiline: true },
-  product_2_name:         { label: "Product 2 — Pangalan (🥗 Meal Plan)", group: "🛍️ Products & Gifts" },
-  product_2_desc:         { label: "Product 2 — Description", group: "🛍️ Products & Gifts", multiline: true },
-  product_3_name:         { label: "Product 3 — Pangalan (💪 Exercise Guide)", group: "🛍️ Products & Gifts" },
-  product_3_desc:         { label: "Product 3 — Description", group: "🛍️ Products & Gifts", multiline: true },
-  product_4_name:         { label: "Product 4 — Pangalan (📖 Recipe Book)", group: "🛍️ Products & Gifts" },
-  product_4_desc:         { label: "Product 4 — Description", group: "🛍️ Products & Gifts", multiline: true },
-  product_5_name:         { label: "Product 5 — Pangalan (🏆 Bagong Katawan)", group: "🛍️ Products & Gifts" },
-  product_5_desc:         { label: "Product 5 — Description", group: "🛍️ Products & Gifts", multiline: true },
-  product_6_name:         { label: "Product 6 — Pangalan (🌿 VIP Bundle)", group: "🛍️ Products & Gifts" },
-  product_6_desc:         { label: "Product 6 — Description", group: "🛍️ Products & Gifts", multiline: true },
-  hero_title:             { label: "Hero Title", group: "🏠 Homepage" },
-  hero_subtitle:          { label: "Hero Subtitle", group: "🏠 Homepage", multiline: true },
-  order_url_399:          { label: "Order Link — ₱399 (1 Pack)", group: "🛒 Order Links" },
-  order_url_699:          { label: "Order Link — ₱699 (2 Packs)", group: "🛒 Order Links" },
-  order_url_999:          { label: "Order Link — ₱999 (3 Packs)", group: "🛒 Order Links" },
-  order_url_1499:         { label: "Order Link — ₱1,499 (5 Packs)", group: "🛒 Order Links" },
-  order_url_2998:         { label: "Order Link — ₱2,998 (10 Packs)", group: "🛒 Order Links" },
-  order_url_4497:         { label: "Order Link — ₱4,497 (15 Packs)", group: "🛒 Order Links" },
-  order_url_5996:         { label: "Order Link — ₱5,996 (20 Packs)", group: "🛒 Order Links" },
-  order_url_7499:         { label: "Order Link — ₱7,499 (25 Packs)", group: "🛒 Order Links" },
-  order_url_8994:         { label: "Order Link — ₱8,994 (30 Packs)", group: "🛒 Order Links" },
-  order_url_11992:        { label: "Order Link — ₱11,992 (40 Packs)", group: "🛒 Order Links" },
-  order_url_14990:        { label: "Order Link — ₱14,990 (50 Packs)", group: "🛒 Order Links" },
-  reorder_reminder_days:  { label: "Re-order Reminder (days before expiry)", group: "🔔 Notifications" },
-  daily_tip_1:            { label: "Daily Tip 1", group: "💡 Wellness Tips", multiline: true },
-  daily_tip_2:            { label: "Daily Tip 2", group: "💡 Wellness Tips", multiline: true },
-  daily_tip_3:            { label: "Daily Tip 3", group: "💡 Wellness Tips", multiline: true },
-  daily_tip_4:            { label: "Daily Tip 4", group: "💡 Wellness Tips", multiline: true },
-  daily_tip_5:            { label: "Daily Tip 5", group: "💡 Wellness Tips", multiline: true },
+  // ── Promo Announcement ──────────────────────────────────────
+  promo_enabled:   { label: "Ipakita ang Promo Banner?",  group: "📢 Promo Announcement", type: "boolean" },
+  promo_text:      { label: "Promo Message",              group: "📢 Promo Announcement", multiline: true },
+
+  // ── Products & Gifts ────────────────────────────────────────
+  product_1_name:  { label: "Product 1 — Pangalan (📊 Tracker)",         group: "🛍️ Products & Gifts" },
+  product_1_desc:  { label: "Product 1 — Description",                   group: "🛍️ Products & Gifts", multiline: true },
+  product_2_name:  { label: "Product 2 — Pangalan (🥗 Meal Plan)",        group: "🛍️ Products & Gifts" },
+  product_2_desc:  { label: "Product 2 — Description",                   group: "🛍️ Products & Gifts", multiline: true },
+  product_3_name:  { label: "Product 3 — Pangalan (💪 Exercise Guide)",   group: "🛍️ Products & Gifts" },
+  product_3_desc:  { label: "Product 3 — Description",                   group: "🛍️ Products & Gifts", multiline: true },
+  product_4_name:  { label: "Product 4 — Pangalan (📖 Recipe Book)",      group: "🛍️ Products & Gifts" },
+  product_4_desc:  { label: "Product 4 — Description",                   group: "🛍️ Products & Gifts", multiline: true },
+  product_5_name:  { label: "Product 5 — Pangalan (🏆 Bagong Katawan)",   group: "🛍️ Products & Gifts" },
+  product_5_desc:  { label: "Product 5 — Description",                   group: "🛍️ Products & Gifts", multiline: true },
+  product_6_name:  { label: "Product 6 — Pangalan (🌿 VIP Bundle)",       group: "🛍️ Products & Gifts" },
+  product_6_desc:  { label: "Product 6 — Description",                   group: "🛍️ Products & Gifts", multiline: true },
+
+  // ── Coach Management ────────────────────────────────────────
+  coach_1_name:     { label: "Coach 1 — Pangalan",        group: "👥 Coach Management" },
+  coach_1_number:   { label: "Coach 1 — Phone Number (e.g. 09171234567)", group: "👥 Coach Management" },
+  coach_1_display:  { label: "Coach 1 — Display Number (e.g. 0917 123 4567)", group: "👥 Coach Management" },
+  coach_1_facebook: { label: "Coach 1 — Facebook Link",   group: "👥 Coach Management" },
+  coach_1_photo:    { label: "Coach 1 — Photo Path (e.g. /coaches/josephine.jpg)", group: "👥 Coach Management" },
+
+  coach_2_name:     { label: "Coach 2 — Pangalan",        group: "👥 Coach Management" },
+  coach_2_number:   { label: "Coach 2 — Phone Number",    group: "👥 Coach Management" },
+  coach_2_display:  { label: "Coach 2 — Display Number",  group: "👥 Coach Management" },
+  coach_2_facebook: { label: "Coach 2 — Facebook Link",   group: "👥 Coach Management" },
+  coach_2_photo:    { label: "Coach 2 — Photo Path",      group: "👥 Coach Management" },
+
+  coach_3_name:     { label: "Coach 3 — Pangalan",        group: "👥 Coach Management" },
+  coach_3_number:   { label: "Coach 3 — Phone Number",    group: "👥 Coach Management" },
+  coach_3_display:  { label: "Coach 3 — Display Number",  group: "👥 Coach Management" },
+  coach_3_facebook: { label: "Coach 3 — Facebook Link",   group: "👥 Coach Management" },
+  coach_3_photo:    { label: "Coach 3 — Photo Path",      group: "👥 Coach Management" },
+
+  coach_4_name:     { label: "Coach 4 — Pangalan",        group: "👥 Coach Management" },
+  coach_4_number:   { label: "Coach 4 — Phone Number",    group: "👥 Coach Management" },
+  coach_4_display:  { label: "Coach 4 — Display Number",  group: "👥 Coach Management" },
+  coach_4_facebook: { label: "Coach 4 — Facebook Link",   group: "👥 Coach Management" },
+  coach_4_photo:    { label: "Coach 4 — Photo Path",      group: "👥 Coach Management" },
+
+  coach_5_name:     { label: "Coach 5 — Pangalan",        group: "👥 Coach Management" },
+  coach_5_number:   { label: "Coach 5 — Phone Number",    group: "👥 Coach Management" },
+  coach_5_display:  { label: "Coach 5 — Display Number",  group: "👥 Coach Management" },
+  coach_5_facebook: { label: "Coach 5 — Facebook Link",   group: "👥 Coach Management" },
+  coach_5_photo:    { label: "Coach 5 — Photo Path",      group: "👥 Coach Management" },
+
+  coach_6_name:     { label: "Coach 6 — Pangalan",        group: "👥 Coach Management" },
+  coach_6_number:   { label: "Coach 6 — Phone Number",    group: "👥 Coach Management" },
+  coach_6_display:  { label: "Coach 6 — Display Number",  group: "👥 Coach Management" },
+  coach_6_facebook: { label: "Coach 6 — Facebook Link",   group: "👥 Coach Management" },
+  coach_6_photo:    { label: "Coach 6 — Photo Path",      group: "👥 Coach Management" },
+
+  // ── Homepage ─────────────────────────────────────────────────
+  hero_title:    { label: "Hero Title",    group: "🏠 Homepage" },
+  hero_subtitle: { label: "Hero Subtitle", group: "🏠 Homepage", multiline: true },
+
+  // ── Order Links ──────────────────────────────────────────────
+  order_url_399:   { label: "Order Link — ₱399 (1 Pack)",    group: "🛒 Order Links" },
+  order_url_699:   { label: "Order Link — ₱699 (2 Packs)",   group: "🛒 Order Links" },
+  order_url_999:   { label: "Order Link — ₱999 (3 Packs)",   group: "🛒 Order Links" },
+  order_url_1499:  { label: "Order Link — ₱1,499 (5 Packs)", group: "🛒 Order Links" },
+  order_url_2998:  { label: "Order Link — ₱2,998 (10 Packs)", group: "🛒 Order Links" },
+  order_url_4497:  { label: "Order Link — ₱4,497 (15 Packs)", group: "🛒 Order Links" },
+  order_url_5996:  { label: "Order Link — ₱5,996 (20 Packs)", group: "🛒 Order Links" },
+  order_url_7499:  { label: "Order Link — ₱7,499 (25 Packs)", group: "🛒 Order Links" },
+  order_url_8994:  { label: "Order Link — ₱8,994 (30 Packs)", group: "🛒 Order Links" },
+  order_url_11992: { label: "Order Link — ₱11,992 (40 Packs)", group: "🛒 Order Links" },
+  order_url_14990: { label: "Order Link — ₱14,990 (50 Packs)", group: "🛒 Order Links" },
+
+  // ── Notifications ────────────────────────────────────────────
+  reorder_reminder_days: { label: "Re-order Reminder (days before expiry)", group: "🔔 Notifications" },
+
+  // ── Wellness Tips ────────────────────────────────────────────
+  daily_tip_1: { label: "Daily Tip 1", group: "💡 Wellness Tips", multiline: true },
+  daily_tip_2: { label: "Daily Tip 2", group: "💡 Wellness Tips", multiline: true },
+  daily_tip_3: { label: "Daily Tip 3", group: "💡 Wellness Tips", multiline: true },
+  daily_tip_4: { label: "Daily Tip 4", group: "💡 Wellness Tips", multiline: true },
+  daily_tip_5: { label: "Daily Tip 5", group: "💡 Wellness Tips", multiline: true },
 };
 
-// ─── Sidebar ──────────────────────────────────────────────────────────────────
+// Coach dividers — show a visual separator between each coach inside the group
+const COACH_DIVIDERS: Record<string, string> = {
+  coach_1_name: "👤 Coach 1",
+  coach_2_name: "👤 Coach 2",
+  coach_3_name: "👤 Coach 3",
+  coach_4_name: "👤 Coach 4",
+  coach_5_name: "👤 Coach 5",
+  coach_6_name: "👤 Coach 6",
+};
+
+// ─── Sidebar ──────────────────────────────────────────────────
 function Sidebar({ active }: { active: string }) {
   const [username, setUsername] = useState("");
   useEffect(() => { setUsername(localStorage.getItem("eb_admin_username") || "Admin"); }, []);
 
-  // ✅ No "Codes" here — Admin only page
   const links = [
-    { href: "/admin", icon: "⚡", label: "Dashboard" },
-    { href: "/admin/analytics", icon: "📊", label: "Analytics" },
-    { href: "/admin/content", icon: "✏️", label: "Content" },
+    { href: "/admin",               icon: "⚡", label: "Dashboard"     },
+    { href: "/admin/analytics",     icon: "📊", label: "Analytics"     },
+    { href: "/admin/content",       icon: "✏️", label: "Content"       },
     { href: "/admin/notifications", icon: "🔔", label: "Notifications" },
   ];
 
@@ -110,14 +167,14 @@ function Sidebar({ active }: { active: string }) {
   );
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
+// ─── Main ─────────────────────────────────────────────────────
 export default function ContentPage() {
-  const [content, setContent] = useState<Record<string, ContentItem>>({});
-  const [editing, setEditing] = useState<Record<string, string>>({});
-  const [saving, setSaving] = useState<Record<string, boolean>>({});
-  const [saved, setSaved] = useState<Record<string, boolean>>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [content, setContent]   = useState<Record<string, ContentItem>>({});
+  const [editing, setEditing]   = useState<Record<string, string>>({});
+  const [saving, setSaving]     = useState<Record<string, boolean>>({});
+  const [saved, setSaved]       = useState<Record<string, boolean>>({});
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState("");
   const [activeGroup, setActiveGroup] = useState("📢 Promo Announcement");
 
   useEffect(() => { fetchContent(); }, []);
@@ -153,6 +210,13 @@ export default function ContentPage() {
     setSaving(p => ({ ...p, [key]: false }));
   }
 
+  // Save all changed fields in the active group at once
+  async function handleSaveAll() {
+    const keys = groups[activeGroup] ?? [];
+    const changed = keys.filter(k => editing[k] !== (content[k]?.value ?? ""));
+    await Promise.all(changed.map(k => handleSave(k)));
+  }
+
   const groups: Record<string, string[]> = {};
   Object.entries(CONTENT_LABELS).forEach(([key, meta]) => {
     if (!groups[meta.group]) groups[meta.group] = [];
@@ -160,9 +224,8 @@ export default function ContentPage() {
   });
   const groupNames = Object.keys(groups);
 
-  const pendingCount = Object.entries(editing).filter(
-    ([k, v]) => v !== (content[k]?.value ?? "")
-  ).length;
+  const pendingCount = Object.entries(editing).filter(([k, v]) => v !== (content[k]?.value ?? "")).length;
+  const activeGroupPending = (groups[activeGroup] ?? []).filter(k => editing[k] !== (content[k]?.value ?? "")).length;
 
   if (loading) return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#f5f6f8", fontFamily: "Inter, system-ui, sans-serif" }}>
@@ -193,8 +256,7 @@ export default function ContentPage() {
           <nav style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             {groupNames.map(g => {
               const isActive = activeGroup === g;
-              const groupKeys = groups[g];
-              const hasPending = groupKeys.some(k => editing[k] !== (content[k]?.value ?? ""));
+              const hasPending = (groups[g] ?? []).some(k => editing[k] !== (content[k]?.value ?? ""));
               return (
                 <button key={g} onClick={() => setActiveGroup(g)} style={{
                   background: isActive ? G : "white", color: isActive ? "white" : DARK,
@@ -217,20 +279,29 @@ export default function ContentPage() {
         {/* ── Right: Fields ── */}
         <div style={{ flex: 1, minWidth: 0 }}>
           {error && (
-            <div style={{ background: "#fff0f0", border: "1px solid #ffcccc", borderRadius: 10, padding: "12px 16px", color: "#cc0000", fontSize: 13, marginBottom: 16 }}>
-              ⚠️ {error}
-            </div>
+            <div style={{ background: "#fff0f0", border: "1px solid #ffcccc", borderRadius: 10, padding: "12px 16px", color: "#cc0000", fontSize: 13, marginBottom: 16 }}>⚠️ {error}</div>
           )}
 
           <div style={{ background: "white", borderRadius: 14, padding: "24px 28px", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
-            <h2 style={{ color: DARK, fontSize: 16, fontWeight: "bold", margin: "0 0 20px" }}>{activeGroup}</h2>
+            {/* Group header + Save All button */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+              <h2 style={{ color: DARK, fontSize: 16, fontWeight: "bold", margin: 0 }}>{activeGroup}</h2>
+              {activeGroupPending > 0 && (
+                <button onClick={handleSaveAll} style={{
+                  background: G, color: "white", border: "none", borderRadius: 8,
+                  padding: "8px 18px", fontSize: 12, fontWeight: "bold", cursor: "pointer",
+                }}>
+                  💾 Save All ({activeGroupPending})
+                </button>
+              )}
+            </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
               {groups[activeGroup]?.map(key => {
                 const meta = CONTENT_LABELS[key];
-                const val = editing[key] ?? "";
+                const val  = editing[key] ?? "";
                 const isSaving = saving[key];
-                const isSaved = saved[key];
+                const isSaved  = saved[key];
                 const hasChange = val !== (content[key]?.value ?? "");
 
                 const fieldStyle: React.CSSProperties = {
@@ -243,51 +314,64 @@ export default function ContentPage() {
                 };
 
                 return (
-                  <div key={key} style={{ borderBottom: "1px solid #f5f5f5", paddingBottom: 18 }}>
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
-                      <div style={{ flex: 1 }}>
-                        <label style={{ fontSize: 12, color: DARK, fontWeight: "bold", display: "block", marginBottom: 6 }}>
-                          {meta.label}
-                          {hasChange && <span style={{ color: "#f59e0b", marginLeft: 6, fontSize: 11 }}>● Modified</span>}
-                        </label>
-                        {meta.type === "boolean" ? (
-                          <select value={val === "true" ? "true" : "false"} onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
-                            style={{ ...fieldStyle, cursor: "pointer" }}
-                            onFocus={e => e.target.style.borderColor = "#f59e0b"}
-                            onBlur={e => e.target.style.borderColor = hasChange ? "#f59e0b" : "#e0e0e0"}
-                          >
-                            <option value="true">✅ Oo — Ipakita</option>
-                            <option value="false">🚫 Hindi — Itago</option>
-                          </select>
-                        ) : meta.multiline ? (
-                          <textarea value={val} onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))} rows={3}
-                            style={{ ...fieldStyle, resize: "vertical" }}
-                            onFocus={e => e.target.style.borderColor = "#f59e0b"}
-                            onBlur={e => e.target.style.borderColor = hasChange ? "#f59e0b" : "#e0e0e0"}
-                          />
-                        ) : (
-                          <input type="text" value={val} onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
-                            style={fieldStyle}
-                            onFocus={e => e.target.style.borderColor = G}
-                            onBlur={e => e.target.style.borderColor = hasChange ? "#f59e0b" : "#e0e0e0"}
-                          />
-                        )}
-                        {content[key]?.updated_at && (
-                          <div style={{ color: "#bbb", fontSize: 10, marginTop: 4 }}>
-                            Updated {new Date(content[key].updated_at).toLocaleDateString("en-PH")} by {content[key].updated_by}
-                          </div>
-                        )}
-                      </div>
-                      <button onClick={() => handleSave(key)} disabled={isSaving || !hasChange} style={{
-                        marginTop: 22, background: isSaved ? "#dcfce7" : hasChange ? G : "#f0f0f0",
-                        color: isSaved ? G : hasChange ? "white" : "#aaa",
-                        border: "none", borderRadius: 8, padding: "9px 18px",
-                        fontSize: 12, fontWeight: "bold",
-                        cursor: hasChange ? "pointer" : "not-allowed", whiteSpace: "nowrap",
-                        transition: "background 0.2s",
+                  <div key={key}>
+                    {/* Coach section divider */}
+                    {COACH_DIVIDERS[key] && (
+                      <div style={{
+                        background: "#f0f7f0", borderRadius: 8, padding: "8px 14px",
+                        marginBottom: 14, borderLeft: `3px solid ${G}`,
+                        fontSize: 13, fontWeight: "bold", color: G,
                       }}>
-                        {isSaved ? "✅ Saved!" : isSaving ? "Saving..." : "Save"}
-                      </button>
+                        {COACH_DIVIDERS[key]}
+                      </div>
+                    )}
+
+                    <div style={{ borderBottom: "1px solid #f5f5f5", paddingBottom: 18 }}>
+                      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
+                        <div style={{ flex: 1 }}>
+                          <label style={{ fontSize: 12, color: DARK, fontWeight: "bold", display: "block", marginBottom: 6 }}>
+                            {meta.label}
+                            {hasChange && <span style={{ color: "#f59e0b", marginLeft: 6, fontSize: 11 }}>● Modified</span>}
+                          </label>
+
+                          {meta.type === "boolean" ? (
+                            <select value={val === "true" ? "true" : "false"}
+                              onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                              style={{ ...fieldStyle, cursor: "pointer" }}
+                            >
+                              <option value="true">✅ Oo — Ipakita</option>
+                              <option value="false">🚫 Hindi — Itago</option>
+                            </select>
+                          ) : meta.multiline ? (
+                            <textarea value={val}
+                              onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                              rows={3} style={{ ...fieldStyle, resize: "vertical" }}
+                            />
+                          ) : (
+                            <input type="text" value={val}
+                              onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                              style={fieldStyle}
+                            />
+                          )}
+
+                          {content[key]?.updated_at && (
+                            <div style={{ color: "#bbb", fontSize: 10, marginTop: 4 }}>
+                              Updated {new Date(content[key].updated_at).toLocaleDateString("en-PH")} by {content[key].updated_by}
+                            </div>
+                          )}
+                        </div>
+
+                        <button onClick={() => handleSave(key)} disabled={isSaving || !hasChange} style={{
+                          marginTop: 22, background: isSaved ? "#dcfce7" : hasChange ? G : "#f0f0f0",
+                          color: isSaved ? G : hasChange ? "white" : "#aaa",
+                          border: "none", borderRadius: 8, padding: "9px 18px",
+                          fontSize: 12, fontWeight: "bold",
+                          cursor: hasChange ? "pointer" : "not-allowed", whiteSpace: "nowrap",
+                          transition: "background 0.2s",
+                        }}>
+                          {isSaved ? "✅ Saved!" : isSaving ? "Saving..." : "Save"}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
