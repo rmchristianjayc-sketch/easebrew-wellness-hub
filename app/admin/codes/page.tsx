@@ -163,6 +163,38 @@ export default function CodesPage() {
     navigator.clipboard.writeText(code).then(() => { setCopiedId(code); setTimeout(() => setCopiedId(null), 2000); });
   }
 
+  async function handleDelete(id: string, code: string) {
+    if (!confirm(`I-delete ang code ${code}? Hindi na ito mababalik.`)) return;
+    try {
+      const res = await fetch("/api/admin/codes", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || "Failed to delete code."); return; }
+      setCodes(prev => prev.filter(c => c.id !== id));
+    } catch {
+      alert("Something went wrong.");
+    }
+  }
+
+  async function handleDelete(id: string, code: string) {
+    if (!confirm(`I-delete ang code ${code}? Hindi na ito mababalik.`)) return;
+    try {
+      const res = await fetch("/api/admin/codes", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || "Failed to delete code."); return; }
+      setCodes(prev => prev.filter(c => c.id !== id));
+    } catch {
+      alert("Something went wrong.");
+    }
+  }
+
   function statusInfo(c: any) {
     if (!c.is_used) return { label: "Unused", bg: "#fef9c3", color: "#b45309" };
     if (c.expires_at && new Date(c.expires_at) < new Date()) return { label: "Expired", bg: "#fee2e2", color: "#dc2626" };
@@ -376,12 +408,20 @@ export default function CodesPage() {
                           <span style={{ background: st.bg, color: st.color, borderRadius: 8, padding: "3px 10px", fontSize: 11, fontWeight: "bold" }}>{st.label}</span>
                         </td>
                         <td style={{ padding: "11px 14px" }}>
-                          <button onClick={() => copyListCode(c.code)} style={{
-                            background: isCopied ? "#dcfce7" : "none", border: `1px solid ${G}`,
-                            borderRadius: 6, padding: "3px 10px", fontSize: 11, color: G, cursor: "pointer", fontWeight: "bold",
-                          }}>
-                            {isCopied ? "✅" : "Copy"}
-                          </button>
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <button onClick={() => copyListCode(c.code)} style={{
+                              background: isCopied ? "#dcfce7" : "none", border: `1px solid ${G}`,
+                              borderRadius: 6, padding: "3px 10px", fontSize: 11, color: G, cursor: "pointer", fontWeight: "bold",
+                            }}>
+                              {isCopied ? "✅" : "Copy"}
+                            </button>
+                            <button onClick={() => handleDelete(c.id, c.code)} style={{
+                              background: "none", border: "1px solid #ef4444",
+                              borderRadius: 6, padding: "3px 10px", fontSize: 11, color: "#ef4444", cursor: "pointer", fontWeight: "bold",
+                            }}>
+                              🗑️
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
