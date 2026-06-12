@@ -7,22 +7,19 @@ import Link from "next/link";
 // ============================================================
 // ⚙️ CONFIG
 // ============================================================
-const ORDER_URL = "https://YOUR_ORDER_LINK_HERE";
-const BAGONG_KATAWAN_ORDER_URL = "https://YOUR_ORDER_LINK_HERE";
-
 const VIDEOS = [
   { id: "YOUR_VIDEO_ID_1", title: "Paano I-prepare ang Easebrew", desc: "Ang tamang paraan para ma-maximize ang herbal benefits ng Easebrew." },
   { id: "YOUR_VIDEO_ID_2", title: "Paano Mag-massage ng Avocado Oil", desc: "Step-by-step massage technique para sa joint pain relief." },
   { id: "YOUR_VIDEO_ID_3", title: "Simple Exercises para sa Joint Pain", desc: "Low-impact exercises na safe para sa matatanda at may arthritis." },
 ];
 
-const AGENTS = [
-  { name: "Coach Josephine", number: "0917 701 1252", facebook: "https://www.facebook.com/josephine.easebrew.main", photo: "/coaches/josephine.jpg" },
-  { name: "Coach Niña",      number: "0968 880 4440", facebook: "https://www.facebook.com/easebrew.nina",          photo: "/coaches/niña.jpg" },
-  { name: "Coach Mark",      number: "0917 117 8216", facebook: "https://www.facebook.com/profile.php?id=61577427472374", photo: "/coaches/mark.jpg" },
-  { name: "Coach Rai",       number: "0970 968 9164", facebook: "https://www.facebook.com/profile.php?id=61579641330542", photo: "/coaches/rai.jpg" },
-  { name: "Coach Jo Ann",    number: "0951 685 1019", facebook: "https://www.facebook.com/profile.php?id=61590474596913", photo: "/coaches/joann.jpg" },
-  { name: "Coach Mike",      number: "0951 598 6840", facebook: "https://www.facebook.com/profile.php?id=61576324811239", photo: "/coaches/mike.jpg" },
+const COACHES = [
+  { name: "Coach Josephine", number: "09177011252", display: "0917 701 1252", facebook: "https://www.facebook.com/josephine.easebrew.main", photo: "/coaches/josephine.jpg" },
+  { name: "Coach Niña",      number: "09688804440", display: "0968 880 4440", facebook: "https://www.facebook.com/easebrew.nina",           photo: "/coaches/niña.jpg" },
+  { name: "Coach Mark",      number: "09171178216", display: "0917 117 8216", facebook: "https://www.facebook.com/profile.php?id=61577427472374", photo: "/coaches/mark.jpg" },
+  { name: "Coach Rai",       number: "09709689164", display: "0970 968 9164", facebook: "https://www.facebook.com/profile.php?id=61579641330542", photo: "/coaches/rai.jpg" },
+  { name: "Coach Jo Ann",    number: "09516851019", display: "0951 685 1019", facebook: "https://www.facebook.com/profile.php?id=61590474596913", photo: "/coaches/joann.jpg" },
+  { name: "Coach Mike",      number: "09515986840", display: "0951 598 6840", facebook: "https://www.facebook.com/profile.php?id=61576324811239", photo: "/coaches/mike.jpg" },
 ];
 
 const PRODUCTS = [
@@ -78,17 +75,17 @@ const TESTIMONIALS = [
 ];
 
 const REMINDERS = [
-  { time: "Umaga",    icon: "☕", text: "Inumin ang Easebrew — 1st sachet ng araw",        bg: "#E8F5E0", border: "#39613B", textColor: "#39613B" },
-  { time: "Tanghali", icon: "🚶", text: "Maglakad ng 15 mins pagkatapos kumain",           bg: "#FEF9E7", border: "#C0863B", textColor: "#C0863B" },
-  { time: "Hapon",    icon: "💧", text: "Uminom ng 8 glasses ng tubig ngayon",             bg: "#FFFBF0", border: "#FED255", textColor: "#8B6914" },
+  { time: "Umaga",    icon: "☕", text: "Inumin ang Easebrew — 1st sachet ng araw",              bg: "#E8F5E0", border: "#39613B", textColor: "#39613B" },
+  { time: "Tanghali", icon: "🚶", text: "Maglakad ng 15 mins pagkatapos kumain",                 bg: "#FEF9E7", border: "#C0863B", textColor: "#C0863B" },
+  { time: "Hapon",    icon: "💧", text: "Uminom ng 8 glasses ng tubig ngayon",                   bg: "#FFFBF0", border: "#FED255", textColor: "#8B6914" },
   { time: "Gabi",     icon: "☕", text: "Inumin ang Easebrew — 2nd sachet + Avocado Oil massage", bg: "#F4F8F0", border: "#7DAE2F", textColor: "#39613B" },
 ];
 
 const PROGRESS_GUIDE = [
-  { period: "Week 1–2", title: "Simula ng Pagbabago",          desc: "Mararamdaman mo ang unang effect — mas gaan ang pakiramdam sa umaga, mas okay ang energy.",       bg: "#E8F5E0", border: "#39613B", color: "#39613B" },
+  { period: "Week 1–2", title: "Simula ng Pagbabago",          desc: "Mararamdaman mo ang unang effect — mas gaan ang pakiramdam sa umaga, mas okay ang energy.",        bg: "#E8F5E0", border: "#39613B", color: "#39613B" },
   { period: "Week 3–4", title: "Makikita na ang Change",       desc: "Ang mga taong malapit sa iyo ay mag-no-notice. Mas magaan na ang galaw, mas baba na ang pain score.", bg: "#FEF9E7", border: "#C0863B", color: "#C0863B" },
-  { period: "Month 2",  title: "Tuloy-tuloy na Progress",      desc: "Ang anti-inflammation routine ay nagiging natural na habit. Hindi mo na kailangan ng reminder.",    bg: "#FFFBF0", border: "#FED255", color: "#8B6914" },
-  { period: "Month 3",  title: "Bagong Katawan, Bagong Buhay", desc: "50%+ reduction ng pain score. Mas aktibo, mas masaya, mas malusog. Ito ang Bagong Katawan.",         bg: "#F4F8F0", border: "#7DAE2F", color: "#39613B" },
+  { period: "Month 2",  title: "Tuloy-tuloy na Progress",      desc: "Ang anti-inflammation routine ay nagiging natural na habit. Hindi mo na kailangan ng reminder.",     bg: "#FFFBF0", border: "#FED255", color: "#8B6914" },
+  { period: "Month 3",  title: "Bagong Katawan, Bagong Buhay", desc: "50%+ reduction ng pain score. Mas aktibo, mas masaya, mas malusog. Ito ang Bagong Katawan.",          bg: "#F4F8F0", border: "#7DAE2F", color: "#39613B" },
 ];
 
 const G = "#39613B", GOLD = "#FED255", AMBER = "#C0863B", CREAM = "#EEE5D4", DARK = "#1B201A", MID = "#4E504F", WHITE = "#FFFFFB";
@@ -115,6 +112,127 @@ function getTierLabel(tier: number): string {
     8994: "30 Packs", 11992: "40 Packs", 14990: "50 Packs",
   };
   return map[tier] ?? `₱${tier.toLocaleString()} order`;
+}
+
+// ============================================================
+// COACH PICKER MODAL
+// ============================================================
+function CoachModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, zIndex: 9999,
+        background: "rgba(0,0,0,0.6)",
+        display: "flex", alignItems: "flex-end", justifyContent: "center",
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: WHITE, borderRadius: "24px 24px 0 0",
+          width: "100%", maxWidth: 680,
+          maxHeight: "85vh", overflowY: "auto",
+          padding: "0 0 32px 0",
+        }}
+      >
+        {/* Handle bar */}
+        <div style={{ display: "flex", justifyContent: "center", padding: "14px 0 4px" }}>
+          <div style={{ width: 48, height: 5, borderRadius: 999, background: "#D9D0C0" }} />
+        </div>
+
+        {/* Header */}
+        <div style={{ padding: "12px 24px 20px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 4px 0" }}>
+                👥 Piliin ang Inyong Coach
+              </h2>
+              <p style={{ fontSize: 15, color: MID, margin: 0 }}>
+                Tumawag o mag-message para mag-order
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              style={{
+                background: "#F0EDE6", border: "none", borderRadius: 999,
+                width: 40, height: 40, fontSize: 20, cursor: "pointer",
+                color: MID, display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        {/* Coach list */}
+        <div style={{ padding: "0 20px", display: "flex", flexDirection: "column", gap: 12 }}>
+          {COACHES.map((c, i) => (
+            <div
+              key={i}
+              style={{
+                background: "#FAFAF5", border: "2px solid #D9D0C0",
+                borderRadius: 18, padding: "16px 18px",
+              }}
+            >
+              {/* Coach info */}
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                <img
+                  src={c.photo} alt={c.name}
+                  style={{ width: 52, height: 52, borderRadius: 14, objectFit: "cover", border: `2px solid ${G}`, flexShrink: 0 }}
+                />
+                <div>
+                  <p style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: 0 }}>{c.name}</p>
+                  <p style={{ fontSize: 13, color: G, margin: "2px 0 0 0", fontWeight: 600 }}>R&M EaseBrew Wellness Coach</p>
+                </div>
+              </div>
+
+              {/* Action buttons — big for matatanda */}
+              <div style={{ display: "flex", gap: 10 }}>
+                <a
+                  href={`tel:${c.number}`}
+                  style={{
+                    flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
+                    gap: 8, background: G, color: "#fff", borderRadius: 14,
+                    padding: "16px 8px", fontSize: 16, fontWeight: 700,
+                    textDecoration: "none", textAlign: "center" as const,
+                  }}
+                >
+                  📞 Tumawag
+                </a>
+                <a
+                  href={c.facebook}
+                  target="_blank" rel="noopener noreferrer"
+                  style={{
+                    flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
+                    gap: 8, background: "#1877F2", color: "#fff", borderRadius: 14,
+                    padding: "16px 8px", fontSize: 16, fontWeight: 700,
+                    textDecoration: "none", textAlign: "center" as const,
+                  }}
+                >
+                  📘 Facebook
+                </a>
+              </div>
+
+              {/* Number display (para makita) */}
+              <p style={{ fontSize: 14, color: MID, margin: "10px 0 0 0", textAlign: "center" as const }}>
+                📱 {c.display}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom note */}
+        <div style={{ margin: "20px 20px 0", background: "#FEF9E7", borderRadius: 14, padding: "14px 18px", border: `1.5px solid ${GOLD}`, textAlign: "center" as const }}>
+          <p style={{ fontSize: 15, color: AMBER, fontWeight: 700, margin: "0 0 4px 0" }}>💬 Huwag mag-atubili!</p>
+          <p style={{ fontSize: 14, color: MID, margin: 0, lineHeight: 1.6 }}>
+            Lagi kaming nandito para sa inyo. I-tap ang 📞 para direktang tumawag!
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ============================================================
@@ -184,7 +302,7 @@ function InstallBanner() {
   if (installed || dismissed) return null;
 
   if (showAndroid) return (
-    <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 680, zIndex: 9999, background: G, padding: "20px 24px", boxShadow: "0 -4px 24px rgba(0,0,0,0.25)", borderTop: `4px solid ${GOLD}` }}>
+    <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 680, zIndex: 9998, background: G, padding: "20px 24px", boxShadow: "0 -4px 24px rgba(0,0,0,0.25)", borderTop: `4px solid ${GOLD}` }}>
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
         <span style={{ fontSize: 40, flexShrink: 0 }}>📲</span>
         <div style={{ flex: 1 }}>
@@ -200,7 +318,7 @@ function InstallBanner() {
   );
 
   if (showIOS) return (
-    <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 680, zIndex: 9999, background: WHITE, padding: "24px 24px 32px", boxShadow: "0 -4px 24px rgba(0,0,0,0.2)", borderTop: `4px solid ${GOLD}`, borderRadius: "20px 20px 0 0" }}>
+    <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 680, zIndex: 9998, background: WHITE, padding: "24px 24px 32px", boxShadow: "0 -4px 24px rgba(0,0,0,0.2)", borderTop: `4px solid ${GOLD}`, borderRadius: "20px 20px 0 0" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span style={{ fontSize: 32 }}>📱</span>
@@ -247,6 +365,7 @@ export default function Home() {
   const [tipIndex, setTipIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("home");
+  const [showCoachModal, setShowCoachModal] = useState(false);
 
   useEffect(() => {
     const session = getSession();
@@ -262,6 +381,23 @@ export default function Home() {
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <p style={{ color: G, fontSize: 18, fontWeight: 600 }}>☕ Loading...</p>
     </div>
+  );
+
+  // ── ORDER BUTTON — opens coach modal ────────────────────
+  const OrderBtn = ({ label, style }: { label: string; style?: React.CSSProperties }) => (
+    <button
+      onClick={() => setShowCoachModal(true)}
+      style={{
+        background: GOLD, color: G, border: "none", borderRadius: 14,
+        padding: "16px 28px", fontSize: 17, fontWeight: 700,
+        width: "100%", textAlign: "center" as const,
+        cursor: "pointer", fontFamily: "Georgia, serif",
+        boxSizing: "border-box" as const,
+        ...style,
+      }}
+    >
+      {label}
+    </button>
   );
 
   // ── TAB BUTTON ──────────────────────────────────────────────
@@ -284,9 +420,11 @@ export default function Home() {
     <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh" }}>
       <InstallBanner />
 
+      {/* ── COACH MODAL ──────────────────────────────────────── */}
+      {showCoachModal && <CoachModal onClose={() => setShowCoachModal(false)} />}
+
       {/* ── STICKY HEADER + TABS ─────────────────────────────── */}
       <div style={{ background: G, position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 12px rgba(0,0,0,0.15)" }}>
-        {/* Mini header */}
         <div style={{ padding: "16px 20px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
             <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 12, padding: "3px 12px", fontSize: 11, fontWeight: 700, letterSpacing: 1 }}>☕ EVERYDAY WE CARE</div>
@@ -296,7 +434,6 @@ export default function Home() {
           </div>
           <div style={{ fontSize: 32 }}>☕</div>
         </div>
-        {/* Tabs */}
         <div style={{ display: "flex", marginTop: 8 }}>
           {tabBtn("home",    "🏠 Home")}
           {tabBtn("gifts",   "🎁 Gifts")}
@@ -311,14 +448,12 @@ export default function Home() {
         {/* ═══ HOME TAB ═════════════════════════════════════════ */}
         {tab === "home" && (
           <div>
-            {/* Welcome */}
             <div style={{ background: G, borderRadius: 22, padding: "32px 24px", color: "#fff", textAlign: "center", marginBottom: 24, position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", top: -30, right: -30, width: 140, height: 140, background: "rgba(125,174,47,0.2)", borderRadius: "50%" }} />
               <h1 style={{ fontSize: 30, fontWeight: 700, margin: "0 0 12px 0", lineHeight: 1.3, color: "#fff" }}>Kamusta, Nanay at Tatay! 👋</h1>
               <p style={{ fontSize: 17, opacity: 0.9, lineHeight: 1.65, margin: 0 }}>Salamat sa inyong tiwala sa EaseBrew. Nandito na ang lahat ng kailangan ninyo para sa mas malusog na katawan.</p>
             </div>
 
-            {/* 2x per day banner */}
             <div style={{ background: "#FEF9E7", border: `2.5px solid ${GOLD}`, borderRadius: 18, padding: "18px 20px", marginBottom: 24, textAlign: "center" }}>
               <p style={{ fontSize: 18, fontWeight: 700, color: AMBER, margin: "0 0 6px 0" }}>☕ Inumin 2x sa isang araw</p>
               <p style={{ fontSize: 16, color: MID, margin: 0, lineHeight: 1.6 }}>
@@ -326,7 +461,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Daily Reminders */}
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Inyong Daily Routine ☀️</h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Sundin ito every day para sa pinakamabilis na results.</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
@@ -341,7 +475,6 @@ export default function Home() {
               ))}
             </div>
 
-            {/* 90-Day Journey */}
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Ang Inyong 90-Day Journey 📅</h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Ito ang mararamdaman ninyo sa bawat phase.</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
@@ -370,9 +503,12 @@ export default function Home() {
                 <Link href="/bagong-katawan" style={{ background: GOLD, color: G, borderRadius: 14, padding: "18px 28px", fontSize: 18, fontWeight: 700, width: "100%", textAlign: "center" as const, textDecoration: "none", display: "block", boxSizing: "border-box" as const }}>
                   🏆 I-start ang 90-Day Program →
                 </Link>
-                <a href={BAGONG_KATAWAN_ORDER_URL} target="_blank" rel="noopener noreferrer" style={{ background: "rgba(255,255,255,0.15)", color: "#fff", border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: 14, padding: "13px 28px", fontSize: 15, fontWeight: 600, width: "100%", textAlign: "center" as const, textDecoration: "none", display: "block", boxSizing: "border-box" as const }}>
+                <button
+                  onClick={() => setShowCoachModal(true)}
+                  style={{ background: "rgba(255,255,255,0.15)", color: "#fff", border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: 14, padding: "14px 28px", fontSize: 15, fontWeight: 600, width: "100%", cursor: "pointer", fontFamily: "Georgia, serif" }}
+                >
                   🛒 Mag-order ng 90-Day Program
-                </a>
+                </button>
               </div>
               <p style={{ fontSize: 13, opacity: 0.7, margin: "14px 0 0 0" }}>COD available • Free shipping • Nationwide</p>
             </div>
@@ -395,7 +531,6 @@ export default function Home() {
               </div>
             )}
 
-            {/* Unlocked */}
             {unlockedProducts.map(p => (
               <div key={p.id} style={{ background: WHITE, border: `2.5px solid ${G}`, borderRadius: 18, padding: "22px", marginBottom: 14 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
@@ -413,7 +548,6 @@ export default function Home() {
               </div>
             ))}
 
-            {/* Locked */}
             {lockedProducts.length > 0 && (
               <>
                 <div style={{ background: "#FEF9E7", border: `1.5px solid ${GOLD}`, borderRadius: 14, padding: "14px 18px", margin: "20px 0 12px 0" }}>
@@ -429,9 +563,12 @@ export default function Home() {
                     </div>
                     <h3 style={{ fontSize: 19, fontWeight: 700, color: "#8A7D6A", margin: "0 0 6px 0" }}>{p.name}</h3>
                     <p style={{ fontSize: 16, color: "#A89880", margin: "0 0 18px 0", lineHeight: 1.65 }}>{p.desc}</p>
-                    <a href={ORDER_URL} target="_blank" rel="noopener noreferrer" style={{ display: "block", background: WHITE, color: G, border: `2px solid ${G}`, borderRadius: 12, padding: "13px 20px", fontSize: 15, fontWeight: 700, width: "100%", textAlign: "center" as const, textDecoration: "none", boxSizing: "border-box" as const }}>
+                    <button
+                      onClick={() => setShowCoachModal(true)}
+                      style={{ display: "block", background: WHITE, color: G, border: `2px solid ${G}`, borderRadius: 12, padding: "13px 20px", fontSize: 15, fontWeight: 700, width: "100%", cursor: "pointer", fontFamily: "Georgia, serif", boxSizing: "border-box" as const }}
+                    >
                       Mag-order pa para ma-unlock ito →
-                    </a>
+                    </button>
                   </div>
                 ))}
               </>
@@ -475,7 +612,6 @@ export default function Home() {
         {/* ═══ TIPS TAB ═════════════════════════════════════════ */}
         {tab === "tips" && (
           <div>
-            {/* Wellness Tip */}
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 18px 0" }}>Tip of the Day 💡</h2>
             <div style={{ background: WHITE, borderLeft: `6px solid ${AMBER}`, borderRadius: 14, padding: "22px", marginBottom: 14 }}>
               <p style={{ fontSize: 18, color: DARK, margin: 0, lineHeight: 1.75 }}>🌿 {WELLNESS_TIPS[tipIndex]}</p>
@@ -487,7 +623,6 @@ export default function Home() {
               Susunod na Tip →
             </button>
 
-            {/* Testimonials */}
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Sinasabi ng mga Customers 💬</h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Real stories mula sa mga katulad ninyo.</p>
             {TESTIMONIALS.map((t, i) => (
@@ -507,7 +642,6 @@ export default function Home() {
               </div>
             ))}
 
-            {/* FAQ */}
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0" }}>Mga Tanong ❓</h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 8px 0", lineHeight: 1.6 }}>I-tap ang tanong para makita ang sagot.</p>
             <div style={{ background: WHITE, border: "1.5px solid #C5B99A", borderRadius: 18, padding: "8px 22px" }}>
@@ -523,20 +657,20 @@ export default function Home() {
             <p style={{ fontSize: 16, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>May katanungan? Handa kaming tumulong sa inyo, Nanay at Tatay!</p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {AGENTS.map((agent, i) => (
+              {COACHES.map((c, i) => (
                 <div key={i} style={{ background: WHITE, border: "2px solid #C5B99A", borderRadius: 18, padding: "18px 20px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
-                    <img src={agent.photo} alt={agent.name} style={{ width: 60, height: 60, borderRadius: 16, objectFit: "cover", border: `2.5px solid ${G}`, flexShrink: 0 }} />
+                    <img src={c.photo} alt={c.name} style={{ width: 60, height: 60, borderRadius: 16, objectFit: "cover", border: `2.5px solid ${G}`, flexShrink: 0 }} />
                     <div>
-                      <h3 style={{ fontSize: 19, fontWeight: 700, color: DARK, margin: 0 }}>{agent.name}</h3>
+                      <h3 style={{ fontSize: 19, fontWeight: 700, color: DARK, margin: 0 }}>{c.name}</h3>
                       <p style={{ fontSize: 14, color: G, margin: "3px 0 0 0", fontWeight: 600 }}>R&M EaseBrew Wellness Coach</p>
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 10 }}>
-                    <a href={`tel:${agent.number.replace(/\s/g, "")}`} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: G, color: "#fff", borderRadius: 12, padding: "14px 8px", fontSize: 15, fontWeight: 700, textDecoration: "none", textAlign: "center" as const }}>
-                      📞 {agent.number}
+                    <a href={`tel:${c.number}`} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: G, color: "#fff", borderRadius: 12, padding: "14px 8px", fontSize: 15, fontWeight: 700, textDecoration: "none", textAlign: "center" as const }}>
+                      📞 {c.display}
                     </a>
-                    <a href={agent.facebook} target="_blank" rel="noopener noreferrer" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "#1877F2", color: "#fff", borderRadius: 12, padding: "14px 8px", fontSize: 15, fontWeight: 700, textDecoration: "none", textAlign: "center" as const }}>
+                    <a href={c.facebook} target="_blank" rel="noopener noreferrer" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "#1877F2", color: "#fff", borderRadius: 12, padding: "14px 8px", fontSize: 15, fontWeight: 700, textDecoration: "none", textAlign: "center" as const }}>
                       📘 Facebook
                     </a>
                   </div>
@@ -554,9 +688,12 @@ export default function Home() {
               <div style={{ display: "inline-block", background: G, color: GOLD, borderRadius: 14, padding: "10px 22px", fontSize: 18, fontWeight: 700, marginBottom: 12 }}>R&M EaseBrew</div>
               <p style={{ fontSize: 13, color: G, fontWeight: 700, margin: "0 0 5px 0", letterSpacing: 1, textTransform: "uppercase" as const }}>Everyday We Care</p>
               <p style={{ fontSize: 15, color: MID, margin: "0 0 20px 0", lineHeight: 1.65 }}>Para sa mga Pilipinong naghahanap ng natural na lunas sa body pain at inflammation.</p>
-              <a href={ORDER_URL} target="_blank" rel="noopener noreferrer" style={{ background: GOLD, color: G, borderRadius: 12, padding: "16px 28px", fontSize: 17, fontWeight: 700, textDecoration: "none", display: "block", textAlign: "center" as const, boxSizing: "border-box" as const }}>
+              <button
+                onClick={() => setShowCoachModal(true)}
+                style={{ background: GOLD, color: G, border: "none", borderRadius: 12, padding: "16px 28px", fontSize: 17, fontWeight: 700, cursor: "pointer", width: "100%", fontFamily: "Georgia, serif", boxSizing: "border-box" as const }}
+              >
                 🛒 Mag-order Ulit
-              </a>
+              </button>
               <p style={{ fontSize: 13, color: MID, marginTop: 24, lineHeight: 1.7 }}>
                 COD | Free Shipping | Nationwide Delivery<br />
                 © 2025 EaseBrew Herbal Coffee. All rights reserved.
