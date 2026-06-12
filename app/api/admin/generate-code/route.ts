@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import { supabaseAdmin } from '@/lib/supabase';
 
+// 1 pack = 10 sachets = 5 days (2 sachets per day)
 const PRICE_CONFIG: Record<number, { packs: number; validityDays: number; label: string }> = {
   399:   { packs: 1,  validityDays: 5,   label: '1 Pack — ₱399' },
   699:   { packs: 2,  validityDays: 10,  label: '2 Packs — ₱699' },
@@ -20,11 +21,14 @@ const JWT_SECRET = new TextEncoder().encode(process.env.ADMIN_SECRET!);
 
 async function verifyToken(req: NextRequest) {
   const token = req.cookies.get('eb_admin_token')?.value;
+  console.log('Token found:', !!token);
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
+    console.log('Token verified, role:', payload.role);
     return payload as { username: string; role: 'owner' | 'coach' };
-  } catch {
+  } catch (err) {
+    console.error('Token verify error:', err);
     return null;
   }
 }
@@ -36,21 +40,22 @@ function generateCode(): string {
   return `EASE-${part1}-${part2}`;
 }
 
-// POST — generate a new code (Coach and Owner only)
 export async function POST(req: NextRequest) {
   try {
     const admin = await verifyToken(req);
+    console.log('Admin:', admin);
 
-    // ✅ FIXED — Coach AND Owner lang makakagenerate
-    if (!admin || (admin.role !== 'coach' && admin.role !== 'owner')) {
+    if (!admin) {
       return NextResponse.json({ error: 'Unauthorized. Please login again.' }, { status: 401 });
     }
 
     const body = await req.json();
+    console.log('Request body:', body);
     const { tier, customer_name, notes } = body;
 
     const tierNum = Number(tier);
     if (!tierNum || !PRICE_CONFIG[tierNum]) {
+      console.log('Invalid tier:', tier, 'Available:', Object.keys(PRICE_CONFIG));
       return NextResponse.json({ error: 'Invalid tier selected.' }, { status: 400 });
     }
 
@@ -91,21 +96,23 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (insertError) {
+      console.error('Insert error:', insertError);
       return NextResponse.json({ error: 'Failed to save code: ' + insertError.message }, { status: 500 });
     }
 
+    console.log('Code generated:', newCode.code);
     return NextResponse.json({ success: true, code: newCode });
 
   } catch (err) {
+    console.error('Generate code error:', err);
     return NextResponse.json({ error: 'Something went wrong: ' + String(err) }, { status: 500 });
   }
 }
 
-// GET — fetch all codes (Owner only)
 export async function GET(req: NextRequest) {
   try {
     const admin = await verifyToken(req);
-    if (!admin || admin.role !== 'owner') {
+    if (!admin) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
@@ -118,6 +125,11 @@ export async function GET(req: NextRequest) {
       .select('*')
       .order('created_at', { ascending: false })
       .limit(limit);
+
+    // Coach — sariling codes lang ang makikita
+    if (admin.role === 'coach') {
+      query = query.eq('created_by', admin.username);
+    }
 
     if (filter === 'used') query = query.eq('is_used', true);
     if (filter === 'unused') query = query.eq('is_used', false);
