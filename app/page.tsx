@@ -22,8 +22,9 @@ const COACHES = [
   { name: "Coach Mike",      number: "09515986840", display: "0951 598 6840", facebook: "https://www.facebook.com/profile.php?id=61576324811239", photo: "/coaches/mike.jpg" },
 ];
 
-const PRODUCTS = [
-  { id: 1, icon: "📊", name: "Body Pain Tracker + Journal",           desc: "I-track ang iyong pain levels, tulog, mood, at Easebrew intake araw-araw.",                                                                          tier: 999,  tierLabel: "3 Packs (₱999)",   appUrl: "/tracker" },
+// DEFAULT products — overridden by /api/content if available
+const DEFAULT_PRODUCTS = [
+  { id: 1, icon: "📊", name: "Body Pain Tracker + Journal",           desc: "I-track ang iyong pain levels, tulog, mood, at Easebrew intake araw-araw.",                                                                          tier: 999,  tierLabel: "3 Packs (₱999)",    appUrl: "/tracker" },
   { id: 2, icon: "🥗", name: "50-Day Anti-Inflammation Meal Plan",    desc: "50 days ng Pinoy-friendly na pagkain para sa rayuma, joint pain, at pagod.",                                                                           tier: 1499, tierLabel: "5 Packs (₱1,499)", appUrl: "/meal-plan" },
   { id: 3, icon: "💪", name: "30-Day Home Exercise Guide",            desc: "Low-impact exercises para sa may joint pain. Walang gym equipment needed.",                                                                            tier: 1499, tierLabel: "5 Packs (₱1,499)", appUrl: "/exercise" },
   { id: 4, icon: "📖", name: "Pinoy Anti-Inflammation Recipe Book",   desc: "30 healthy Pinoy recipes na anti-inflammatory.",                                                                                                        tier: 2998, tierLabel: "10 Packs (₱2,998)", appUrl: "/recipes" },
@@ -75,10 +76,10 @@ const TESTIMONIALS = [
 ];
 
 const REMINDERS = [
-  { time: "Umaga",    icon: "☕", text: "Inumin ang Easebrew — 1st sachet ng araw",              bg: "#E8F5E0", border: "#39613B", textColor: "#39613B" },
-  { time: "Tanghali", icon: "🚶", text: "Maglakad ng 15 mins pagkatapos kumain",                 bg: "#FEF9E7", border: "#C0863B", textColor: "#C0863B" },
-  { time: "Hapon",    icon: "💧", text: "Uminom ng 8 glasses ng tubig ngayon",                   bg: "#FFFBF0", border: "#FED255", textColor: "#8B6914" },
-  { time: "Gabi",     icon: "☕", text: "Inumin ang Easebrew — 2nd sachet + Avocado Oil massage", bg: "#F4F8F0", border: "#7DAE2F", textColor: "#39613B" },
+  { time: "Umaga",    icon: "☕", text: "Inumin ang Easebrew — 1st sachet ng araw",               bg: "#E8F5E0", border: "#39613B", textColor: "#39613B" },
+  { time: "Tanghali", icon: "🚶", text: "Maglakad ng 15 mins pagkatapos kumain",                  bg: "#FEF9E7", border: "#C0863B", textColor: "#C0863B" },
+  { time: "Hapon",    icon: "💧", text: "Uminom ng 8 glasses ng tubig ngayon",                    bg: "#FFFBF0", border: "#FED255", textColor: "#8B6914" },
+  { time: "Gabi",     icon: "☕", text: "Inumin ang Easebrew — 2nd sachet + Avocado Oil massage",  bg: "#F4F8F0", border: "#7DAE2F", textColor: "#39613B" },
 ];
 
 const PROGRESS_GUIDE = [
@@ -115,6 +116,38 @@ function getTierLabel(tier: number): string {
 }
 
 // ============================================================
+// PROMO BANNER
+// ============================================================
+function PromoBanner({ text, onDismiss }: { text: string; onDismiss: () => void }) {
+  return (
+    <div style={{
+      background: GOLD, borderBottom: `3px solid ${AMBER}`,
+      padding: "14px 20px",
+      display: "flex", alignItems: "center", gap: 12,
+    }}>
+      <p style={{
+        flex: 1, fontSize: 16, fontWeight: 700, color: DARK,
+        margin: 0, lineHeight: 1.5,
+      }}>
+        {text}
+      </p>
+      <button
+        onClick={onDismiss}
+        aria-label="Isara ang promo"
+        style={{
+          background: "rgba(0,0,0,0.12)", border: "none", borderRadius: 999,
+          width: 34, height: 34, fontSize: 18, cursor: "pointer",
+          color: DARK, display: "flex", alignItems: "center", justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
+        ✕
+      </button>
+    </div>
+  );
+}
+
+// ============================================================
 // COACH PICKER MODAL
 // ============================================================
 function CoachModal({ onClose }: { onClose: () => void }) {
@@ -136,99 +169,46 @@ function CoachModal({ onClose }: { onClose: () => void }) {
           padding: "0 0 32px 0",
         }}
       >
-        {/* Handle bar */}
         <div style={{ display: "flex", justifyContent: "center", padding: "14px 0 4px" }}>
           <div style={{ width: 48, height: 5, borderRadius: 999, background: "#D9D0C0" }} />
         </div>
-
-        {/* Header */}
         <div style={{ padding: "12px 24px 20px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 4px 0" }}>
-                👥 Piliin ang Inyong Coach
-              </h2>
-              <p style={{ fontSize: 15, color: MID, margin: 0 }}>
-                Tumawag o mag-message para mag-order
-              </p>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 4px 0" }}>👥 Piliin ang Inyong Coach</h2>
+              <p style={{ fontSize: 15, color: MID, margin: 0 }}>Tumawag o mag-message para mag-order</p>
             </div>
             <button
               onClick={onClose}
               style={{
                 background: "#F0EDE6", border: "none", borderRadius: 999,
                 width: 40, height: 40, fontSize: 20, cursor: "pointer",
-                color: MID, display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0,
+                color: MID, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
               }}
-            >
-              ✕
-            </button>
+            >✕</button>
           </div>
         </div>
-
-        {/* Coach list */}
         <div style={{ padding: "0 20px", display: "flex", flexDirection: "column", gap: 12 }}>
           {COACHES.map((c, i) => (
-            <div
-              key={i}
-              style={{
-                background: "#FAFAF5", border: "2px solid #D9D0C0",
-                borderRadius: 18, padding: "16px 18px",
-              }}
-            >
-              {/* Coach info */}
+            <div key={i} style={{ background: "#FAFAF5", border: "2px solid #D9D0C0", borderRadius: 18, padding: "16px 18px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-                <img
-                  src={c.photo} alt={c.name}
-                  style={{ width: 52, height: 52, borderRadius: 14, objectFit: "cover", border: `2px solid ${G}`, flexShrink: 0 }}
-                />
+                <img src={c.photo} alt={c.name} style={{ width: 52, height: 52, borderRadius: 14, objectFit: "cover", border: `2px solid ${G}`, flexShrink: 0 }} />
                 <div>
                   <p style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: 0 }}>{c.name}</p>
                   <p style={{ fontSize: 13, color: G, margin: "2px 0 0 0", fontWeight: 600 }}>R&M EaseBrew Wellness Coach</p>
                 </div>
               </div>
-
-              {/* Action buttons — big for matatanda */}
               <div style={{ display: "flex", gap: 10 }}>
-                <a
-                  href={`tel:${c.number}`}
-                  style={{
-                    flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-                    gap: 8, background: G, color: "#fff", borderRadius: 14,
-                    padding: "16px 8px", fontSize: 16, fontWeight: 700,
-                    textDecoration: "none", textAlign: "center" as const,
-                  }}
-                >
-                  📞 Tumawag
-                </a>
-                <a
-                  href={c.facebook}
-                  target="_blank" rel="noopener noreferrer"
-                  style={{
-                    flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-                    gap: 8, background: "#1877F2", color: "#fff", borderRadius: 14,
-                    padding: "16px 8px", fontSize: 16, fontWeight: 700,
-                    textDecoration: "none", textAlign: "center" as const,
-                  }}
-                >
-                  📘 Facebook
-                </a>
+                <a href={`tel:${c.number}`} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: G, color: "#fff", borderRadius: 14, padding: "16px 8px", fontSize: 16, fontWeight: 700, textDecoration: "none", textAlign: "center" as const }}>📞 Tumawag</a>
+                <a href={c.facebook} target="_blank" rel="noopener noreferrer" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#1877F2", color: "#fff", borderRadius: 14, padding: "16px 8px", fontSize: 16, fontWeight: 700, textDecoration: "none", textAlign: "center" as const }}>📘 Facebook</a>
               </div>
-
-              {/* Number display (para makita) */}
-              <p style={{ fontSize: 14, color: MID, margin: "10px 0 0 0", textAlign: "center" as const }}>
-                📱 {c.display}
-              </p>
+              <p style={{ fontSize: 14, color: MID, margin: "10px 0 0 0", textAlign: "center" as const }}>📱 {c.display}</p>
             </div>
           ))}
         </div>
-
-        {/* Bottom note */}
         <div style={{ margin: "20px 20px 0", background: "#FEF9E7", borderRadius: 14, padding: "14px 18px", border: `1.5px solid ${GOLD}`, textAlign: "center" as const }}>
           <p style={{ fontSize: 15, color: AMBER, fontWeight: 700, margin: "0 0 4px 0" }}>💬 Huwag mag-atubili!</p>
-          <p style={{ fontSize: 14, color: MID, margin: 0, lineHeight: 1.6 }}>
-            Lagi kaming nandito para sa inyo. I-tap ang 📞 para direktang tumawag!
-          </p>
+          <p style={{ fontSize: 14, color: MID, margin: 0, lineHeight: 1.6 }}>Lagi kaming nandito para sa inyo. I-tap ang 📞 para direktang tumawag!</p>
         </div>
       </div>
     </div>
@@ -311,9 +291,7 @@ function InstallBanner() {
         </div>
         <button onClick={handleDismiss} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.6)", fontSize: 24, cursor: "pointer", padding: "4px", flexShrink: 0 }}>✕</button>
       </div>
-      <button onClick={handleAndroidInstall} style={{ marginTop: 14, width: "100%", background: GOLD, color: G, border: "none", borderRadius: 14, padding: "16px", fontSize: 18, fontWeight: 700, cursor: "pointer" }}>
-        ✅ Yes! I-install sa Aking Phone →
-      </button>
+      <button onClick={handleAndroidInstall} style={{ marginTop: 14, width: "100%", background: GOLD, color: G, border: "none", borderRadius: 14, padding: "16px", fontSize: 18, fontWeight: 700, cursor: "pointer" }}>✅ Yes! I-install sa Aking Phone →</button>
     </div>
   );
 
@@ -367,6 +345,39 @@ export default function Home() {
   const [tab, setTab] = useState<Tab>("home");
   const [showCoachModal, setShowCoachModal] = useState(false);
 
+  // ── PROMO + DYNAMIC PRODUCTS STATE ──────────────────────────
+  const [promoText, setPromoText] = useState<string>("");
+  const [promoEnabled, setPromoEnabled] = useState(false);
+  const [promoDismissed, setPromoDismissed] = useState(false);
+  const [products, setProducts] = useState(DEFAULT_PRODUCTS);
+
+  // ── FETCH PUBLIC CONTENT ─────────────────────────────────────
+  useEffect(() => {
+    fetch("/api/content")
+      .then(r => r.json())
+      .then(data => {
+        if (!data?.content) return;
+        const c = data.content as Record<string, string>;
+
+        // Promo banner
+        if (c.promo_enabled === "true" && c.promo_text?.trim()) {
+          setPromoEnabled(true);
+          setPromoText(c.promo_text.trim());
+        }
+
+        // Override product names/descs (fallback to default if empty)
+        setProducts(prev => prev.map(p => ({
+          ...p,
+          name: c[`product_${p.id}_name`]?.trim() || p.name,
+          desc: c[`product_${p.id}_desc`]?.trim() || p.desc,
+        })));
+      })
+      .catch(() => {
+        // Silent fail — fallback to hardcoded defaults
+      });
+  }, []);
+
+  // ── SESSION CHECK ─────────────────────────────────────────────
   useEffect(() => {
     const session = getSession();
     if (!session) { router.push("/verify"); return; }
@@ -374,8 +385,8 @@ export default function Home() {
     setLoading(false);
   }, [router]);
 
-  const unlockedProducts = PRODUCTS.filter(p => p.tier <= customerTier);
-  const lockedProducts   = PRODUCTS.filter(p => p.tier > customerTier);
+  const unlockedProducts = products.filter(p => p.tier <= customerTier);
+  const lockedProducts   = products.filter(p => p.tier > customerTier);
 
   if (loading) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -383,24 +394,6 @@ export default function Home() {
     </div>
   );
 
-  // ── ORDER BUTTON — opens coach modal ────────────────────
-  const OrderBtn = ({ label, style }: { label: string; style?: React.CSSProperties }) => (
-    <button
-      onClick={() => setShowCoachModal(true)}
-      style={{
-        background: GOLD, color: G, border: "none", borderRadius: 14,
-        padding: "16px 28px", fontSize: 17, fontWeight: 700,
-        width: "100%", textAlign: "center" as const,
-        cursor: "pointer", fontFamily: "Georgia, serif",
-        boxSizing: "border-box" as const,
-        ...style,
-      }}
-    >
-      {label}
-    </button>
-  );
-
-  // ── TAB BUTTON ──────────────────────────────────────────────
   const tabBtn = (t: Tab, label: string) => (
     <button
       onClick={() => { setTab(t); window.scrollTo({ top: 0 }); }}
@@ -408,8 +401,7 @@ export default function Home() {
         flex: 1, padding: "14px 4px", fontSize: "15px", fontWeight: "bold",
         border: "none", borderBottom: tab === t ? `4px solid ${GOLD}` : "4px solid transparent",
         background: "transparent", color: tab === t ? GOLD : "rgba(255,255,255,0.6)",
-        cursor: "pointer", transition: "all 0.2s", fontFamily: "Georgia, serif",
-        lineHeight: 1.2,
+        cursor: "pointer", transition: "all 0.2s", fontFamily: "Georgia, serif", lineHeight: 1.2,
       }}
     >
       {label}
@@ -419,12 +411,15 @@ export default function Home() {
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh" }}>
       <InstallBanner />
-
-      {/* ── COACH MODAL ──────────────────────────────────────── */}
       {showCoachModal && <CoachModal onClose={() => setShowCoachModal(false)} />}
 
       {/* ── STICKY HEADER + TABS ─────────────────────────────── */}
       <div style={{ background: G, position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 12px rgba(0,0,0,0.15)" }}>
+        {/* PROMO BANNER — inside sticky header para laging visible */}
+        {promoEnabled && !promoDismissed && (
+          <PromoBanner text={promoText} onDismiss={() => setPromoDismissed(true)} />
+        )}
+
         <div style={{ padding: "16px 20px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
             <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 12, padding: "3px 12px", fontSize: 11, fontWeight: 700, letterSpacing: 1 }}>☕ EVERYDAY WE CARE</div>
@@ -456,9 +451,7 @@ export default function Home() {
 
             <div style={{ background: "#FEF9E7", border: `2.5px solid ${GOLD}`, borderRadius: 18, padding: "18px 20px", marginBottom: 24, textAlign: "center" }}>
               <p style={{ fontSize: 18, fontWeight: 700, color: AMBER, margin: "0 0 6px 0" }}>☕ Inumin 2x sa isang araw</p>
-              <p style={{ fontSize: 16, color: MID, margin: 0, lineHeight: 1.6 }}>
-                <strong style={{ color: G }}>Umaga</strong> at <strong style={{ color: G }}>Gabi</strong> — para sa pinakamabilis na resulta!
-              </p>
+              <p style={{ fontSize: 16, color: MID, margin: 0, lineHeight: 1.6 }}><strong style={{ color: G }}>Umaga</strong> at <strong style={{ color: G }}>Gabi</strong> — para sa pinakamabilis na resulta!</p>
             </div>
 
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Inyong Daily Routine ☀️</h2>
@@ -519,15 +512,11 @@ export default function Home() {
         {tab === "gifts" && (
           <div>
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>Inyong Free Gifts 🎁</h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>
-              Lahat ng gifts na ito ay <strong style={{ color: G }}>LIBRE</strong> — kasama na sa inyong order!
-            </p>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>Lahat ng gifts na ito ay <strong style={{ color: G }}>LIBRE</strong> — kasama na sa inyong order!</p>
 
             {unlockedProducts.length === 0 && (
               <div style={{ background: "#FEF9E7", border: `1.5px solid ${GOLD}`, borderRadius: 16, padding: "18px 20px", marginBottom: 16 }}>
-                <p style={{ fontSize: 16, color: AMBER, margin: 0, fontWeight: 600 }}>
-                  ℹ️ Ang inyong order ay para sa basic access lang. Mag-order ng 3 packs (₱999) para ma-unlock ang unang free gift!
-                </p>
+                <p style={{ fontSize: 16, color: AMBER, margin: 0, fontWeight: 600 }}>ℹ️ Ang inyong order ay para sa basic access lang. Mag-order ng 3 packs (₱999) para ma-unlock ang unang free gift!</p>
               </div>
             )}
 
@@ -655,7 +644,6 @@ export default function Home() {
           <div>
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Ang Aming mga Coach 👥</h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>May katanungan? Handa kaming tumulong sa inyo, Nanay at Tatay!</p>
-
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {COACHES.map((c, i) => (
                 <div key={i} style={{ background: WHITE, border: "2px solid #C5B99A", borderRadius: 18, padding: "18px 20px" }}>
@@ -667,17 +655,12 @@ export default function Home() {
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 10 }}>
-                    <a href={`tel:${c.number}`} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: G, color: "#fff", borderRadius: 12, padding: "14px 8px", fontSize: 15, fontWeight: 700, textDecoration: "none", textAlign: "center" as const }}>
-                      📞 {c.display}
-                    </a>
-                    <a href={c.facebook} target="_blank" rel="noopener noreferrer" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "#1877F2", color: "#fff", borderRadius: 12, padding: "14px 8px", fontSize: 15, fontWeight: 700, textDecoration: "none", textAlign: "center" as const }}>
-                      📘 Facebook
-                    </a>
+                    <a href={`tel:${c.number}`} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: G, color: "#fff", borderRadius: 12, padding: "14px 8px", fontSize: 15, fontWeight: 700, textDecoration: "none", textAlign: "center" as const }}>📞 {c.display}</a>
+                    <a href={c.facebook} target="_blank" rel="noopener noreferrer" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "#1877F2", color: "#fff", borderRadius: 12, padding: "14px 8px", fontSize: 15, fontWeight: 700, textDecoration: "none", textAlign: "center" as const }}>📘 Facebook</a>
                   </div>
                 </div>
               ))}
             </div>
-
             <div style={{ marginTop: 20, background: "#FEF9E7", borderRadius: 16, padding: "18px 20px", border: `2px solid ${GOLD}`, textAlign: "center" as const }}>
               <p style={{ fontSize: 17, color: AMBER, fontWeight: 700, margin: "0 0 6px 0" }}>💬 Huwag mag-atubili!</p>
               <p style={{ fontSize: 16, color: MID, margin: 0, lineHeight: 1.6 }}>Lagi kaming nandito para sa inyo. Ang inyong kalusugan ang aming prayoridad. ❤️</p>
