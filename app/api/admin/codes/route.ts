@@ -102,6 +102,17 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'ID is required.' }, { status: 400 });
     }
 
+    // Delete related customer_sessions first (FK constraint: customer_sessions_code_id_fkey)
+    const { error: sessionsError } = await supabaseAdmin
+      .from('customer_sessions')
+      .delete()
+      .eq('code_id', id);
+
+    if (sessionsError) {
+      console.error('Supabase delete sessions error:', sessionsError);
+      return NextResponse.json({ error: `Failed to delete related sessions: ${sessionsError.message}` }, { status: 500 });
+    }
+
     const { error } = await supabaseAdmin
       .from('access_codes')
       .delete()
