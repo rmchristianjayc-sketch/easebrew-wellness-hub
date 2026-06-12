@@ -115,6 +115,7 @@ export default function CodesPage() {
   const [nameError, setNameError] = useState(false);
   const [notesError, setNotesError] = useState(false);
   const [coachError, setCoachError] = useState(false);
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
   useEffect(() => {
     const r = localStorage.getItem("eb_admin_role") || "";
@@ -165,6 +166,7 @@ export default function CodesPage() {
 
   async function handleDelete(id: string, code: string) {
     if (!confirm(`I-delete ang code ${code}? Hindi na ito mababalik.`)) return;
+    setActionLoadingId(id);
     try {
       const res = await fetch("/api/admin/codes", {
         method: "DELETE",
@@ -176,6 +178,46 @@ export default function CodesPage() {
       setCodes(prev => prev.filter(c => c.id !== id));
     } catch {
       alert("Something went wrong.");
+    } finally {
+      setActionLoadingId(null);
+    }
+  }
+
+  async function handleDeactivate(id: string, code: string) {
+    if (!confirm(`I-deactivate ang code ${code}? Mawawala agad ang access ng customer, pero hindi mabubura ang record.`)) return;
+    setActionLoadingId(id);
+    try {
+      const res = await fetch("/api/admin/codes", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action: "deactivate" }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || "Failed to deactivate code."); return; }
+      fetchCodes();
+    } catch {
+      alert("Something went wrong.");
+    } finally {
+      setActionLoadingId(null);
+    }
+  }
+
+  async function handleReactivate(id: string, code: string) {
+    if (!confirm(`I-reactivate ang code ${code}? Mawawalan ito ng expiry — kailangan i-verify ulit ng customer.`)) return;
+    setActionLoadingId(id);
+    try {
+      const res = await fetch("/api/admin/codes", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action: "reactivate" }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || "Failed to reactivate code."); return; }
+      fetchCodes();
+    } catch {
+      alert("Something went wrong.");
+    } finally {
+      setActionLoadingId(null);
     }
   }
 
@@ -362,6 +404,7 @@ export default function CodesPage() {
                   {filtered.map((c, i) => {
                     const st = statusInfo(c);
                     const isCopied = copiedId === c.code;
+                    const isActing = actionLoadingId === c.id;
                     const daysLeft = c.expires_at
                       ? Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000)
                       : null;
@@ -392,18 +435,40 @@ export default function CodesPage() {
                           <span style={{ background: st.bg, color: st.color, borderRadius: 8, padding: "3px 10px", fontSize: 11, fontWeight: "bold" }}>{st.label}</span>
                         </td>
                         <td style={{ padding: "11px 14px" }}>
-                          <div style={{ display: "flex", gap: 6 }}>
+                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                             <button onClick={() => copyListCode(c.code)} style={{
                               background: isCopied ? "#dcfce7" : "none", border: `1px solid ${G}`,
                               borderRadius: 6, padding: "3px 10px", fontSize: 11, color: G, cursor: "pointer", fontWeight: "bold",
                             }}>
                               {isCopied ? "✅" : "Copy"}
                             </button>
-                            <button onClick={() => handleDelete(c.id, c.code)} style={{
+
+                            {st.label === "Active" && (
+                              <button onClick={() => handleDeactivate(c.id, c.code)} disabled={isActing} style={{
+                                background: "none", border: "1px solid #b45309",
+                                borderRadius: 6, padding: "3px 10px", fontSize: 11, color: "#b45309",
+                                cursor: isActing ? "not-allowed" : "pointer", fontWeight: "bold",
+                              }}>
+                                {isActing ? "..." : "Deactivate"}
+                              </button>
+                            )}
+
+                            {st.label === "Expired" && (
+                              <button onClick={() => handleReactivate(c.id, c.code)} disabled={isActing} style={{
+                                background: "none", border: `1px solid ${G}`,
+                                borderRadius: 6, padding: "3px 10px", fontSize: 11, color: G,
+                                cursor: isActing ? "not-allowed" : "pointer", fontWeight: "bold",
+                              }}>
+                                {isActing ? "..." : "Reactivate"}
+                              </button>
+                            )}
+
+                            <button onClick={() => handleDelete(c.id, c.code)} disabled={isActing} style={{
                               background: "none", border: "1px solid #ef4444",
-                              borderRadius: 6, padding: "3px 10px", fontSize: 11, color: "#ef4444", cursor: "pointer", fontWeight: "bold",
+                              borderRadius: 6, padding: "3px 10px", fontSize: 11, color: "#ef4444",
+                              cursor: isActing ? "not-allowed" : "pointer", fontWeight: "bold",
                             }}>
-                              🗑️
+                              {isActing ? "..." : "🗑️"}
                             </button>
                           </div>
                         </td>
