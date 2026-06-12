@@ -179,22 +179,6 @@ export default function CodesPage() {
     }
   }
 
-  async function handleDelete(id: string, code: string) {
-    if (!confirm(`I-delete ang code ${code}? Hindi na ito mababalik.`)) return;
-    try {
-      const res = await fetch("/api/admin/codes", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
-      const data = await res.json();
-      if (!res.ok) { alert(data.error || "Failed to delete code."); return; }
-      setCodes(prev => prev.filter(c => c.id !== id));
-    } catch {
-      alert("Something went wrong.");
-    }
-  }
-
   function statusInfo(c: any) {
     if (!c.is_used) return { label: "Unused", bg: "#fef9c3", color: "#b45309" };
     if (c.expires_at && new Date(c.expires_at) < new Date()) return { label: "Expired", bg: "#fee2e2", color: "#dc2626" };
