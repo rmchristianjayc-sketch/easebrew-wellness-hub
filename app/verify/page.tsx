@@ -136,8 +136,8 @@ export default function VerifyPage() {
       onClick={() => setTab(t)}
       style={{
         flex: 1,
-        padding: "16px 8px",
-        fontSize: "17px",
+        padding: "14px 4px",
+        fontSize: "14px",
         fontWeight: "bold",
         border: "none",
         borderBottom: tab === t ? `4px solid ${GOLD}` : "4px solid transparent",
@@ -146,6 +146,8 @@ export default function VerifyPage() {
         cursor: "pointer",
         transition: "all 0.2s",
         fontFamily: "Georgia, serif",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
       }}
     >
       {label}
