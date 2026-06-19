@@ -2,6 +2,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+// ✅ 1.2 — Imported from single source of truth (no more duplicate definitions)
+import { Coach, DEFAULT_COACHES, buildCoaches } from "@/lib/coaches";
+
 const G       = "#39613B";
 const LIGHT_G = "#7DAE2F";
 const GOLD    = "#FED255";
@@ -19,10 +22,9 @@ const DEFAULT_PERKS = [
   { tier: 1499, packs: 5,  label: "5 Packs — ₱1,499",  gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide"],                                                             note: "45 araw na access",                  highlight: false },
   { tier: 2998, packs: 10, label: "10 Packs — ₱2,998", gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book"],                                     note: "75 araw na access",                  highlight: false },
   { tier: 4497, packs: 15, label: "15 Packs — ₱4,497", gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Bagong Katawan Program"], note: "105 araw na access",                 highlight: false },
-  { tier: 5996, packs: 20, label: "20 Packs — ₱5,996", gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Program", "🌿 VIP Wellness Bundle"], note: "135 araw na access",          highlight: true  },
+  { tier: 5996, packs: 20, label: "20 Packs — ₱5,996", gifts: ["📊 Body Pain Tracker + Journal", "🥗 50-Day Meal Plan", "💪 30-Day Exercise Guide", "📖 Pinoy Recipe Book", "🏆 90-Day Program", "🌿 VIP Wellness Bundle"], note: "135 araw na access", highlight: true  },
 ];
 
-// Product index map: tier → product ids
 const TIER_TO_PRODUCT_IDS: Record<number, number[]> = {
   399:  [],
   699:  [],
@@ -32,32 +34,6 @@ const TIER_TO_PRODUCT_IDS: Record<number, number[]> = {
   4497: [1, 2, 3, 4, 5],
   5996: [1, 2, 3, 4, 5, 6],
 };
-
-// ── DEFAULT COACHES — overridden by /api/content if available ──
-type Coach = { name: string; number: string; display: string; facebook: string; photo: string };
-
-const DEFAULT_COACHES: Coach[] = [
-  { name: "Coach Josephine", number: "09177011252", display: "0917 701 1252", facebook: "https://www.facebook.com/josephine.easebrew.main",         photo: "/coaches/josephine.jpg" },
-  { name: "Coach Niña",      number: "09688804440", display: "0968 880 4440", facebook: "https://www.facebook.com/easebrew.nina",                   photo: "/coaches/niña.jpg"      },
-  { name: "Coach Mark",      number: "09171178216", display: "0917 117 8216", facebook: "https://www.facebook.com/profile.php?id=61577427472374",    photo: "/coaches/mark.jpg"      },
-  { name: "Coach Rai",       number: "09709689164", display: "0970 968 9164", facebook: "https://www.facebook.com/profile.php?id=61579641330542",    photo: "/coaches/rai.jpg"       },
-  { name: "Coach Jo Ann",    number: "09516851019", display: "0951 685 1019", facebook: "https://www.facebook.com/profile.php?id=61590474596913",    photo: "/coaches/joann.jpg"     },
-  { name: "Coach Mike",      number: "09515986840", display: "0951 598 6840", facebook: "https://www.facebook.com/profile.php?id=61576324811239",    photo: "/coaches/mike.jpg"      },
-];
-
-// Build coaches array from content API response
-function buildCoaches(c: Record<string, string>, defaults: Coach[]): Coach[] {
-  return defaults.map((def, i) => {
-    const n = i + 1;
-    return {
-      name:     c[`coach_${n}_name`]?.trim()     || def.name,
-      number:   c[`coach_${n}_number`]?.trim()   || def.number,
-      display:  c[`coach_${n}_display`]?.trim()  || def.display,
-      facebook: c[`coach_${n}_facebook`]?.trim() || def.facebook,
-      photo:    c[`coach_${n}_photo`]?.trim()    || def.photo,
-    };
-  });
-}
 
 type ErrorType = "invalid" | "expired" | "other_device" | "generic" | null;
 
@@ -138,7 +114,6 @@ function hasValidSessionCookie(): boolean {
 
 type Tab = "verify" | "gifts" | "coaches";
 
-// Build gift label from content or fallback to default string
 function buildGifts(
   productIds: number[],
   contentMap: Record<string, string>,
@@ -164,12 +139,10 @@ export default function VerifyPage() {
   const [tab, setTab] = useState<Tab>("verify");
   const [showCoachesInError, setShowCoachesInError] = useState(false);
 
-  // ── Dynamic content state ────────────────────────────────────
   const [perks, setPerks] = useState(DEFAULT_PERKS);
   const [orderUrls, setOrderUrls] = useState<Record<string, string>>({});
   const [coaches, setCoaches] = useState<Coach[]>(DEFAULT_COACHES);
 
-  // ── Fetch public content ─────────────────────────────────────
   useEffect(() => {
     fetch("/api/content")
       .then(r => r.json())
@@ -177,7 +150,6 @@ export default function VerifyPage() {
         if (!data?.content) return;
         const c = data.content as Record<string, string>;
 
-        // Collect order URLs (tier-based keys)
         const urls: Record<string, string> = {};
         const tierKeys = ["399","699","999","1499","2998","4497","5996","7499","8994","11992","14990"];
         tierKeys.forEach(t => {
@@ -186,19 +158,15 @@ export default function VerifyPage() {
         });
         setOrderUrls(urls);
 
-        // Override gift names per tier if content has product names
         setPerks(prev => prev.map(p => {
           const ids = TIER_TO_PRODUCT_IDS[p.tier] ?? [];
           const updatedGifts = buildGifts(ids, c, p.gifts);
           return { ...p, gifts: updatedGifts };
         }));
 
-        // Dynamic coaches
         setCoaches(buildCoaches(c, DEFAULT_COACHES));
       })
-      .catch(() => {
-        // Silent fail — use defaults
-      });
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -242,7 +210,6 @@ export default function VerifyPage() {
     }
   }
 
-  // ── Order button — uses tier-based URL or falls back to coaches tab ──
   function OrderButton({ perk }: { perk: typeof DEFAULT_PERKS[0] }) {
     const url = orderUrls[`order_url_${perk.tier}`];
     const btnStyle: React.CSSProperties = {
@@ -250,20 +217,12 @@ export default function VerifyPage() {
       background: GOLD, color: G, border: "none", borderRadius: 12,
       padding: "14px 20px", fontSize: 16, fontWeight: 700,
       cursor: "pointer", fontFamily: "Georgia, serif",
-      textDecoration: "none", boxSizing: "border-box",
-      marginTop: 12,
+      textDecoration: "none", boxSizing: "border-box", marginTop: 12,
     };
-    if (url) {
-      return <a href={url} target="_blank" rel="noopener noreferrer" style={btnStyle}>🛒 Mag-order ng {perk.label} →</a>;
-    }
-    return (
-      <button onClick={() => setTab("coaches")} style={btnStyle}>
-        🛒 Mag-order ng {perk.label} →
-      </button>
-    );
+    if (url) return <a href={url} target="_blank" rel="noopener noreferrer" style={btnStyle}>🛒 Mag-order ng {perk.label} →</a>;
+    return <button onClick={() => setTab("coaches")} style={btnStyle}>🛒 Mag-order ng {perk.label} →</button>;
   }
 
-  // ── SUCCESS SCREEN ───────────────────────────────────────────
   if (success) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Georgia, serif", padding: "24px" }}>
       <div style={{ textAlign: "center", maxWidth: 400, width: "100%" }}>
@@ -292,7 +251,6 @@ export default function VerifyPage() {
     <div style={{ minHeight: "100vh", background: CREAM, fontFamily: "Georgia, serif" }}>
       <div style={{ maxWidth: "480px", margin: "0 auto" }}>
 
-        {/* ── HERO ──────────────────────────────────────────── */}
         <div style={{ background: G, padding: "36px 28px 0", textAlign: "center", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -30, right: -30, width: 160, height: 160, background: "rgba(125,174,47,0.2)", borderRadius: "50%" }} />
           <div style={{ position: "absolute", top: 20, left: -20, width: 100, height: 100, background: "rgba(254,210,85,0.1)", borderRadius: "50%" }} />
@@ -422,7 +380,6 @@ export default function VerifyPage() {
                   Mas malaking order = mas maraming <strong style={{ color: G }}>LIBRENG</strong> gifts!
                 </p>
               </div>
-
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {perks.map((p, i) => (
                   <div key={i} style={{
@@ -435,7 +392,6 @@ export default function VerifyPage() {
                       <span style={{ fontWeight: "bold", fontSize: "17px", color: p.highlight ? GOLD : DARK }}>{p.label}</span>
                       {p.highlight && <span style={{ background: GOLD, color: G, borderRadius: "8px", padding: "4px 10px", fontSize: "12px", fontWeight: "bold" }}>BEST VALUE ⭐</span>}
                     </div>
-
                     {p.gifts.length === 0 ? (
                       <p style={{ color: p.highlight ? "rgba(255,255,255,0.6)" : "#aaa", fontSize: "15px", margin: 0 }}>✅ {p.note}</p>
                     ) : (
@@ -448,12 +404,10 @@ export default function VerifyPage() {
                         <p style={{ color: p.highlight ? "rgba(255,255,255,0.5)" : "#aaa", fontSize: "13px", margin: "8px 0 0 0" }}>{p.note}</p>
                       </>
                     )}
-
                     <OrderButton perk={p} />
                   </div>
                 ))}
               </div>
-
               <button onClick={() => setTab("verify")} style={{
                 marginTop: "24px", width: "100%", background: G, color: WHITE,
                 border: "none", borderRadius: "16px", padding: "20px", fontSize: "19px",

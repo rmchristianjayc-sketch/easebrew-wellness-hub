@@ -5,7 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 // PUBLIC CONTENT ENDPOINT — walang login required
 // Ginagamit ng customer-facing pages (hub, verify) para
 // makuha ang promo announcement, product info, order links,
-// at coach info na na-edit ng admin sa /admin/content
+// coach info, hero text, tips, FAQs, testimonials, at videos
 //
 // IMPORTANT: GET lang ito, read-only. Limited lang sa
 // keys na safe makita ng customers (whitelist below).
@@ -15,6 +15,10 @@ const PUBLIC_KEYS = [
   // Promo banner
   'promo_enabled',
   'promo_text',
+
+  // Hero (hub page)
+  'hero_title',
+  'hero_subtitle',
 
   // Product names + descriptions (hub page + verify page gifts)
   'product_1_name', 'product_1_desc',
@@ -44,6 +48,32 @@ const PUBLIC_KEYS = [
   'coach_4_name', 'coach_4_number', 'coach_4_display', 'coach_4_facebook', 'coach_4_photo',
   'coach_5_name', 'coach_5_number', 'coach_5_display', 'coach_5_facebook', 'coach_5_photo',
   'coach_6_name', 'coach_6_number', 'coach_6_display', 'coach_6_facebook', 'coach_6_photo',
+
+  // Wellness tips (hub page Tips tab)
+  'daily_tip_1', 'daily_tip_2', 'daily_tip_3', 'daily_tip_4',
+  'daily_tip_5', 'daily_tip_6', 'daily_tip_7', 'daily_tip_8',
+
+  // FAQs (hub page Tips tab)
+  'faq_1_q', 'faq_1_a',
+  'faq_2_q', 'faq_2_a',
+  'faq_3_q', 'faq_3_a',
+  'faq_4_q', 'faq_4_a',
+  'faq_5_q', 'faq_5_a',
+  'faq_6_q', 'faq_6_a',
+  'faq_7_q', 'faq_7_a',
+
+  // Testimonials (hub page Tips tab)
+  'testimonial_1_name', 'testimonial_1_age', 'testimonial_1_location',
+  'testimonial_1_quote', 'testimonial_1_pain_before', 'testimonial_1_pain_after',
+  'testimonial_2_name', 'testimonial_2_age', 'testimonial_2_location',
+  'testimonial_2_quote', 'testimonial_2_pain_before', 'testimonial_2_pain_after',
+  'testimonial_3_name', 'testimonial_3_age', 'testimonial_3_location',
+  'testimonial_3_quote', 'testimonial_3_pain_before', 'testimonial_3_pain_after',
+
+  // Videos (hub page Gifts tab)
+  'video_1_title', 'video_1_desc', 'video_1_url',
+  'video_2_title', 'video_2_desc', 'video_2_url',
+  'video_3_title', 'video_3_desc', 'video_3_url',
 ];
 
 export async function GET(req: NextRequest) {

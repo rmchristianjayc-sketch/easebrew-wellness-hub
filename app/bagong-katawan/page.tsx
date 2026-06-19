@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useSessionGuard } from "@/lib/useSessionGuard";
 
 const G = "#39613B";
 const GOLD = "#FED255";
@@ -22,6 +22,23 @@ type DayEntry = {
   tubig: number; painScore: number; energyScore: number; notes: string;
 };
 const emptyDay = (): DayEntry => ({ easebrew: false, avocado: false, exercise: false, tubig: 0, painScore: 0, energyScore: 0, notes: "" });
+
+type Measurements = {
+  timbang1: string; timbang30: string; timbang60: string; timbang90: string;
+  waist1: string; waist30: string; waist60: string; waist90: string;
+  pain1: string; pain30: string; pain60: string; pain90: string;
+};
+const emptyMeasurements = (): Measurements => ({
+  timbang1: "", timbang30: "", timbang60: "", timbang90: "",
+  waist1: "", waist30: "", waist60: "", waist90: "",
+  pain1: "", pain30: "", pain60: "", pain90: "",
+});
+
+type ProgressShape = {
+  completedDays: number[];
+  trackData: Record<number, DayEntry>;
+  measurements: Measurements;
+};
 
 const PLAN = [
   { day: 1, phase: 1, week: "Wk1", agahan: "Easebrew ☕ + Oatmeal + Saging", tanghalian: "Sinigang Salmon + Brown Rice", merienda: "Buko Juice + Banana", hapunan: "Tinola + Sayote + B.Rice", exercise: "Brisk Walk 15 min + Stretching 10 min", focus: "Consistency — Gawi pa lang ito" },
@@ -118,45 +135,155 @@ const PLAN = [
 
 const TABS = ["📅 90-Day Plan", "📊 Progress", "🌿 Gabay"];
 
-export default function BagongKatawanPage() {
-  const router = useRouter();
-  const [checking, setChecking] = useState(true);
+// ── Session helpers ──────────────────────────────────────────
+function getEbCode(): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.split(";").find(c => c.trim().startsWith("eb_session="));
+  if (!match) return null;
+  try {
+    const raw = decodeURIComponent(match.split("=").slice(1).join("="));
+    const s = JSON.parse(raw);
+    if (!s.expires_at || new Date(s.expires_at) < new Date()) return null;
+    return s.code || null;
+  } catch { return null; }
+}
 
-  // ── FIXED: cookie-based session check (consistent with all other pages) ──
-  useEffect(() => {
-    const match = document.cookie.split(";").find(c => c.trim().startsWith("eb_session="));
-    if (!match) { router.replace("/verify"); return; }
-    try {
-      const s = JSON.parse(decodeURIComponent(match.split("=").slice(1).join("=")));
-      if (!s.expires_at || new Date(s.expires_at) < new Date()) {
-        router.replace("/verify"); return;
-      }
-    } catch { router.replace("/verify"); return; }
-    setChecking(false);
-  }, [router]);
+function getDeviceId(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("eb_device_id");
+}
+
+// ── Senior-friendly stepper (+/- buttons, walang keyboard typing) ──
+function Stepper({ label, sub, value, min, max, onChange }: {
+  label: string; sub: string; value: number; min: number; max: number; onChange: (v: number) => void;
+}) {
+  return (
+    <div style={{ flex: 1, background: "#fff", border: "1.5px solid #ddd", borderRadius: 14, padding: "12px 10px", textAlign: "center" }}>
+      <p style={{ fontSize: 16, fontWeight: 700, margin: "0 0 2px 0", color: "#1B201A" }}>{label}</p>
+      <p style={{ fontSize: 16, color: "#4E504F", margin: "0 0 10px 0" }}>{sub}</p>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onChange(Math.max(min, value - 1)); }}
+          disabled={value <= min}
+          style={{
+            width: 48, height: 48, borderRadius: 12, flexShrink: 0,
+            border: "2px solid #39613B", background: value <= min ? "#F0EAE0" : "#E8F5E0",
+            color: "#39613B", fontSize: 26, fontWeight: 700, cursor: value <= min ? "default" : "pointer",
+            opacity: value <= min ? 0.4 : 1, lineHeight: 1,
+          }}
+        >−</button>
+        <div style={{ minWidth: 56 }}>
+          <span style={{ fontSize: 30, fontWeight: 700, color: "#1B201A" }}>{value}</span>
+        </div>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onChange(Math.min(max, value + 1)); }}
+          disabled={value >= max}
+          style={{
+            width: 48, height: 48, borderRadius: 12, flexShrink: 0,
+            border: "2px solid #39613B", background: value >= max ? "#F0EAE0" : "#E8F5E0",
+            color: "#39613B", fontSize: 26, fontWeight: 700, cursor: value >= max ? "default" : "pointer",
+            opacity: value >= max ? 0.4 : 1, lineHeight: 1,
+          }}
+        >+</button>
+      </div>
+    </div>
+  );
+}
+
+export default function BagongKatawanPage() {
+  const { checking } = useSessionGuard();
 
   const [activeTab, setActiveTab] = useState(0);
   const [activePhase, setActivePhase] = useState(1);
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
   const [completedDays, setCompletedDays] = useState<number[]>([]);
   const [trackData, setTrackData] = useState<Record<number, DayEntry>>({});
-  const [measurements, setMeasurements] = useState({
-    timbang1: "", timbang30: "", timbang60: "", timbang90: "",
-    waist1: "", waist30: "", waist60: "", waist90: "",
-    pain1: "", pain30: "", pain60: "", pain90: "",
-  });
+  const [measurements, setMeasurements] = useState<Measurements>(emptyMeasurements());
+  const [syncing, setSyncing] = useState(false);
+  const [syncError, setSyncError] = useState(false);
+  const loadedRef = useRef(false);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // ── LOAD: Supabase first, fallback to localStorage cache ──
   useEffect(() => {
     if (checking) return;
-    try {
-      const saved = localStorage.getItem("easebrew-90days");
-      const savedTrack = localStorage.getItem("easebrew-90days-track");
-      const savedMeas = localStorage.getItem("easebrew-90days-meas");
-      if (saved) setCompletedDays(JSON.parse(saved));
-      if (savedTrack) setTrackData(JSON.parse(savedTrack));
-      if (savedMeas) setMeasurements(JSON.parse(savedMeas));
-    } catch {}
+
+    async function load() {
+      const code = getEbCode();
+      const deviceId = getDeviceId();
+
+      // Local cache muna — instant display kung may saved na
+      try {
+        const cachedDays = localStorage.getItem("easebrew-90days");
+        const cachedTrack = localStorage.getItem("easebrew-90days-track");
+        const cachedMeas = localStorage.getItem("easebrew-90days-meas");
+        if (cachedDays) setCompletedDays(JSON.parse(cachedDays));
+        if (cachedTrack) setTrackData(JSON.parse(cachedTrack));
+        if (cachedMeas) setMeasurements(JSON.parse(cachedMeas));
+      } catch {}
+
+      // Tapos i-sync sa Supabase — ito ang source of truth
+      if (code && deviceId) {
+        try {
+          const res = await fetch(`/api/progress?code=${encodeURIComponent(code)}&device_id=${encodeURIComponent(deviceId)}&key=bagong_katawan`);
+          const json = await res.json();
+          if (res.ok && json.data) {
+            const remote: ProgressShape = json.data;
+            if (remote.completedDays) {
+              setCompletedDays(remote.completedDays);
+              localStorage.setItem("easebrew-90days", JSON.stringify(remote.completedDays));
+            }
+            if (remote.trackData) {
+              setTrackData(remote.trackData);
+              localStorage.setItem("easebrew-90days-track", JSON.stringify(remote.trackData));
+            }
+            if (remote.measurements) {
+              setMeasurements(remote.measurements);
+              localStorage.setItem("easebrew-90days-meas", JSON.stringify(remote.measurements));
+            }
+          }
+        } catch {
+          // Walang internet o error — gamitin lang ang local cache
+        }
+      }
+
+      loadedRef.current = true;
+    }
+
+    load();
   }, [checking]);
+
+  // ── SAVE: debounced sync to Supabase (also caches to localStorage) ──
+  function queueSync(next: Partial<ProgressShape>) {
+    const code = getEbCode();
+    const deviceId = getDeviceId();
+    if (!code || !deviceId) return;
+
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(async () => {
+      setSyncing(true);
+      setSyncError(false);
+      try {
+        const payload: ProgressShape = {
+          completedDays: next.completedDays ?? completedDays,
+          trackData: next.trackData ?? trackData,
+          measurements: next.measurements ?? measurements,
+        };
+        const res = await fetch("/api/progress", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code, device_id: deviceId, key: "bagong_katawan", data: payload }),
+        });
+        if (!res.ok) setSyncError(true);
+      } catch {
+        setSyncError(true);
+      } finally {
+        setSyncing(false);
+      }
+    }, 800);
+  }
 
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -172,17 +299,20 @@ export default function BagongKatawanPage() {
     const updated = completedDays.includes(day) ? completedDays.filter(d => d !== day) : [...completedDays, day];
     setCompletedDays(updated);
     localStorage.setItem("easebrew-90days", JSON.stringify(updated));
+    queueSync({ completedDays: updated });
   };
 
   const saveTrack = (day: number, data: DayEntry) => {
     const updated = { ...trackData, [day]: data };
     setTrackData(updated);
     localStorage.setItem("easebrew-90days-track", JSON.stringify(updated));
+    queueSync({ trackData: updated });
   };
 
-  const saveMeasurements = (updated: typeof measurements) => {
+  const saveMeasurements = (updated: Measurements) => {
     setMeasurements(updated);
     localStorage.setItem("easebrew-90days-meas", JSON.stringify(updated));
+    queueSync({ measurements: updated });
   };
 
   const filteredDays = PLAN.filter(d => d.phase === activePhase);
@@ -208,15 +338,22 @@ export default function BagongKatawanPage() {
           </div>
           <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 16, padding: "14px 18px", flexShrink: 0 }}>
             <p style={{ fontSize: 32, fontWeight: 700, margin: 0, color: GOLD }}>{completedDays.length}</p>
-            <p style={{ fontSize: 13, margin: 0, opacity: 0.85 }}>/ 90 araw</p>
+            <p style={{ fontSize: 16, margin: 0, opacity: 0.85 }}>/ 90 araw</p>
           </div>
         </div>
+
+        {/* Sync status */}
+        {(syncing || syncError) && (
+          <p style={{ fontSize: 16, margin: "10px 0 0 0", opacity: 0.85, color: syncError ? "#FED255" : "rgba(255,255,255,0.85)" }}>
+            {syncing ? "💾 Sine-save ang progress..." : "⚠️ Hindi na-save online — naka-save sa device, susubukan ulit."}
+          </p>
+        )}
 
         {/* Progress Bar */}
         <div style={{ marginTop: 18 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-            <p style={{ fontSize: 15, margin: 0, opacity: 0.85, fontWeight: 600 }}>{progress}% kumpleto</p>
-            <p style={{ fontSize: 15, margin: 0, color: GOLD, fontWeight: 700 }}>{90 - completedDays.length} araw pa!</p>
+            <p style={{ fontSize: 16, margin: 0, opacity: 0.85, fontWeight: 600 }}>{progress}% kumpleto</p>
+            <p style={{ fontSize: 16, margin: 0, color: GOLD, fontWeight: 700 }}>{90 - completedDays.length} araw pa!</p>
           </div>
           <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: 999, height: 14 }}>
             <div style={{ width: `${progress}%`, background: GOLD, height: 14, borderRadius: 999, transition: "width 0.5s ease" }} />
@@ -231,7 +368,7 @@ export default function BagongKatawanPage() {
             const pc = PHASE_COLORS[ph];
             return (
               <div key={ph} style={{ flex: 1, background: "rgba(255,255,255,0.12)", borderRadius: 12, padding: "10px 12px" }}>
-                <p style={{ fontSize: 12, margin: "0 0 4px 0", opacity: 0.85 }}>{pc.label}</p>
+                <p style={{ fontSize: 16, margin: "0 0 4px 0", opacity: 0.9 }}>{pc.label}</p>
                 <p style={{ fontSize: 16, fontWeight: 700, margin: "0 0 6px 0", color: GOLD }}>{done}/30</p>
                 <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 999, height: 6 }}>
                   <div style={{ width: `${pct}%`, background: GOLD, height: 6, borderRadius: 999 }} />
@@ -246,10 +383,10 @@ export default function BagongKatawanPage() {
       <div style={{ display: "flex", background: "#fff", borderBottom: `2px solid ${CREAM}` }}>
         {TABS.map((tab, i) => (
           <button key={i} onClick={() => setActiveTab(i)} style={{
-            flex: 1, padding: "16px 6px", border: "none", cursor: "pointer",
+            flex: 1, padding: "16px 6px", border: "none", cursor: "pointer", minHeight: 56,
             background: activeTab === i ? G : "#fff",
             color: activeTab === i ? "#fff" : MID,
-            fontSize: 14, fontWeight: activeTab === i ? 700 : 500,
+            fontSize: 16, fontWeight: activeTab === i ? 700 : 500,
             borderBottom: activeTab === i ? `3px solid ${GOLD}` : "3px solid transparent",
             transition: "all 0.2s",
           }}>{tab}</button>
@@ -267,7 +404,7 @@ export default function BagongKatawanPage() {
                 const done = ph === 1 ? phase1Done : ph === 2 ? phase2Done : phase3Done;
                 return (
                   <button key={ph} onClick={() => { setActivePhase(ph); setExpandedDay(null); }} style={{
-                    padding: "18px 20px", borderRadius: 16,
+                    padding: "18px 20px", borderRadius: 16, minHeight: 56,
                     border: activePhase === ph ? `3px solid ${pc.border}` : "2px solid #C5B99A",
                     background: activePhase === ph ? pc.bg : "#FFFFFB",
                     cursor: "pointer", textAlign: "left",
@@ -275,7 +412,7 @@ export default function BagongKatawanPage() {
                   }}>
                     <div>
                       <p style={{ fontSize: 18, fontWeight: 700, color: pc.color, margin: "0 0 4px 0" }}>{pc.label} — {pc.sub}</p>
-                      <p style={{ fontSize: 15, color: MID, margin: 0 }}>{pc.days} · {done}/30 araw tapos na</p>
+                      <p style={{ fontSize: 16, color: MID, margin: 0 }}>{pc.days} · {done}/30 araw tapos na</p>
                     </div>
                     <span style={{ fontSize: 22, color: pc.color }}>{activePhase === ph ? "▼" : "▶"}</span>
                   </button>
@@ -318,7 +455,7 @@ export default function BagongKatawanPage() {
                           <p style={{ fontSize: 19, fontWeight: 700, color: DARK, margin: "0 0 4px 0" }}>
                             Araw {d.day} {d.day === 90 ? "🏆" : ""}
                           </p>
-                          <p style={{ fontSize: 14, color: MID, margin: 0 }}>
+                          <p style={{ fontSize: 16, color: MID, margin: 0 }}>
                             {pc.label} {d.week} · {isRest ? "💤 Rest Day" : "💪 Active Day"}
                           </p>
                         </div>
@@ -333,10 +470,10 @@ export default function BagongKatawanPage() {
                       </div>
                     </div>
                     <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                      <span style={{ background: pc.bg, color: pc.color, borderRadius: 20, padding: "5px 14px", fontSize: 14, fontWeight: 600, border: `1px solid ${pc.border}` }}>
+                      <span style={{ background: pc.bg, color: pc.color, borderRadius: 20, padding: "6px 14px", fontSize: 16, fontWeight: 600, border: `1px solid ${pc.border}` }}>
                         🎯 {d.focus}
                       </span>
-                      {isDone && <span style={{ background: "#E8F5E0", color: G, borderRadius: 20, padding: "5px 12px", fontSize: 14, fontWeight: 700 }}>✅ Tapos na!</span>}
+                      {isDone && <span style={{ background: "#E8F5E0", color: G, borderRadius: 20, padding: "6px 12px", fontSize: 16, fontWeight: 700 }}>✅ Tapos na!</span>}
                     </div>
                   </div>
 
@@ -351,8 +488,8 @@ export default function BagongKatawanPage() {
                           { label: "🌙 Hapunan", val: d.hapunan },
                         ].map((item, i) => (
                           <div key={i} style={{ display: "flex", gap: 10, marginBottom: i < 3 ? 10 : 0, alignItems: "flex-start" }}>
-                            <span style={{ fontSize: 15, color: AMBER, fontWeight: 700, minWidth: 100, flexShrink: 0 }}>{item.label}</span>
-                            <span style={{ fontSize: 15, color: DARK, lineHeight: 1.5 }}>{item.val}</span>
+                            <span style={{ fontSize: 16, color: AMBER, fontWeight: 700, minWidth: 100, flexShrink: 0 }}>{item.label}</span>
+                            <span style={{ fontSize: 16, color: DARK, lineHeight: 1.5 }}>{item.val}</span>
                           </div>
                         ))}
                       </div>
@@ -363,7 +500,7 @@ export default function BagongKatawanPage() {
                       </div>
 
                       <div style={{ background: "#FFFBF0", border: `2px solid ${GOLD}`, borderRadius: 14, padding: "14px 18px", marginBottom: 18 }}>
-                        <p style={{ fontSize: 15, color: AMBER, margin: 0, lineHeight: 1.6 }}>
+                        <p style={{ fontSize: 16, color: AMBER, margin: 0, lineHeight: 1.6 }}>
                           ☕ <strong>Easebrew</strong> — uminom 30 minuto bago kumain<br />
                           🌿 <strong>Avocado Oil</strong> — i-massage gabi bago matulog
                         </p>
@@ -382,32 +519,25 @@ export default function BagongKatawanPage() {
                               style={{
                                 flex: 1, background: item.val ? "#E8F5E0" : "#fff",
                                 border: `2px solid ${item.val ? G : "#ddd"}`,
-                                borderRadius: 12, padding: "14px 8px", cursor: "pointer", textAlign: "center",
+                                borderRadius: 12, padding: "16px 8px", cursor: "pointer", textAlign: "center", minHeight: 56,
                               }}>
-                              <p style={{ fontSize: 13, margin: "0 0 6px 0", color: DARK, fontWeight: 600 }}>{item.label}</p>
+                              <p style={{ fontSize: 16, margin: "0 0 6px 0", color: DARK, fontWeight: 600 }}>{item.label}</p>
                               <span style={{ fontSize: 26 }}>{item.val ? "✅" : "⬜"}</span>
                             </div>
                           ))}
                         </div>
 
                         <div style={{ display: "flex", gap: 10, marginBottom: 14 }} onClick={e => e.stopPropagation()}>
-                          {[
-                            { key: "tubig", label: "💧 Tubig", sub: "(glasses)", val: track.tubig, max: 12 },
-                            { key: "painScore", label: "😣 Sakit", sub: "(1-10)", val: track.painScore, max: 10 },
-                            { key: "energyScore", label: "⚡ Lakas", sub: "(1-10)", val: track.energyScore, max: 10 },
-                          ].map(item => (
-                            <div key={item.key} style={{ flex: 1, background: "#fff", border: "1.5px solid #ddd", borderRadius: 12, padding: "12px 8px", textAlign: "center" }}>
-                              <p style={{ fontSize: 14, fontWeight: 700, margin: "0 0 2px 0", color: DARK }}>{item.label}</p>
-                              <p style={{ fontSize: 12, color: MID, margin: "0 0 8px 0" }}>{item.sub}</p>
-                              <input type="number" min={0} max={item.max} value={item.val || ""}
-                                onChange={e => saveTrack(d.day, { ...track, [item.key]: Number(e.target.value) })}
-                                style={{ width: "100%", padding: "8px 4px", borderRadius: 8, border: "1.5px solid #ddd", fontSize: 20, textAlign: "center", background: "transparent", color: DARK, boxSizing: "border-box", fontWeight: 700 }} />
-                            </div>
-                          ))}
+                          <Stepper label="💧 Tubig" sub="(glasses)" value={track.tubig} min={0} max={12}
+                            onChange={(v) => saveTrack(d.day, { ...track, tubig: v })} />
+                          <Stepper label="😣 Sakit" sub="(1-10)" value={track.painScore || 1} min={1} max={10}
+                            onChange={(v) => saveTrack(d.day, { ...track, painScore: v })} />
+                          <Stepper label="⚡ Lakas" sub="(1-10)" value={track.energyScore || 1} min={1} max={10}
+                            onChange={(v) => saveTrack(d.day, { ...track, energyScore: v })} />
                         </div>
 
                         <div onClick={e => e.stopPropagation()}>
-                          <p style={{ fontSize: 15, fontWeight: 600, color: MID, margin: "0 0 8px 0" }}>📝 Mga Tala Mo</p>
+                          <p style={{ fontSize: 16, fontWeight: 600, color: MID, margin: "0 0 8px 0" }}>📝 Mga Tala Mo</p>
                           <textarea
                             placeholder="Ano ang naramdaman mo ngayon?..."
                             value={track.notes}
@@ -421,13 +551,13 @@ export default function BagongKatawanPage() {
                       <button onClick={e => toggleComplete(d.day, e)} style={{
                         width: "100%", padding: "22px",
                         background: isDone ? "#dc2626" : G,
-                        color: "#fff", border: "none", borderRadius: 16,
+                        color: "#fff", border: "none", borderRadius: 16, minHeight: 56,
                         fontSize: 20, fontWeight: 700, cursor: "pointer", letterSpacing: 0.5,
                       }}>
                         {isDone ? "✗ I-undo" : d.day === 90 ? "🏆 90 Days Complete na!" : "✅ Tapos na ang Araw na Ito!"}
                       </button>
                       {!isDone && (
-                        <p style={{ textAlign: "center", fontSize: 14, color: MID, margin: "10px 0 0 0" }}>
+                        <p style={{ textAlign: "center", fontSize: 16, color: MID, margin: "10px 0 0 0" }}>
                           I-tap pagkatapos ma-complete ang araw
                         </p>
                       )}
@@ -451,9 +581,9 @@ export default function BagongKatawanPage() {
             ].map((stat, i) => (
               <div key={i} style={{ flex: 1, background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 16, padding: "18px 10px", textAlign: "center" }}>
                 <p style={{ fontSize: 28, fontWeight: 700, color: stat.color, margin: 0 }}>
-                  {stat.val}<span style={{ fontSize: 15 }}>{stat.suffix}</span>
+                  {stat.val}<span style={{ fontSize: 16 }}>{stat.suffix}</span>
                 </p>
-                <p style={{ fontSize: 13, color: MID, margin: "6px 0 0 0", lineHeight: 1.4 }}>{stat.label}</p>
+                <p style={{ fontSize: 16, color: MID, margin: "6px 0 0 0", lineHeight: 1.4 }}>{stat.label}</p>
               </div>
             ))}
           </div>
@@ -489,14 +619,14 @@ export default function BagongKatawanPage() {
                 <p style={{ fontSize: 16, fontWeight: 600, color: MID, margin: "0 0 10px 0" }}>{row.label}</p>
                 <div style={{ display: "flex", gap: 8 }}>
                   {["1", "30", "60", "90"].map(cp => {
-                    const k = `${row.key}${cp}` as keyof typeof measurements;
+                    const k = `${row.key}${cp}` as keyof Measurements;
                     return (
                       <div key={cp} style={{ flex: 1, textAlign: "center" }}>
-                        <p style={{ fontSize: 13, color: MID, margin: "0 0 6px 0", fontWeight: 600 }}>Araw {cp}</p>
+                        <p style={{ fontSize: 16, color: MID, margin: "0 0 6px 0", fontWeight: 600 }}>Araw {cp}</p>
                         <input type="number" value={measurements[k]}
                           onChange={e => saveMeasurements({ ...measurements, [k]: e.target.value })}
                           placeholder="—"
-                          style={{ width: "100%", padding: "10px 4px", borderRadius: 10, border: "1.5px solid #ddd", fontSize: 18, textAlign: "center", background: measurements[k] ? "#E8F5E0" : "#fff", color: DARK, boxSizing: "border-box", fontWeight: 700 }}
+                          style={{ width: "100%", padding: "12px 4px", borderRadius: 10, border: "1.5px solid #ddd", fontSize: 18, textAlign: "center", background: measurements[k] ? "#E8F5E0" : "#fff", color: DARK, boxSizing: "border-box", fontWeight: 700, minHeight: 48 }}
                         />
                       </div>
                     );
@@ -535,8 +665,8 @@ export default function BagongKatawanPage() {
               { label: "Para sa Best", val: "Consistent na pag-inom. 21 araw para maging gawi. 90 araw — permanent." },
             ].map((item, i) => (
               <div key={i} style={{ display: "flex", gap: 12, marginBottom: i < 4 ? 12 : 0, alignItems: "flex-start", padding: "12px 14px", background: "#F6F2EA", borderRadius: 12 }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: AMBER, minWidth: 110, flexShrink: 0 }}>{item.label}</span>
-                <span style={{ fontSize: 15, color: DARK, lineHeight: 1.5 }}>{item.val}</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: AMBER, minWidth: 110, flexShrink: 0 }}>{item.label}</span>
+                <span style={{ fontSize: 16, color: DARK, lineHeight: 1.5 }}>{item.val}</span>
               </div>
             ))}
           </div>
@@ -556,7 +686,7 @@ export default function BagongKatawanPage() {
                 <p style={{ fontSize: 16, margin: 0, color: DARK, lineHeight: 1.5 }}>{item.tip}</p>
               </div>
             ))}
-            <p style={{ fontSize: 15, fontWeight: 700, color: "#dc2626", margin: "14px 0 0 0", padding: "12px 14px", background: "#FEE2E2", borderRadius: 12 }}>
+            <p style={{ fontSize: 16, fontWeight: 700, color: "#dc2626", margin: "14px 0 0 0", padding: "12px 14px", background: "#FEE2E2", borderRadius: 12 }}>
               ⚠️ Kung 8+ ang pain score at hindi bumababa kahit 24 oras — kumonsulta sa doktor.
             </p>
           </div>
@@ -570,7 +700,7 @@ export default function BagongKatawanPage() {
             ].map((sec, i) => (
               <div key={i} style={{ background: sec.bg, borderRadius: 14, padding: "14px 16px", marginBottom: i < 2 ? 12 : 0 }}>
                 <p style={{ fontSize: 16, fontWeight: 700, color: sec.titleColor, margin: "0 0 8px 0" }}>{sec.title}</p>
-                <p style={{ fontSize: 15, color: DARK, margin: 0, lineHeight: 1.7 }}>{sec.text}</p>
+                <p style={{ fontSize: 16, color: DARK, margin: 0, lineHeight: 1.7 }}>{sec.text}</p>
               </div>
             ))}
           </div>
@@ -585,7 +715,7 @@ export default function BagongKatawanPage() {
               <div key={i} style={{ background: item.bg, borderRadius: 14, padding: "16px 18px", marginBottom: i < 2 ? 12 : 0 }}>
                 <p style={{ fontSize: 17, fontWeight: 700, color: item.color, margin: "0 0 10px 0" }}>{item.phase}</p>
                 {item.goals.map((g, j) => (
-                  <p key={j} style={{ fontSize: 15, margin: "0 0 6px 0", color: DARK, lineHeight: 1.5 }}>✅ {g}</p>
+                  <p key={j} style={{ fontSize: 16, margin: "0 0 6px 0", color: DARK, lineHeight: 1.5 }}>✅ {g}</p>
                 ))}
               </div>
             ))}

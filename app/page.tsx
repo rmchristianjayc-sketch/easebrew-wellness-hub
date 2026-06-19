@@ -4,30 +4,22 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+// ✅ 1.2 — Imported from single source of truth (no more duplicate definitions)
+import { Coach, DEFAULT_COACHES, buildCoaches } from "@/lib/coaches";
+
 // ============================================================
-// ⚙️ CONFIG
+// ⚙️ CONFIG — FALLBACK DEFAULTS (used kung walang value sa DB)
 // ============================================================
-const VIDEOS = [
-  { id: "YOUR_VIDEO_ID_1", title: "Paano I-prepare ang Easebrew", desc: "Ang tamang paraan para ma-maximize ang herbal benefits ng Easebrew." },
-  { id: "YOUR_VIDEO_ID_2", title: "Paano Mag-massage ng Avocado Oil", desc: "Step-by-step massage technique para sa joint pain relief." },
-  { id: "YOUR_VIDEO_ID_3", title: "Simple Exercises para sa Joint Pain", desc: "Low-impact exercises na safe para sa matatanda at may arthritis." },
+const DEFAULT_VIDEOS = [
+  { title: "Paano I-prepare ang Easebrew",        desc: "Ang tamang paraan para ma-maximize ang herbal benefits ng Easebrew.", url: "" },
+  { title: "Paano Mag-massage ng Avocado Oil",     desc: "Step-by-step massage technique para sa joint pain relief.",           url: "" },
+  { title: "Simple Exercises para sa Joint Pain",  desc: "Low-impact exercises na safe para sa matatanda at may arthritis.",     url: "" },
 ];
 
-// DEFAULT coaches — overridden by /api/content if available
-const DEFAULT_COACHES = [
-  { name: "Coach Josephine", number: "09177011252", display: "0917 701 1252", facebook: "https://www.facebook.com/josephine.easebrew.main",         photo: "/coaches/josephine.jpg" },
-  { name: "Coach Niña",      number: "09688804440", display: "0968 880 4440", facebook: "https://www.facebook.com/easebrew.nina",                   photo: "/coaches/niña.jpg"      },
-  { name: "Coach Mark",      number: "09171178216", display: "0917 117 8216", facebook: "https://www.facebook.com/profile.php?id=61577427472374",    photo: "/coaches/mark.jpg"      },
-  { name: "Coach Rai",       number: "09709689164", display: "0970 968 9164", facebook: "https://www.facebook.com/profile.php?id=61579641330542",    photo: "/coaches/rai.jpg"       },
-  { name: "Coach Jo Ann",    number: "09516851019", display: "0951 685 1019", facebook: "https://www.facebook.com/profile.php?id=61590474596913",    photo: "/coaches/joann.jpg"     },
-  { name: "Coach Mike",      number: "09515986840", display: "0951 598 6840", facebook: "https://www.facebook.com/profile.php?id=61576324811239",    photo: "/coaches/mike.jpg"      },
-];
-
-// DEFAULT products — overridden by /api/content if available
 const DEFAULT_PRODUCTS = [
-  { id: 1, icon: "📊", name: "Body Pain Tracker + Journal",           desc: "I-track ang iyong pain levels, tulog, mood, at Easebrew intake araw-araw.",                                                                          tier: 999,  tierLabel: "3 Packs (₱999)",    appUrl: "/tracker" },
-  { id: 2, icon: "🥗", name: "50-Day Anti-Inflammation Meal Plan",    desc: "50 days ng Pinoy-friendly na pagkain para sa rayuma, joint pain, at pagod.",                                                                           tier: 1499, tierLabel: "5 Packs (₱1,499)", appUrl: "/meal-plan" },
-  { id: 3, icon: "💪", name: "30-Day Home Exercise Guide",            desc: "Low-impact exercises para sa may joint pain. Walang gym equipment needed.",                                                                            tier: 1499, tierLabel: "5 Packs (₱1,499)", appUrl: "/exercise" },
+  { id: 1, icon: "📊", name: "Body Pain Tracker + Journal",           desc: "I-track ang inyong pain levels, tulog, mood, at Easebrew intake araw-araw.",                                                                          tier: 999,  tierLabel: "3 Packs (₱999)",     appUrl: "/tracker" },
+  { id: 2, icon: "🥗", name: "50-Day Anti-Inflammation Meal Plan",    desc: "50 days ng Pinoy-friendly na pagkain para sa rayuma, joint pain, at pagod.",                                                                           tier: 1499, tierLabel: "5 Packs (₱1,499)",  appUrl: "/meal-plan" },
+  { id: 3, icon: "💪", name: "30-Day Home Exercise Guide",            desc: "Low-impact exercises para sa may joint pain. Walang gym equipment needed.",                                                                            tier: 1499, tierLabel: "5 Packs (₱1,499)",  appUrl: "/exercise" },
   { id: 4, icon: "📖", name: "Pinoy Anti-Inflammation Recipe Book",   desc: "30 healthy Pinoy recipes na anti-inflammatory.",                                                                                                        tier: 2998, tierLabel: "10 Packs (₱2,998)", appUrl: "/recipes" },
   { id: 5, icon: "🏆", name: "Bagong Katawan 90-Day Program",         desc: "Ang pinaka-complete na wellness program. 90-day master plan, full exercise program, weekly check-in guide — lahat kasama!",                           tier: 4497, tierLabel: "15 Packs (₱4,497)", appUrl: "/bagong-katawan" },
   { id: 6, icon: "🌿", name: "VIP Wellness Bundle",                   desc: "Lahat ng digital products + priority coach support + exclusive wellness tips para sa mga serious sa kanilang health journey.",                        tier: 5996, tierLabel: "20 Packs (₱5,996)", appUrl: "/bagong-katawan" },
@@ -42,7 +34,7 @@ const APP_LABELS: Record<number, string> = {
   6: "🌿 Open ang VIP Bundle",
 };
 
-const WELLNESS_TIPS = [
+const DEFAULT_WELLNESS_TIPS = [
   "Inumin ang Easebrew 30 mins bago kumain para sa best effect.",
   "Uminom ng 8 glasses ng tubig araw-araw — ang dehydration ay nagpapalala ng joint pain.",
   "I-massage ang Avocado Miracle Oil sa affected joints bago matulog gabi-gabi.",
@@ -53,24 +45,23 @@ const WELLNESS_TIPS = [
   "Ang malunggay ay superfood — dagdag sa sinigang, tinola, o lugaw.",
 ];
 
-const RECIPES = [
+const DEFAULT_RECIPES = [
   { name: "Sinigang na Salmon",            benefit: "Omega-3 Anti-Inflammation",    ingredients: "Salmon, kamatis, kangkong, labanos, sampalok", icon: "🐟" },
   { name: "Tinolang Manok with Malunggay", benefit: "Immune Boost + Joint Support", ingredients: "Manok, malunggay, sayote, luya, bawang",        icon: "🍗" },
   { name: "Ginger-Turmeric Lugaw",         benefit: "Powerful Anti-Inflammation",   ingredients: "Bigas, luya, turmeric, bawang, sibuyas",         icon: "🍚" },
 ];
 
-const FAQS = [
+const DEFAULT_FAQS = [
   { q: "Kailan ko dapat inumin ang Easebrew?",                   a: "Umaga at gabi — 2 sachets bawat araw para sa pinakamabilis na resulta. Inumin 30 mins bago kumain para sa best effect." },
   { q: "Pwede ba ang may ulcer?",                                a: "Oo, pero uminom pagkatapos kumain ng konti. Huwag inumin nang empty stomach." },
   { q: "Kailan ko mararamdaman ang effect?",                     a: "Karamihan sa mga customers ay nakakaramdam ng change sa loob ng 7-14 days ng consistent na pag-inom. Para sa mas malalim na effect — 30-90 days." },
   { q: "Paano gamitin ang Avocado Miracle Oil?",                 a: "I-massage ng 5-10 mins bawat gabi sa masakit na parte. Best pagkatapos ng mainit na shower — mas bukas ang pores, mas mabilis masipsip." },
-  { q: "Ilang sachet bawat araw?",                               a: "2 sachets bawat araw — isa sa umaga at isa sa gabi. Ito ang recommended para sa pinakamabuting resulta at para maramdaman ang epekto ng EaseBrew nang mas mabilis." },
+  { q: "Ilang sachet bawat araw?",                               a: "2 sachets bawat araw — isa sa umaga at isa sa gabi. Ito ang recommended para sa pinakamabuting resulta." },
   { q: "Paano ko ma-access ang aking libreng digital products?", a: "I-tap ang button sa bawat product card. Automatic na ma-a-access ang lahat ng products na kasama sa inyong order!" },
   { q: "May side effects ba ang Easebrew?",                      a: "Ang Easebrew ay gawa sa natural na herbs. Walang known side effects para sa karamihan. Kung may allergy o maintenance medicine — kumonsulta muna sa doktor." },
-  { q: "COD ba at free shipping?",                               a: "Oo! COD available sa buong Pilipinas. Free shipping sa qualifying orders." },
 ];
 
-const TESTIMONIALS = [
+const DEFAULT_TESTIMONIALS = [
   { name: "Nena R.",   age: 58, location: "Quezon City", quote: "Pagkatapos ng 3 weeks, mas gaan na ang pakiramdam ng aking tuhod. Hindi ko na kailangang uminom ng gamot araw-araw.", stars: 5, painBefore: 8, painAfter: 3 },
   { name: "Mang Tony", age: 64, location: "Cebu City",   quote: "Hindi ako naniniwala noong una pero subukan ko nga. Ngayon — hindi ko na naiisip ang umaga nang walang Easebrew.",    stars: 5, painBefore: 7, painAfter: 2 },
   { name: "Ate Susan", age: 52, location: "Davao",       quote: "Ang libreng meal plan at recipe book — sobrang helpful! Alam ko na ngayon kung anong pagkain ang nagpapalala ng arthritis ko.", stars: 5, painBefore: 6, painAfter: 3 },
@@ -117,22 +108,79 @@ function getTierLabel(tier: number): string {
 }
 
 // ============================================================
-// COACH TYPE
+// CONTENT BUILDERS — extract from API response w/ fallback
 // ============================================================
-type Coach = { name: string; number: string; display: string; facebook: string; photo: string };
+function buildTips(c: Record<string, string>, defaults: string[]): string[] {
+  const fromDB = [1,2,3,4,5,6,7,8]
+    .map(n => c[`daily_tip_${n}`]?.trim())
+    .filter(Boolean) as string[];
+  return fromDB.length > 0 ? fromDB : defaults;
+}
 
-// Build coaches array from content API response (fallback to defaults per slot)
-function buildCoaches(c: Record<string, string>, defaults: Coach[]): Coach[] {
+function buildFaqs(c: Record<string, string>, defaults: { q: string; a: string }[]): { q: string; a: string }[] {
+  const fromDB = [1,2,3,4,5,6,7]
+    .map(n => {
+      const q = c[`faq_${n}_q`]?.trim();
+      const a = c[`faq_${n}_a`]?.trim();
+      return q && a ? { q, a } : null;
+    })
+    .filter(Boolean) as { q: string; a: string }[];
+  return fromDB.length > 0 ? fromDB : defaults;
+}
+
+function buildTestimonials(
+  c: Record<string, string>,
+  defaults: typeof DEFAULT_TESTIMONIALS
+): typeof DEFAULT_TESTIMONIALS {
+  const fromDB = [1,2,3].map(n => {
+    const name  = c[`testimonial_${n}_name`]?.trim();
+    const quote = c[`testimonial_${n}_quote`]?.trim();
+    if (!name || !quote) return null;
+    return {
+      name,
+      age:        parseInt(c[`testimonial_${n}_age`]?.trim() || "0"),
+      location:   c[`testimonial_${n}_location`]?.trim() || "",
+      quote,
+      stars:      5,
+      painBefore: parseInt(c[`testimonial_${n}_pain_before`]?.trim() || "0"),
+      painAfter:  parseInt(c[`testimonial_${n}_pain_after`]?.trim()  || "0"),
+    };
+  }).filter(Boolean) as typeof DEFAULT_TESTIMONIALS;
+  return fromDB.length > 0 ? fromDB : defaults;
+}
+
+function buildVideos(
+  c: Record<string, string>,
+  defaults: typeof DEFAULT_VIDEOS
+): typeof DEFAULT_VIDEOS {
   return defaults.map((def, i) => {
     const n = i + 1;
     return {
-      name:     c[`coach_${n}_name`]?.trim()     || def.name,
-      number:   c[`coach_${n}_number`]?.trim()   || def.number,
-      display:  c[`coach_${n}_display`]?.trim()  || def.display,
-      facebook: c[`coach_${n}_facebook`]?.trim() || def.facebook,
-      photo:    c[`coach_${n}_photo`]?.trim()    || def.photo,
+      title: c[`video_${n}_title`]?.trim() || def.title,
+      desc:  c[`video_${n}_desc`]?.trim()  || def.desc,
+      url:   c[`video_${n}_url`]?.trim()   || def.url,
     };
   });
+}
+
+// ============================================================
+// YOUTUBE HELPER
+// ============================================================
+function extractYouTubeId(url: string): string {
+  if (!url) return "";
+  const trimmed = url.trim();
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
+    /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const pattern of patterns) {
+    const match = trimmed.match(pattern);
+    if (match) return match[1];
+  }
+  if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return trimmed;
+  return "";
 }
 
 // ============================================================
@@ -213,18 +261,26 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   );
 }
 
-function YouTubeEmbed({ videoId, title }: { videoId: string; title: string }) {
-  if (videoId.startsWith("YOUR_VIDEO_ID")) return (
+function YouTubeEmbed({ url, title }: { url: string; title: string }) {
+  const videoId = extractYouTubeId(url);
+  if (!videoId) return (
     <div style={{ background: DARK, borderRadius: 18, aspectRatio: "16/9", display: "flex", alignItems: "center", justifyContent: "center", border: `2px solid ${G}` }}>
       <div style={{ textAlign: "center", color: "#fff" }}>
         <div style={{ fontSize: 60, marginBottom: 10, color: GOLD }}>▶</div>
-        <p style={{ fontSize: 13, opacity: 0.55, margin: 0 }}>I-update ang VIDEOS config sa itaas ng file</p>
+        <p style={{ fontSize: 13, opacity: 0.55, margin: 0 }}>I-paste ang YouTube link sa Admin → Content → Videos</p>
       </div>
     </div>
   );
   return (
     <div style={{ borderRadius: 18, overflow: "hidden", aspectRatio: "16/9", border: `2px solid ${G}` }}>
-      <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${videoId}`} title={title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ display: "block", border: "none" }} />
+      <iframe
+        width="100%" height="100%"
+        src={`https://www.youtube.com/embed/${videoId}`}
+        title={title}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        style={{ display: "block", border: "none" }}
+      />
     </div>
   );
 }
@@ -265,7 +321,7 @@ function InstallBanner() {
         <span style={{ fontSize: 40, flexShrink: 0 }}>📲</span>
         <div style={{ flex: 1 }}>
           <p style={{ fontSize: 17, fontWeight: 700, color: "#fff", margin: "0 0 4px 0" }}>I-install ang R&M EaseBrew App!</p>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.8)", margin: 0 }}>I-save sa iyong phone — madaling buksan anytime!</p>
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.8)", margin: 0 }}>I-save sa inyong phone — madaling buksan anytime!</p>
         </div>
         <button onClick={handleDismiss} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.6)", fontSize: 24, cursor: "pointer", padding: "4px", flexShrink: 0 }}>✕</button>
       </div>
@@ -324,11 +380,17 @@ export default function Home() {
   const [showCoachModal, setShowCoachModal] = useState(false);
 
   // ── DYNAMIC STATE ────────────────────────────────────────────
-  const [promoText, setPromoText] = useState<string>("");
-  const [promoEnabled, setPromoEnabled] = useState(false);
+  const [promoText, setPromoText]           = useState("");
+  const [promoEnabled, setPromoEnabled]     = useState(false);
   const [promoDismissed, setPromoDismissed] = useState(false);
-  const [products, setProducts] = useState(DEFAULT_PRODUCTS);
-  const [coaches, setCoaches] = useState<Coach[]>(DEFAULT_COACHES);
+  const [products, setProducts]             = useState(DEFAULT_PRODUCTS);
+  const [coaches, setCoaches]               = useState<Coach[]>(DEFAULT_COACHES);
+  const [heroTitle, setHeroTitle]           = useState("Kamusta, Nanay at Tatay! 👋");
+  const [heroSubtitle, setHeroSubtitle]     = useState("Salamat sa inyong tiwala sa EaseBrew. Nandito na ang lahat ng kailangan ninyo para sa mas malusog na katawan.");
+  const [wellnessTips, setWellnessTips]     = useState(DEFAULT_WELLNESS_TIPS);
+  const [faqs, setFaqs]                     = useState(DEFAULT_FAQS);
+  const [testimonials, setTestimonials]     = useState(DEFAULT_TESTIMONIALS);
+  const [videos, setVideos]                 = useState(DEFAULT_VIDEOS);
 
   // ── FETCH PUBLIC CONTENT ─────────────────────────────────────
   useEffect(() => {
@@ -338,25 +400,27 @@ export default function Home() {
         if (!data?.content) return;
         const c = data.content as Record<string, string>;
 
-        // Promo banner
         if (c.promo_enabled === "true" && c.promo_text?.trim()) {
           setPromoEnabled(true);
           setPromoText(c.promo_text.trim());
         }
 
-        // Dynamic product names/descs
+        if (c.hero_title?.trim())    setHeroTitle(c.hero_title.trim());
+        if (c.hero_subtitle?.trim()) setHeroSubtitle(c.hero_subtitle.trim());
+
         setProducts(prev => prev.map(p => ({
           ...p,
           name: c[`product_${p.id}_name`]?.trim() || p.name,
           desc: c[`product_${p.id}_desc`]?.trim()  || p.desc,
         })));
 
-        // Dynamic coaches
         setCoaches(buildCoaches(c, DEFAULT_COACHES));
+        setWellnessTips(buildTips(c, DEFAULT_WELLNESS_TIPS));
+        setFaqs(buildFaqs(c, DEFAULT_FAQS));
+        setTestimonials(buildTestimonials(c, DEFAULT_TESTIMONIALS));
+        setVideos(buildVideos(c, DEFAULT_VIDEOS));
       })
-      .catch(() => {
-        // Silent fail — fallback to hardcoded defaults
-      });
+      .catch(() => {});
   }, []);
 
   // ── SESSION CHECK ─────────────────────────────────────────────
@@ -425,8 +489,8 @@ export default function Home() {
           <div>
             <div style={{ background: G, borderRadius: 22, padding: "32px 24px", color: "#fff", textAlign: "center", marginBottom: 24, position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", top: -30, right: -30, width: 140, height: 140, background: "rgba(125,174,47,0.2)", borderRadius: "50%" }} />
-              <h1 style={{ fontSize: 30, fontWeight: 700, margin: "0 0 12px 0", lineHeight: 1.3, color: "#fff" }}>Kamusta, Nanay at Tatay! 👋</h1>
-              <p style={{ fontSize: 17, opacity: 0.9, lineHeight: 1.65, margin: 0 }}>Salamat sa inyong tiwala sa EaseBrew. Nandito na ang lahat ng kailangan ninyo para sa mas malusog na katawan.</p>
+              <h1 style={{ fontSize: 30, fontWeight: 700, margin: "0 0 12px 0", lineHeight: 1.3, color: "#fff" }}>{heroTitle}</h1>
+              <p style={{ fontSize: 17, opacity: 0.9, lineHeight: 1.65, margin: 0 }}>{heroSubtitle}</p>
             </div>
 
             <div style={{ background: "#FEF9E7", border: `2.5px solid ${GOLD}`, borderRadius: 18, padding: "18px 20px", marginBottom: 24, textAlign: "center" }}>
@@ -476,10 +540,7 @@ export default function Home() {
                 <Link href="/bagong-katawan" style={{ background: GOLD, color: G, borderRadius: 14, padding: "18px 28px", fontSize: 18, fontWeight: 700, width: "100%", textAlign: "center" as const, textDecoration: "none", display: "block", boxSizing: "border-box" as const }}>
                   🏆 I-start ang 90-Day Program →
                 </Link>
-                <button
-                  onClick={() => setShowCoachModal(true)}
-                  style={{ background: "rgba(255,255,255,0.15)", color: "#fff", border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: 14, padding: "14px 28px", fontSize: 15, fontWeight: 600, width: "100%", cursor: "pointer", fontFamily: "Georgia, serif" }}
-                >
+                <button onClick={() => setShowCoachModal(true)} style={{ background: "rgba(255,255,255,0.15)", color: "#fff", border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: 14, padding: "14px 28px", fontSize: 15, fontWeight: 600, width: "100%", cursor: "pointer", fontFamily: "Georgia, serif" }}>
                   🛒 Mag-order ng 90-Day Program
                 </button>
               </div>
@@ -532,10 +593,7 @@ export default function Home() {
                     </div>
                     <h3 style={{ fontSize: 19, fontWeight: 700, color: "#8A7D6A", margin: "0 0 6px 0" }}>{p.name}</h3>
                     <p style={{ fontSize: 16, color: "#A89880", margin: "0 0 18px 0", lineHeight: 1.65 }}>{p.desc}</p>
-                    <button
-                      onClick={() => setShowCoachModal(true)}
-                      style={{ display: "block", background: WHITE, color: G, border: `2px solid ${G}`, borderRadius: 12, padding: "13px 20px", fontSize: 15, fontWeight: 700, width: "100%", cursor: "pointer", fontFamily: "Georgia, serif", boxSizing: "border-box" as const }}
-                    >
+                    <button onClick={() => setShowCoachModal(true)} style={{ display: "block", background: WHITE, color: G, border: `2px solid ${G}`, borderRadius: 12, padding: "13px 20px", fontSize: 15, fontWeight: 700, width: "100%", cursor: "pointer", fontFamily: "Georgia, serif", boxSizing: "border-box" as const }}>
                       Mag-order pa para ma-unlock ito →
                     </button>
                   </div>
@@ -546,9 +604,9 @@ export default function Home() {
             {/* Videos */}
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0" }}>Videos para sa Inyo 🎬</h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Panoorin ito para malaman kung paano gamitin ang inyong products nang tama.</p>
-            {VIDEOS.map((v, i) => (
+            {videos.map((v, i) => (
               <div key={i} style={{ marginBottom: 28 }}>
-                <YouTubeEmbed videoId={v.id} title={v.title} />
+                <YouTubeEmbed url={v.url} title={v.title} />
                 <h3 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "12px 0 5px 0" }}>{v.title}</h3>
                 <p style={{ fontSize: 16, color: MID, margin: 0, lineHeight: 1.65 }}>{v.desc}</p>
               </div>
@@ -557,7 +615,7 @@ export default function Home() {
             {/* Recipe Preview */}
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0" }}>Recipe Preview 🍲</h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>3 recipes mula sa aming libreng Recipe Book.</p>
-            {RECIPES.map((r, i) => (
+            {DEFAULT_RECIPES.map((r, i) => (
               <div key={i} style={{ background: WHITE, border: "1.5px solid #C5B99A", borderRadius: 16, padding: "18px 20px", marginBottom: 12 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
                   <span style={{ fontSize: 34 }}>{r.icon}</span>
@@ -583,10 +641,10 @@ export default function Home() {
           <div>
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 18px 0" }}>Tip of the Day 💡</h2>
             <div style={{ background: WHITE, borderLeft: `6px solid ${AMBER}`, borderRadius: 14, padding: "22px", marginBottom: 14 }}>
-              <p style={{ fontSize: 18, color: DARK, margin: 0, lineHeight: 1.75 }}>🌿 {WELLNESS_TIPS[tipIndex]}</p>
+              <p style={{ fontSize: 18, color: DARK, margin: 0, lineHeight: 1.75 }}>🌿 {wellnessTips[tipIndex % wellnessTips.length]}</p>
             </div>
             <button
-              onClick={() => setTipIndex(i => (i + 1) % WELLNESS_TIPS.length)}
+              onClick={() => setTipIndex(i => (i + 1) % wellnessTips.length)}
               style={{ background: WHITE, border: `2px solid ${G}`, borderRadius: 12, padding: "15px 24px", fontSize: 17, fontWeight: 600, color: G, cursor: "pointer", width: "100%", marginBottom: 32, fontFamily: "Georgia, serif" }}
             >
               Susunod na Tip →
@@ -594,19 +652,21 @@ export default function Home() {
 
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Sinasabi ng mga Customers 💬</h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Real stories mula sa mga katulad ninyo.</p>
-            {TESTIMONIALS.map((t, i) => (
+            {testimonials.map((t, i) => (
               <div key={i} style={{ background: WHITE, border: "1.5px solid #C5B99A", borderRadius: 18, padding: "22px", marginBottom: 14 }}>
                 <StarRating count={t.stars} />
                 <p style={{ fontSize: 17, color: DARK, margin: "12px 0 16px 0", lineHeight: 1.75, fontStyle: "italic" }}>&ldquo;{t.quote}&rdquo;</p>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
-                    <p style={{ fontSize: 16, fontWeight: 700, color: DARK, margin: 0 }}>{t.name}, {t.age}</p>
+                    <p style={{ fontSize: 16, fontWeight: 700, color: DARK, margin: 0 }}>{t.name}{t.age > 0 ? `, ${t.age}` : ""}</p>
                     <p style={{ fontSize: 14, color: MID, margin: 0 }}>{t.location}</p>
                   </div>
-                  <div style={{ textAlign: "right" as const }}>
-                    <p style={{ fontSize: 12, color: MID, margin: "0 0 2px 0" }}>Pain Score</p>
-                    <p style={{ fontSize: 14, fontWeight: 700, color: G, margin: 0 }}>{t.painBefore} → {t.painAfter} ✅</p>
-                  </div>
+                  {t.painBefore > 0 && t.painAfter > 0 && (
+                    <div style={{ textAlign: "right" as const }}>
+                      <p style={{ fontSize: 12, color: MID, margin: "0 0 2px 0" }}>Pain Score</p>
+                      <p style={{ fontSize: 14, fontWeight: 700, color: G, margin: 0 }}>{t.painBefore} → {t.painAfter} ✅</p>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -614,7 +674,7 @@ export default function Home() {
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0" }}>Mga Tanong ❓</h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 8px 0", lineHeight: 1.6 }}>I-tap ang tanong para makita ang sagot.</p>
             <div style={{ background: WHITE, border: "1.5px solid #C5B99A", borderRadius: 18, padding: "8px 22px" }}>
-              {FAQS.map((faq, i) => <FAQItem key={i} q={faq.q} a={faq.a} />)}
+              {faqs.map((faq, i) => <FAQItem key={i} q={faq.q} a={faq.a} />)}
             </div>
           </div>
         )}
@@ -651,10 +711,7 @@ export default function Home() {
               <div style={{ display: "inline-block", background: G, color: GOLD, borderRadius: 14, padding: "10px 22px", fontSize: 18, fontWeight: 700, marginBottom: 12 }}>R&M EaseBrew</div>
               <p style={{ fontSize: 13, color: G, fontWeight: 700, margin: "0 0 5px 0", letterSpacing: 1, textTransform: "uppercase" as const }}>Everyday We Care</p>
               <p style={{ fontSize: 15, color: MID, margin: "0 0 20px 0", lineHeight: 1.65 }}>Para sa mga Pilipinong naghahanap ng natural na lunas sa body pain at inflammation.</p>
-              <button
-                onClick={() => setShowCoachModal(true)}
-                style={{ background: GOLD, color: G, border: "none", borderRadius: 12, padding: "16px 28px", fontSize: 17, fontWeight: 700, cursor: "pointer", width: "100%", fontFamily: "Georgia, serif", boxSizing: "border-box" as const }}
-              >
+              <button onClick={() => setShowCoachModal(true)} style={{ background: GOLD, color: G, border: "none", borderRadius: 12, padding: "16px 28px", fontSize: 17, fontWeight: 700, cursor: "pointer", width: "100%", fontFamily: "Georgia, serif", boxSizing: "border-box" as const }}>
                 🛒 Mag-order Ulit
               </button>
               <p style={{ fontSize: 13, color: MID, marginTop: 24, lineHeight: 1.7 }}>

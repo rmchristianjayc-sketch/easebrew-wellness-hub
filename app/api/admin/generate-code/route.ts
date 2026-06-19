@@ -1,25 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
-import { supabaseAdmin } from '@/lib/supabase';
-
-// ============================================================
-// PRICE CONFIG — updated validity days (consumption + buffer)
-// Formula: actual consumption days + marketing buffer
-// 1 pack = 10 sachets = 5 days (2 sachets/day)
-// ============================================================
-const PRICE_CONFIG: Record<number, { packs: number; validityDays: number; label: string }> = {
-  399:   { packs: 1,  validityDays: 10,  label: '1 Pack — ₱399' },
-  699:   { packs: 2,  validityDays: 20,  label: '2 Packs — ₱699' },
-  999:   { packs: 3,  validityDays: 30,  label: '3 Packs — ₱999' },
-  1499:  { packs: 5,  validityDays: 45,  label: '5 Packs — ₱1,499' },
-  2998:  { packs: 10, validityDays: 75,  label: '10 Packs — ₱2,998' },
-  4497:  { packs: 15, validityDays: 105, label: '15 Packs — ₱4,497' },
-  5996:  { packs: 20, validityDays: 135, label: '20 Packs — ₱5,996' },
-  7499:  { packs: 25, validityDays: 165, label: '25 Packs — ₱7,499' },
-  8994:  { packs: 30, validityDays: 195, label: '30 Packs — ₱8,994' },
-  11992: { packs: 40, validityDays: 255, label: '40 Packs — ₱11,992' },
-  14990: { packs: 50, validityDays: 315, label: '50 Packs — ₱14,990' },
-};
+import { supabaseAdmin, PRICE_CONFIG } from '@/lib/supabase';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.ADMIN_SECRET!);
 
@@ -41,6 +22,7 @@ function generateCode(): string {
   return `EASE-${part1}-${part2}`;
 }
 
+// ✅ POST — generate code lang, GET ay nasa codes/route.ts na
 export async function POST(req: NextRequest) {
   try {
     const admin = await verifyToken(req);
@@ -102,43 +84,5 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error('Generate code error:', err);
     return NextResponse.json({ error: 'Something went wrong: ' + String(err) }, { status: 500 });
-  }
-}
-
-export async function GET(req: NextRequest) {
-  try {
-    const admin = await verifyToken(req);
-    if (!admin) {
-      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    }
-
-    const { searchParams } = new URL(req.url);
-    const filter = searchParams.get('filter') || 'all';
-    const limit = parseInt(searchParams.get('limit') || '50');
-
-    let query = supabaseAdmin
-      .from('access_codes')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(limit);
-
-    if (admin.role === 'coach') {
-      query = query.eq('created_by', admin.username);
-    }
-
-    if (filter === 'used') query = query.eq('is_used', true);
-    if (filter === 'unused') query = query.eq('is_used', false);
-
-    const { data, error } = await query;
-
-    if (error) {
-      return NextResponse.json({ error: 'Failed to fetch codes.' }, { status: 500 });
-    }
-
-    return NextResponse.json({ success: true, codes: data });
-
-  } catch (err) {
-    console.error('Fetch codes error:', err);
-    return NextResponse.json({ error: 'Something went wrong.' }, { status: 500 });
   }
 }

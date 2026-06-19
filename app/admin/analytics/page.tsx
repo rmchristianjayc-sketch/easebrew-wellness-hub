@@ -1,75 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Sidebar from "@/app/admin/_components/Sidebar";
 
-const G = "#39613B";
-const GOLD = "#FED255";
+const G    = "#39613B";
 const DARK = "#1B201A";
-const MID = "#4E504F";
-const SIDEBAR_W = 220;
-
-// ─── Sidebar ─────────────────────────────────────────────────────────────────
-function Sidebar({ active }: { active: string }) {
-  const [username, setUsername] = useState("");
-  useEffect(() => { setUsername(localStorage.getItem("eb_admin_username") || "Admin"); }, []);
-
-  // ✅ No "Codes" — Admin only
-  const links = [
-    { href: "/admin", icon: "⚡", label: "Dashboard" },
-    { href: "/admin/analytics", icon: "📊", label: "Analytics" },
-    { href: "/admin/content", icon: "✏️", label: "Content" },
-    { href: "/admin/notifications", icon: "🔔", label: "Notifications" },
-  ];
-
-  async function handleLogout() {
-    await fetch("/api/admin/login", { method: "DELETE" });
-    localStorage.removeItem("eb_admin_role");
-    localStorage.removeItem("eb_admin_username");
-    window.location.href = "/admin/login";
-  }
-
-  return (
-    <aside style={{ width: SIDEBAR_W, minHeight: "100vh", background: G, display: "flex", flexDirection: "column", position: "fixed", top: 0, left: 0, zIndex: 100, boxShadow: "2px 0 12px rgba(0,0,0,0.12)" }}>
-      <div style={{ padding: "28px 20px 24px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 38, height: 38, background: GOLD, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>☕</div>
-          <div>
-            <div style={{ color: GOLD, fontWeight: "bold", fontSize: 14, lineHeight: 1.2 }}>EaseBrew</div>
-            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 11 }}>Admin Panel</div>
-          </div>
-        </div>
-      </div>
-      <nav style={{ flex: 1, padding: "16px 12px", display: "flex", flexDirection: "column", gap: 4 }}>
-        {links.map(l => {
-          const isActive = active === l.href;
-          return (
-            <Link key={l.href} href={l.href} style={{ textDecoration: "none" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, background: isActive ? "rgba(254,210,85,0.15)" : "transparent", borderLeft: isActive ? `3px solid ${GOLD}` : "3px solid transparent", cursor: "pointer" }}
-                onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)"; }}
-                onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-              >
-                <span style={{ fontSize: 17 }}>{l.icon}</span>
-                <span style={{ color: isActive ? GOLD : "rgba(255,255,255,0.8)", fontSize: 13, fontWeight: isActive ? "bold" : "normal" }}>{l.label}</span>
-              </div>
-            </Link>
-          );
-        })}
-      </nav>
-      <div style={{ padding: "16px 12px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-          <div style={{ width: 34, height: 34, background: "rgba(255,255,255,0.15)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>👤</div>
-          <div>
-            <div style={{ color: "white", fontSize: 13, fontWeight: "bold" }}>{username}</div>
-            <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 11 }}>Administrator</div>
-          </div>
-        </div>
-        <button onClick={handleLogout} style={{ width: "100%", background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.8)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "8px 12px", fontSize: 12, cursor: "pointer", textAlign: "left" }}>
-          🚪 Logout
-        </button>
-      </div>
-    </aside>
-  );
-}
+const MID  = "#4E504F";
 
 // ─── Stat Card ────────────────────────────────────────────────────────────────
 function StatCard({ icon, label, value, color }: { icon: string; label: string; value: string | number; color: string }) {
@@ -84,10 +20,27 @@ function StatCard({ icon, label, value, color }: { icon: string; label: string; 
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function AnalyticsPage() {
+  const router = useRouter();
+  const [username, setUsername] = useState("");
   const [codes, setCodes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    async function init() {
+      try {
+        const res = await fetch("/api/admin/me");
+        if (!res.ok) { router.push("/admin/login"); return; }
+        const { role, username: u } = await res.json();
+        if (role === "coach") { router.push("/admin/codes"); return; }
+        setUsername(u);
+      } catch {
+        router.push("/admin/login");
+        return;
+      }
+      fetchData();
+    }
+    init();
+  }, []);
 
   async function fetchData() {
     try {
@@ -98,18 +51,18 @@ export default function AnalyticsPage() {
     setLoading(false);
   }
 
-  const now = new Date();
+  const now        = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const weekStart = new Date(now.getTime() - 7 * 86400000);
+  const weekStart  = new Date(now.getTime() - 7 * 86400000);
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const used = codes.filter(c => c.is_used);
-  const active = used.filter(c => c.expires_at && new Date(c.expires_at) > now);
+  const used    = codes.filter(c => c.is_used);
+  const active  = used.filter(c => c.expires_at && new Date(c.expires_at) > now);
   const expired = used.filter(c => c.expires_at && new Date(c.expires_at) <= now);
-  const unused = codes.filter(c => !c.is_used);
+  const unused  = codes.filter(c => !c.is_used);
 
   const todayNew = used.filter(c => c.used_at && new Date(c.used_at) >= todayStart).length;
-  const weekNew = used.filter(c => c.used_at && new Date(c.used_at) >= weekStart).length;
+  const weekNew  = used.filter(c => c.used_at && new Date(c.used_at) >= weekStart).length;
   const monthNew = used.filter(c => c.used_at && new Date(c.used_at) >= monthStart).length;
 
   const revenueByTier: Record<number, number> = {};
@@ -127,9 +80,9 @@ export default function AnalyticsPage() {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#f5f6f8", fontFamily: "Inter, system-ui, sans-serif" }}>
-      <Sidebar active="/admin/analytics" />
+      <Sidebar active="/admin/analytics" username={username} />
 
-      <main style={{ marginLeft: SIDEBAR_W, flex: 1, padding: "32px 36px", minWidth: 0 }}>
+      <main style={{ marginLeft: 220, flex: 1, padding: "32px 36px", minWidth: 0 }}>
         <div style={{ marginBottom: 28 }}>
           <h1 style={{ color: DARK, fontSize: 22, fontWeight: "bold", margin: 0 }}>Analytics</h1>
           <p style={{ color: MID, fontSize: 13, margin: "4px 0 0" }}>Customer activity & sales overview</p>
@@ -140,18 +93,18 @@ export default function AnalyticsPage() {
         ) : (
           <>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 28 }}>
-              <StatCard icon="🎫" label="Total Codes" value={codes.length} color="#6366f1" />
-              <StatCard icon="✅" label="Active Users" value={active.length} color={G} />
-              <StatCard icon="⏰" label="Expired" value={expired.length} color="#ef4444" />
-              <StatCard icon="📦" label="Unused Codes" value={unused.length} color="#f59e0b" />
+              <StatCard icon="🎫" label="Total Codes"  value={codes.length}    color="#6366f1" />
+              <StatCard icon="✅" label="Active Users" value={active.length}   color={G}       />
+              <StatCard icon="⏰" label="Expired"      value={expired.length}  color="#ef4444" />
+              <StatCard icon="📦" label="Unused Codes" value={unused.length}   color="#f59e0b" />
             </div>
 
             <div style={{ background: "white", borderRadius: 14, padding: "20px 24px", boxShadow: "0 1px 6px rgba(0,0,0,0.06)", marginBottom: 20 }}>
               <h2 style={{ color: DARK, fontSize: 14, fontWeight: "bold", margin: "0 0 16px" }}>🆕 New Activations</h2>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
                 {[
-                  { label: "Today", value: todayNew, color: "#e0f2fe", text: "#0369a1" },
-                  { label: "This Week", value: weekNew, color: "#dcfce7", text: G },
+                  { label: "Today",      value: todayNew, color: "#e0f2fe", text: "#0369a1" },
+                  { label: "This Week",  value: weekNew,  color: "#dcfce7", text: G         },
                   { label: "This Month", value: monthNew, color: "#fef9c3", text: "#b45309" },
                 ].map((s, i) => (
                   <div key={i} style={{ background: s.color, borderRadius: 12, padding: "18px 20px", textAlign: "center" }}>

@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.ADMIN_SECRET!);
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 const PROTECTED_CUSTOMER_PATHS = [
   '/',
@@ -14,32 +12,11 @@ const PROTECTED_CUSTOMER_PATHS = [
   '/bagong-katawan',
 ];
 
-// ✅ Verify session against Supabase using code + device_id
-async function verifySessionInSupabase(code: string, deviceId: string): Promise<boolean> {
-  try {
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/customer_sessions?code=eq.${code}&device_id=eq.${deviceId}&select=id,expires_at`,
-      {
-        headers: {
-          apikey: SUPABASE_SERVICE_KEY,
-          Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
-        },
-      }
-    );
-    const data = await res.json();
-    if (!data || data.length === 0) return false;
-    const session = data[0];
-    return new Date(session.expires_at) > new Date();
-  } catch {
-    return false;
-  }
-}
-
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // ============================================================
-  // ADMIN PROTECTION
+  // ADMIN PROTECTION — JWT verify lang, walang Supabase fetch
   // ============================================================
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
     const token = req.cookies.get('eb_admin_token')?.value;
@@ -67,7 +44,11 @@ export async function middleware(req: NextRequest) {
   }
 
   // ============================================================
-  // CUSTOMER PAGE PROTECTION
+  // CUSTOMER PAGE PROTECTION — cookie expiry check lang
+  // ✅ REMOVED: verifySessionInSupabase() — nagdadagdag ng 200-400ms
+  //    sa bawat page load. Hindi kailangan sa middleware.
+  //    Kung gusto mo i-verify ang Supabase, gawin sa API routes
+  //    (e.g. /api/verify-code) kung saan isang beses lang nire-run.
   // ============================================================
   const isProtected = PROTECTED_CUSTOMER_PATHS.some(
     p => pathname === p || pathname.startsWith(p + '/')
@@ -85,32 +66,27 @@ export async function middleware(req: NextRequest) {
     try {
       const session = JSON.parse(decodeURIComponent(sessionCookie));
 
-      // Check local expiry first (fast)
-      if (!session.expires_at || new Date(session.expires_at) < new Date()) {
-        const response = NextResponse.redirect(new URL('/verify', req.url));
-        response.cookies.delete('eb_session');
-        return response;
+      // Walang code o device_id — invalid session
+      if (!session.code || !session.device_id || !session.expires_at) {
+        const res = NextResponse.redirect(new URL('/verify', req.url));
+        res.cookies.delete('eb_session');
+        return res;
       }
 
-      // ✅ Check if session still exists in Supabase (catches deleted/revoked sessions)
-      if (!session.code || !session.device_id) {
-        const response = NextResponse.redirect(new URL('/verify', req.url));
-        response.cookies.delete('eb_session');
-        return response;
+      // Expired na — redirect at clear cookie
+      if (new Date(session.expires_at) < new Date()) {
+        const res = NextResponse.redirect(new URL('/verify', req.url));
+        res.cookies.delete('eb_session');
+        return res;
       }
 
-      const isValid = await verifySessionInSupabase(session.code, session.device_id);
-      if (!isValid) {
-        const response = NextResponse.redirect(new URL('/verify', req.url));
-        response.cookies.delete('eb_session');
-        return response;
-      }
-
+      // ✅ Cookie valid at hindi pa expired — payagan
       return NextResponse.next();
+
     } catch {
-      const response = NextResponse.redirect(new URL('/verify', req.url));
-      response.cookies.delete('eb_session');
-      return response;
+      const res = NextResponse.redirect(new URL('/verify', req.url));
+      res.cookies.delete('eb_session');
+      return res;
     }
   }
 

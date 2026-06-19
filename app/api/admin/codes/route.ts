@@ -15,7 +15,7 @@ async function verifyToken(req: NextRequest) {
   }
 }
 
-// GET — fetch all codes with filters (owner and coach can both view all)
+// ✅ GET — coach makakakita ng sariling codes lang, owner makakakita ng lahat
 export async function GET(req: NextRequest) {
   try {
     const admin = await verifyToken(req);
@@ -33,14 +33,16 @@ export async function GET(req: NextRequest) {
       .order('created_at', { ascending: false })
       .limit(limit);
 
+    // ✅ Coach: sariling codes lang ang makikita
+    if (admin.role === 'coach') {
+      query = query.eq('created_by', admin.username);
+    }
+
     if (filter === 'used') query = query.eq('is_used', true);
     if (filter === 'unused') query = query.eq('is_used', false);
 
     const { data, error } = await query;
-
-    if (error) {
-      return NextResponse.json({ error: 'Failed to fetch codes.' }, { status: 500 });
-    }
+    if (error) return NextResponse.json({ error: 'Failed to fetch codes.' }, { status: 500 });
 
     return NextResponse.json({ success: true, codes: data || [] });
 
@@ -50,7 +52,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// PATCH — deactivate or reactivate a code (owner and coach both allowed)
+// ✅ PATCH — coach pwede lang mag-deactivate, hindi pwedeng mag-reactivate
 export async function PATCH(req: NextRequest) {
   try {
     const admin = await verifyToken(req);
@@ -59,9 +61,15 @@ export async function PATCH(req: NextRequest) {
     }
 
     const { id, action } = await req.json();
-
     if (!id || !action) {
       return NextResponse.json({ error: 'ID and action are required.' }, { status: 400 });
+    }
+
+    if (admin.role === 'coach' && action === 'reactivate') {
+      return NextResponse.json(
+        { error: 'Unauthorized. Ang reactivation ay para sa owner lang.' },
+        { status: 403 }
+      );
     }
 
     if (action === 'deactivate') {
@@ -88,7 +96,7 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-// DELETE — delete a code permanently (owner and coach both allowed)
+// ✅ DELETE — owner lang ang pwedeng mag-delete permanently
 export async function DELETE(req: NextRequest) {
   try {
     const admin = await verifyToken(req);
@@ -96,21 +104,29 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
-    const { id } = await req.json();
+    if (admin.role === 'coach') {
+      return NextResponse.json(
+        { error: 'Unauthorized. Ang permanent deletion ay para sa owner lang.' },
+        { status: 403 }
+      );
+    }
 
+    const { id } = await req.json();
     if (!id) {
       return NextResponse.json({ error: 'ID is required.' }, { status: 400 });
     }
 
-    // Delete related customer_sessions first (FK constraint: customer_sessions_code_id_fkey)
+    // Delete related sessions muna (FK constraint)
     const { error: sessionsError } = await supabaseAdmin
       .from('customer_sessions')
       .delete()
       .eq('code_id', id);
 
     if (sessionsError) {
-      console.error('Supabase delete sessions error:', sessionsError);
-      return NextResponse.json({ error: `Failed to delete related sessions: ${sessionsError.message}` }, { status: 500 });
+      return NextResponse.json(
+        { error: `Failed to delete related sessions: ${sessionsError.message}` },
+        { status: 500 }
+      );
     }
 
     const { error } = await supabaseAdmin
@@ -119,8 +135,10 @@ export async function DELETE(req: NextRequest) {
       .eq('id', id);
 
     if (error) {
-      console.error('Supabase delete error:', error);
-      return NextResponse.json({ error: `Failed to delete code: ${error.message}` }, { status: 500 });
+      return NextResponse.json(
+        { error: `Failed to delete code: ${error.message}` },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ success: true });

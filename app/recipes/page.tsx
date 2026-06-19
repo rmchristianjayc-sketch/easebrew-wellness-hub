@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useSessionGuard } from "@/lib/useSessionGuard";
 
 const G = "#39613B";
 const GOLD = "#FED255";
@@ -110,7 +110,7 @@ const RECIPES: Recipe[] = [
       { qty: "1 medium", unit: "", ingredient: "Green papaya (hilaw)", notes: "hiwain ng wedge" },
       { qty: "2 inch", unit: "", ingredient: "Luya (ginger)", notes: "hiwain ng julienne" },
       { qty: "1 medium", unit: "", ingredient: "Sibuyas", notes: "hiwain" },
-      { qty: "4 cloves", unit: "", ingredient: "Bawang", notes: "durugin" },
+      { qty: "4 cloves", unit: "", ingredient: "Bawang", notes: "durusin" },
       { qty: "1.5L", unit: "", ingredient: "Tubig o chicken broth", notes: "" },
       { qty: "2 pcs", unit: "", ingredient: "Siling haba", notes: "buong piraso" },
       { qty: "1.5 tbsp", unit: "", ingredient: "Patis", notes: "i-adjust sa panlasa" },
@@ -244,7 +244,7 @@ const RECIPES: Recipe[] = [
       { qty: "1 cup", unit: "", ingredient: "Suka (cane vinegar)", notes: "o white vinegar" },
       { qty: "0.5 cup", unit: "", ingredient: "Tubig", notes: "" },
       { qty: "2 inch", unit: "", ingredient: "Luya", notes: "hiwain ng julienne" },
-      { qty: "4 cloves", unit: "", ingredient: "Bawang", notes: "durugin" },
+      { qty: "4 cloves", unit: "", ingredient: "Bawang", notes: "durusin" },
       { qty: "1 medium", unit: "", ingredient: "Sibuyas", notes: "hiwain" },
       { qty: "2 pcs", unit: "", ingredient: "Siling pangsigang", notes: "buong piraso" },
       { qty: "1 tsp", unit: "", ingredient: "Asin", notes: "i-adjust" },
@@ -322,7 +322,7 @@ const RECIPES: Recipe[] = [
       { qty: "1 medium", unit: "", ingredient: "Hilaw na papaya", notes: "hiwain ng wedge" },
       { qty: "1.5 cups", unit: "", ingredient: "Malunggay leaves", notes: "o dahon ng sili" },
       { qty: "2 inch", unit: "", ingredient: "Luya", notes: "hiwain" },
-      { qty: "4 cloves", unit: "", ingredient: "Bawang", notes: "durugin" },
+      { qty: "4 cloves", unit: "", ingredient: "Bawang", notes: "durusin" },
       { qty: "1 medium", unit: "", ingredient: "Sibuyas", notes: "hiwain" },
       { qty: "1.5L", unit: "", ingredient: "Tubig", notes: "" },
       { qty: "2 tbsp", unit: "", ingredient: "Patis", notes: "" },
@@ -369,7 +369,7 @@ const RECIPES: Recipe[] = [
       { qty: "4 pcs", unit: "", ingredient: "Tilapia", notes: "medium size, linisin" },
       { qty: "4 sheets", unit: "", ingredient: "Dahon ng saging", notes: "hugasan at i-wilt sa apoy" },
       { qty: "2 inch", unit: "", ingredient: "Luya", notes: "hiwain ng julienne" },
-      { qty: "4 cloves", unit: "", ingredient: "Bawang", notes: "durugin" },
+      { qty: "4 cloves", unit: "", ingredient: "Bawang", notes: "durusin" },
       { qty: "2 pcs", unit: "", ingredient: "Kamatis", notes: "hiwain ng bilog" },
       { qty: "2 stalks", unit: "", ingredient: "Lemongrass (tanglad)", notes: "pukpukin at hiwain" },
       { qty: "2 tbsp", unit: "", ingredient: "Soy sauce", notes: "para sa marinade" },
@@ -485,7 +485,7 @@ const RECIPES: Recipe[] = [
       { qty: "0.5 cup", unit: "", ingredient: "Suka (cane vinegar)", notes: "" },
       { qty: "0.5 cup", unit: "", ingredient: "Soy sauce", notes: "" },
       { qty: "1 tsp", unit: "", ingredient: "Turmeric powder", notes: "o 1 inch sariwang turmeric" },
-      { qty: "6 cloves", unit: "", ingredient: "Bawang", notes: "durugin" },
+      { qty: "6 cloves", unit: "", ingredient: "Bawang", notes: "durusin" },
       { qty: "2 pcs", unit: "", ingredient: "Bay leaf (laurel)", notes: "" },
       { qty: "1 tsp", unit: "", ingredient: "Black peppercorn", notes: "buong piraso" },
       { qty: "1 tbsp", unit: "", ingredient: "Brown sugar", notes: "para balansein ang asim" },
@@ -796,17 +796,11 @@ const RECIPES: Recipe[] = [
 const ALL_CATEGORIES = ["All", "❤️ Favorites", ...Array.from(new Set(RECIPES.map(r => r.category)))];
 
 export default function RecipesPage() {
-  const router = useRouter();
+  const { checking } = useSessionGuard();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [expandedRecipe, setExpandedRecipe] = useState<number | null>(null);
   const [favorites, setFavorites] = useState<number[]>([]);
-  const [checking, setChecking] = useState(true);
-
-  useEffect(() => {
-    const session = sessionStorage.getItem("easebrew-verified");
-    if (!session) { router.replace("/verify"); } else { setChecking(false); }
-  }, [router]);
 
   useEffect(() => {
     if (checking) return;
@@ -820,7 +814,7 @@ export default function RecipesPage() {
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ textAlign: "center" }}>
         <p style={{ fontSize: 48, margin: "0 0 12px 0" }}>🍽️</p>
-        <p style={{ fontSize: 20, color: G, fontWeight: 700 }}>Loading Recipes...</p>
+        <p style={{ fontSize: 22, color: G, fontWeight: 700 }}>Loading Recipes...</p>
       </div>
     </div>
   );
@@ -850,7 +844,8 @@ export default function RecipesPage() {
 
       {/* ── HEADER ── */}
       <div style={{ background: G, padding: "36px 24px 24px", color: "#fff" }}>
-        <Link href="/" style={{ color: GOLD, fontSize: 16, fontWeight: 600, textDecoration: "none", display: "block", marginBottom: 16 }}>
+        {/* 4.1 FIX: 16px ✅ OK na | 4.2 FIX: minHeight 44px */}
+        <Link href="/" style={{ color: GOLD, fontSize: 16, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", minHeight: 44, marginBottom: 16 }}>
           ← Bumalik sa Hub
         </Link>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
@@ -862,11 +857,12 @@ export default function RecipesPage() {
           </div>
           <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 14, padding: "12px 16px", flexShrink: 0 }}>
             <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: GOLD }}>{favorites.length}</p>
-            <p style={{ fontSize: 13, margin: 0, opacity: 0.85 }}>favorites</p>
+            {/* 4.1 FIX: 13px → 16px */}
+            <p style={{ fontSize: 16, margin: 0, opacity: 0.85 }}>favorites</p>
           </div>
         </div>
 
-        {/* Search bar — larger */}
+        {/* Search bar */}
         <div style={{ marginTop: 16 }}>
           <input
             type="text"
@@ -892,12 +888,13 @@ export default function RecipesPage() {
         ].map((tip, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             <span style={{ fontSize: 20 }}>{tip.icon}</span>
-            <span style={{ fontSize: 14, color: G, fontWeight: 700, whiteSpace: "nowrap" }}>{tip.text}</span>
+            {/* 4.1 FIX: 14px → 16px */}
+            <span style={{ fontSize: 16, color: G, fontWeight: 700, whiteSpace: "nowrap" }}>{tip.text}</span>
           </div>
         ))}
       </div>
 
-      {/* ── CATEGORY FILTER — scrollable row ── */}
+      {/* ── CATEGORY FILTER ── */}
       <div style={{ padding: "18px 20px 0" }}>
         <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
           {ALL_CATEGORIES.map(cat => {
@@ -905,12 +902,14 @@ export default function RecipesPage() {
             const info = CATEGORY_COLORS[raw];
             const isActive = selectedCategory === cat;
             return (
+              // 4.1 FIX: 15px → 16px | 4.2 FIX: minHeight 48px
               <button key={cat} onClick={() => setSelectedCategory(cat)} style={{
-                padding: "10px 16px", borderRadius: 22, flexShrink: 0,
+                padding: "12px 16px", borderRadius: 22, flexShrink: 0,
+                minHeight: 48,
                 border: isActive ? `2px solid ${G}` : "2px solid #C5B99A",
                 background: isActive ? G : "#FFFFFB",
                 color: isActive ? "#fff" : MID,
-                fontSize: 15, fontWeight: isActive ? 700 : 500, cursor: "pointer",
+                fontSize: 16, fontWeight: isActive ? 700 : 500, cursor: "pointer",
                 whiteSpace: "nowrap",
               }}>
                 {info ? `${info.icon} ` : ""}{cat}
@@ -918,7 +917,8 @@ export default function RecipesPage() {
             );
           })}
         </div>
-        <p style={{ fontSize: 15, color: MID, margin: "12px 0 0 0", fontWeight: 600 }}>
+        {/* 4.1 FIX: 15px → 16px */}
+        <p style={{ fontSize: 16, color: MID, margin: "12px 0 0 0", fontWeight: 600 }}>
           {filtered.length} recipe{filtered.length !== 1 ? "s" : ""} ang nahanap
         </p>
       </div>
@@ -944,7 +944,6 @@ export default function RecipesPage() {
                 {/* Card Header */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 14, flex: 1 }}>
-                    {/* Icon */}
                     <div style={{
                       width: 58, height: 58, borderRadius: 14,
                       background: catInfo.bg, display: "flex", alignItems: "center",
@@ -957,16 +956,18 @@ export default function RecipesPage() {
                       <p style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "0 0 4px 0", lineHeight: 1.3 }}>
                         #{recipe.id} {recipe.name}
                       </p>
-                      <p style={{ fontSize: 15, color: MID, margin: 0 }}>
+                      {/* 4.1 FIX: 15px → 16px */}
+                      <p style={{ fontSize: 16, color: MID, margin: 0 }}>
                         {"⭐".repeat(recipe.stars)} · {recipe.calories}
                       </p>
                     </div>
                   </div>
-                  {/* Favorite button — large tap target */}
+                  {/* 4.2 FIX: explicit 48×48 tap area for favorite button */}
                   <button onClick={e => toggleFavorite(recipe.id, e)} style={{
                     background: "none", border: "none", fontSize: 30,
-                    cursor: "pointer", padding: "0 0 0 10px", lineHeight: 1,
-                    flexShrink: 0,
+                    cursor: "pointer", flexShrink: 0,
+                    width: 48, height: 48,
+                    display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
                     {isFav ? "❤️" : "🤍"}
                   </button>
@@ -974,20 +975,22 @@ export default function RecipesPage() {
 
                 {/* Badges */}
                 <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                  <span style={{ background: catInfo.bg, color: catInfo.color, borderRadius: 20, padding: "5px 12px", fontSize: 13, fontWeight: 700, border: `1px solid ${catInfo.color}` }}>
+                  {/* 4.1 FIX: 13px → 16px (all 3 badges) */}
+                  <span style={{ background: catInfo.bg, color: catInfo.color, borderRadius: 20, padding: "6px 14px", fontSize: 16, fontWeight: 700, border: `1px solid ${catInfo.color}` }}>
                     {catInfo.icon} {recipe.category}
                   </span>
-                  <span style={{ background: "#E8F5E0", color: G, borderRadius: 20, padding: "5px 12px", fontSize: 13, fontWeight: 600 }}>
+                  <span style={{ background: "#E8F5E0", color: G, borderRadius: 20, padding: "6px 14px", fontSize: 16, fontWeight: 600 }}>
                     🌿 {recipe.benefit}
                   </span>
-                  <span style={{ background: "#FFFBF0", color: AMBER, borderRadius: 20, padding: "5px 12px", fontSize: 13 }}>
+                  <span style={{ background: "#FFFBF0", color: AMBER, borderRadius: 20, padding: "6px 14px", fontSize: 16 }}>
                     ⏱ {recipe.prepTime} + {recipe.cookTime}
                   </span>
                 </div>
 
                 {/* Tap hint */}
+                {/* 4.1 FIX: 14px → 16px */}
                 <div style={{ textAlign: "center", marginTop: 10 }}>
-                  <span style={{ fontSize: 14, color: MID, fontWeight: 600 }}>
+                  <span style={{ fontSize: 16, color: MID, fontWeight: 600 }}>
                     {isExpanded ? "▲ I-collapse" : "▼ Tingnan ang recipe"}
                   </span>
                 </div>
@@ -996,14 +999,14 @@ export default function RecipesPage() {
                 {isExpanded && (
                   <div style={{ marginTop: 16, borderTop: `2px solid ${CREAM}`, paddingTop: 16 }}>
 
-                    {/* Description */}
                     <p style={{ fontSize: 16, color: MID, lineHeight: 1.7, margin: "0 0 16px 0" }}>
                       📝 {recipe.description}
                     </p>
 
                     {/* Easebrew Tip */}
                     <div style={{ background: "#FFFBF0", border: `2px solid ${GOLD}`, borderRadius: 14, padding: "14px 18px", marginBottom: 16 }}>
-                      <p style={{ fontSize: 15, fontWeight: 700, color: AMBER, margin: "0 0 6px 0" }}>☕ Easebrew Tip</p>
+                      {/* 4.1 FIX: 15px → 16px */}
+                      <p style={{ fontSize: 16, fontWeight: 700, color: AMBER, margin: "0 0 6px 0" }}>☕ Easebrew Tip</p>
                       <p style={{ fontSize: 16, color: DARK, margin: 0, lineHeight: 1.6 }}>{recipe.easebrewTip}</p>
                     </div>
 
@@ -1011,22 +1014,21 @@ export default function RecipesPage() {
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 16 }}>
                       {[
                         { label: "Servings", value: recipe.servings + " pax" },
-                        { label: "Prep", value: recipe.prepTime },
-                        { label: "Luto", value: recipe.cookTime },
-                        { label: "Hirap", value: recipe.difficulty },
+                        { label: "Prep",     value: recipe.prepTime },
+                        { label: "Luto",     value: recipe.cookTime },
+                        { label: "Hirap",    value: recipe.difficulty },
                       ].map((info, i) => (
                         <div key={i} style={{ background: CREAM, borderRadius: 12, padding: "12px 8px", textAlign: "center" }}>
-                          <p style={{ fontSize: 12, color: MID, margin: "0 0 4px 0" }}>{info.label}</p>
-                          <p style={{ fontSize: 14, fontWeight: 700, color: G, margin: 0 }}>{info.value}</p>
+                          {/* 4.1 FIX: 12px → 16px (label) & 14px → 16px (value) */}
+                          <p style={{ fontSize: 16, color: MID, margin: "0 0 4px 0" }}>{info.label}</p>
+                          <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: 0 }}>{info.value}</p>
                         </div>
                       ))}
                     </div>
 
                     {/* Ingredients */}
                     <div style={{ background: "#E8F5E0", borderRadius: 14, padding: "16px 18px", marginBottom: 14 }}>
-                      <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>
-                        🥬 Mga Sangkap
-                      </p>
+                      <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>🥬 Mga Sangkap</p>
                       {recipe.ingredients.map((ing, i) => (
                         <div key={i} style={{
                           display: "flex", justifyContent: "space-between", alignItems: "flex-start",
@@ -1034,11 +1036,13 @@ export default function RecipesPage() {
                           marginBottom: 10,
                         }}>
                           <div style={{ display: "flex", gap: 10, alignItems: "flex-start", flex: 1 }}>
-                            <span style={{ fontSize: 15, fontWeight: 700, color: AMBER, minWidth: 70, flexShrink: 0 }}>{ing.qty}</span>
+                            {/* 4.1 FIX: 15px → 16px (qty) */}
+                            <span style={{ fontSize: 16, fontWeight: 700, color: AMBER, minWidth: 70, flexShrink: 0 }}>{ing.qty}</span>
                             <span style={{ fontSize: 16, color: DARK, lineHeight: 1.4 }}>{ing.ingredient}</span>
                           </div>
                           {ing.notes && (
-                            <span style={{ fontSize: 13, color: MID, textAlign: "right", marginLeft: 8, maxWidth: "42%", flexShrink: 0, lineHeight: 1.4 }}>
+                            // 4.1 FIX: 13px → 16px (notes)
+                            <span style={{ fontSize: 16, color: MID, textAlign: "right", marginLeft: 8, maxWidth: "42%", flexShrink: 0, lineHeight: 1.4 }}>
                               — {ing.notes}
                             </span>
                           )}
@@ -1048,13 +1052,11 @@ export default function RecipesPage() {
 
                     {/* Steps */}
                     <div style={{ background: "#FFFFFB", border: `2px solid ${AMBER}`, borderRadius: 14, padding: "16px 18px", marginBottom: 14 }}>
-                      <p style={{ fontSize: 16, fontWeight: 700, color: AMBER, margin: "0 0 14px 0" }}>
-                        👨‍🍳 Paano Lutuin
-                      </p>
+                      <p style={{ fontSize: 16, fontWeight: 700, color: AMBER, margin: "0 0 14px 0" }}>👨‍🍳 Paano Lutuin</p>
                       {recipe.steps.map((step, i) => (
                         <div key={i} style={{ display: "flex", gap: 14, marginBottom: 14, alignItems: "flex-start" }}>
                           <div style={{
-                            width: 34, height: 34, borderRadius: "50%", background: G,
+                            width: 36, height: 36, borderRadius: "50%", background: G,
                             display: "flex", alignItems: "center", justifyContent: "center",
                             color: "#fff", fontSize: 16, fontWeight: 700, flexShrink: 0, marginTop: 1,
                           }}>
@@ -1067,9 +1069,7 @@ export default function RecipesPage() {
 
                     {/* Nutrition */}
                     <div style={{ background: CREAM, borderRadius: 14, padding: "16px 18px" }}>
-                      <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>
-                        📊 Nutrition (per serving)
-                      </p>
+                      <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>📊 Nutrition (per serving)</p>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                         {Object.entries(recipe.nutrition).map(([key, val]) => {
                           const hl = NUTRITION_HIGHLIGHT[val];
@@ -1080,8 +1080,9 @@ export default function RecipesPage() {
                               borderRadius: 10, padding: "8px 14px",
                               display: "flex", flexDirection: "column", alignItems: "center",
                             }}>
-                              <span style={{ fontSize: 12, color: MID }}>{key}</span>
-                              <span style={{ fontSize: 15, fontWeight: 700, color: hl || DARK }}>{val}</span>
+                              {/* 4.1 FIX: 12px → 16px (key) & 15px → 16px (value) */}
+                              <span style={{ fontSize: 16, color: MID }}>{key}</span>
+                              <span style={{ fontSize: 16, fontWeight: 700, color: hl || DARK }}>{val}</span>
                             </div>
                           );
                         })}
@@ -1111,10 +1112,12 @@ export default function RecipesPage() {
         borderTop: `2px solid ${CREAM}`, padding: "14px 24px",
         display: "flex", justifyContent: "center",
       }}>
+        {/* 4.2 FIX: minHeight 52px + display flex */}
         <Link href="/" style={{
           background: G, color: "#fff", borderRadius: 14,
           padding: "16px 48px", fontSize: 18, fontWeight: 700,
-          textDecoration: "none",
+          textDecoration: "none", minHeight: 52,
+          display: "flex", alignItems: "center",
         }}>
           🏠 Bumalik sa Hub
         </Link>

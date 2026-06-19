@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useSessionGuard } from "@/lib/useSessionGuard";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";
@@ -11,6 +11,19 @@ const CREAM = "#EEE5D4";
 const DARK  = "#1B201A";
 const MID   = "#4E504F";
 const WHITE = "#FFFFFB";
+
+// ── PROGRESS SYNC HELPER ────────────────────────────────────
+async function syncMealPlanProgress(days: number[]) {
+  try {
+    await fetch('/api/progress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'mealplan', data: { days } }),
+    });
+  } catch {
+    // Silent fail — localStorage is the fallback
+  }
+}
 
 const MEAL_PLAN = [
   { day: 1,  week: "Week 1", weekday: "Lunes",        agahan: "Easebrew + Oatmeal na may saging na saba at honey",                          tanghalian: "Sinigang na salmon + Brown rice + Kangkong",                             merienda: "Boiled kamote + Ginger tea",                     hapunan: "Ginisang ampalaya with itlog + Brown rice",                       calories: "~1,650 kcal", nutrients: "Omega-3, Iron, Vit C",              focus: "Anti-inflammation" },
@@ -88,34 +101,48 @@ const FOCUS_COLORS: Record<string, string> = {
 };
 
 export default function MealPlanPage() {
-  const router = useRouter();
+  const { checking } = useSessionGuard();
   const [selectedWeek, setSelectedWeek]   = useState("Week 1");
   const [completedDays, setCompletedDays] = useState<number[]>([]);
   const [expandedDay, setExpandedDay]     = useState<number | null>(null);
-  const [checking, setChecking]           = useState(true);
-
-  // ── Session check (cookie-based) ────────────────────────
-  useEffect(() => {
-    const match = document.cookie.split(";").find(c => c.trim().startsWith("eb_session="));
-    if (!match) { router.replace("/verify"); return; }
-    try {
-      const s = JSON.parse(decodeURIComponent(match.split("=").slice(1).join("=")));
-      if (!s.expires_at || new Date(s.expires_at) < new Date()) { router.replace("/verify"); return; }
-    } catch { router.replace("/verify"); return; }
-    setChecking(false);
-  }, [router]);
+  const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (checking) return;
-    const saved = localStorage.getItem("easebrew-mealplan");
-    if (saved) setCompletedDays(JSON.parse(saved));
+
+    let localDays: number[] = [];
+    try {
+      const saved = localStorage.getItem("easebrew-mealplan");
+      if (saved) {
+        localDays = JSON.parse(saved);
+        setCompletedDays(localDays);
+      }
+    } catch {}
+
+    fetch('/api/progress?type=mealplan')
+      .then(r => r.json())
+      .then(res => {
+        const remoteDays: number[] = Array.isArray(res?.data?.days) ? res.data.days : [];
+        if (remoteDays.length === 0) return;
+        const merged = Array.from(new Set([...localDays, ...remoteDays])).sort((a, b) => a - b);
+        setCompletedDays(merged);
+        localStorage.setItem("easebrew-mealplan", JSON.stringify(merged));
+      })
+      .catch(() => {});
   }, [checking]);
 
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <p style={{ color: G, fontSize: 20, fontWeight: 700, fontFamily: "Georgia, serif" }}>☕ Sandali lang...</p>
+      <p style={{ color: G, fontSize: 22, fontWeight: 700, fontFamily: "Georgia, serif" }}>☕ Sandali lang...</p>
     </div>
   );
+
+  const triggerSync = (days: number[]) => {
+    if (syncTimeout.current) clearTimeout(syncTimeout.current);
+    syncTimeout.current = setTimeout(() => {
+      syncMealPlanProgress(days);
+    }, 1000);
+  };
 
   const toggleComplete = (day: number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -124,6 +151,7 @@ export default function MealPlanPage() {
       : [...completedDays, day];
     setCompletedDays(updated);
     localStorage.setItem("easebrew-mealplan", JSON.stringify(updated));
+    triggerSync(updated);
   };
 
   const filteredDays = MEAL_PLAN.filter(d => d.week === selectedWeek);
@@ -132,26 +160,30 @@ export default function MealPlanPage() {
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 100, fontFamily: "Georgia, serif" }}>
 
-      {/* ── HEADER ────────────────────────────────────────── */}
+      {/* ── HEADER ── */}
       <div style={{ background: G, padding: "24px 24px 24px", color: WHITE }}>
-        <Link href="/" style={{ color: GOLD, fontSize: 15, textDecoration: "none", display: "block", marginBottom: 14, fontWeight: 600 }}>
+        {/* 4.2 FIX: minHeight 44px para sa back link */}
+        <Link href="/" style={{ color: GOLD, fontSize: 16, textDecoration: "none", display: "flex", alignItems: "center", minHeight: 44, marginBottom: 14, fontWeight: 600 }}>
           ← Bumalik sa Hub
         </Link>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
             <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>🥗 50-Day Meal Plan</h1>
-            <p style={{ fontSize: 15, opacity: 0.85, margin: "4px 0 0 0" }}>Anti-Inflammation Pinoy Meals</p>
+            {/* 4.1 FIX: 15px → 16px */}
+            <p style={{ fontSize: 16, opacity: 0.85, margin: "4px 0 0 0" }}>Anti-Inflammation Pinoy Meals</p>
           </div>
           <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 14, padding: "12px 18px" }}>
             <p style={{ fontSize: 32, fontWeight: 700, margin: 0, color: GOLD }}>{completedDays.length}</p>
-            <p style={{ fontSize: 13, margin: 0, opacity: 0.8 }}>sa 50 araw</p>
+            {/* 4.1 FIX: 13px → 16px */}
+            <p style={{ fontSize: 16, margin: 0, opacity: 0.8 }}>sa 50 araw</p>
           </div>
         </div>
 
         {/* Progress */}
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-          <p style={{ fontSize: 15, margin: 0, opacity: 0.85 }}>Progress mo</p>
-          <p style={{ fontSize: 15, margin: 0, color: GOLD, fontWeight: 700 }}>{progress}%</p>
+          {/* 4.1 FIX: 15px → 16px (both labels) */}
+          <p style={{ fontSize: 16, margin: 0, opacity: 0.85 }}>Progress mo</p>
+          <p style={{ fontSize: 16, margin: 0, color: GOLD, fontWeight: 700 }}>{progress}%</p>
         </div>
         <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 999, height: 10 }}>
           <div style={{ width: `${progress}%`, background: GOLD, height: 10, borderRadius: 999, transition: "width 0.5s ease" }} />
@@ -160,19 +192,22 @@ export default function MealPlanPage() {
         {/* 2x per day reminder */}
         <div style={{ marginTop: 16, background: "rgba(254,210,85,0.15)", borderRadius: 14, padding: "12px 16px", border: "1.5px solid rgba(254,210,85,0.4)" }}>
           <p style={{ fontSize: 16, color: GOLD, fontWeight: 700, margin: "0 0 4px 0" }}>☕ Huwag kalimutan!</p>
-          <p style={{ fontSize: 15, color: "rgba(255,255,255,0.9)", margin: 0 }}>
+          {/* 4.1 FIX: 15px → 16px */}
+          <p style={{ fontSize: 16, color: "rgba(255,255,255,0.9)", margin: 0 }}>
             Uminom ng EaseBrew <strong style={{ color: GOLD }}>2x bawat araw</strong> — Umaga at Gabi
           </p>
         </div>
       </div>
 
-      {/* ── WEEK SELECTOR ─────────────────────────────────── */}
+      {/* ── WEEK SELECTOR ── */}
       <div style={{ padding: "20px 20px 0" }}>
         <p style={{ fontSize: 17, color: MID, fontWeight: 700, margin: "0 0 12px 0" }}>Piliin ang week:</p>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" as const }}>
           {WEEKS.map(w => (
             <button key={w} onClick={() => { setSelectedWeek(w); setExpandedDay(null); }} style={{
-              padding: "14px 18px", borderRadius: 14,
+              padding: "14px 18px",
+              minHeight: 52, // 4.2 FIX: explicit minimum touch height
+              borderRadius: 14,
               border: selectedWeek === w ? `2.5px solid ${G}` : "2px solid #C5B99A",
               background: selectedWeek === w ? G : WHITE,
               color: selectedWeek === w ? WHITE : MID,
@@ -184,7 +219,7 @@ export default function MealPlanPage() {
         </div>
       </div>
 
-      {/* ── DAY CARDS ─────────────────────────────────────── */}
+      {/* ── DAY CARDS ── */}
       <div style={{ padding: "20px 20px 0" }}>
         {filteredDays.map(d => {
           const isDone     = completedDays.includes(d.day);
@@ -219,7 +254,8 @@ export default function MealPlanPage() {
                     <p style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: 0 }}>
                       Day {d.day} — {d.weekday}
                     </p>
-                    <p style={{ fontSize: 14, color: MID, margin: "3px 0 0 0" }}>{d.calories}</p>
+                    {/* 4.1 FIX: 14px → 16px */}
+                    <p style={{ fontSize: 16, color: MID, margin: "3px 0 0 0" }}>{d.calories}</p>
                   </div>
                 </div>
                 <span style={{ fontSize: 22, color: MID }}>{isExpanded ? "▲" : "▼"}</span>
@@ -227,7 +263,8 @@ export default function MealPlanPage() {
 
               {/* Focus badge */}
               <div style={{ marginTop: 10 }}>
-                <span style={{ background: bgColor, color: G, borderRadius: 20, padding: "5px 14px", fontSize: 14, fontWeight: 700 }}>
+                {/* 4.1 FIX: 14px → 16px */}
+                <span style={{ background: bgColor, color: G, borderRadius: 20, padding: "6px 16px", fontSize: 16, fontWeight: 700 }}>
                   🎯 {d.focus}
                 </span>
               </div>
@@ -242,7 +279,8 @@ export default function MealPlanPage() {
                     { label: "🍲 Hapunan",   value: d.hapunan   },
                   ].map((meal, i) => (
                     <div key={i} style={{ marginBottom: 14 }}>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: G, margin: "0 0 5px 0", textTransform: "uppercase" as const, letterSpacing: 1 }}>
+                      {/* 4.1 FIX: 13px → 16px */}
+                      <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 5px 0", textTransform: "uppercase" as const, letterSpacing: 1 }}>
                         {meal.label}
                       </p>
                       <p style={{ fontSize: 17, color: DARK, margin: 0, lineHeight: 1.6 }}>{meal.value}</p>
@@ -250,14 +288,17 @@ export default function MealPlanPage() {
                   ))}
 
                   <div style={{ background: CREAM, borderRadius: 12, padding: "12px 16px", marginBottom: 16 }}>
-                    <p style={{ fontSize: 14, color: AMBER, fontWeight: 700, margin: "0 0 4px 0" }}>💊 Key Nutrients</p>
+                    {/* 4.1 FIX: 14px → 16px (both lines) */}
+                    <p style={{ fontSize: 16, color: AMBER, fontWeight: 700, margin: "0 0 4px 0" }}>💊 Key Nutrients</p>
                     <p style={{ fontSize: 16, color: DARK, margin: 0 }}>{d.nutrients}</p>
                   </div>
 
+                  {/* 4.2 FIX: minHeight 56px para siguradong malaki ang tap area */}
                   <button
                     onClick={e => toggleComplete(d.day, e)}
                     style={{
                       width: "100%", padding: "18px",
+                      minHeight: 56,
                       background: isDone ? "#dc2626" : G,
                       color: WHITE, border: "none", borderRadius: 14,
                       fontSize: 18, fontWeight: 700, cursor: "pointer",
@@ -273,7 +314,7 @@ export default function MealPlanPage() {
         })}
       </div>
 
-      {/* ── REMINDERS ─────────────────────────────────────── */}
+      {/* ── REMINDERS ── */}
       <div style={{ padding: "8px 20px 20px" }}>
         <div style={{ background: G, borderRadius: 20, padding: "22px 24px", color: WHITE }}>
           <h3 style={{ fontSize: 19, fontWeight: 700, margin: "0 0 14px 0", color: GOLD }}>💡 Araw-araw na Paalala</h3>
@@ -290,7 +331,7 @@ export default function MealPlanPage() {
         </div>
       </div>
 
-      {/* ── BOTTOM NAV ──────────────────────────────────────── */}
+      {/* ── BOTTOM NAV ── */}
       <div style={{
         position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
         width: "100%", maxWidth: 680, background: WHITE,
@@ -298,9 +339,13 @@ export default function MealPlanPage() {
         display: "flex", justifyContent: "center",
         boxShadow: "0 -4px 16px rgba(0,0,0,0.08)",
       }}>
+        {/* 4.2 FIX: minHeight 52px para siguradong malaki ang tap area */}
         <Link href="/" style={{
           background: G, color: WHITE, borderRadius: 14,
-          padding: "16px 40px", fontSize: 18, fontWeight: 700,
+          padding: "16px 40px",
+          minHeight: 52,
+          display: "flex", alignItems: "center",
+          fontSize: 18, fontWeight: 700,
           textDecoration: "none", fontFamily: "Georgia, serif",
         }}>
           🏠 Bumalik sa Hub
