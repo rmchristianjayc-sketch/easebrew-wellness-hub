@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log('✅ Code found:', accessCode.code, '| is_used:', accessCode.is_used);
+    console.log('✅ Code found:', accessCode.code, '| is_used:', accessCode.is_used, '| expires_at:', accessCode.expires_at);
 
     // Check if already used by a different device
     if (accessCode.is_used && accessCode.device_id !== device_id) {
@@ -43,10 +43,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if expired
+    // ✅ CRITICAL FIX — check expiry/deactivation BAGO pumunta sa existing
+    // session branch. Dati, kapag is_used + same device, dumadaan agad sa
+    // existing session check sa ibaba nang hindi muna tinitingnan kung
+    // na-deactivate na ang code sa access_codes table. Dahil dito, kahit
+    // na-deactivate na ng admin/coach ang code (na nag-uupdate ng
+    // access_codes.expires_at papuntang nakaraang petsa), patuloy pa ring
+    // nare-return ang "valid" na existing session sa customer — kaya
+    // hindi na-enforce ang deactivation kahit may server-side revalidation
+    // na sa useSessionGuard.
+    //
+    // Inilipat natin ito sa unahan, bago ang "same device, already used"
+    // branch, para ma-block agad ang access kapag deactivated na — kahit
+    // existing/returning session pa ito.
     if (accessCode.expires_at && new Date(accessCode.expires_at) < new Date()) {
+      // I-clean up din ang existing session kung meron, para hindi na
+      // ma-reuse sa susunod
+      await supabaseAdmin
+        .from('customer_sessions')
+        .delete()
+        .eq('code', cleanCode)
+        .eq('device_id', device_id);
+
       return NextResponse.json(
-        { error: 'This code has expired. Please order again to get a new code.' },
+        { error: 'This code has expired or has been deactivated. Please order again to get a new code.' },
         { status: 403 }
       );
     }
