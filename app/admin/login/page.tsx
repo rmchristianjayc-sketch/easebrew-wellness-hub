@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const G = "#39613B";
-const GOLD = "#FED255";
 const CREAM = "#EEE5D4";
 const DARK = "#1B201A";
 

@@ -83,10 +83,25 @@ async function syncTrackerProgress(entries: DayEntry[]) {
   }
 }
 
+function getStoredTrackerEntries(): DayEntry[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem("easebrew-tracker-v2");
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function getStoredTodayEntry(): DayEntry {
+  const todayStr = new Date().toISOString().split("T")[0];
+  return getStoredTrackerEntries().find(e => e.date === todayStr) ?? emptyEntry();
+}
+
 export default function TrackerPage() {
   const { checking } = useSessionGuard();
-  const [entries, setEntries] = useState<DayEntry[]>([]);
-  const [today, setToday]     = useState<DayEntry>(emptyEntry());
+  const [entries, setEntries] = useState<DayEntry[]>(getStoredTrackerEntries);
+  const [today, setToday]     = useState<DayEntry>(getStoredTodayEntry);
   const [view, setView]       = useState<"ngayon" | "history">("ngayon");
   const [saved, setSaved]     = useState(false);
   const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -94,17 +109,7 @@ export default function TrackerPage() {
   useEffect(() => {
     if (checking) return;
 
-    let localEntries: DayEntry[] = [];
-    try {
-      const raw = localStorage.getItem("easebrew-tracker-v2");
-      if (raw) {
-        localEntries = JSON.parse(raw) as DayEntry[];
-        setEntries(localEntries);
-        const todayStr = new Date().toISOString().split("T")[0];
-        const existing = localEntries.find(e => e.date === todayStr);
-        if (existing) setToday(existing);
-      }
-    } catch {}
+    const localEntries = getStoredTrackerEntries();
 
     fetch('/api/progress?type=tracker')
       .then(r => r.json())
@@ -408,7 +413,7 @@ export default function TrackerPage() {
             <div style={{ textAlign: "center", padding: "48px 20px", background: WHITE, borderRadius: 20 }}>
               <p style={{ fontSize: 56, marginBottom: 12 }}>📋</p>
               <p style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Wala pang record</p>
-              <p style={{ fontSize: 17, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>I-tap ang "Ngayon" para simulan ang inyong unang entry!</p>
+              <p style={{ fontSize: 17, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>I-tap ang &quot;Ngayon&quot; para simulan ang inyong unang entry!</p>
               <button
                 onClick={() => setView("ngayon")}
                 style={{ background: G, color: WHITE, border: "none", borderRadius: 14, padding: "18px 32px", fontSize: 18, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif", minHeight: 56 }}
@@ -478,7 +483,7 @@ export default function TrackerPage() {
                   {/* 4.1 FIX: 15px → 16px */}
                   {entry.notes ? (
                     <p style={{ fontSize: 16, color: MID, margin: 0, fontStyle: "italic", lineHeight: 1.6 }}>
-                      "{entry.notes}"
+                      &quot;{entry.notes}&quot;
                     </p>
                   ) : null}
                 </div>

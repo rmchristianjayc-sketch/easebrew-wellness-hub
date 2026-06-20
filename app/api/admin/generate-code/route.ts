@@ -1,20 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
 import { supabaseAdmin } from '@/lib/supabase';
 import { PRICE_CONFIG } from '@/lib/price-config';
-
-const JWT_SECRET = new TextEncoder().encode(process.env.ADMIN_SECRET!);
-
-async function verifyToken(req: NextRequest) {
-  const token = req.cookies.get('eb_admin_token')?.value;
-  if (!token) return null;
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload as { username: string; role: 'owner' | 'coach' };
-  } catch {
-    return null;
-  }
-}
+import { verifyToken } from '@/lib/auth';
 
 function generateCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -69,8 +56,12 @@ export async function POST(req: NextRequest) {
         validity_days: config.validityDays,
         is_used: false,
         created_by: admin.username,
-        customer_name: customer_name || null,
-        notes: notes || null,
+        customer_name: typeof customer_name === 'string'
+          ? customer_name.trim().slice(0, 120) || null
+          : null,
+        notes: typeof notes === 'string'
+          ? notes.trim().slice(0, 1000) || null
+          : null,
       })
       .select()
       .single();

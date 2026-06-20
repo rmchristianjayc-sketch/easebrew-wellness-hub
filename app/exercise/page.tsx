@@ -24,6 +24,26 @@ async function syncExerciseProgress(days: number[], exercises: string[]) {
   }
 }
 
+function getStoredCompletedDays(): Set<number> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const saved = localStorage.getItem("eb_completed_days");
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function getStoredCompletedExercises(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const saved = localStorage.getItem("eb_completed_exercises");
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
 type Phase = { phase: number; name: string; weeks: string; color: string; bg: string; days: Day[] };
 type Day = { day: number; title: string; exercises: Exercise[] };
 type Exercise = { name: string; sets?: number; reps?: string; duration?: string; rest: string; instruction: string; modification?: string };
@@ -142,23 +162,14 @@ export default function ExercisePage() {
   const ready = !checking;
   const [selectedPhase, setSelectedPhase] = useState(1);
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
-  const [completedDays, setCompletedDays] = useState<Set<number>>(new Set());
-  const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
+  const [completedDays, setCompletedDays] = useState<Set<number>>(getStoredCompletedDays);
+  const [completedExercises, setCompletedExercises] = useState<Set<string>>(getStoredCompletedExercises);
   const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── Load: localStorage first, then merge with Supabase ──────
   useEffect(() => {
     if (!ready) return;
 
-    // 1. Load from localStorage immediately (instant UI)
-    try {
-      const savedDays = localStorage.getItem("eb_completed_days");
-      const savedExercises = localStorage.getItem("eb_completed_exercises");
-      if (savedDays) setCompletedDays(new Set(JSON.parse(savedDays)));
-      if (savedExercises) setCompletedExercises(new Set(JSON.parse(savedExercises)));
-    } catch {}
-
-    // 2. Then fetch from Supabase and merge (latest wins)
     fetch('/api/progress?type=exercise')
       .then(r => r.json())
       .then(res => {
@@ -194,7 +205,8 @@ export default function ExercisePage() {
 
   const toggleDayComplete = (day: number) => {
     const next = new Set(completedDays);
-    next.has(day) ? next.delete(day) : next.add(day);
+    if (next.has(day)) next.delete(day);
+    else next.add(day);
     setCompletedDays(next);
     localStorage.setItem("eb_completed_days", JSON.stringify([...next]));
     triggerSync(next, completedExercises);
@@ -202,7 +214,8 @@ export default function ExercisePage() {
 
   const toggleExercise = (key: string) => {
     const next = new Set(completedExercises);
-    next.has(key) ? next.delete(key) : next.add(key);
+    if (next.has(key)) next.delete(key);
+    else next.add(key);
     setCompletedExercises(next);
     localStorage.setItem("eb_completed_exercises", JSON.stringify([...next]));
     triggerSync(completedDays, next);

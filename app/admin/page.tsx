@@ -1,8 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Sidebar from "@/app/admin/_components/Sidebar";
+import type { AccessCode } from "@/lib/supabase";
 
 const G    = "#39613B";
 const DARK = "#1B201A";
@@ -24,8 +25,17 @@ function StatCard({ icon, label, value, sub, color }: { icon: string; label: str
 export default function AdminDashboard() {
   const router = useRouter();
   const [username, setUsername] = useState("");
-  const [codes, setCodes]       = useState<any[]>([]);
+  const [codes, setCodes]       = useState<AccessCode[]>([]);
   const [loading, setLoading]   = useState(true);
+
+  const fetchCodes = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/codes?filter=all&limit=200");
+      const data = await res.json();
+      if (res.ok) setCodes(data.codes || []);
+    } catch { }
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     async function init() {
@@ -42,16 +52,7 @@ export default function AdminDashboard() {
       fetchCodes();
     }
     init();
-  }, []);
-
-  async function fetchCodes() {
-    try {
-      const res = await fetch("/api/admin/codes?filter=all&limit=200");
-      const data = await res.json();
-      if (res.ok) setCodes(data.codes || []);
-    } catch { }
-    setLoading(false);
-  }
+  }, [fetchCodes, router]);
 
   async function handleLogout() {
     await fetch("/api/admin/login", { method: "DELETE" });
@@ -60,7 +61,7 @@ export default function AdminDashboard() {
 
   const now          = new Date();
   const used         = codes.filter(c => c.is_used);
-  const active       = used.filter(c => c.expires_at && new Date(c.expires_at) > now);
+  const active       = used.filter((c): c is AccessCode & { expires_at: string } => Boolean(c.expires_at && new Date(c.expires_at) > now));
   const expired      = used.filter(c => c.expires_at && new Date(c.expires_at) <= now);
   const unused       = codes.filter(c => !c.is_used);
   const totalRevenue = used.reduce((s, c) => s + (c.tier || 0), 0);

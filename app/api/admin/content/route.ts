@@ -82,9 +82,14 @@ export async function POST(req: NextRequest) {
 
     // Validate each entry
     for (const entry of updates) {
-      if (typeof entry.key !== 'string' || entry.key.trim() === '') {
+      if (
+        typeof entry.key !== 'string' ||
+        entry.key.trim() === '' ||
+        typeof entry.value !== 'string' ||
+        entry.value.length > 10000
+      ) {
         return NextResponse.json(
-          { error: 'Each update must have a non-empty key.' },
+          { error: 'Each update must have a valid key and text value.' },
           { status: 400 }
         );
       }

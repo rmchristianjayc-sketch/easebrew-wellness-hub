@@ -20,6 +20,28 @@ body {
   color: #1B201A;
 }
 
+/* ✅ ADDED — Tailwind v4 @theme block.
+   Ito ang basehan ng auto-generated classes gaya ng
+   bg-brand-green, text-brand-gold, font-customer, atbp.
+   Pareho ang hex values dito at sa lib/colors.ts — kapag
+   nagbago ang isa, dapat ibahin din ang isa (manual sync,
+   walang automated check para dito). */
+@theme {
+  --color-brand-green: #39613B;
+  --color-brand-green-light: #7DAE2F;
+  --color-brand-green-pale: #E8F5E0;
+  --color-brand-gold: #FED255;
+  --color-brand-amber: #C0863B;
+  --color-brand-brown: #7F523C;
+  --color-cream: #EEE5D4;
+  --color-cream-light: #FFFFFB;
+  --color-ink: #1B201A;
+  --color-ink-mid: #4E504F;
+
+  --font-customer: Georgia, serif;
+  --font-admin: Inter, system-ui, sans-serif;
+}
+
 :root {
   --green-dark: #39613B;
   --green-mid: #7DAE2F;

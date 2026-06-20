@@ -1,7 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/app/admin/_components/Sidebar";
+import type { AccessCode } from "@/lib/supabase";
 
 const G    = "#39613B";
 const DARK = "#1B201A";
@@ -22,8 +23,17 @@ function StatCard({ icon, label, value, color }: { icon: string; label: string; 
 export default function AnalyticsPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
-  const [codes, setCodes] = useState<any[]>([]);
+  const [codes, setCodes] = useState<AccessCode[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/codes?filter=all&limit=200");
+      const data = await res.json();
+      if (res.ok) setCodes(data.codes || []);
+    } catch { }
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     async function init() {
@@ -40,16 +50,7 @@ export default function AnalyticsPage() {
       fetchData();
     }
     init();
-  }, []);
-
-  async function fetchData() {
-    try {
-      const res = await fetch("/api/admin/codes?filter=all&limit=200");
-      const data = await res.json();
-      if (res.ok) setCodes(data.codes || []);
-    } catch { }
-    setLoading(false);
-  }
+  }, [fetchData, router]);
 
   const now        = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -57,7 +58,7 @@ export default function AnalyticsPage() {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
   const used    = codes.filter(c => c.is_used);
-  const active  = used.filter(c => c.expires_at && new Date(c.expires_at) > now);
+  const active  = used.filter((c): c is AccessCode & { expires_at: string } => Boolean(c.expires_at && new Date(c.expires_at) > now));
   const expired = used.filter(c => c.expires_at && new Date(c.expires_at) <= now);
   const unused  = codes.filter(c => !c.is_used);
 

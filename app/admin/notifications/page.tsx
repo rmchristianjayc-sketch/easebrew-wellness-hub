@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/app/admin/_components/Sidebar";
 
 const G = "#39613B";
-const GOLD = "#FED255";
 const DARK = "#1B201A";
 const MID = "#4E504F";
 
@@ -37,7 +36,7 @@ export default function NotificationsPage() {
       }
     }
     init();
-  }, []);
+  }, [router]);
 
   function applyQuick(msg: typeof QUICK_MESSAGES[0], idx: number) {
     setTitle(msg.title);

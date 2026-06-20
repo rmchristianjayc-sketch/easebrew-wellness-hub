@@ -1,33 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyCustomerToken } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 
-// ============================================================
-// PROGRESS API — para sa Exercise, Meal Plan, at Tracker
-// GET  /api/progress?type=exercise|mealplan|tracker
-// POST /api/progress  body: { type, data }
-// Auth: eb_session cookie (same pattern ng customer pages)
-// ============================================================
+const MINIMUM_TIER_BY_TYPE: Record<string, number> = {
+  tracker: 999,
+  mealplan: 1499,
+  exercise: 1499,
+  recipe_favorites: 2998,
+  bagong_katawan: 4497,
+};
 
-function getSession(req: NextRequest) {
-  const cookie = req.cookies.get('eb_session')?.value;
-  if (!cookie) return null;
-  try {
-    const s = JSON.parse(decodeURIComponent(cookie));
-    if (!s?.code || !s?.expires_at) return null;
-    if (new Date(s.expires_at) < new Date()) return null;
-    return s as { code: string; tier: number; expires_at: string };
-  } catch {
+async function getAuthorizedSession(req: NextRequest, type: string) {
+  const session = await verifyCustomerToken(req);
+  const minimumTier = MINIMUM_TIER_BY_TYPE[type];
+  if (!session || !minimumTier || session.tier < minimumTier) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('access_codes')
+    .select('is_used, expires_at, device_id, tier')
+    .eq('code', session.code)
+    .maybeSingle();
+
+  if (
+    error ||
+    data?.is_used !== true ||
+    data.device_id !== session.device_id ||
+    data.tier !== session.tier ||
+    typeof data.expires_at !== 'string' ||
+    new Date(data.expires_at).getTime() <= Date.now()
+  ) {
     return null;
   }
+
+  return session;
 }
 
-// ── GET — kunin ang progress ng isang type ─────────────────
 export async function GET(req: NextRequest) {
-  const session = getSession(req);
-  if (!session) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-
-  const type = new URL(req.url).searchParams.get('type');
-  if (!type) return NextResponse.json({ error: 'type is required.' }, { status: 400 });
+  const type = new URL(req.url).searchParams.get('type') ?? '';
+  const session = await getAuthorizedSession(req, type);
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+  }
 
   const { data, error } = await supabaseAdmin
     .from('progress')
@@ -36,31 +49,52 @@ export async function GET(req: NextRequest) {
     .eq('type', type)
     .maybeSingle();
 
-  if (error) return NextResponse.json({ error: 'Failed to fetch progress.' }, { status: 500 });
-
-  return NextResponse.json({ success: true, data: data?.data ?? null, updated_at: data?.updated_at ?? null });
-}
-
-// ── POST — i-save/update ang progress ─────────────────────
-export async function POST(req: NextRequest) {
-  const session = getSession(req);
-  if (!session) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-
-  const body = await req.json();
-  const { type, data } = body;
-
-  if (!type || data === undefined) {
-    return NextResponse.json({ error: 'type and data are required.' }, { status: 400 });
+  if (error) {
+    console.error('Progress lookup failed:', error);
+    return NextResponse.json({ error: 'Failed to fetch progress.' }, { status: 500 });
   }
 
-  const { error } = await supabaseAdmin
-    .from('progress')
-    .upsert(
-      { code: session.code, type, data, updated_at: new Date().toISOString() },
-      { onConflict: 'code,type' }
-    );
+  return NextResponse.json({
+    success: true,
+    data: data?.data ?? null,
+    updated_at: data?.updated_at ?? null,
+  });
+}
 
-  if (error) return NextResponse.json({ error: 'Failed to save progress.' }, { status: 500 });
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const type = typeof body.type === 'string' ? body.type : '';
+    const session = await getAuthorizedSession(req, type);
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+    }
+    if (body.data === undefined) {
+      return NextResponse.json({ error: 'data is required.' }, { status: 400 });
+    }
+    if (JSON.stringify(body.data).length > 250_000) {
+      return NextResponse.json({ error: 'Progress data is too large.' }, { status: 413 });
+    }
 
-  return NextResponse.json({ success: true });
+    const { error } = await supabaseAdmin
+      .from('progress')
+      .upsert(
+        {
+          code: session.code,
+          type,
+          data: body.data,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'code,type' }
+      );
+
+    if (error) {
+      console.error('Progress save failed:', error);
+      return NextResponse.json({ error: 'Failed to save progress.' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body.' }, { status: 400 });
+  }
 }

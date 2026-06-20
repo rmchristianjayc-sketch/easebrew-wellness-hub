@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { getDeviceId } from "@/lib/device";
 
 // ✅ 1.2 — Imported from single source of truth (no more duplicate definitions)
 import { Coach, DEFAULT_COACHES, buildCoaches } from "@/lib/coaches";
@@ -61,7 +63,7 @@ function CoachList({ title, coaches }: { title: string; coaches: Coach[] }) {
         {coaches.map((c, i) => (
           <div key={i} style={{ background: WHITE, border: "2px solid #D9D0C0", borderRadius: 16, padding: "14px 16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-              <img src={c.photo} alt={c.name} style={{ width: 44, height: 44, borderRadius: 12, objectFit: "cover", border: `2px solid ${G}`, flexShrink: 0 }} />
+              <Image src={c.photo} alt={c.name} width={44} height={44} style={{ width: 44, height: 44, borderRadius: 12, objectFit: "cover", border: `2px solid ${G}`, flexShrink: 0 }} />
               <div>
                 <p style={{ fontSize: 16, fontWeight: 700, color: DARK, margin: 0 }}>{c.name}</p>
                 <p style={{ fontSize: 12, color: G, margin: "2px 0 0 0", fontWeight: 600 }}>R&M EaseBrew Wellness Coach</p>
@@ -79,16 +81,6 @@ function CoachList({ title, coaches }: { title: string; coaches: Coach[] }) {
   );
 }
 
-function getDeviceId(): string {
-  if (typeof window === "undefined") return "";
-  let id = localStorage.getItem("eb_device_id");
-  if (!id) {
-    id = "dev_" + Math.random().toString(36).substring(2) + Date.now().toString(36);
-    localStorage.setItem("eb_device_id", id);
-  }
-  return id;
-}
-
 function formatCode(val: string) {
   const clean = val.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
   if (clean.length <= 4) return clean;
@@ -96,20 +88,10 @@ function formatCode(val: string) {
   return `${clean.slice(0, 4)}-${clean.slice(4, 8)}-${clean.slice(8, 12)}`;
 }
 
-function setSessionCookie(session: object, expiresAt: string) {
-  const expires = new Date(expiresAt);
-  document.cookie = `eb_session=${encodeURIComponent(JSON.stringify(session))}; expires=${expires.toUTCString()}; path=/; SameSite=Strict`;
-}
-
-function hasValidSessionCookie(): boolean {
-  if (typeof document === "undefined") return false;
-  const match = document.cookie.split(";").find(c => c.trim().startsWith("eb_session="));
-  if (!match) return false;
-  try {
-    const raw = decodeURIComponent(match.split("=").slice(1).join("="));
-    const s = JSON.parse(raw);
-    return s.expires_at && new Date(s.expires_at) > new Date();
-  } catch { return false; }
+function getReturnPath() {
+  if (typeof window === "undefined") return "/";
+  const path = new URLSearchParams(window.location.search).get("from");
+  return path?.startsWith("/") && !path.startsWith("//") ? path : "/";
 }
 
 type Tab = "verify" | "gifts" | "coaches";
@@ -133,7 +115,6 @@ export default function VerifyPage() {
   const router = useRouter();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [errorType, setErrorType] = useState<ErrorType>(null);
   const [success, setSuccess] = useState(false);
   const [tab, setTab] = useState<Tab>("verify");
@@ -170,7 +151,11 @@ export default function VerifyPage() {
   }, []);
 
   useEffect(() => {
-    if (hasValidSessionCookie()) router.push("/");
+    fetch("/api/session", { cache: "no-store" })
+      .then(response => {
+        if (response.ok) router.replace(getReturnPath());
+      })
+      .catch(() => {});
   }, [router]);
 
   const isComplete = code.replace(/-/g, "").length === 12;
@@ -178,9 +163,8 @@ export default function VerifyPage() {
   async function handleVerify() {
     const stripped = code.replace(/[-\s]/g, "").toUpperCase().slice(0, 12);
     const cleanCode = `${stripped.slice(0,4)}-${stripped.slice(4,8)}-${stripped.slice(8,12)}`;
-    if (!isComplete) { setError("Pakiusap, i-type ang buong access code (EASE-XXXX-XXXX)."); setErrorType("generic"); return; }
+    if (!isComplete) { setErrorType("generic"); return; }
     setLoading(true);
-    setError("");
     setErrorType(null);
     setShowCoachesInError(false);
     try {
@@ -194,16 +178,12 @@ export default function VerifyPage() {
       if (!res.ok) {
         const eType = getErrorType(data.error || "");
         setErrorType(eType);
-        setError(data.error || "Hindi tama ang code. Pakisubukan ulit.");
         if (eType === "invalid" || eType === "expired") setShowCoachesInError(true);
         return;
       }
-      localStorage.setItem("eb_session", JSON.stringify(data.session));
-      setSessionCookie(data.session, data.session.expires_at);
       setSuccess(true);
-      setTimeout(() => router.push("/"), 2000);
+      setTimeout(() => router.replace(getReturnPath()), 1200);
     } catch {
-      setError("May problema sa koneksyon. Pakisubukan ulit.");
       setErrorType("generic");
     } finally {
       setLoading(false);
@@ -330,7 +310,7 @@ export default function VerifyPage() {
                         <p style={{ fontSize: 15, fontWeight: 700, color: G, margin: "0 0 10px 0" }}>🔑 Subukan ulit</p>
                         <input
                           type="text" value={code}
-                          onChange={e => { setCode(formatCode(e.target.value)); setErrorType(null); setError(""); setShowCoachesInError(false); }}
+                          onChange={e => { setCode(formatCode(e.target.value)); setErrorType(null); setShowCoachesInError(false); }}
                           placeholder="EASE-XXXX-XXXX" maxLength={14}
                           onKeyDown={e => e.key === "Enter" && handleVerify()}
                           style={{

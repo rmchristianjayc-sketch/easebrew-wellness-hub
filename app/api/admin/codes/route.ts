@@ -1,19 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
 import { supabaseAdmin } from '@/lib/supabase';
-
-const JWT_SECRET = new TextEncoder().encode(process.env.ADMIN_SECRET!);
-
-async function verifyToken(req: NextRequest) {
-  const token = req.cookies.get('eb_admin_token')?.value;
-  if (!token) return null;
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload as { username: string; role: 'owner' | 'coach' };
-  } catch {
-    return null;
-  }
-}
+import { verifyToken } from '@/lib/auth';
 
 // ✅ GET — coach makakakita ng sariling codes lang, owner makakakita ng lahat
 export async function GET(req: NextRequest) {
@@ -25,7 +12,10 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const filter = searchParams.get('filter') || 'all';
-    const limit  = parseInt(searchParams.get('limit') || '50');
+    const requestedLimit = Number.parseInt(searchParams.get('limit') || '50', 10);
+    const limit = Number.isFinite(requestedLimit)
+      ? Math.min(Math.max(requestedLimit, 1), 500)
+      : 50;
 
     let query = supabaseAdmin
       .from('access_codes')
@@ -60,7 +50,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const { id, action } = await req.json();
-    if (!id || !action) {
+    if (!id || !['deactivate', 'reactivate'].includes(action)) {
       return NextResponse.json({ error: 'ID and action are required.' }, { status: 400 });
     }
 

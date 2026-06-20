@@ -25,6 +25,16 @@ async function syncMealPlanProgress(days: number[]) {
   }
 }
 
+function getStoredMealPlanDays(): number[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const saved = localStorage.getItem("easebrew-mealplan");
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+}
+
 const MEAL_PLAN = [
   { day: 1,  week: "Week 1", weekday: "Lunes",        agahan: "Easebrew + Oatmeal na may saging na saba at honey",                          tanghalian: "Sinigang na salmon + Brown rice + Kangkong",                             merienda: "Boiled kamote + Ginger tea",                     hapunan: "Ginisang ampalaya with itlog + Brown rice",                       calories: "~1,650 kcal", nutrients: "Omega-3, Iron, Vit C",              focus: "Anti-inflammation" },
   { day: 2,  week: "Week 1", weekday: "Martes",       agahan: "Easebrew + Itlog na maalat + Sariwa na kamatis",                             tanghalian: "Monggo na may malunggay at hipon + Brown rice",                          merienda: "Buko juice (fresh, walang asukal)",              hapunan: "Tinolang manok + Brown rice (may malunggay)",             calories: "~1,600 kcal", nutrients: "Calcium, Protein, Vit A",           focus: "Bone & Joint Health" },
@@ -103,30 +113,23 @@ const FOCUS_COLORS: Record<string, string> = {
 export default function MealPlanPage() {
   const { checking } = useSessionGuard();
   const [selectedWeek, setSelectedWeek]   = useState("Week 1");
-  const [completedDays, setCompletedDays] = useState<number[]>([]);
+  const [completedDays, setCompletedDays] = useState<number[]>(getStoredMealPlanDays);
   const [expandedDay, setExpandedDay]     = useState<number | null>(null);
   const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (checking) return;
 
-    let localDays: number[] = [];
-    try {
-      const saved = localStorage.getItem("easebrew-mealplan");
-      if (saved) {
-        localDays = JSON.parse(saved);
-        setCompletedDays(localDays);
-      }
-    } catch {}
-
     fetch('/api/progress?type=mealplan')
       .then(r => r.json())
       .then(res => {
         const remoteDays: number[] = Array.isArray(res?.data?.days) ? res.data.days : [];
         if (remoteDays.length === 0) return;
-        const merged = Array.from(new Set([...localDays, ...remoteDays])).sort((a, b) => a - b);
-        setCompletedDays(merged);
-        localStorage.setItem("easebrew-mealplan", JSON.stringify(merged));
+        setCompletedDays(prev => {
+          const merged = Array.from(new Set([...prev, ...remoteDays])).sort((a, b) => a - b);
+          localStorage.setItem("easebrew-mealplan", JSON.stringify(merged));
+          return merged;
+        });
       })
       .catch(() => {});
   }, [checking]);

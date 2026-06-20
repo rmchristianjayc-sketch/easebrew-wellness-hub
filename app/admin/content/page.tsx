@@ -1,13 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/app/admin/_components/Sidebar";
 
 const G    = "#39613B";
 const DARK = "#1B201A";
 const MID  = "#4E504F";
-
-type ContentMeta = { updated_at?: string; updated_by?: string };
 
 const CONTENT_LABELS: Record<string, { label: string; group: string; multiline?: boolean; type?: "boolean" }> = {
   // ── Promo ────────────────────────────────────────────────
@@ -170,6 +168,20 @@ export default function ContentPage() {
   const [error, setError]             = useState("");
   const [activeGroup, setActiveGroup] = useState("📢 Promo Announcement");
 
+  const fetchContent = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res  = await fetch("/api/admin/content");
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || "Failed to load content."); setLoading(false); return; }
+      setContent(data.content ?? {});
+      setEditing(data.content ?? {});
+    } catch {
+      setError("Something went wrong.");
+    }
+    setLoading(false);
+  }, []);
+
   useEffect(() => {
     async function init() {
       try {
@@ -185,21 +197,7 @@ export default function ContentPage() {
       fetchContent();
     }
     init();
-  }, []);
-
-  async function fetchContent() {
-    setLoading(true);
-    try {
-      const res  = await fetch("/api/admin/content");
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || "Failed to load content."); setLoading(false); return; }
-      setContent(data.content ?? {});
-      setEditing(data.content ?? {});
-    } catch {
-      setError("Something went wrong.");
-    }
-    setLoading(false);
-  }
+  }, [fetchContent, router]);
 
   async function handleSave(key: string) {
     setSaving(p => ({ ...p, [key]: true }));
@@ -343,7 +341,7 @@ export default function ContentPage() {
 
             {activeGroup === "🎬 Videos" && (
               <div style={{ background: "#f0f7f0", border: "1px solid #d4e8d4", borderRadius: 10, padding: "12px 16px", marginBottom: 18, fontSize: 12, color: G, lineHeight: 1.6 }}>
-                💡 <strong>Paano gamitin:</strong> I-upload ang video sa YouTube (puwedeng "Unlisted" para hindi makita sa public search), tapos i-copy-paste ang buong link dito (kahit anong format — youtube.com/watch?v=..., youtu.be/..., atbp.)
+                💡 <strong>Paano gamitin:</strong> I-upload ang video sa YouTube (puwedeng &quot;Unlisted&quot; para hindi makita sa public search), tapos i-copy-paste ang buong link dito (kahit anong format — youtube.com/watch?v=..., youtu.be/..., atbp.)
               </div>
             )}
 

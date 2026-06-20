@@ -1,154 +1,191 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { setCustomerSessionCookie, type CustomerSession } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
+
+function normalizeCode(value: unknown) {
+  if (typeof value !== 'string') return null;
+  const stripped = value.replace(/[-\s]/g, '').toUpperCase();
+  if (!/^EASE[A-Z0-9]{8}$/.test(stripped)) return null;
+  return `${stripped.slice(0, 4)}-${stripped.slice(4, 8)}-${stripped.slice(8)}`;
+}
+
+function isValidDeviceId(value: unknown): value is string {
+  return typeof value === 'string' && /^dev_[a-z0-9]{10,100}$/i.test(value);
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const { code, device_id } = await req.json();
+    const body = await req.json();
+    const code = normalizeCode(body.code);
+    const deviceId = body.device_id;
 
-    if (!code || !device_id) {
+    if (!code || !isValidDeviceId(deviceId)) {
       return NextResponse.json(
-        { error: 'Code and device ID are required.' },
+        { error: 'A valid code and device ID are required.' },
         { status: 400 }
       );
     }
 
-    // ✅ FIXED — i-format ng may dash: EASE-XXXX-XXXX para match sa Supabase
-    const stripped = code.replace(/[-\s]/g, "").toUpperCase().slice(0, 12);
-    const cleanCode = `${stripped.slice(0,4)}-${stripped.slice(4,8)}-${stripped.slice(8,12)}`;
-    console.log('🔍 Searching for code:', cleanCode);
-
-    // Check if code exists
     const { data: accessCode, error: fetchError } = await supabaseAdmin
       .from('access_codes')
       .select('*')
-      .eq('code', cleanCode)
-      .single();
+      .eq('code', code)
+      .maybeSingle();
 
-    if (fetchError || !accessCode) {
-      console.error('❌ Fetch error:', JSON.stringify(fetchError));
-      console.log('❌ accessCode result:', accessCode);
+    if (fetchError) {
+      console.error('Access code lookup failed:', fetchError);
+      return NextResponse.json(
+        { error: 'Unable to verify the code right now. Please try again.' },
+        { status: 500 }
+      );
+    }
+    if (!accessCode) {
       return NextResponse.json(
         { error: 'Invalid code. Please check and try again.' },
         { status: 404 }
       );
     }
 
-    console.log('✅ Code found:', accessCode.code, '| is_used:', accessCode.is_used, '| expires_at:', accessCode.expires_at);
-
-    // Check if already used by a different device
-    if (accessCode.is_used && accessCode.device_id !== device_id) {
-      return NextResponse.json(
-        { error: 'This code has already been used on another device.' },
-        { status: 403 }
-      );
-    }
-
-    // ✅ CRITICAL FIX — check expiry/deactivation BAGO pumunta sa existing
-    // session branch. Dati, kapag is_used + same device, dumadaan agad sa
-    // existing session check sa ibaba nang hindi muna tinitingnan kung
-    // na-deactivate na ang code sa access_codes table. Dahil dito, kahit
-    // na-deactivate na ng admin/coach ang code (na nag-uupdate ng
-    // access_codes.expires_at papuntang nakaraang petsa), patuloy pa ring
-    // nare-return ang "valid" na existing session sa customer — kaya
-    // hindi na-enforce ang deactivation kahit may server-side revalidation
-    // na sa useSessionGuard.
-    //
-    // Inilipat natin ito sa unahan, bago ang "same device, already used"
-    // branch, para ma-block agad ang access kapag deactivated na — kahit
-    // existing/returning session pa ito.
-    if (accessCode.expires_at && new Date(accessCode.expires_at) < new Date()) {
-      // I-clean up din ang existing session kung meron, para hindi na
-      // ma-reuse sa susunod
+    const expired =
+      typeof accessCode.expires_at === 'string' &&
+      new Date(accessCode.expires_at).getTime() <= Date.now();
+    if (expired) {
       await supabaseAdmin
         .from('customer_sessions')
         .delete()
-        .eq('code', cleanCode)
-        .eq('device_id', device_id);
-
+        .eq('code', code)
+        .eq('device_id', deviceId);
       return NextResponse.json(
         { error: 'This code has expired or has been deactivated. Please order again to get a new code.' },
         { status: 403 }
       );
     }
 
-    // If same device is re-verifying — return existing session
-    if (accessCode.is_used && accessCode.device_id === device_id) {
-      const { data: existingSession } = await supabaseAdmin
+    if (accessCode.is_used && accessCode.device_id !== deviceId) {
+      return NextResponse.json(
+        { error: 'This code has already been used on another device.' },
+        { status: 403 }
+      );
+    }
+
+    if (accessCode.is_used) {
+      const { data: existingSession, error: sessionError } = await supabaseAdmin
         .from('customer_sessions')
         .select('*')
-        .eq('code', cleanCode)
-        .eq('device_id', device_id)
-        .single();
+        .eq('code', code)
+        .eq('device_id', deviceId)
+        .maybeSingle();
+
+      if (sessionError) {
+        console.error('Existing session lookup failed:', sessionError);
+        return NextResponse.json({ error: 'Failed to restore session.' }, { status: 500 });
+      }
+
+      const session: CustomerSession = existingSession ?? {
+        code,
+        device_id: deviceId,
+        tier: accessCode.tier,
+        packs: accessCode.packs,
+        expires_at: accessCode.expires_at,
+      };
+      if (!session.expires_at) {
+        return NextResponse.json({ error: 'This code has no valid expiry.' }, { status: 403 });
+      }
 
       if (existingSession) {
         await supabaseAdmin
           .from('customer_sessions')
           .update({ last_seen_at: new Date().toISOString() })
           .eq('id', existingSession.id);
-
-        return NextResponse.json({ success: true, session: existingSession });
+      } else {
+        const now = new Date().toISOString();
+        const { error: restoreError } = await supabaseAdmin
+          .from('customer_sessions')
+          .insert({
+            code_id: accessCode.id,
+            ...session,
+            activated_at: accessCode.used_at ?? now,
+            last_seen_at: now,
+          });
+        if (restoreError) {
+          console.error('Session restore failed:', restoreError);
+          return NextResponse.json({ error: 'Failed to restore session.' }, { status: 500 });
+        }
       }
+
+      const response = NextResponse.json({ success: true, session });
+      await setCustomerSessionCookie(response, session);
+      return response;
     }
 
-    // Calculate expiry date
-    const expiresAt = new Date();
+    const now = new Date();
+    const expiresAt = new Date(now);
     expiresAt.setDate(expiresAt.getDate() + accessCode.validity_days);
 
-    // Mark code as used
-    const { error: updateError } = await supabaseAdmin
+    const { data: claimedCode, error: claimError } = await supabaseAdmin
       .from('access_codes')
       .update({
         is_used: true,
-        used_at: new Date().toISOString(),
+        used_at: now.toISOString(),
         expires_at: expiresAt.toISOString(),
-        device_id,
+        device_id: deviceId,
       })
-      .eq('id', accessCode.id);
+      .eq('id', accessCode.id)
+      .eq('is_used', false)
+      .select('id')
+      .maybeSingle();
 
-    if (updateError) {
-      console.error('❌ Update error:', JSON.stringify(updateError));
+    if (claimError) {
+      console.error('Code activation failed:', claimError);
+      return NextResponse.json({ error: 'Failed to activate code.' }, { status: 500 });
+    }
+    if (!claimedCode) {
+      return NextResponse.json(
+        { error: 'This code was just activated on another device. Please try again.' },
+        { status: 409 }
+      );
     }
 
-    // Create session
-    const sessionData = {
-      code_id: accessCode.id,
-      code: cleanCode,
-      device_id,
+    const session: CustomerSession = {
+      code,
+      device_id: deviceId,
       tier: accessCode.tier,
       packs: accessCode.packs,
-      activated_at: new Date().toISOString(),
       expires_at: expiresAt.toISOString(),
-      last_seen_at: new Date().toISOString(),
     };
-
-    console.log('📝 Creating session:', sessionData);
-
-    const { data: session, error: sessionError } = await supabaseAdmin
+    const { error: sessionError } = await supabaseAdmin
       .from('customer_sessions')
-      .insert(sessionData)
-      .select()
-      .single();
+      .insert({
+        code_id: accessCode.id,
+        ...session,
+        activated_at: now.toISOString(),
+        last_seen_at: now.toISOString(),
+      });
 
     if (sessionError) {
-      console.error('❌ Session error:', JSON.stringify(sessionError));
+      await supabaseAdmin
+        .from('access_codes')
+        .update({ is_used: false, used_at: null, expires_at: null, device_id: null })
+        .eq('id', accessCode.id)
+        .eq('device_id', deviceId);
+      console.error('Session creation failed:', sessionError);
       return NextResponse.json(
         { error: 'Failed to create session. Please try again.' },
         { status: 500 }
       );
     }
 
-    // Log activity
     await supabaseAdmin.from('activity_logs').insert({
-      device_id,
+      device_id: deviceId,
       action: 'code_verified',
-      metadata: { code: cleanCode, tier: accessCode.tier, packs: accessCode.packs },
+      metadata: { code, tier: accessCode.tier, packs: accessCode.packs },
     });
 
-    console.log('🎉 Session created successfully!');
-    return NextResponse.json({ success: true, session });
-
-  } catch (err) {
-    console.error('Verify code error:', err);
+    const response = NextResponse.json({ success: true, session });
+    await setCustomerSessionCookie(response, session);
+    return response;
+  } catch (error) {
+    console.error('Verify code error:', error);
     return NextResponse.json(
       { error: 'Something went wrong. Please try again.' },
       { status: 500 }

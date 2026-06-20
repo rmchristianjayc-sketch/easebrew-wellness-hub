@@ -1,9 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/app/admin/_components/Sidebar";
 import { PRICE_CONFIG } from "@/lib/price-config";
 import { DEFAULT_COACHES } from "@/lib/coaches";
+import type { AccessCode } from "@/lib/supabase";
 
 const G    = "#39613B";
 const GOLD = "#FED255";
@@ -42,7 +43,7 @@ export default function CodesPage() {
   const [loading, setLoading]     = useState(false);
   const [generatedCode, setGeneratedCode] = useState("");
   const [error, setError]         = useState("");
-  const [codes, setCodes]         = useState<any[]>([]);
+  const [codes, setCodes]         = useState<AccessCode[]>([]);
   const [filter, setFilter]       = useState("all");
   const [search, setSearch]       = useState("");
   const [copied, setCopied]       = useState(false);
@@ -53,6 +54,16 @@ export default function CodesPage() {
   const [coachError, setCoachError] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [confirm, setConfirm]     = useState<{ message: string; onConfirm: () => void; danger?: boolean } | null>(null);
+
+  const fetchCodes = useCallback(async () => {
+    setCodesLoading(true);
+    try {
+      const res  = await fetch(`/api/admin/codes?filter=${filter}&limit=200`);
+      const data = await res.json();
+      if (res.ok) setCodes(data.codes || []);
+    } catch { }
+    setCodesLoading(false);
+  }, [filter]);
 
   useEffect(() => {
     async function init() {
@@ -69,17 +80,7 @@ export default function CodesPage() {
       fetchCodes();
     }
     init();
-  }, [filter]);
-
-  async function fetchCodes() {
-    setCodesLoading(true);
-    try {
-      const res  = await fetch(`/api/admin/codes?filter=${filter}&limit=200`);
-      const data = await res.json();
-      if (res.ok) setCodes(data.codes || []);
-    } catch { }
-    setCodesLoading(false);
-  }
+  }, [fetchCodes, router]);
 
   async function handleGenerate() {
     setError(""); setGeneratedCode("");
@@ -158,7 +159,7 @@ export default function CodesPage() {
     });
   }
 
-  function statusInfo(c: any) {
+  function statusInfo(c: AccessCode) {
     if (!c.is_used) return { label: "Unused", bg: "#fef9c3", color: "#b45309" };
     if (c.expires_at && new Date(c.expires_at) < new Date()) return { label: "Expired", bg: "#fee2e2", color: "#dc2626" };
     return { label: "Active", bg: "#dcfce7", color: G };

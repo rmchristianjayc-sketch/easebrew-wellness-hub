@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
 // ============================================================
@@ -76,7 +76,7 @@ const PUBLIC_KEYS = [
   'video_3_title', 'video_3_desc', 'video_3_url',
 ];
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const { data, error } = await supabaseAdmin
       .from('content')
