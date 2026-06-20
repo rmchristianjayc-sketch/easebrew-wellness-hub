@@ -42,11 +42,13 @@ export default function CodesPage() {
   const [coachName, setCoachName] = useState("");
   const [loading, setLoading]     = useState(false);
   const [generatedCode, setGeneratedCode] = useState("");
+  const [generatedMessage, setGeneratedMessage] = useState("");
   const [error, setError]         = useState("");
   const [codes, setCodes]         = useState<AccessCode[]>([]);
   const [filter, setFilter]       = useState("all");
   const [search, setSearch]       = useState("");
   const [copied, setCopied]       = useState(false);
+  const [messageCopied, setMessageCopied] = useState(false);
   const [copiedId, setCopiedId]   = useState<string | null>(null);
   const [codesLoading, setCodesLoading] = useState(true);
   const [nameError, setNameError]   = useState(false);
@@ -83,7 +85,7 @@ export default function CodesPage() {
   }, [fetchCodes, router]);
 
   async function handleGenerate() {
-    setError(""); setGeneratedCode("");
+    setError(""); setGeneratedCode(""); setGeneratedMessage("");
     let hasError = false;
     if (!customerName.trim()) { setNameError(true);  hasError = true; } else setNameError(false);
     if (!notes.trim())        { setNotesError(true); hasError = true; } else setNotesError(false);
@@ -97,7 +99,12 @@ export default function CodesPage() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Failed to generate code."); return; }
-      setGeneratedCode((data.code?.code || "").trim());
+      const newCode = (data.code?.code || "").trim();
+      const packageLabel = PRICE_CONFIG[tier]?.label ?? `₱${tier.toLocaleString()} package`;
+      setGeneratedCode(newCode);
+      setGeneratedMessage(
+        `Hello po ${customerName.trim()},\n\nIto po ang inyong R&M EaseBrew Wellness Hub access code:\n\n${newCode}\n\nBuksan dito: ${window.location.origin}/verify\n\nPackage: ${packageLabel}\nKung may tanong po kayo, message lang po kayo sa inyong coach.`
+      );
       setCustomerName(""); setNotes(""); setCoachName("");
       fetchCodes();
     } catch { setError("Something went wrong."); }
@@ -106,6 +113,12 @@ export default function CodesPage() {
 
   function copyCode() {
     navigator.clipboard.writeText(generatedCode).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
+  }
+  function copyCustomerMessage() {
+    navigator.clipboard.writeText(generatedMessage || generatedCode).then(() => {
+      setMessageCopied(true);
+      setTimeout(() => setMessageCopied(false), 2000);
+    });
   }
   function copyListCode(code: string) {
     navigator.clipboard.writeText(code).then(() => { setCopiedId(code); setTimeout(() => setCopiedId(null), 2000); });
@@ -264,9 +277,20 @@ export default function CodesPage() {
               <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 10, padding: "14px", marginBottom: 12 }}>
                 <span style={{ color: GOLD, fontSize: 24, fontWeight: "bold", letterSpacing: "3px", fontFamily: "monospace" }}>{generatedCode}</span>
               </div>
-              <button onClick={copyCode} style={{ background: copied ? GOLD : "rgba(255,255,255,0.2)", color: copied ? DARK : "white", border: "none", borderRadius: 8, padding: "9px 20px", fontSize: 13, fontWeight: "bold", cursor: "pointer" }}>
-                {copied ? "✅ Copied!" : "📋 Copy Code"}
-              </button>
+              {generatedMessage && (
+                <div style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 10, padding: "10px 12px", marginBottom: 12, textAlign: "left" }}>
+                  <p style={{ color: "rgba(255,255,255,0.62)", fontSize: 11, margin: "0 0 6px", fontWeight: "bold" }}>Ready-to-send message</p>
+                  <p style={{ color: "rgba(255,255,255,0.88)", fontSize: 12, lineHeight: 1.55, margin: 0, whiteSpace: "pre-line" }}>{generatedMessage}</p>
+                </div>
+              )}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 8 }}>
+                <button onClick={copyCustomerMessage} style={{ background: messageCopied ? GOLD : GOLD, color: G, border: "none", borderRadius: 8, padding: "11px 16px", fontSize: 13, fontWeight: "bold", cursor: "pointer" }}>
+                  {messageCopied ? "✅ Message Copied!" : "📋 Copy Full Message"}
+                </button>
+                <button onClick={copyCode} style={{ background: copied ? GOLD : "rgba(255,255,255,0.2)", color: copied ? DARK : "white", border: "none", borderRadius: 8, padding: "9px 16px", fontSize: 12, fontWeight: "bold", cursor: "pointer" }}>
+                  {copied ? "✅ Code Copied!" : "Copy Code Only"}
+                </button>
+              </div>
             </div>
           )}
         </div>

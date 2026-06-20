@@ -77,39 +77,6 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
-/* Customer experience: mobile-first and comfortable for older users. */
-.customer-accessibility {
-  position: fixed;
-  right: 12px;
-  bottom: 82px;
-  z-index: 900;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px;
-  border: 1px solid rgba(57, 97, 59, 0.22);
-  border-radius: 8px;
-  background: rgba(255, 255, 251, 0.96);
-  box-shadow: 0 8px 24px rgba(27, 32, 26, 0.18);
-  backdrop-filter: blur(10px);
-}
-
-.customer-accessibility button {
-  width: 42px;
-  height: 42px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: #39613B;
-  font: 800 16px/1 system-ui, sans-serif;
-  cursor: pointer;
-}
-
-.customer-accessibility button[aria-pressed="true"] {
-  background: #39613B;
-  color: white;
-}
-
 html[data-customer-text="large"] {
   --customer-font-scale: 1.12;
 }
@@ -251,5 +218,53 @@ html[data-customer-text="large"] body:not(:has(.admin-shell)) {
 
   .admin-main {
     padding: 28px 24px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-shell {
+    display: block !important;
+  }
+
+  .admin-shell aside {
+    position: static !important;
+    width: 100% !important;
+    min-height: auto !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+  }
+
+  .admin-shell aside nav {
+    overflow-x: auto;
+    flex-direction: row !important;
+    padding-bottom: 12px !important;
+  }
+
+  .admin-shell aside nav a {
+    min-width: max-content;
+  }
+
+  .admin-main {
+    margin-left: 0 !important;
+    padding: 22px 16px 32px !important;
+    display: block !important;
+  }
+
+  .admin-main > div {
+    width: 100% !important;
+    margin-bottom: 22px;
+  }
+
+  .admin-main [style*='grid-template-columns: repeat(4, 1fr)'],
+  .admin-main [style*='grid-template-columns: repeat(3, 1fr)'],
+  .admin-main [style*='grid-template-columns: 1fr 1fr'] {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-main button,
+  .admin-main a,
+  .admin-main input,
+  .admin-main select {
+    min-height: 46px;
   }
 }

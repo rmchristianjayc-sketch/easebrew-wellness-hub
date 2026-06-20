@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSessionGuard } from "@/lib/useSessionGuard";
+import { G, GOLD, AMBER, CREAM, WHITE, DARK, MID } from "@/lib/colors";
+import { DEFAULT_PRODUCTS, applyContentOverrides, splitByTier } from "@/lib/products";
 
 // ✅ 1.2 — Imported from single source of truth (no more duplicate definitions)
 import { Coach, DEFAULT_COACHES, buildCoaches } from "@/lib/coaches";
@@ -16,24 +18,6 @@ const DEFAULT_VIDEOS = [
   { title: "Paano Mag-massage ng Avocado Oil",     desc: "Step-by-step massage technique para sa joint pain relief.",           url: "" },
   { title: "Simple Exercises para sa Joint Pain",  desc: "Low-impact exercises na safe para sa matatanda at may arthritis.",     url: "" },
 ];
-
-const DEFAULT_PRODUCTS = [
-  { id: 1, icon: "📊", name: "Body Pain Tracker + Journal",           desc: "I-track ang inyong pain levels, tulog, mood, at Easebrew intake araw-araw.",                                                                          tier: 999,  tierLabel: "3 Packs (₱999)",     appUrl: "/tracker" },
-  { id: 2, icon: "🥗", name: "50-Day Anti-Inflammation Meal Plan",    desc: "50 days ng Pinoy-friendly na pagkain para sa rayuma, joint pain, at pagod.",                                                                           tier: 1499, tierLabel: "5 Packs (₱1,499)",  appUrl: "/meal-plan" },
-  { id: 3, icon: "💪", name: "30-Day Home Exercise Guide",            desc: "Low-impact exercises para sa may joint pain. Walang gym equipment needed.",                                                                            tier: 1499, tierLabel: "5 Packs (₱1,499)",  appUrl: "/exercise" },
-  { id: 4, icon: "📖", name: "Pinoy Anti-Inflammation Recipe Book",   desc: "30 healthy Pinoy recipes na anti-inflammatory.",                                                                                                        tier: 2998, tierLabel: "10 Packs (₱2,998)", appUrl: "/recipes" },
-  { id: 5, icon: "🏆", name: "Bagong Katawan 90-Day Program",         desc: "Ang pinaka-complete na wellness program. 90-day master plan, full exercise program, weekly check-in guide — lahat kasama!",                           tier: 4497, tierLabel: "15 Packs (₱4,497)", appUrl: "/bagong-katawan" },
-  { id: 6, icon: "🌿", name: "VIP Wellness Bundle",                   desc: "Lahat ng digital products + priority coach support + exclusive wellness tips para sa mga serious sa kanilang health journey.",                        tier: 5996, tierLabel: "20 Packs (₱5,996)", appUrl: "/bagong-katawan" },
-];
-
-const APP_LABELS: Record<number, string> = {
-  1: "📊 Open ang Tracker",
-  2: "🥗 Open ang Meal Plan",
-  3: "💪 Open ang Exercises",
-  4: "📖 Open ang Recipe Book",
-  5: "🏆 Open ang 90-Day Program",
-  6: "🌿 Open ang VIP Bundle",
-};
 
 const DEFAULT_WELLNESS_TIPS = [
   "Inumin ang Easebrew 30 mins bago kumain para sa best effect.",
@@ -81,8 +65,6 @@ const PROGRESS_GUIDE = [
   { period: "Month 2",  title: "Tuloy-tuloy na Progress",      desc: "Ang anti-inflammation routine ay nagiging natural na habit. Hindi mo na kailangan ng reminder.",     bg: "#FFFBF0", border: "#FED255", color: "#8B6914" },
   { period: "Month 3",  title: "Bagong Katawan, Bagong Buhay", desc: "50%+ reduction ng pain score. Mas aktibo, mas masaya, mas malusog. Ito ang Bagong Katawan.",          bg: "#F4F8F0", border: "#7DAE2F", color: "#39613B" },
 ];
-
-const G = "#39613B", GOLD = "#FED255", AMBER = "#C0863B", CREAM = "#EEE5D4", DARK = "#1B201A", MID = "#4E504F", WHITE = "#FFFFFB";
 
 function getTierLabel(tier: number): string {
   const map: Record<number, string> = {
@@ -410,11 +392,7 @@ export default function Home() {
         if (c.hero_title?.trim())    setHeroTitle(c.hero_title.trim());
         if (c.hero_subtitle?.trim()) setHeroSubtitle(c.hero_subtitle.trim());
 
-        setProducts(prev => prev.map(p => ({
-          ...p,
-          name: c[`product_${p.id}_name`]?.trim() || p.name,
-          desc: c[`product_${p.id}_desc`]?.trim()  || p.desc,
-        })));
+        setProducts(applyContentOverrides(DEFAULT_PRODUCTS, c));
 
         setCoaches(buildCoaches(c, DEFAULT_COACHES));
         setWellnessTips(buildTips(c, DEFAULT_WELLNESS_TIPS));
@@ -425,8 +403,7 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
-  const unlockedProducts = products.filter(p => p.tier <= customerTier);
-  const lockedProducts   = products.filter(p => p.tier > customerTier);
+  const { unlocked: unlockedProducts, locked: lockedProducts } = splitByTier(products, customerTier);
 
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -566,7 +543,7 @@ export default function Home() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span style={{ fontSize: 14, color: G, fontWeight: 600 }}>✅ Unlocked na!</span>
                   <Link href={p.appUrl} style={{ background: G, color: "#fff", borderRadius: 12, padding: "13px 22px", fontSize: 16, fontWeight: 700, textDecoration: "none", display: "inline-block" }}>
-                    {APP_LABELS[p.id]}
+                    {p.appLabel}
                   </Link>
                 </div>
               </div>
