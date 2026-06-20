@@ -35,9 +35,9 @@ function getDeviceId(): string {
  * - Walang `eb_session` cookie              → redirect sa /verify?from=<current page>
  * - May cookie pero walang `code` field      → redirect (malformed session)
  * - May cookie pero corrupted/unparseable    → redirect
- * - I-revalidate sa server (/api/verify) sa tuwing nag-mount — para kapag
- *   na-deactivate ng admin/coach ang code, agad na mareflect sa customer
- *   side imbes na umasa lang sa stale na expires_at sa cookie.
+ * - I-revalidate sa server (/api/verify-code) sa tuwing nag-mount — para
+ *   kapag na-deactivate ng admin/coach ang code, agad na mareflect sa
+ *   customer side imbes na umasa lang sa stale na expires_at sa cookie.
  * - Habang `checking === true`, dapat magpakita ang page ng loading state
  *   (huwag pang i-render ang protected content)
  *
@@ -87,10 +87,12 @@ export function useSessionGuard() {
         return;
       }
 
-      // Server-side re-validation — i-check ulit sa /api/verify kung
-      // valid pa talaga ang code (hindi na-deactivate, hindi expired sa DB).
+      // ✅ FIXED — tamang path na: /api/verify-code (dati ay /api/verify
+      // na walang kaukulang route.ts, kaya 404 ang nangyayari).
+      // Server-side re-validation — i-check ulit kung valid pa talaga ang
+      // code (hindi na-deactivate, hindi expired sa DB).
       try {
-        const res = await fetch("/api/verify", {
+        const res = await fetch("/api/verify-code", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code: localSession.code, device_id: getDeviceId() }),
