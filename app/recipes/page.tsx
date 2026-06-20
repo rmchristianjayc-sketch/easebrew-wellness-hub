@@ -802,13 +802,28 @@ export default function RecipesPage() {
   const [expandedRecipe, setExpandedRecipe] = useState<number | null>(null);
   const [favorites, setFavorites] = useState<number[]>([]);
 
-  useEffect(() => {
-    if (checking) return;
+  // ✅ PALITAN NG — localStorage muna (instant), tapos cloud override
+useEffect(() => {
+  if (checking) return;
+  async function load() {
+    // Local cache muna — instant display
     try {
       const saved = localStorage.getItem("easebrew-recipe-favorites");
       if (saved) setFavorites(JSON.parse(saved));
     } catch {}
-  }, [checking]);
+
+    // Cloud sync — source of truth
+    try {
+      const res = await fetch(`/api/progress?type=recipe_favorites`);
+      const json = await res.json();
+      if (res.ok && json.data?.favorites) {
+        setFavorites(json.data.favorites);
+        localStorage.setItem("easebrew-recipe-favorites", JSON.stringify(json.data.favorites));
+      }
+    } catch {}
+  }
+  load();
+}, [checking]);
 
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -824,6 +839,13 @@ export default function RecipesPage() {
     const updated = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
     setFavorites(updated);
     localStorage.setItem("easebrew-recipe-favorites", JSON.stringify(updated));
+  
+    // Cloud sync — same pattern ng ibang pages
+    fetch("/api/progress", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "recipe_favorites", data: { favorites: updated } }),
+    }).catch(() => {}); // Silent fail OK — may localStorage backup naman
   };
 
   const filtered = RECIPES.filter(r => {

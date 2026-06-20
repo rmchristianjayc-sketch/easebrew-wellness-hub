@@ -44,7 +44,7 @@ export default function AnalyticsPage() {
 
   async function fetchData() {
     try {
-      const res = await fetch("/api/admin/generate-code?filter=all&limit=200");
+      const res = await fetch("/api/admin/codes?filter=all&limit=200");
       const data = await res.json();
       if (res.ok) setCodes(data.codes || []);
     } catch { }
@@ -70,7 +70,11 @@ export default function AnalyticsPage() {
   const maxTierCount = Math.max(...Object.values(revenueByTier), 1);
 
   const byCoach: Record<string, number> = {};
-  codes.forEach(c => { byCoach[c.created_by] = (byCoach[c.created_by] || 0) + 1; });
+  codes.forEach(c => {
+    const match = c.notes?.match(/^\[([^\]]+)\]/);
+    const name = match ? match[1] : c.created_by;
+    byCoach[name] = (byCoach[name] || 0) + 1;
+  });
   const topCoaches = Object.entries(byCoach).sort((a, b) => b[1] - a[1]);
 
   const expiringSoon = active.filter(c => {

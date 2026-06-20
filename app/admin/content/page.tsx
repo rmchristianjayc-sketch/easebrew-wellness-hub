@@ -7,7 +7,6 @@ const G    = "#39613B";
 const DARK = "#1B201A";
 const MID  = "#4E504F";
 
-// ── NOTE: ContentItem no longer needs id — route returns { key, value } map ─
 type ContentMeta = { updated_at?: string; updated_by?: string };
 
 const CONTENT_LABELS: Record<string, { label: string; group: string; multiline?: boolean; type?: "boolean" }> = {
@@ -136,7 +135,7 @@ const CONTENT_LABELS: Record<string, { label: string; group: string; multiline?:
   video_3_url:   { label: "Video 3 — YouTube Link (i-paste buong URL)", group: "🎬 Videos" },
 
   // ── Notifications ─────────────────────────────────────────
-  reorder_reminder_days: { label: "Re-order Reminder (days before expiry)", group: "🔔 Notifications" },
+  // ✅ Bug #5 FIX: Tinanggal na ang reorder_reminder_days — dead setting, walang gumagamit
 };
 
 const COACH_DIVIDERS: Record<string, string> = {
@@ -160,11 +159,9 @@ const VIDEO_DIVIDERS: Record<string, string> = {
   video_3_title: "🎬 Video 3",
 };
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
 export default function ContentPage() {
   const router = useRouter();
   const [username, setUsername]       = useState("");
-  // ✅ FIX: content is now Record<string, string> (plain map), not array of ContentItem
   const [content, setContent]         = useState<Record<string, string>>({});
   const [editing, setEditing]         = useState<Record<string, string>>({});
   const [saving, setSaving]           = useState<Record<string, boolean>>({});
@@ -190,14 +187,12 @@ export default function ContentPage() {
     init();
   }, []);
 
-  // ✅ FIX: GET now returns { content: Record<string, string> } — no more array
   async function fetchContent() {
     setLoading(true);
     try {
       const res  = await fetch("/api/admin/content");
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Failed to load content."); setLoading(false); return; }
-      // data.content is already a key→value map
       setContent(data.content ?? {});
       setEditing(data.content ?? {});
     } catch {
@@ -206,7 +201,6 @@ export default function ContentPage() {
     setLoading(false);
   }
 
-  // ✅ FIX: POST now sends { updates: [{ key, value }] } — matches new route
   async function handleSave(key: string) {
     setSaving(p => ({ ...p, [key]: true }));
     try {
@@ -219,7 +213,6 @@ export default function ContentPage() {
       if (res.ok) {
         setSaved(p => ({ ...p, [key]: true }));
         setTimeout(() => setSaved(p => ({ ...p, [key]: false })), 2000);
-        // Update local content map so "Modified" badge clears immediately
         setContent(p => ({ ...p, [key]: editing[key] ?? "" }));
       } else {
         setError(data.error || "Failed to save.");
@@ -230,7 +223,6 @@ export default function ContentPage() {
     setSaving(p => ({ ...p, [key]: false }));
   }
 
-  // ✅ FIX: Save All — sends all changed keys in ONE POST request
   async function handleSaveAll() {
     const keys    = groups[activeGroup] ?? [];
     const changed = keys
@@ -238,7 +230,6 @@ export default function ContentPage() {
       .map(k => ({ key: k, value: editing[k] ?? "" }));
     if (changed.length === 0) return;
 
-    // Mark all as saving
     const savingMap: Record<string, boolean> = {};
     changed.forEach(({ key }) => { savingMap[key] = true; });
     setSaving(p => ({ ...p, ...savingMap }));
@@ -251,7 +242,6 @@ export default function ContentPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        // Mark all as saved + update local content map
         const savedMap: Record<string, boolean>  = {};
         const newContent: Record<string, string> = {};
         changed.forEach(({ key, value }) => { savedMap[key] = true; newContent[key] = value; });

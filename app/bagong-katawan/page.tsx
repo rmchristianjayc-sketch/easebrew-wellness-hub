@@ -135,24 +135,6 @@ const PLAN = [
 
 const TABS = ["📅 90-Day Plan", "📊 Progress", "🌿 Gabay"];
 
-// ── Session helpers ──────────────────────────────────────────
-function getEbCode(): string | null {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.split(";").find(c => c.trim().startsWith("eb_session="));
-  if (!match) return null;
-  try {
-    const raw = decodeURIComponent(match.split("=").slice(1).join("="));
-    const s = JSON.parse(raw);
-    if (!s.expires_at || new Date(s.expires_at) < new Date()) return null;
-    return s.code || null;
-  } catch { return null; }
-}
-
-function getDeviceId(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("eb_device_id");
-}
-
 // ── Senior-friendly stepper (+/- buttons, walang keyboard typing) ──
 function Stepper({ label, sub, value, min, max, onChange }: {
   label: string; sub: string; value: number; min: number; max: number; onChange: (v: number) => void;
@@ -211,9 +193,6 @@ export default function BagongKatawanPage() {
     if (checking) return;
 
     async function load() {
-      const code = getEbCode();
-      const deviceId = getDeviceId();
-
       // Local cache muna — instant display kung may saved na
       try {
         const cachedDays = localStorage.getItem("easebrew-90days");
@@ -224,29 +203,27 @@ export default function BagongKatawanPage() {
         if (cachedMeas) setMeasurements(JSON.parse(cachedMeas));
       } catch {}
 
-      // Tapos i-sync sa Supabase — ito ang source of truth
-      if (code && deviceId) {
-        try {
-          const res = await fetch(`/api/progress?code=${encodeURIComponent(code)}&device_id=${encodeURIComponent(deviceId)}&key=bagong_katawan`);
-          const json = await res.json();
-          if (res.ok && json.data) {
-            const remote: ProgressShape = json.data;
-            if (remote.completedDays) {
-              setCompletedDays(remote.completedDays);
-              localStorage.setItem("easebrew-90days", JSON.stringify(remote.completedDays));
-            }
-            if (remote.trackData) {
-              setTrackData(remote.trackData);
-              localStorage.setItem("easebrew-90days-track", JSON.stringify(remote.trackData));
-            }
-            if (remote.measurements) {
-              setMeasurements(remote.measurements);
-              localStorage.setItem("easebrew-90days-meas", JSON.stringify(remote.measurements));
-            }
+      // ✅ FIXED: Cookie-based lang — walang code/device_id sa params
+      try {
+        const res = await fetch(`/api/progress?type=bagong_katawan`);
+        const json = await res.json();
+        if (res.ok && json.data) {
+          const remote: ProgressShape = json.data;
+          if (remote.completedDays) {
+            setCompletedDays(remote.completedDays);
+            localStorage.setItem("easebrew-90days", JSON.stringify(remote.completedDays));
           }
-        } catch {
-          // Walang internet o error — gamitin lang ang local cache
+          if (remote.trackData) {
+            setTrackData(remote.trackData);
+            localStorage.setItem("easebrew-90days-track", JSON.stringify(remote.trackData));
+          }
+          if (remote.measurements) {
+            setMeasurements(remote.measurements);
+            localStorage.setItem("easebrew-90days-meas", JSON.stringify(remote.measurements));
+          }
         }
+      } catch {
+        // Walang internet o error — gamitin lang ang local cache
       }
 
       loadedRef.current = true;
@@ -256,11 +233,8 @@ export default function BagongKatawanPage() {
   }, [checking]);
 
   // ── SAVE: debounced sync to Supabase (also caches to localStorage) ──
+  // ✅ FIXED: Walang code/device_id — { type, data } shape lang, cookie ang bahala sa auth
   function queueSync(next: Partial<ProgressShape>) {
-    const code = getEbCode();
-    const deviceId = getDeviceId();
-    if (!code || !deviceId) return;
-
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
       setSyncing(true);
@@ -274,7 +248,7 @@ export default function BagongKatawanPage() {
         const res = await fetch("/api/progress", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code, device_id: deviceId, key: "bagong_katawan", data: payload }),
+          body: JSON.stringify({ type: "bagong_katawan", data: payload }),
         });
         if (!res.ok) setSyncError(true);
       } catch {

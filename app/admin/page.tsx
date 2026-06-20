@@ -46,7 +46,7 @@ export default function AdminDashboard() {
 
   async function fetchCodes() {
     try {
-      const res  = await fetch("/api/admin/generate-code?filter=all&limit=200");
+      const res = await fetch("/api/admin/codes?filter=all&limit=200");
       const data = await res.json();
       if (res.ok) setCodes(data.codes || []);
     } catch { }

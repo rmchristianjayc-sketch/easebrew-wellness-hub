@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const filter = searchParams.get('filter') || 'all';
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const limit  = parseInt(searchParams.get('limit') || '50');
 
     let query = supabaseAdmin
       .from('access_codes')
@@ -33,12 +33,11 @@ export async function GET(req: NextRequest) {
       .order('created_at', { ascending: false })
       .limit(limit);
 
-    // ✅ Coach: sariling codes lang ang makikita
     if (admin.role === 'coach') {
       query = query.eq('created_by', admin.username);
     }
 
-    if (filter === 'used') query = query.eq('is_used', true);
+    if (filter === 'used')   query = query.eq('is_used', true);
     if (filter === 'unused') query = query.eq('is_used', false);
 
     const { data, error } = await query;
@@ -116,7 +115,18 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'ID is required.' }, { status: 400 });
     }
 
-    // Delete related sessions muna (FK constraint)
+    // ✅ STEP 1: I-fetch muna ang code value (kailangan para sa progress delete)
+    const { data: codeRow, error: fetchError } = await supabaseAdmin
+      .from('access_codes')
+      .select('code')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (fetchError || !codeRow) {
+      return NextResponse.json({ error: 'Code not found.' }, { status: 404 });
+    }
+
+    // ✅ STEP 2: Delete related sessions (FK constraint)
     const { error: sessionsError } = await supabaseAdmin
       .from('customer_sessions')
       .delete()
@@ -129,6 +139,20 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
+    // ✅ STEP 3: Delete orphaned progress rows (Bug #6 fix)
+    const { error: progressError } = await supabaseAdmin
+      .from('progress')
+      .delete()
+      .eq('code', codeRow.code);
+
+    if (progressError) {
+      return NextResponse.json(
+        { error: `Failed to delete related progress: ${progressError.message}` },
+        { status: 500 }
+      );
+    }
+
+    // ✅ STEP 4: Delete the code itself
     const { error } = await supabaseAdmin
       .from('access_codes')
       .delete()
