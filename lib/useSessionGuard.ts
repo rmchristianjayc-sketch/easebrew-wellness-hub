@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { getDeviceId } from "@/lib/supabase";
 
 export type EbSession = {
   code: string;
@@ -10,16 +9,35 @@ export type EbSession = {
   expires_at: string;
 };
 
+// ✅ FIXED — local na ito ngayon, hindi na nag-i-import mula sa
+// lib/supabase.ts. Ang lib/supabase.ts ay naglalaman ng `supabaseAdmin`
+// na gumagamit ng SUPABASE_SERVICE_ROLE_KEY (server-only env var, walang
+// NEXT_PUBLIC_ prefix). Dahil ang useSessionGuard.ts ay client component
+// ("use client"), kapag in-import ito mula sa lib/supabase.ts, sinusubukan
+// ng bundler na i-bundle ang BUONG file papunta sa browser — kasama na
+// ang supabaseAdmin initialization. Sa browser, undefined ang
+// SUPABASE_SERVICE_ROLE_KEY, kaya nagfa-fail ang createClient() doon
+// ng "supabaseKey is required" error.
+function getDeviceId(): string {
+  if (typeof window === "undefined") return "";
+  let id = localStorage.getItem("eb_device_id");
+  if (!id) {
+    id = "dev_" + Math.random().toString(36).substring(2) + Date.now().toString(36);
+    localStorage.setItem("eb_device_id", id);
+  }
+  return id;
+}
+
 /**
  * Shared session guard — ginagamit sa lahat ng customer pages
- * (recipes, meal-plan, tracker, bagong-katawan, exercise).
+ * (recipes, meal-plan, tracker, bagong-katawan, exercise, home).
  *
  * - Walang `eb_session` cookie              → redirect sa /verify?from=<current page>
  * - May cookie pero walang `code` field      → redirect (malformed session)
  * - May cookie pero corrupted/unparseable    → redirect
- * - ✅ BAGO: I-revalidate sa server (/api/verify) sa tuwing nag-mount —
- *   para kapag na-deactivate ng admin/coach ang code, agad na mareflect
- *   sa customer side imbes na umasa lang sa stale na expires_at sa cookie.
+ * - I-revalidate sa server (/api/verify) sa tuwing nag-mount — para kapag
+ *   na-deactivate ng admin/coach ang code, agad na mareflect sa customer
+ *   side imbes na umasa lang sa stale na expires_at sa cookie.
  * - Habang `checking === true`, dapat magpakita ang page ng loading state
  *   (huwag pang i-render ang protected content)
  *
@@ -69,10 +87,8 @@ export function useSessionGuard() {
         return;
       }
 
-      // ✅ Server-side re-validation — i-check ulit sa /api/verify kung
+      // Server-side re-validation — i-check ulit sa /api/verify kung
       // valid pa talaga ang code (hindi na-deactivate, hindi expired sa DB).
-      // Ang /api/verify ay nagchecheck na ng access_codes.expires_at,
-      // kaya kapag na-deactivate, agad itong magreturn ng error dito.
       try {
         const res = await fetch("/api/verify", {
           method: "POST",
