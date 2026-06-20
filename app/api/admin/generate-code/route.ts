@@ -12,6 +12,10 @@ function generateCode(): string {
   return `EASE-${part1}-${part2}`;
 }
 
+function isDuplicateCodeError(error: { code?: string } | null) {
+  return error?.code === '23505';
+}
+
 // ✅ POST — generate code lang, GET ay nasa codes/route.ts na
 export async function POST(req: NextRequest) {
   try {
@@ -34,46 +38,33 @@ export async function POST(req: NextRequest) {
     const safeNotes =
       typeof notes === 'string' ? notes.trim().slice(0, 1000) : '';
 
-    let code = '';
-    let isUnique = false;
-    let attempts = 0;
-
-    while (!isUnique && attempts < 10) {
-      code = generateCode();
-      const { data } = await supabaseAdmin
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const { data: newCode, error: insertError } = await supabaseAdmin
         .from('access_codes')
-        .select('id')
-        .eq('code', code)
-        .maybeSingle();
-      if (!data) isUnique = true;
-      attempts++;
+        .insert({
+          code: generateCode(),
+          tier: tierNum,
+          packs: config.packs,
+          validity_days: config.validityDays,
+          is_used: false,
+          created_by: admin.username,
+          customer_name: customerName || null,
+          notes: safeNotes || null,
+        })
+        .select()
+        .single();
+
+      if (!insertError) {
+        return NextResponse.json({ success: true, code: newCode });
+      }
+
+      if (!isDuplicateCodeError(insertError)) {
+        console.error('Insert error:', insertError);
+        return NextResponse.json({ error: 'Failed to save code: ' + insertError.message }, { status: 500 });
+      }
     }
 
-    if (!isUnique) {
-      return NextResponse.json({ error: 'Failed to generate unique code.' }, { status: 500 });
-    }
-
-    const { data: newCode, error: insertError } = await supabaseAdmin
-      .from('access_codes')
-      .insert({
-        code,
-        tier: tierNum,
-        packs: config.packs,
-        validity_days: config.validityDays,
-        is_used: false,
-        created_by: admin.username,
-        customer_name: customerName || null,
-        notes: safeNotes || null,
-      })
-      .select()
-      .single();
-
-    if (insertError) {
-      console.error('Insert error:', insertError);
-      return NextResponse.json({ error: 'Failed to save code: ' + insertError.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ success: true, code: newCode });
+    return NextResponse.json({ error: 'Failed to generate unique code.' }, { status: 500 });
 
   } catch (err) {
     console.error('Generate code error:', err);
