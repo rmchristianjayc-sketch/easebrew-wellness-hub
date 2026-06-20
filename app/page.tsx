@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useSessionGuard } from "@/lib/useSessionGuard";
 
 // ✅ 1.2 — Imported from single source of truth (no more duplicate definitions)
 import { Coach, DEFAULT_COACHES, buildCoaches } from "@/lib/coaches";
@@ -82,21 +82,6 @@ const PROGRESS_GUIDE = [
 ];
 
 const G = "#39613B", GOLD = "#FED255", AMBER = "#C0863B", CREAM = "#EEE5D4", DARK = "#1B201A", MID = "#4E504F", WHITE = "#FFFFFB";
-
-// ============================================================
-// SESSION HELPERS
-// ============================================================
-function getSession(): { tier: number; expires_at: string; code: string; device_id: string } | null {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.split(";").find(c => c.trim().startsWith("eb_session="));
-  if (!match) return null;
-  try {
-    const raw = decodeURIComponent(match.split("=").slice(1).join("="));
-    const s = JSON.parse(raw);
-    if (!s.expires_at || new Date(s.expires_at) < new Date()) return null;
-    return s;
-  } catch { return null; }
-}
 
 function getTierLabel(tier: number): string {
   const map: Record<number, string> = {
@@ -372,10 +357,15 @@ type Tab = "home" | "gifts" | "tips" | "coaches";
 // MAIN PAGE
 // ============================================================
 export default function Home() {
-  const router = useRouter();
-  const [customerTier, setCustomerTier] = useState<number>(0);
+  // ✅ FIXED — gumagamit na ng shared useSessionGuard (may server-side
+  // revalidation sa /api/verify), kapareho ng ibang customer pages.
+  // Dati ay sariling getSession() lang ang ginagamit dito na local-cookie
+  // check lang — kaya kahit na-deactivate/na-delete na ang code sa Admin,
+  // patuloy pa ring may access ang customer hangga't valid ang lumang cookie.
+  const { checking, session } = useSessionGuard();
+  const customerTier = session?.tier ?? 0;
+
   const [tipIndex, setTipIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("home");
   const [showCoachModal, setShowCoachModal] = useState(false);
 
@@ -423,18 +413,10 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
-  // ── SESSION CHECK ─────────────────────────────────────────────
-  useEffect(() => {
-    const session = getSession();
-    if (!session) { router.push("/verify"); return; }
-    setCustomerTier(session.tier ?? 0);
-    setLoading(false);
-  }, [router]);
-
   const unlockedProducts = products.filter(p => p.tier <= customerTier);
   const lockedProducts   = products.filter(p => p.tier > customerTier);
 
-  if (loading) return (
+  if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <p style={{ color: G, fontSize: 18, fontWeight: 600 }}>☕ Loading...</p>
     </div>
