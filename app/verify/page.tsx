@@ -346,9 +346,13 @@ export default function VerifyPage() {
       </nav>
 
       {primaryCoach && view !== "coaches" && (
-        <a href={`tel:${primaryCoach.number}`} style={{ position: "fixed", right: 14, bottom: 86, zIndex: 31, background: GOLD, color: G, borderRadius: 999, padding: "12px 16px", boxShadow: "0 8px 24px rgba(27,32,26,0.22)", fontSize: 15, fontWeight: 900, textDecoration: "none" }}>
-          Tawag sa Coach
-        </a>
+        <button
+          type="button"
+          onClick={() => setView("coaches")}
+          style={{ position: "fixed", right: 14, bottom: 86, zIndex: 31, border: 0, background: GOLD, color: G, borderRadius: 999, padding: "12px 16px", boxShadow: "0 8px 24px rgba(27,32,26,0.22)", fontSize: 15, fontWeight: 900, cursor: "pointer" }}
+        >
+          Coaches
+        </button>
       )}
     </main>
   );
