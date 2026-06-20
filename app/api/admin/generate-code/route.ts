@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
-import { supabaseAdmin, PRICE_CONFIG } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
+import { PRICE_CONFIG } from '@/lib/price-config';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.ADMIN_SECRET!);
 

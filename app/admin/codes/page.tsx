@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/app/admin/_components/Sidebar";
-import { PRICE_CONFIG } from "@/lib/supabase";
+import { PRICE_CONFIG } from "@/lib/price-config";
 import { DEFAULT_COACHES } from "@/lib/coaches";
 
 const G    = "#39613B";
@@ -74,7 +74,6 @@ export default function CodesPage() {
   async function fetchCodes() {
     setCodesLoading(true);
     try {
-      // ✅ FIXED: dati /api/admin/generate-code, ngayon /api/admin/codes na
       const res  = await fetch(`/api/admin/codes?filter=${filter}&limit=200`);
       const data = await res.json();
       if (res.ok) setCodes(data.codes || []);
