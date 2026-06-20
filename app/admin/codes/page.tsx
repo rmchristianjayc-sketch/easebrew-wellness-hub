@@ -190,7 +190,8 @@ export default function CodesPage() {
       <Sidebar active="/admin/codes" role={role} username={username} />
 
       <main style={{ marginLeft: 220, flex: 1, padding: "32px 36px", minWidth: 0, display: "flex", gap: 24 }}>
-        {/* ── Left: Generate Form ── */}
+        {/* ── Left: Generate Form ── (coach lang, hindi makikita ng admin/owner) ── */}
+        {!isOwner && (
         <div style={{ width: 340, flexShrink: 0 }}>
           <h1 style={{ color: DARK, fontSize: 22, fontWeight: "bold", margin: "0 0 6px" }}>Generate Code</h1>
           <p style={{ color: MID, fontSize: 13, margin: "0 0 20px" }}>Create access codes for customers</p>
@@ -268,6 +269,7 @@ export default function CodesPage() {
             </div>
           )}
         </div>
+        )}
 
         {/* ── Right: Codes Table ── */}
         <div style={{ flex: 1, minWidth: 0 }}>
