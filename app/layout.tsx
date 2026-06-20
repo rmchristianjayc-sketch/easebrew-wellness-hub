@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import CustomerAccessibility from "@/app/_components/CustomerAccessibility";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -37,6 +38,7 @@ export default function RootLayout({
       </head>
       <body>
         {children}
+        <CustomerAccessibility />
         {/* ✅ FIXED: next/script guarantees service worker registers after page load */}
         <Script src="/register-sw.js" strategy="afterInteractive" />
       </body>

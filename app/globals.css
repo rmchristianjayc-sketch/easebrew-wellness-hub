@@ -53,4 +53,203 @@ body {
   --cream-light: #FFFFFB;
   --text-dark: #1B201A;
   --text-mid: #4E504F;
+  --admin-sidebar: 248px;
+  --admin-bg: #f4f6f5;
+  --admin-border: #dde4df;
+  --admin-shadow: 0 1px 2px rgba(20, 35, 25, 0.04), 0 10px 28px rgba(20, 35, 25, 0.06);
+  --customer-font-scale: 1;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #FED255;
+  outline-offset: 2px;
+}
+
+/* Customer experience: mobile-first and comfortable for older users. */
+.customer-accessibility {
+  position: fixed;
+  right: 12px;
+  bottom: 82px;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px;
+  border: 1px solid rgba(57, 97, 59, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 255, 251, 0.96);
+  box-shadow: 0 8px 24px rgba(27, 32, 26, 0.18);
+  backdrop-filter: blur(10px);
+}
+
+.customer-accessibility button {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #39613B;
+  font: 800 16px/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.customer-accessibility button[aria-pressed="true"] {
+  background: #39613B;
+  color: white;
+}
+
+html[data-customer-text="large"] {
+  --customer-font-scale: 1.12;
+}
+
+html[data-customer-text="large"] body:not(:has(.admin-shell)) {
+  font-size: calc(16px * var(--customer-font-scale));
+}
+
+@media (max-width: 720px) {
+  body {
+    background: #e6eadf;
+  }
+
+  body:not(:has(.admin-shell)) p,
+  body:not(:has(.admin-shell)) li,
+  body:not(:has(.admin-shell)) label,
+  body:not(:has(.admin-shell)) input,
+  body:not(:has(.admin-shell)) textarea,
+  body:not(:has(.admin-shell)) select,
+  body:not(:has(.admin-shell)) button,
+  body:not(:has(.admin-shell)) a {
+    line-height: 1.55;
+  }
+
+  html[data-customer-text="large"] body:not(:has(.admin-shell)) p,
+  html[data-customer-text="large"] body:not(:has(.admin-shell)) li,
+  html[data-customer-text="large"] body:not(:has(.admin-shell)) label,
+  html[data-customer-text="large"] body:not(:has(.admin-shell)) input,
+  html[data-customer-text="large"] body:not(:has(.admin-shell)) textarea,
+  html[data-customer-text="large"] body:not(:has(.admin-shell)) select,
+  html[data-customer-text="large"] body:not(:has(.admin-shell)) button,
+  html[data-customer-text="large"] body:not(:has(.admin-shell)) a {
+    font-size: max(17px, 1.08em) !important;
+  }
+
+  body:not(:has(.admin-shell)) button,
+  body:not(:has(.admin-shell)) a,
+  body:not(:has(.admin-shell)) input,
+  body:not(:has(.admin-shell)) select {
+    min-height: 48px;
+  }
+
+  body:not(:has(.admin-shell)) input,
+  body:not(:has(.admin-shell)) select,
+  body:not(:has(.admin-shell)) textarea {
+    border-width: 2px !important;
+  }
+
+  .customer-shell {
+    width: 100%;
+    max-width: none !important;
+    min-height: 100dvh !important;
+    padding-bottom: 76px;
+  }
+
+  .customer-home-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 850;
+    min-height: 70px;
+    margin: 0 !important;
+    padding: 4px 6px max(4px, env(safe-area-inset-bottom));
+    background: #244d32;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 -6px 20px rgba(27, 32, 26, 0.18);
+  }
+
+  .customer-home-nav button {
+    min-width: 0;
+    min-height: 60px;
+    padding: 8px 3px !important;
+    border-bottom: 0 !important;
+    border-radius: 6px !important;
+    font-size: 15px !important;
+    color: rgba(255,255,255,0.86) !important;
+    white-space: normal;
+  }
+
+  .customer-home-nav button[style*="rgb(254, 210, 85)"] {
+    color: #FED255 !important;
+    background: rgba(254, 210, 85, 0.1) !important;
+  }
+}
+
+/* Admin and coach: desktop-first operational workspace. */
+.admin-shell {
+  min-height: 100vh;
+  background: var(--admin-bg) !important;
+  color: #18211b;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+}
+
+.admin-main {
+  margin-left: var(--admin-sidebar) !important;
+  padding: 36px 40px !important;
+  min-width: 0;
+}
+
+.admin-main > div[style*="background: white"],
+.admin-main > div > div[style*="background: white"],
+.admin-main section {
+  border-color: var(--admin-border) !important;
+}
+
+.admin-main div[style*="box-shadow"] {
+  box-shadow: var(--admin-shadow) !important;
+}
+
+.admin-main input,
+.admin-main select,
+.admin-main textarea {
+  min-height: 42px;
+  border-color: #ccd6cf !important;
+  border-radius: 6px !important;
+}
+
+.admin-main button {
+  min-height: 38px;
+  border-radius: 6px !important;
+}
+
+.admin-main table {
+  min-width: 760px;
+}
+
+.admin-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+}
+
+@media (max-width: 1180px) {
+  :root {
+    --admin-sidebar: 220px;
+  }
+
+  .admin-main {
+    padding: 28px 24px !important;
+  }
 }

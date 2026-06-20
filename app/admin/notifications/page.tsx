@@ -60,10 +60,10 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f6f8", fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
       <Sidebar active="/admin/notifications" username={username} />
 
-      <main style={{ marginLeft: 220, flex: 1, padding: "32px 36px", minWidth: 0, display: "flex", gap: 24 }}>
+      <main className="admin-main" style={{ flex: 1, minWidth: 0, display: "flex", gap: 24 }}>
 
         {/* ── Left: Quick Messages ── */}
         <div style={{ width: 300, flexShrink: 0 }}>

@@ -185,12 +185,12 @@ export default function CodesPage() {
   });
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f6f8", fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
       {confirm && <ConfirmCard message={confirm.message} danger={confirm.danger} onConfirm={confirm.onConfirm} onCancel={() => setConfirm(null)} />}
 
       <Sidebar active="/admin/codes" role={role} username={username} />
 
-      <main style={{ marginLeft: 220, flex: 1, padding: "32px 36px", minWidth: 0, display: "flex", gap: 24 }}>
+      <main className="admin-main" style={{ flex: 1, minWidth: 0, display: "flex", gap: 24 }}>
         {/* ── Left: Generate Form ── (coach lang, hindi makikita ng admin/owner) ── */}
         {!isOwner && (
         <div style={{ width: 340, flexShrink: 0 }}>
@@ -297,7 +297,7 @@ export default function CodesPage() {
             />
           </div>
 
-          <div style={{ background: "white", borderRadius: 14, boxShadow: "0 1px 6px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+          <div className="admin-table-scroll" style={{ background: "white", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
             {codesLoading ? (
               <div style={{ padding: "48px", textAlign: "center", color: MID }}>Loading codes...</div>
             ) : filtered.length === 0 ? (

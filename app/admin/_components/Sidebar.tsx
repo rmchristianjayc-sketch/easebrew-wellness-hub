@@ -1,105 +1,190 @@
 "use client";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-const G    = "#39613B";
-const GOLD = "#FED255";
+import {
+  BarChart3,
+  Bell,
+  Coffee,
+  FileText,
+  KeyRound,
+  LayoutDashboard,
+  LogOut,
+  ShieldCheck,
+  UserRound,
+} from "lucide-react";
 
 const OWNER_LINKS = [
-  { href: "/admin",               icon: "⚡", label: "Dashboard"     },
-  { href: "/admin/codes",         icon: "🔑", label: "Codes"         },
-  { href: "/admin/analytics",     icon: "📊", label: "Analytics"     },
-  { href: "/admin/content",       icon: "✏️", label: "Content"       },
-  { href: "/admin/notifications", icon: "🔔", label: "Notifications" },
+  { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/admin/codes", icon: KeyRound, label: "Access Codes" },
+  { href: "/admin/analytics", icon: BarChart3, label: "Analytics" },
+  { href: "/admin/content", icon: FileText, label: "Content" },
+  { href: "/admin/notifications", icon: Bell, label: "Messages" },
 ];
+
 const COACH_LINKS = [
-  { href: "/admin/codes", icon: "🔑", label: "Generate Code" },
+  { href: "/admin/codes", icon: KeyRound, label: "Generate Code" },
 ];
 
 interface SidebarProps {
   active: string;
   username: string;
-  role?: string;          // default "owner"
-  onLogout?: () => void;  // optional — kung kailangan ng parent na mag-handle
+  role?: string;
+  onLogout?: () => void;
 }
 
-export default function Sidebar({ active, username, role = "owner", onLogout }: SidebarProps) {
+export default function Sidebar({
+  active,
+  username,
+  role = "owner",
+  onLogout,
+}: SidebarProps) {
   const router = useRouter();
   const isCoach = role === "coach";
-  const links   = isCoach ? COACH_LINKS : OWNER_LINKS;
+  const links = isCoach ? COACH_LINKS : OWNER_LINKS;
 
   async function handleLogout() {
-    if (onLogout) { onLogout(); return; }
+    if (onLogout) {
+      onLogout();
+      return;
+    }
     await fetch("/api/admin/login", { method: "DELETE" });
     router.push("/admin/login");
   }
 
   return (
-    <aside style={{
-      width: 220, minHeight: "100vh", background: G,
-      display: "flex", flexDirection: "column",
-      position: "fixed", top: 0, left: 0, zIndex: 100,
-      boxShadow: "2px 0 12px rgba(0,0,0,0.12)",
-    }}>
-      {/* ── Logo ── */}
-      <div style={{ padding: "28px 20px 24px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 38, height: 38, background: GOLD, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>☕</div>
+    <aside
+      style={{
+        width: "var(--admin-sidebar)",
+        minHeight: "100vh",
+        background: "#183b28",
+        display: "flex",
+        flexDirection: "column",
+        position: "fixed",
+        inset: "0 auto 0 0",
+        zIndex: 100,
+        borderRight: "1px solid rgba(255,255,255,0.08)",
+      }}
+    >
+      <div style={{ padding: "28px 22px 22px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div
+            style={{
+              width: 42,
+              height: 42,
+              background: "#FED255",
+              color: "#183b28",
+              borderRadius: 8,
+              display: "grid",
+              placeItems: "center",
+              flexShrink: 0,
+            }}
+          >
+            <Coffee size={23} strokeWidth={2.5} />
+          </div>
           <div>
-            <div style={{ color: GOLD, fontWeight: "bold", fontSize: 14, lineHeight: 1.2 }}>EaseBrew</div>
-            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 11 }}>
-              {isCoach ? "Coach Portal" : "Admin Panel"}
+            <div style={{ color: "white", fontWeight: 750, fontSize: 16 }}>
+              EaseBrew
+            </div>
+            <div style={{ color: "rgba(255,255,255,0.58)", fontSize: 12, marginTop: 2 }}>
+              {isCoach ? "Coach workspace" : "Operations console"}
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Nav ── */}
-      <nav style={{ flex: 1, padding: "16px 12px", display: "flex", flexDirection: "column", gap: 4 }}>
-        {links.map(l => {
-          const isActive = active === l.href;
+      <div style={{ padding: "0 14px 10px" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 9,
+            padding: "9px 10px",
+            color: "rgba(255,255,255,0.5)",
+            fontSize: 11,
+            fontWeight: 700,
+            textTransform: "uppercase",
+          }}
+        >
+          <ShieldCheck size={15} />
+          {isCoach ? "Coach tools" : "Management"}
+        </div>
+      </div>
+
+      <nav style={{ flex: 1, padding: "0 14px", display: "flex", flexDirection: "column", gap: 5 }}>
+        {links.map(({ href, icon: Icon, label }) => {
+          const isActive = active === href;
           return (
-            <Link key={l.href} href={l.href} style={{ textDecoration: "none" }}>
-              <div
-                style={{
-                  display: "flex", alignItems: "center", gap: 10,
-                  padding: "10px 12px", borderRadius: 10,
-                  background: isActive ? "rgba(254,210,85,0.15)" : "transparent",
-                  borderLeft: isActive ? `3px solid ${GOLD}` : "3px solid transparent",
-                  cursor: "pointer", transition: "all 0.15s",
-                }}
-                onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)"; }}
-                onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-              >
-                <span style={{ fontSize: 17 }}>{l.icon}</span>
-                <span style={{
-                  color: isActive ? GOLD : "rgba(255,255,255,0.8)",
-                  fontSize: 13, fontWeight: isActive ? "bold" : "normal",
-                }}>
-                  {l.label}
-                </span>
-              </div>
+            <Link
+              key={href}
+              href={href}
+              style={{
+                minHeight: 44,
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "0 13px",
+                borderRadius: 7,
+                background: isActive ? "#FED255" : "transparent",
+                color: isActive ? "#183b28" : "rgba(255,255,255,0.76)",
+                textDecoration: "none",
+                fontSize: 13,
+                fontWeight: isActive ? 750 : 550,
+                transition: "background 150ms, color 150ms",
+              }}
+            >
+              <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+              {label}
             </Link>
           );
         })}
       </nav>
 
-      {/* ── User / Logout ── */}
-      <div style={{ padding: "16px 12px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-          <div style={{ width: 34, height: 34, background: "rgba(255,255,255,0.15)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>👤</div>
-          <div style={{ overflow: "hidden" }}>
-            <div style={{ color: "white", fontSize: 13, fontWeight: "bold", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{username}</div>
-            <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 11 }}>
-              {isCoach ? "Coach" : "Administrator"}
+      <div style={{ margin: "16px 14px", padding: "14px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 7,
+              display: "grid",
+              placeItems: "center",
+              background: "rgba(255,255,255,0.1)",
+              color: "white",
+            }}
+          >
+            <UserRound size={18} />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ color: "white", fontSize: 13, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis" }}>
+              {username || (isCoach ? "Coach" : "Administrator")}
+            </div>
+            <div style={{ color: "rgba(255,255,255,0.48)", fontSize: 11, marginTop: 2 }}>
+              {isCoach ? "Coach account" : "Owner account"}
             </div>
           </div>
         </div>
         <button
+          type="button"
           onClick={handleLogout}
-          style={{ width: "100%", background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.8)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "8px 12px", fontSize: 12, cursor: "pointer", textAlign: "left" }}
+          style={{
+            width: "100%",
+            minHeight: 38,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            background: "rgba(255,255,255,0.06)",
+            color: "rgba(255,255,255,0.76)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 6,
+            fontSize: 12,
+            fontWeight: 650,
+            cursor: "pointer",
+          }}
         >
-          🚪 Logout
+          <LogOut size={16} />
+          Sign out
         </button>
       </div>
     </aside>

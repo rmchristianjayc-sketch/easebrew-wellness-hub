@@ -78,10 +78,10 @@ export default function AdminDashboard() {
   const maxTierCount = Math.max(...tierEntries.map(([, v]) => v), 1);
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f6f8", fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
       <Sidebar active="/admin" username={username} onLogout={handleLogout} />
 
-      <main style={{ marginLeft: 220, flex: 1, padding: "32px 36px", minWidth: 0 }}>
+      <main className="admin-main" style={{ flex: 1, minWidth: 0 }}>
         <div style={{ marginBottom: 28 }}>
           <h1 style={{ color: DARK, fontSize: 22, fontWeight: "bold", margin: 0 }}>Dashboard</h1>
           <p style={{ color: MID, fontSize: 13, margin: "4px 0 0" }}>

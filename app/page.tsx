@@ -449,7 +449,7 @@ export default function Home() {
   );
 
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh" }}>
+    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh" }}>
       <InstallBanner />
       {showCoachModal && <CoachModal coaches={coaches} onClose={() => setShowCoachModal(false)} />}
 
@@ -467,12 +467,12 @@ export default function Home() {
           </div>
           <div style={{ fontSize: 32 }}>☕</div>
         </div>
-        <div style={{ display: "flex", marginTop: 8 }}>
+        <nav className="customer-home-nav" aria-label="Pangunahing menu" style={{ display: "flex", marginTop: 8 }}>
           {tabBtn("home",    "🏠 Home")}
           {tabBtn("gifts",   "🎁 Gifts")}
           {tabBtn("tips",    "💡 Tips")}
           {tabBtn("coaches", "👥 Coaches")}
-        </div>
+        </nav>
       </div>
 
       {/* ── TAB CONTENT ──────────────────────────────────────── */}

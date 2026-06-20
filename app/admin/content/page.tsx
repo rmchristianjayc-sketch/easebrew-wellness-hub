@@ -273,19 +273,19 @@ export default function ContentPage() {
   const activeGroupPending = (groups[activeGroup] ?? []).filter(k => editing[k] !== (content[k] ?? "")).length;
 
   if (loading) return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f6f8", fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
       <Sidebar active="/admin/content" username={username} />
-      <main style={{ marginLeft: 220, flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <main className="admin-main" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ color: MID }}>Loading content...</div>
       </main>
     </div>
   );
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f6f8", fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
       <Sidebar active="/admin/content" username={username} />
 
-      <main style={{ marginLeft: 220, flex: 1, padding: "32px 36px", minWidth: 0, display: "flex", gap: 24 }}>
+      <main className="admin-main" style={{ flex: 1, minWidth: 0, display: "flex", gap: 24 }}>
         {/* ── Left: Group Tabs ── */}
         <div style={{ width: 200, flexShrink: 0 }}>
           <h1 style={{ color: DARK, fontSize: 22, fontWeight: "bold", margin: "0 0 6px" }}>Content</h1>
