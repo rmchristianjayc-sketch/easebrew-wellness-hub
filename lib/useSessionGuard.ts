@@ -7,6 +7,7 @@ export type EbSession = {
   code: string;
   tier: number;
   expires_at: string;
+  device_id: string;
 };
 
 // ✅ FIXED — local na ito ngayon, hindi na nag-i-import mula sa
@@ -108,10 +109,15 @@ export function useSessionGuard() {
 
         // I-sync ang cookie gamit ang latest na data mula sa server
         // (kapag na-reactivate, may bagong expires_at na dapat masave)
+        // ✅ FIXED — kasama na ang device_id. Ang middleware.ts ay
+        // nagchecheck ng session.device_id bilang required field; kung
+        // wala ito sa cookie, agad nitong ire-redirect papunta sa
+        // /verify kahit valid at fresh ang session.
         const fresh: EbSession = {
           code: data.session.code,
           tier: data.session.tier,
           expires_at: data.session.expires_at,
+          device_id: data.session.device_id,
         };
         document.cookie = `eb_session=${encodeURIComponent(JSON.stringify(fresh))}; path=/; max-age=${60 * 60 * 24 * 365}`;
 
