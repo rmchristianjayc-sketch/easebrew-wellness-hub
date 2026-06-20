@@ -75,12 +75,3 @@ export type AdminUser = {
 // ✅ Ginagamit pa rin sa verify/page.tsx at bagong-katawan/page.tsx
 // ============================================================
 
-export function getDeviceId(): string {
-  if (typeof window === 'undefined') return '';
-  let id = localStorage.getItem('eb_device_id');
-  if (!id) {
-    id = 'dev_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
-    localStorage.setItem('eb_device_id', id);
-  }
-  return id;
-}

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
+import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
 
 const G = "#39613B";
 const GOLD = "#FED255";
@@ -175,7 +176,10 @@ function Stepper({ label, sub, value, min, max, onChange }: {
 }
 
 export default function BagongKatawanPage() {
-  const { checking } = useSessionGuard();
+  const { checking, session } = useSessionGuard();
+  const daysStorageKey = progressStorageKey("easebrew-90days", session?.code);
+  const trackStorageKey = progressStorageKey("easebrew-90days-track", session?.code);
+  const measurementsStorageKey = progressStorageKey("easebrew-90days-meas", session?.code);
 
   const [activeTab, setActiveTab] = useState(0);
   const [activePhase, setActivePhase] = useState(1);
@@ -190,18 +194,13 @@ export default function BagongKatawanPage() {
 
   // ── LOAD: Supabase first, fallback to localStorage cache ──
   useEffect(() => {
-    if (checking) return;
+    if (checking || !session) return;
 
     async function load() {
       // Local cache muna — instant display kung may saved na
-      try {
-        const cachedDays = localStorage.getItem("easebrew-90days");
-        const cachedTrack = localStorage.getItem("easebrew-90days-track");
-        const cachedMeas = localStorage.getItem("easebrew-90days-meas");
-        if (cachedDays) setCompletedDays(JSON.parse(cachedDays));
-        if (cachedTrack) setTrackData(JSON.parse(cachedTrack));
-        if (cachedMeas) setMeasurements(JSON.parse(cachedMeas));
-      } catch {}
+      setCompletedDays(readProgressCache<number[]>(daysStorageKey, []));
+      setTrackData(readProgressCache<Record<number, DayEntry>>(trackStorageKey, {}));
+      setMeasurements(readProgressCache<Measurements>(measurementsStorageKey, emptyMeasurements()));
 
       // ✅ FIXED: Cookie-based lang — walang code/device_id sa params
       try {
@@ -211,15 +210,15 @@ export default function BagongKatawanPage() {
           const remote: ProgressShape = json.data;
           if (remote.completedDays) {
             setCompletedDays(remote.completedDays);
-            localStorage.setItem("easebrew-90days", JSON.stringify(remote.completedDays));
+            writeProgressCache(daysStorageKey, remote.completedDays);
           }
           if (remote.trackData) {
             setTrackData(remote.trackData);
-            localStorage.setItem("easebrew-90days-track", JSON.stringify(remote.trackData));
+            writeProgressCache(trackStorageKey, remote.trackData);
           }
           if (remote.measurements) {
             setMeasurements(remote.measurements);
-            localStorage.setItem("easebrew-90days-meas", JSON.stringify(remote.measurements));
+            writeProgressCache(measurementsStorageKey, remote.measurements);
           }
         }
       } catch {
@@ -230,7 +229,7 @@ export default function BagongKatawanPage() {
     }
 
     load();
-  }, [checking]);
+  }, [checking, daysStorageKey, measurementsStorageKey, session, trackStorageKey]);
 
   // ── SAVE: debounced sync to Supabase (also caches to localStorage) ──
   // ✅ FIXED: Walang code/device_id — { type, data } shape lang, cookie ang bahala sa auth
@@ -272,20 +271,20 @@ export default function BagongKatawanPage() {
     e.stopPropagation();
     const updated = completedDays.includes(day) ? completedDays.filter(d => d !== day) : [...completedDays, day];
     setCompletedDays(updated);
-    localStorage.setItem("easebrew-90days", JSON.stringify(updated));
+    writeProgressCache(daysStorageKey, updated);
     queueSync({ completedDays: updated });
   };
 
   const saveTrack = (day: number, data: DayEntry) => {
     const updated = { ...trackData, [day]: data };
     setTrackData(updated);
-    localStorage.setItem("easebrew-90days-track", JSON.stringify(updated));
+    writeProgressCache(trackStorageKey, updated);
     queueSync({ trackData: updated });
   };
 
   const saveMeasurements = (updated: Measurements) => {
     setMeasurements(updated);
-    localStorage.setItem("easebrew-90days-meas", JSON.stringify(updated));
+    writeProgressCache(measurementsStorageKey, updated);
     queueSync({ measurements: updated });
   };
 

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
+import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";
@@ -83,54 +84,55 @@ async function syncTrackerProgress(entries: DayEntry[]) {
   }
 }
 
-function getStoredTrackerEntries(): DayEntry[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem("easebrew-tracker-v2");
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+function getStoredTrackerEntries(storageKey: string): DayEntry[] {
+  return readProgressCache<DayEntry[]>(storageKey, []);
 }
 
-function getStoredTodayEntry(): DayEntry {
+function getStoredTodayEntry(storageKey: string): DayEntry {
   const todayStr = new Date().toISOString().split("T")[0];
-  return getStoredTrackerEntries().find(e => e.date === todayStr) ?? emptyEntry();
+  return getStoredTrackerEntries(storageKey).find(e => e.date === todayStr) ?? emptyEntry();
 }
 
 export default function TrackerPage() {
-  const { checking } = useSessionGuard();
-  const [entries, setEntries] = useState<DayEntry[]>(getStoredTrackerEntries);
-  const [today, setToday]     = useState<DayEntry>(getStoredTodayEntry);
+  const { checking, session } = useSessionGuard();
+  const storageKey = progressStorageKey("easebrew-tracker-v2", session?.code);
+  const [entries, setEntries] = useState<DayEntry[]>([]);
+  const [today, setToday]     = useState<DayEntry>(emptyEntry);
   const [view, setView]       = useState<"ngayon" | "history">("ngayon");
   const [saved, setSaved]     = useState(false);
   const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (checking) return;
+    if (checking || !session) return;
 
-    const localEntries = getStoredTrackerEntries();
+    async function loadProgress() {
+      const localEntries = getStoredTrackerEntries(storageKey);
+      setEntries(localEntries);
+      setToday(getStoredTodayEntry(storageKey));
 
-    fetch('/api/progress?type=tracker')
-      .then(r => r.json())
-      .then(res => {
-        const remoteEntries: DayEntry[] = Array.isArray(res?.data?.entries) ? res.data.entries : [];
-        if (remoteEntries.length === 0) return;
+      fetch('/api/progress?type=tracker')
+        .then(r => r.json())
+        .then(res => {
+          const remoteEntries: DayEntry[] = Array.isArray(res?.data?.entries) ? res.data.entries : [];
+          if (remoteEntries.length === 0) return;
 
-        const map = new Map<string, DayEntry>();
-        remoteEntries.forEach(e => map.set(e.date, e));
-        localEntries.forEach(e => { if (!map.has(e.date)) map.set(e.date, e); });
+          const map = new Map<string, DayEntry>();
+          remoteEntries.forEach(e => map.set(e.date, e));
+          localEntries.forEach(e => { if (!map.has(e.date)) map.set(e.date, e); });
 
-        const merged = Array.from(map.values()).sort((a, b) => a.date.localeCompare(b.date));
-        setEntries(merged);
-        localStorage.setItem("easebrew-tracker-v2", JSON.stringify(merged));
+          const merged = Array.from(map.values()).sort((a, b) => a.date.localeCompare(b.date));
+          setEntries(merged);
+          writeProgressCache(storageKey, merged);
 
-        const todayStr = new Date().toISOString().split("T")[0];
-        const mergedToday = merged.find(e => e.date === todayStr);
-        if (mergedToday) setToday(mergedToday);
-      })
-      .catch(() => {});
-  }, [checking]);
+          const todayStr = new Date().toISOString().split("T")[0];
+          const mergedToday = merged.find(e => e.date === todayStr);
+          if (mergedToday) setToday(mergedToday);
+        })
+        .catch(() => {});
+    }
+
+    loadProgress();
+  }, [checking, session, storageKey]);
 
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -154,7 +156,7 @@ export default function TrackerPage() {
       ? entries.map((e, i) => i === idx ? entry : e)
       : [...entries, entry];
     setEntries(updated);
-    localStorage.setItem("easebrew-tracker-v2", JSON.stringify(updated));
+    writeProgressCache(storageKey, updated);
     triggerSync(updated);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);

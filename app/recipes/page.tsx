@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
+import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
 
 const G = "#39613B";
 const GOLD = "#FED255";
@@ -796,7 +797,8 @@ const RECIPES: Recipe[] = [
 const ALL_CATEGORIES = ["All", "❤️ Favorites", ...Array.from(new Set(RECIPES.map(r => r.category)))];
 
 export default function RecipesPage() {
-  const { checking } = useSessionGuard();
+  const { checking, session } = useSessionGuard();
+  const favoritesStorageKey = progressStorageKey("easebrew-recipe-favorites", session?.code);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [expandedRecipe, setExpandedRecipe] = useState<number | null>(null);
@@ -804,12 +806,11 @@ export default function RecipesPage() {
 
   // ✅ PALITAN NG — localStorage muna (instant), tapos cloud override
 useEffect(() => {
-  if (checking) return;
+  if (checking || !session) return;
   async function load() {
     // Local cache muna — instant display
     try {
-      const saved = localStorage.getItem("easebrew-recipe-favorites");
-      if (saved) setFavorites(JSON.parse(saved));
+      setFavorites(readProgressCache<number[]>(favoritesStorageKey, []));
     } catch {}
 
     // Cloud sync — source of truth
@@ -818,12 +819,12 @@ useEffect(() => {
       const json = await res.json();
       if (res.ok && json.data?.favorites) {
         setFavorites(json.data.favorites);
-        localStorage.setItem("easebrew-recipe-favorites", JSON.stringify(json.data.favorites));
+        writeProgressCache(favoritesStorageKey, json.data.favorites);
       }
     } catch {}
   }
   load();
-}, [checking]);
+}, [checking, favoritesStorageKey, session]);
 
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -838,7 +839,7 @@ useEffect(() => {
     e.stopPropagation();
     const updated = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
     setFavorites(updated);
-    localStorage.setItem("easebrew-recipe-favorites", JSON.stringify(updated));
+    writeProgressCache(favoritesStorageKey, updated);
   
     // Cloud sync — same pattern ng ibang pages
     fetch("/api/progress", {

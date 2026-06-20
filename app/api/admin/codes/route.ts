@@ -62,19 +62,34 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (action === 'deactivate') {
-      const { error } = await supabaseAdmin
+      let query = supabaseAdmin
         .from('access_codes')
         .update({ expires_at: new Date().toISOString() })
         .eq('id', id);
+      if (admin.role === 'coach') {
+        query = query.eq('created_by', admin.username);
+      }
+      const { data, error } = await query.select('id').maybeSingle();
       if (error) return NextResponse.json({ error: 'Failed to deactivate code.' }, { status: 500 });
+      if (!data) {
+        return NextResponse.json(
+          { error: 'Code not found or not allowed for this account.' },
+          { status: 404 }
+        );
+      }
     }
 
     if (action === 'reactivate') {
-      const { error } = await supabaseAdmin
+      const { data, error } = await supabaseAdmin
         .from('access_codes')
         .update({ is_used: false, used_at: null, expires_at: null, device_id: null })
-        .eq('id', id);
+        .eq('id', id)
+        .select('id')
+        .maybeSingle();
       if (error) return NextResponse.json({ error: 'Failed to reactivate code.' }, { status: 500 });
+      if (!data) {
+        return NextResponse.json({ error: 'Code not found.' }, { status: 404 });
+      }
     }
 
     return NextResponse.json({ success: true });

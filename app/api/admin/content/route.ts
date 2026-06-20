@@ -1,22 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
 import { supabaseAdmin } from '@/lib/supabase';
+import { verifyToken } from '@/lib/auth';
+import { PUBLIC_CONTENT_KEYS, validateContentUpdate } from '@/lib/contentKeys';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.ADMIN_SECRET!);
-
-// ── AUTH HELPER (copied from api/admin/codes/route.ts pattern) ──────────────
-async function verifyToken(req: NextRequest) {
-  const token = req.cookies.get('eb_admin_token')?.value;
-  if (!token) return null;
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload as { username: string; role: 'owner' | 'coach' };
-  } catch {
-    return null;
-  }
-}
-
-// ── GET — returns ALL content rows (admin-only, no key whitelist) ────────────
+// ── GET — returns editable public content rows only ─────────────────────────
 export async function GET(req: NextRequest) {
   try {
     const admin = await verifyToken(req);
@@ -35,6 +22,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await supabaseAdmin
       .from('content')
       .select('key, value, updated_by, updated_at')
+      .in('key', PUBLIC_CONTENT_KEYS)
       .order('key', { ascending: true });
 
     if (error) {
@@ -85,11 +73,18 @@ export async function POST(req: NextRequest) {
       if (
         typeof entry.key !== 'string' ||
         entry.key.trim() === '' ||
-        typeof entry.value !== 'string' ||
-        entry.value.length > 10000
+        typeof entry.value !== 'string'
       ) {
         return NextResponse.json(
           { error: 'Each update must have a valid key and text value.' },
+          { status: 400 }
+        );
+      }
+
+      const validationError = validateContentUpdate(entry.key.trim(), entry.value);
+      if (validationError) {
+        return NextResponse.json(
+          { error: `${entry.key}: ${validationError}` },
           { status: 400 }
         );
       }

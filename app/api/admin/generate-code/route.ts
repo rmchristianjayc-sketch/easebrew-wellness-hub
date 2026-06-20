@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { randomInt } from 'crypto';
 import { supabaseAdmin } from '@/lib/supabase';
 import { PRICE_CONFIG } from '@/lib/price-config';
 import { verifyToken } from '@/lib/auth';
 
 function generateCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const part1 = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-  const part2 = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  const pick = () => chars[randomInt(chars.length)];
+  const part1 = Array.from({ length: 4 }, pick).join('');
+  const part2 = Array.from({ length: 4 }, pick).join('');
   return `EASE-${part1}-${part2}`;
 }
 
@@ -27,6 +29,10 @@ export async function POST(req: NextRequest) {
     }
 
     const config = PRICE_CONFIG[tierNum];
+    const customerName =
+      typeof customer_name === 'string' ? customer_name.trim().slice(0, 120) : '';
+    const safeNotes =
+      typeof notes === 'string' ? notes.trim().slice(0, 1000) : '';
 
     let code = '';
     let isUnique = false;
@@ -56,12 +62,8 @@ export async function POST(req: NextRequest) {
         validity_days: config.validityDays,
         is_used: false,
         created_by: admin.username,
-        customer_name: typeof customer_name === 'string'
-          ? customer_name.trim().slice(0, 120) || null
-          : null,
-        notes: typeof notes === 'string'
-          ? notes.trim().slice(0, 1000) || null
-          : null,
+        customer_name: customerName || null,
+        notes: safeNotes || null,
       })
       .select()
       .single();

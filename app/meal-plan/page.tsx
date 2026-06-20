@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
+import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";
@@ -25,14 +26,8 @@ async function syncMealPlanProgress(days: number[]) {
   }
 }
 
-function getStoredMealPlanDays(): number[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const saved = localStorage.getItem("easebrew-mealplan");
-    return saved ? JSON.parse(saved) : [];
-  } catch {
-    return [];
-  }
+function getStoredMealPlanDays(storageKey: string): number[] {
+  return readProgressCache<number[]>(storageKey, []);
 }
 
 const MEAL_PLAN = [
@@ -111,28 +106,35 @@ const FOCUS_COLORS: Record<string, string> = {
 };
 
 export default function MealPlanPage() {
-  const { checking } = useSessionGuard();
+  const { checking, session } = useSessionGuard();
+  const storageKey = progressStorageKey("easebrew-mealplan", session?.code);
   const [selectedWeek, setSelectedWeek]   = useState("Week 1");
-  const [completedDays, setCompletedDays] = useState<number[]>(getStoredMealPlanDays);
+  const [completedDays, setCompletedDays] = useState<number[]>([]);
   const [expandedDay, setExpandedDay]     = useState<number | null>(null);
   const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (checking) return;
+    if (checking || !session) return;
 
-    fetch('/api/progress?type=mealplan')
-      .then(r => r.json())
-      .then(res => {
-        const remoteDays: number[] = Array.isArray(res?.data?.days) ? res.data.days : [];
-        if (remoteDays.length === 0) return;
-        setCompletedDays(prev => {
-          const merged = Array.from(new Set([...prev, ...remoteDays])).sort((a, b) => a - b);
-          localStorage.setItem("easebrew-mealplan", JSON.stringify(merged));
-          return merged;
-        });
-      })
-      .catch(() => {});
-  }, [checking]);
+    async function loadProgress() {
+      setCompletedDays(getStoredMealPlanDays(storageKey));
+
+      fetch('/api/progress?type=mealplan')
+        .then(r => r.json())
+        .then(res => {
+          const remoteDays: number[] = Array.isArray(res?.data?.days) ? res.data.days : [];
+          if (remoteDays.length === 0) return;
+          setCompletedDays(prev => {
+            const merged = Array.from(new Set([...prev, ...remoteDays])).sort((a, b) => a - b);
+            writeProgressCache(storageKey, merged);
+            return merged;
+          });
+        })
+        .catch(() => {});
+    }
+
+    loadProgress();
+  }, [checking, session, storageKey]);
 
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -153,7 +155,7 @@ export default function MealPlanPage() {
       ? completedDays.filter(d => d !== day)
       : [...completedDays, day];
     setCompletedDays(updated);
-    localStorage.setItem("easebrew-mealplan", JSON.stringify(updated));
+    writeProgressCache(storageKey, updated);
     triggerSync(updated);
   };
 

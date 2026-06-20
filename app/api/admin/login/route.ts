@@ -1,13 +1,52 @@
+import { timingSafeEqual } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
-import { SignJWT } from 'jose';
+import { clearAdminSessionCookie, setAdminSessionCookie } from '@/lib/auth';
 
-const OWNER_SECRET = process.env.ADMIN_SECRET!;
-const COACH_SECRET = process.env.COACH_SECRET!;
-const JWT_SECRET = new TextEncoder().encode(process.env.ADMIN_SECRET!);
+const OWNER_SECRET = process.env.ADMIN_SECRET;
+const COACH_SECRET = process.env.COACH_SECRET;
+const MAX_ATTEMPTS = 8;
+const WINDOW_MS = 15 * 60 * 1000;
+
+const attempts = new Map<string, { count: number; resetAt: number }>();
+
+function getRateLimitKey(req: NextRequest, username: unknown) {
+  const forwardedFor = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
+  const ip = forwardedFor || req.headers.get('x-real-ip') || 'unknown';
+  return `${ip}:${typeof username === 'string' ? username.toLowerCase() : 'unknown'}`;
+}
+
+function isRateLimited(key: string) {
+  const now = Date.now();
+  const entry = attempts.get(key);
+  if (!entry || entry.resetAt <= now) {
+    attempts.set(key, { count: 0, resetAt: now + WINDOW_MS });
+    return false;
+  }
+  return entry.count >= MAX_ATTEMPTS;
+}
+
+function recordFailedAttempt(key: string) {
+  const now = Date.now();
+  const entry = attempts.get(key);
+  if (!entry || entry.resetAt <= now) {
+    attempts.set(key, { count: 1, resetAt: now + WINDOW_MS });
+    return;
+  }
+  attempts.set(key, { ...entry, count: entry.count + 1 });
+}
+
+function safeEquals(value: unknown, expected: string | undefined) {
+  if (typeof value !== 'string' || !expected) return false;
+  const valueBuffer = Buffer.from(value);
+  const expectedBuffer = Buffer.from(expected);
+  if (valueBuffer.length !== expectedBuffer.length) return false;
+  return timingSafeEqual(valueBuffer, expectedBuffer);
+}
 
 export async function POST(req: NextRequest) {
   try {
     const { username, password } = await req.json();
+    const rateLimitKey = getRateLimitKey(req, username);
 
     if (!username || !password) {
       return NextResponse.json(
@@ -16,46 +55,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Determine role
-    let role: 'owner' | 'coach' | null = null;
+    if (isRateLimited(rateLimitKey)) {
+      return NextResponse.json(
+        { error: 'Too many login attempts. Please try again later.' },
+        { status: 429 }
+      );
+    }
 
-    if (username === 'admin' && password === OWNER_SECRET) {
+    let role: 'owner' | 'coach' | null = null;
+    if (username === 'admin' && safeEquals(password, OWNER_SECRET)) {
       role = 'owner';
-    } else if (username === 'coach' && password === COACH_SECRET) {
+    } else if (username === 'coach' && safeEquals(password, COACH_SECRET)) {
       role = 'coach';
     }
 
     if (!role) {
+      recordFailedAttempt(rateLimitKey);
       return NextResponse.json(
         { error: 'Invalid username or password.' },
         { status: 401 }
       );
     }
 
-    // Generate JWT token (valid for 24 hours)
-    const token = await new SignJWT({ username, role })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setExpirationTime('24h')
-      .sign(JWT_SECRET);
-
-    // Set token as httpOnly cookie
-    const response = NextResponse.json({
-      success: true,
-      role,
-      username,
-    });
-
-    response.cookies.set('eb_admin_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 24, // 24 hours
-      path: '/',
-    });
-
+    attempts.delete(rateLimitKey);
+    const response = NextResponse.json({ success: true, role, username });
+    await setAdminSessionCookie(response, { username, role });
     return response;
-
   } catch (err) {
     console.error('Admin login error:', err);
     return NextResponse.json(
@@ -66,8 +91,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE() {
-  // Logout — clear cookie
   const response = NextResponse.json({ success: true });
-  response.cookies.delete('eb_admin_token');
+  clearAdminSessionCookie(response);
   return response;
 }

@@ -1,10 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { JWTPayload, SignJWT, jwtVerify } from 'jose';
 
-function getSecret() {
-  const secret = process.env.ADMIN_SECRET;
-  if (!secret) throw new Error('ADMIN_SECRET is not configured.');
+function encodeSecret(secret: string) {
   return new TextEncoder().encode(secret);
+}
+
+function getSigningSecret() {
+  const secret =
+    process.env.JWT_SECRET ||
+    process.env.ADMIN_JWT_SECRET ||
+    process.env.ADMIN_SECRET;
+  if (!secret) throw new Error('JWT_SECRET or ADMIN_SECRET is not configured.');
+  return encodeSecret(secret);
+}
+
+function getVerificationSecrets() {
+  const secrets = [
+    process.env.JWT_SECRET,
+    process.env.ADMIN_JWT_SECRET,
+    process.env.ADMIN_SECRET,
+  ].filter((secret): secret is string => Boolean(secret));
+
+  return Array.from(new Set(secrets)).map(encodeSecret);
+}
+
+async function verifySignedToken(token: string) {
+  const secrets = getVerificationSecrets();
+  if (secrets.length === 0) throw new Error('JWT_SECRET or ADMIN_SECRET is not configured.');
+
+  for (const secret of secrets) {
+    try {
+      return await jwtVerify(token, secret);
+    } catch {}
+  }
+
+  throw new Error('Invalid token.');
 }
 
 export type AdminPayload = {
@@ -50,11 +80,42 @@ export async function verifyToken(req: NextRequest): Promise<AdminPayload | null
   if (!token) return null;
 
   try {
-    const { payload } = await jwtVerify(token, getSecret());
+    const { payload } = await verifySignedToken(token);
     return isValidAdminPayload(payload) ? payload : null;
   } catch {
     return null;
   }
+}
+
+export async function createAdminToken(payload: AdminPayload) {
+  return new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('24h')
+    .sign(getSigningSecret());
+}
+
+export async function setAdminSessionCookie(
+  response: NextResponse,
+  payload: AdminPayload
+) {
+  response.cookies.set('eb_admin_token', await createAdminToken(payload), {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 60 * 60 * 24,
+    path: '/',
+  });
+}
+
+export function clearAdminSessionCookie(response: NextResponse) {
+  response.cookies.set('eb_admin_token', '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    expires: new Date(0),
+    path: '/',
+  });
 }
 
 export async function createCustomerToken(session: CustomerSession) {
@@ -63,7 +124,7 @@ export async function createCustomerToken(session: CustomerSession) {
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(expiresAt)
-    .sign(getSecret());
+    .sign(getSigningSecret());
 }
 
 export async function verifyCustomerToken(
@@ -73,7 +134,7 @@ export async function verifyCustomerToken(
   if (!token) return null;
 
   try {
-    const { payload } = await jwtVerify(token, getSecret());
+    const { payload } = await verifySignedToken(token);
     if (payload.kind !== 'customer' || !isValidCustomerSession(payload)) return null;
     if (new Date(payload.expires_at).getTime() <= Date.now()) return null;
 
