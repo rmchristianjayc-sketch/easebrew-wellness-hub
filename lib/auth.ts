@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { JWTPayload, SignJWT, jwtVerify } from 'jose';
+import { supabaseAdmin } from '@/lib/supabase';
 
 function encodeSecret(secret: string) {
   return new TextEncoder().encode(secret);
@@ -60,6 +61,33 @@ function isValidAdminPayload(payload: unknown): payload is AdminPayload {
   );
 }
 
+async function getActiveAdminPayload(payload: AdminPayload): Promise<AdminPayload | null> {
+  const { data, error } = await supabaseAdmin
+    .from('admin_users')
+    .select('username, role, is_active')
+    .eq('username_normalized', payload.username.trim().toLowerCase())
+    .maybeSingle();
+
+  if (error) {
+    console.error('Admin session lookup error:', error);
+    return null;
+  }
+
+  if (
+    !data ||
+    data.is_active !== true ||
+    typeof data.username !== 'string' ||
+    (data.role !== 'owner' && data.role !== 'coach')
+  ) {
+    return null;
+  }
+
+  return {
+    username: data.username,
+    role: data.role,
+  };
+}
+
 function isValidCustomerSession(
   payload: JWTPayload
 ): payload is JWTPayload & CustomerSession {
@@ -81,7 +109,7 @@ export async function verifyToken(req: NextRequest): Promise<AdminPayload | null
 
   try {
     const { payload } = await verifySignedToken(token);
-    return isValidAdminPayload(payload) ? payload : null;
+    return isValidAdminPayload(payload) ? await getActiveAdminPayload(payload) : null;
   } catch {
     return null;
   }

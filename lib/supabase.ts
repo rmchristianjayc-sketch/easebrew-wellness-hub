@@ -66,8 +66,12 @@ export type Content = {
 export type AdminUser = {
   id: string;
   username: string;
+  username_normalized: string;
   role: 'owner' | 'coach';
+  password_hash: string;
+  is_active: boolean;
   created_at: string;
+  updated_at: string;
 };
 
 // ============================================================

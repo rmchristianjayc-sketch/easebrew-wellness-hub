@@ -1,13 +1,19 @@
-import { timingSafeEqual } from 'crypto';
+import { compare } from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { clearAdminSessionCookie, setAdminSessionCookie } from '@/lib/auth';
+import { supabaseAdmin } from '@/lib/supabase';
 
-const OWNER_SECRET = process.env.ADMIN_SECRET;
-const COACH_SECRET = process.env.COACH_SECRET;
 const MAX_ATTEMPTS = 8;
 const WINDOW_MS = 15 * 60 * 1000;
 
 const attempts = new Map<string, { count: number; resetAt: number }>();
+type AdminRole = 'owner' | 'coach';
+type LoginAdminUser = {
+  username: string;
+  role: AdminRole;
+  password_hash: string;
+  is_active: boolean;
+};
 
 function getRateLimitKey(req: NextRequest, username: unknown) {
   const forwardedFor = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
@@ -35,20 +41,47 @@ function recordFailedAttempt(key: string) {
   attempts.set(key, { ...entry, count: entry.count + 1 });
 }
 
-function safeEquals(value: unknown, expected: string | undefined) {
-  if (typeof value !== 'string' || !expected) return false;
-  const valueBuffer = Buffer.from(value);
-  const expectedBuffer = Buffer.from(expected);
-  if (valueBuffer.length !== expectedBuffer.length) return false;
-  return timingSafeEqual(valueBuffer, expectedBuffer);
+function normalizeUsername(username: unknown) {
+  return typeof username === 'string' ? username.trim().toLowerCase() : '';
+}
+
+function isAdminRole(role: unknown): role is AdminRole {
+  return role === 'owner' || role === 'coach';
+}
+
+function isLoginAdminUser(value: unknown): value is LoginAdminUser {
+  if (typeof value !== 'object' || value === null) return false;
+  const row = value as Record<string, unknown>;
+  return (
+    typeof row.username === 'string' &&
+    isAdminRole(row.role) &&
+    typeof row.password_hash === 'string' &&
+    typeof row.is_active === 'boolean'
+  );
+}
+
+async function findAdminUser(username: string) {
+  const { data, error } = await supabaseAdmin
+    .from('admin_users')
+    .select('username, role, password_hash, is_active')
+    .eq('username_normalized', username)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Admin user lookup error:', error);
+    throw new Error('Admin login lookup failed.');
+  }
+
+  return isLoginAdminUser(data) ? data : null;
 }
 
 export async function POST(req: NextRequest) {
   try {
     const { username, password } = await req.json();
     const rateLimitKey = getRateLimitKey(req, username);
+    const normalizedUsername = normalizeUsername(username);
 
-    if (!username || !password) {
+    if (!normalizedUsername || typeof password !== 'string') {
       return NextResponse.json(
         { error: 'Username and password are required.' },
         { status: 400 }
@@ -62,14 +95,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let role: 'owner' | 'coach' | null = null;
-    if (username === 'admin' && safeEquals(password, OWNER_SECRET)) {
-      role = 'owner';
-    } else if (username === 'coach' && safeEquals(password, COACH_SECRET)) {
-      role = 'coach';
-    }
+    const adminUser = await findAdminUser(normalizedUsername);
+    const isValidPassword =
+      adminUser?.is_active === true
+        ? await compare(password, adminUser.password_hash)
+        : false;
 
-    if (!role) {
+    if (!adminUser || !isValidPassword) {
       recordFailedAttempt(rateLimitKey);
       return NextResponse.json(
         { error: 'Invalid username or password.' },
@@ -78,8 +110,15 @@ export async function POST(req: NextRequest) {
     }
 
     attempts.delete(rateLimitKey);
-    const response = NextResponse.json({ success: true, role, username });
-    await setAdminSessionCookie(response, { username, role });
+    const response = NextResponse.json({
+      success: true,
+      role: adminUser.role,
+      username: adminUser.username,
+    });
+    await setAdminSessionCookie(response, {
+      username: adminUser.username,
+      role: adminUser.role,
+    });
     return response;
   } catch (err) {
     console.error('Admin login error:', err);
