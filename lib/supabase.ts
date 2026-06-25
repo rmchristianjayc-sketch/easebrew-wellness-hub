@@ -74,8 +74,4 @@ export type AdminUser = {
   updated_at: string;
 };
 
-// ============================================================
-// HELPER — Generate unique device ID
-// ✅ Ginagamit pa rin sa verify/page.tsx at bagong-katawan/page.tsx
-// ============================================================
 
