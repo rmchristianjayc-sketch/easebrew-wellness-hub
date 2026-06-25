@@ -74,23 +74,23 @@ export default function NotificationsPage() {
       });
   }
 
-  async function saveContentKey(key: string, value: string) {
-    const res = await fetch("/api/admin/content", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key, value }),
-    });
-    if (!res.ok) throw new Error(await res.text());
-  }
-
   async function handlePublish() {
     if (!title || !body) return;
     setPublishing(true);
     setPublishMsg("");
     try {
-      await saveContentKey("notification_active", "true");
-      await saveContentKey("notification_title", title);
-      await saveContentKey("notification_message", body);
+      const res = await fetch("/api/admin/content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          updates: [
+            { key: "notification_active",  value: "true" },
+            { key: "notification_title",   value: title  },
+            { key: "notification_message", value: body   },
+          ],
+        }),
+      });
+      if (!res.ok) throw new Error(await res.text());
       setCurrent({ title, message: body, active: true });
       setPublishMsg("✅ Na-publish na! Makikita na ng lahat ng customers.");
     } catch {
@@ -103,7 +103,12 @@ export default function NotificationsPage() {
     setClearing(true);
     setPublishMsg("");
     try {
-      await saveContentKey("notification_active", "false");
+      const res = await fetch("/api/admin/content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ updates: [{ key: "notification_active", value: "false" }] }),
+      });
+      if (!res.ok) throw new Error(await res.text());
       setCurrent(prev => prev ? { ...prev, active: false } : null);
       setPublishMsg("🗑️ Na-clear na ang notification.");
     } catch {
