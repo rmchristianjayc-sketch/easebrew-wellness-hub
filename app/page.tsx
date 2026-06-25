@@ -152,6 +152,28 @@ function extractYouTubeId(url: string): string {
 }
 
 // ============================================================
+// EXPIRY BANNER — auto-shows when customer's access is expiring
+// ============================================================
+function ExpiryBanner({ daysLeft, onReorder, onDismiss }: { daysLeft: number; onReorder: () => void; onDismiss: () => void }) {
+  const urgent = daysLeft <= 3;
+  return (
+    <div style={{ background: urgent ? "#7f1d1d" : "#78350f", borderBottom: `3px solid ${urgent ? "#ef4444" : "#f59e0b"}`, padding: "14px 20px", display: "flex", alignItems: "center", gap: 12 }}>
+      <span style={{ fontSize: 22, flexShrink: 0 }}>{urgent ? "🚨" : "⏰"}</span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ fontSize: 15, fontWeight: 700, color: urgent ? "#fca5a5" : "#FED255", margin: "0 0 2px" }}>
+          {urgent ? `${daysLeft} araw na lang ang access ninyo!` : `Mag-e-expire na sa ${daysLeft} araw!`}
+        </p>
+        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", margin: 0 }}>Mag-order na para hindi mapuputol ang wellness journey mo.</p>
+      </div>
+      <button onClick={onReorder} style={{ background: urgent ? "#ef4444" : "#f59e0b", color: "white", border: "none", borderRadius: 10, padding: "10px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer", flexShrink: 0 }}>
+        🛒 Mag-order
+      </button>
+      <button onClick={onDismiss} aria-label="Isara" style={{ background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 999, width: 28, height: 28, fontSize: 14, cursor: "pointer", color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
+    </div>
+  );
+}
+
+// ============================================================
 // NOTIFICATION BANNER (admin-sent announcements)
 // ============================================================
 function NotificationBanner({ title, message, onDismiss }: { title: string; message: string; onDismiss: () => void }) {
@@ -417,6 +439,10 @@ export default function Home() {
   // patuloy pa ring may access ang customer hangga't valid ang lumang cookie.
   const { checking, session } = useSessionGuard();
   const customerTier = session?.tier ?? 0;
+  const daysLeft = session?.expires_at
+    ? Math.ceil((new Date(session.expires_at).getTime() - Date.now()) / 86400000)
+    : null;
+  const showExpiryBanner = daysLeft !== null && daysLeft <= 7 && daysLeft > 0 && !expiryDismissed;
 
   const [tipIndex, setTipIndex] = useState(0);
   const [tab, setTab] = useState<Tab>("home");
@@ -432,6 +458,7 @@ export default function Home() {
   const [promoDismissed, setPromoDismissed] = useState(false);
   const [largeFont, setLargeFont] = useState(false);
   const [reminderOn, setReminderOn] = useState(false);
+  const [expiryDismissed, setExpiryDismissed] = useState(false);
   const [products, setProducts]             = useState(DEFAULT_PRODUCTS);
   const [coaches, setCoaches]               = useState<Coach[]>(DEFAULT_COACHES);
   const [heroTitle, setHeroTitle]           = useState("Kamusta, Nanay at Tatay! 👋");
@@ -527,6 +554,13 @@ export default function Home() {
 
       {/* ── STICKY HEADER + TABS ─────────────────────────────── */}
       <div style={{ background: G, position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 12px rgba(0,0,0,0.15)" }}>
+        {showExpiryBanner && (
+          <ExpiryBanner
+            daysLeft={daysLeft!}
+            onReorder={() => setShowCoachModal(true)}
+            onDismiss={() => setExpiryDismissed(true)}
+          />
+        )}
         {notifActive && !notifDismissed && (
           <NotificationBanner
             title={notifTitle}
