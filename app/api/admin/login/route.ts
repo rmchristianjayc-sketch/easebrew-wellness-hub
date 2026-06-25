@@ -68,8 +68,8 @@ async function findAdminUser(username: string) {
     .maybeSingle();
 
   if (error) {
-    console.error('Admin user lookup error:', error);
-    throw new Error('Admin login lookup failed.');
+    console.error('Admin user lookup error:', JSON.stringify(error));
+    throw new Error('Admin login lookup failed: ' + error.message + ' (code: ' + error.code + ')');
   }
 
   return isLoginAdminUser(data) ? data : null;
