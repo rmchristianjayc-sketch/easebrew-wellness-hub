@@ -364,6 +364,49 @@ function InstallBanner() {
 type Tab = "home" | "gifts" | "tips" | "coaches";
 
 // ============================================================
+// DAILY REMINDER CARD
+// ============================================================
+function DailyReminderCard({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
+  const [perm, setPerm] = useState<NotificationPermission>("default");
+  useEffect(() => {
+    if ("Notification" in window) setPerm(Notification.permission);
+  }, []);
+
+  async function handleEnable() {
+    if (!("Notification" in window)) return;
+    const p = await Notification.requestPermission();
+    setPerm(p);
+    if (p === "granted") {
+      onToggle();
+      new Notification("☕ EaseBrew Reminder", { body: "Na-set na ang inyong daily reminder! Mag-aalerto kami sa umaga (7–9 AM) at gabi (7–9 PM).", icon: "/icon-192.png" });
+    }
+  }
+
+  if (perm === "denied") return null;
+
+  return (
+    <div style={{ background: enabled ? "#E8F5E0" : "#FEF9E7", border: `2px solid ${enabled ? "#39613B" : "#FED255"}`, borderRadius: 18, padding: "20px", marginBottom: 24 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 12 }}>
+        <span style={{ fontSize: 36 }}>🔔</span>
+        <div>
+          <p style={{ fontSize: 18, fontWeight: 700, color: "#1B201A", margin: 0 }}>Daily Reminder</p>
+          <p style={{ fontSize: 15, color: "#4E504F", margin: "3px 0 0 0", lineHeight: 1.5 }}>Mag-aalerto kami sa 7 AM at 7 PM para hindi ninyo malimutang uminom!</p>
+        </div>
+      </div>
+      {enabled ? (
+        <button onClick={onToggle} style={{ width: "100%", background: "#39613B", color: "white", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
+          ✅ Reminder ON — I-tap para i-off
+        </button>
+      ) : (
+        <button onClick={handleEnable} style={{ width: "100%", background: "#FED255", color: "#39613B", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
+          🔔 I-on ang Daily Reminder
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
 // MAIN PAGE
 // ============================================================
 export default function Home() {
@@ -387,6 +430,8 @@ export default function Home() {
   const [promoText, setPromoText]           = useState("");
   const [promoEnabled, setPromoEnabled]     = useState(false);
   const [promoDismissed, setPromoDismissed] = useState(false);
+  const [largeFont, setLargeFont] = useState(false);
+  const [reminderOn, setReminderOn] = useState(false);
   const [products, setProducts]             = useState(DEFAULT_PRODUCTS);
   const [coaches, setCoaches]               = useState<Coach[]>(DEFAULT_COACHES);
   const [heroTitle, setHeroTitle]           = useState("Kamusta, Nanay at Tatay! 👋");
@@ -432,6 +477,27 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    setLargeFont(localStorage.getItem("eb_large_font") === "1");
+    setReminderOn(localStorage.getItem("eb_reminder_on") === "1");
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !("Notification" in window)) return;
+    if (Notification.permission !== "granted") return;
+    if (localStorage.getItem("eb_reminder_on") !== "1") return;
+    const h = new Date().getHours();
+    const today = new Date().toISOString().split("T")[0];
+    if (h >= 7 && h < 9 && !localStorage.getItem(`eb_rem_am_${today}`)) {
+      localStorage.setItem(`eb_rem_am_${today}`, "1");
+      new Notification("☕ EaseBrew Morning Reminder", { body: "Magandang umaga! Huwag kalimutang uminom ng EaseBrew 1st sachet ngayon!", icon: "/icon-192.png" });
+    }
+    if (h >= 19 && h < 21 && !localStorage.getItem(`eb_rem_pm_${today}`)) {
+      localStorage.setItem(`eb_rem_pm_${today}`, "1");
+      new Notification("🌙 EaseBrew Evening Reminder", { body: "Magandang gabi! Huwag kalimutang uminom ng EaseBrew 2nd sachet ngayon!", icon: "/icon-192.png" });
+    }
+  }, []);
+
   const { unlocked: unlockedProducts, locked: lockedProducts } = splitByTier(products, customerTier);
 
   if (checking) return (
@@ -455,7 +521,7 @@ export default function Home() {
   );
 
   return (
-    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh" }}>
+    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", fontSize: largeFont ? "110%" : "100%" }}>
       <InstallBanner />
       {showCoachModal && <CoachModal coaches={coaches} onClose={() => setShowCoachModal(false)} />}
 
@@ -481,7 +547,16 @@ export default function Home() {
               📦 {getTierLabel(customerTier)} — {unlockedProducts.length} {unlockedProducts.length === 1 ? "Gift" : "Gifts"} Unlocked
             </p>
           </div>
-          <div style={{ fontSize: 32 }}>☕</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <button
+              onClick={() => setLargeFont(v => { const n = !v; localStorage.setItem("eb_large_font", n ? "1" : "0"); return n; })}
+              style={{ background: largeFont ? GOLD : "rgba(255,255,255,0.2)", border: "none", borderRadius: 10, padding: "7px 12px", fontSize: 15, fontWeight: 700, color: largeFont ? G : "white", cursor: "pointer", lineHeight: 1 }}
+              aria-label="Palakihin ang text"
+            >
+              {largeFont ? "A−" : "A+"}
+            </button>
+            <span style={{ fontSize: 32 }}>☕</span>
+          </div>
         </div>
         <nav className="customer-home-nav" aria-label="Pangunahing menu" style={{ display: "flex", marginTop: 8 }}>
           {tabBtn("home",    "🏠 Home")}
@@ -521,6 +596,11 @@ export default function Home() {
                 </div>
               ))}
             </div>
+
+            <DailyReminderCard
+              enabled={reminderOn}
+              onToggle={() => setReminderOn(v => { const n = !v; localStorage.setItem("eb_reminder_on", n ? "1" : "0"); return n; })}
+            />
 
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Ang Inyong 90-Day Journey 📅</h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Ito ang mararamdaman ninyo sa bawat phase.</p>
@@ -733,6 +813,24 @@ export default function Home() {
         )}
 
       </div>
+
+      {/* Floating coach button */}
+      <button
+        onClick={() => setShowCoachModal(true)}
+        aria-label="Tawagan ang Coach"
+        style={{
+          position: "fixed", bottom: 88, right: 14,
+          width: 62, height: 62, borderRadius: "50%",
+          background: "#39613B", border: "3px solid #FED255",
+          boxShadow: "0 4px 20px rgba(57,97,59,0.5)",
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center",
+          cursor: "pointer", zIndex: 500, gap: 1,
+        }}
+      >
+        <span style={{ fontSize: 22 }}>📞</span>
+        <span style={{ fontSize: 9, color: "#FED255", fontWeight: 700, letterSpacing: 0.5 }}>COACH</span>
+      </button>
     </div>
   );
 }

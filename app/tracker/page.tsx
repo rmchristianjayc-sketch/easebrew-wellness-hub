@@ -100,6 +100,7 @@ export default function TrackerPage() {
   const [today, setToday]     = useState<DayEntry>(emptyEntry);
   const [view, setView]       = useState<"ngayon" | "history">("ngayon");
   const [saved, setSaved]     = useState(false);
+  const [summaryCopied, setSummaryCopied] = useState(false);
   const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -161,6 +162,35 @@ export default function TrackerPage() {
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
+
+  function generateSummary() {
+    if (entries.length === 0) return "";
+    const firstPain = entries[0].painScore;
+    const latestPain = entries[entries.length - 1].painScore;
+    const recentNotes = entries.slice(-3).filter(e => e.notes).map(e => `• ${e.notes}`);
+    const trend = latestPain < firstPain ? "✅ Bumababa ang sakit!" : latestPain === firstPain ? "➡️ Pareho pa rin" : "⚠️ Tumaas ng konti";
+    const today = new Date().toLocaleDateString("fil-PH", { year: "numeric", month: "long", day: "numeric" });
+    return [
+      `📊 EaseBrew Progress Report`,
+      `Petsa: ${today}`,
+      ``,
+      `Kabuuang araw na naka-log: ${totalDays}`,
+      `Average pain score: ${avgPain}/10`,
+      `Consistency (2x/day): ${consistRate}%`,
+      `Pain trend: ${firstPain} → ${latestPain} ${trend}`,
+      recentNotes.length > 0 ? `\nMga kamakailang notes:\n${recentNotes.join("\n")}` : "",
+      ``,
+      `— Mula sa EaseBrew Wellness Hub`,
+    ].filter(l => l !== undefined).join("\n");
+  }
+
+  function copyProgressSummary() {
+    const text = generateSummary();
+    if (!text) return;
+    navigator.clipboard.writeText(text)
+      .then(() => { setSummaryCopied(true); setTimeout(() => setSummaryCopied(false), 3000); })
+      .catch(() => {});
+  }
 
   const totalDays   = entries.length;
   const avgPain     = totalDays > 0
@@ -439,6 +469,22 @@ export default function TrackerPage() {
                   </div>
                 ))}
               </div>
+
+              <button
+                onClick={copyProgressSummary}
+                disabled={entries.length === 0}
+                style={{
+                  width: "100%", marginBottom: 20,
+                  background: summaryCopied ? "#22c55e" : G,
+                  color: WHITE, border: "none", borderRadius: 16,
+                  padding: "18px", fontSize: 18, fontWeight: 700,
+                  cursor: entries.length === 0 ? "not-allowed" : "pointer",
+                  fontFamily: "Georgia, serif", transition: "background 0.3s",
+                  boxShadow: "0 4px 16px rgba(57,97,59,0.3)", minHeight: 60,
+                }}
+              >
+                {summaryCopied ? "✅ Nakopya! I-paste sa chat ng Coach" : "📋 I-share ang Progress sa Coach"}
+              </button>
 
               {[...entries].reverse().map((entry, i) => (
                 <div key={i} style={{

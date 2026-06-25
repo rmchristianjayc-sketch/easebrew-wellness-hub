@@ -48,6 +48,7 @@ export default function CodesPage() {
   const [copied, setCopied]       = useState(false);
   const [messageCopied, setMessageCopied] = useState(false);
   const [copiedId, setCopiedId]   = useState<string | null>(null);
+  const [reorderCopiedId, setReorderCopiedId] = useState<string | null>(null);
   const [codesLoading, setCodesLoading] = useState(true);
   const [nameError, setNameError]   = useState(false);
   const [notesError, setNotesError] = useState(false);
@@ -107,6 +108,17 @@ export default function CodesPage() {
   }
   function copyListCode(code: string) {
     navigator.clipboard.writeText(code).then(() => { setCopiedId(code); setTimeout(() => setCopiedId(null), 2000); });
+  }
+  function copyReorderMessage(c: AccessCode) {
+    if (!c.expires_at) return;
+    const daysLeft = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
+    const expiresDate = new Date(c.expires_at).toLocaleDateString("en-PH", { month: "long", day: "numeric", year: "numeric" });
+    const packageLabel = PRICE_CONFIG[c.tier]?.label ?? `₱${c.tier?.toLocaleString()} package`;
+    const message = `Hello po ${c.customer_name || ""}!\n\nAng inyong EaseBrew ${packageLabel} ay mag-e-expire na po sa ${expiresDate} (${daysLeft} araw na lang).\n\nPara hindi mapuputol ang inyong wellness journey, mag-order na po kayo ng bagong package!\n\nKung may tanong po kayo, message lang po kayo sa inyong coach.\n\n— R&M EaseBrew Wellness Team`;
+    navigator.clipboard.writeText(message).then(() => {
+      setReorderCopiedId(c.id);
+      setTimeout(() => setReorderCopiedId(null), 2500);
+    }).catch(() => {});
   }
 
   function handleDelete(id: string, code: string) {
@@ -357,6 +369,23 @@ export default function CodesPage() {
                             <button onClick={() => copyListCode(c.code)} style={{ background: isCopied ? "#dcfce7" : "none", border: `1px solid ${G}`, borderRadius: 6, padding: "3px 10px", fontSize: 11, color: G, cursor: "pointer", fontWeight: "bold" }}>
                               {isCopied ? "✅" : "Copy"}
                             </button>
+                            {c.is_used && c.expires_at && (() => {
+                              const d = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
+                              return d > 0 && d <= 14;
+                            })() && (
+                              <button
+                                onClick={() => copyReorderMessage(c)}
+                                style={{
+                                  background: reorderCopiedId === c.id ? "#dcfce7" : "none",
+                                  border: `1px solid #f59e0b`,
+                                  borderRadius: 6, padding: "3px 10px", fontSize: 11,
+                                  color: reorderCopiedId === c.id ? G : "#b45309",
+                                  cursor: "pointer", fontWeight: "bold",
+                                }}
+                              >
+                                {reorderCopiedId === c.id ? "✅ Copied!" : "📋 Re-order"}
+                              </button>
+                            )}
                             {st.label === "Active" && (
                               <button onClick={() => handleDeactivate(c.id, c.code)} disabled={isActing} style={{ background: "none", border: "1px solid #b45309", borderRadius: 6, padding: "3px 10px", fontSize: 11, color: "#b45309", cursor: isActing ? "not-allowed" : "pointer", fontWeight: "bold" }}>
                                 {isActing ? "..." : "Deactivate"}
