@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     if (body.data === undefined) {
       return NextResponse.json({ error: 'data is required.' }, { status: 400 });
     }
-    if (JSON.stringify(body.data).length > 250_000) {
+    if (JSON.stringify(body.data).length > 100_000) {
       return NextResponse.json({ error: 'Progress data is too large.' }, { status: 413 });
     }
 

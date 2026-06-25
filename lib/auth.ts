@@ -7,22 +7,17 @@ function encodeSecret(secret: string) {
 }
 
 function getSigningSecret() {
-  const secret =
-    process.env.JWT_SECRET ||
-    process.env.ADMIN_JWT_SECRET ||
-    process.env.ADMIN_SECRET;
-  if (!secret) throw new Error('JWT_SECRET or ADMIN_SECRET is not configured.');
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error('JWT_SECRET is not configured.');
   return encodeSecret(secret);
 }
 
 function getVerificationSecrets() {
-  const secrets = [
-    process.env.JWT_SECRET,
-    process.env.ADMIN_JWT_SECRET,
-    process.env.ADMIN_SECRET,
-  ].filter((secret): secret is string => Boolean(secret));
-
-  return Array.from(new Set(secrets)).map(encodeSecret);
+  const secrets = [process.env.JWT_SECRET].filter(
+    (s): s is string => Boolean(s)
+  );
+  if (secrets.length === 0) throw new Error('JWT_SECRET is not configured.');
+  return secrets.map(encodeSecret);
 }
 
 async function verifySignedToken(token: string) {

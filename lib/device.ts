@@ -23,7 +23,9 @@ export function getDeviceId(): string {
     if (typeof window === "undefined") return "";
     let id = localStorage.getItem("eb_device_id");
     if (!id) {
-      id = "dev_" + Math.random().toString(36).substring(2) + Date.now().toString(36);
+      const bytes = new Uint8Array(16);
+      window.crypto.getRandomValues(bytes);
+      id = "dev_" + Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
       localStorage.setItem("eb_device_id", id);
     }
     return id;

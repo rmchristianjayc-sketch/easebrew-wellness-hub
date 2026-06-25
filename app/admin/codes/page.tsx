@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import Sidebar from "@/app/admin/_components/Sidebar";
+import { useAdminGuard } from "@/lib/useAdminGuard";
 import { PRICE_CONFIG } from "@/lib/price-config";
 import { DEFAULT_COACHES } from "@/lib/coaches";
 import type { AccessCode } from "@/lib/supabase";
@@ -33,9 +33,7 @@ function ConfirmCard({ message, onConfirm, onCancel, danger = true }: {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function CodesPage() {
-  const router = useRouter();
-  const [role, setRole]           = useState("");
-  const [username, setUsername]   = useState("");
+  const { checking, username, role } = useAdminGuard(['owner', 'coach']);
   const [tier, setTier]           = useState<number>(999);
   const [customerName, setCustomerName] = useState("");
   const [notes, setNotes]         = useState("");
@@ -68,21 +66,8 @@ export default function CodesPage() {
   }, [filter]);
 
   useEffect(() => {
-    async function init() {
-      try {
-        const res = await fetch("/api/admin/me");
-        if (!res.ok) { router.push("/admin/login"); return; }
-        const { role: r, username: u } = await res.json();
-        setRole(r);
-        setUsername(u);
-      } catch {
-        router.push("/admin/login");
-        return;
-      }
-      fetchCodes();
-    }
-    init();
-  }, [fetchCodes, router]);
+    if (!checking) fetchCodes();
+  }, [checking, fetchCodes]);
 
   async function handleGenerate() {
     setError(""); setGeneratedCode(""); setGeneratedMessage("");
@@ -196,6 +181,8 @@ export default function CodesPage() {
     border: `1.5px solid ${err ? "#ef4444" : "#e0e0e0"}`,
     fontSize: 13, outline: "none", boxSizing: "border-box", color: DARK, background: "white",
   });
+
+  if (checking) return null;
 
   return (
     <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>

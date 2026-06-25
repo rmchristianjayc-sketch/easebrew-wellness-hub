@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import Sidebar from "@/app/admin/_components/Sidebar";
+import { useAdminGuard } from "@/lib/useAdminGuard";
 
 const G = "#39613B";
 const DARK = "#1B201A";
@@ -16,27 +16,11 @@ const QUICK_MESSAGES = [
 ];
 
 export default function NotificationsPage() {
-  const router = useRouter();
-  const [username, setUsername] = useState("");
+  const { checking, username } = useAdminGuard(['owner']);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [selected, setSelected] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    async function init() {
-      try {
-        const res = await fetch("/api/admin/me");
-        if (!res.ok) { router.push("/admin/login"); return; }
-        const { role, username: u } = await res.json();
-        if (role === "coach") { router.push("/admin/codes"); return; }
-        setUsername(u);
-      } catch {
-        router.push("/admin/login");
-      }
-    }
-    init();
-  }, [router]);
 
   function applyQuick(msg: typeof QUICK_MESSAGES[0], idx: number) {
     setTitle(msg.title);
@@ -58,6 +42,8 @@ export default function NotificationsPage() {
     border: "1.5px solid #e0e0e0", fontSize: 13, outline: "none",
     boxSizing: "border-box", color: DARK, fontFamily: "Inter, system-ui, sans-serif",
   };
+
+  if (checking) return null;
 
   return (
     <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>

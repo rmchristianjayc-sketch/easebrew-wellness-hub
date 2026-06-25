@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import Sidebar from "@/app/admin/_components/Sidebar";
+import { useAdminGuard } from "@/lib/useAdminGuard";
 
 const G    = "#39613B";
 const DARK = "#1B201A";
@@ -158,8 +158,7 @@ const VIDEO_DIVIDERS: Record<string, string> = {
 };
 
 export default function ContentPage() {
-  const router = useRouter();
-  const [username, setUsername]       = useState("");
+  const { checking, username } = useAdminGuard(['owner']);
   const [content, setContent]         = useState<Record<string, string>>({});
   const [editing, setEditing]         = useState<Record<string, string>>({});
   const [saving, setSaving]           = useState<Record<string, boolean>>({});
@@ -183,21 +182,8 @@ export default function ContentPage() {
   }, []);
 
   useEffect(() => {
-    async function init() {
-      try {
-        const res = await fetch("/api/admin/me");
-        if (!res.ok) { router.push("/admin/login"); return; }
-        const { role, username: u } = await res.json();
-        if (role === "coach") { router.push("/admin/codes"); return; }
-        setUsername(u);
-      } catch {
-        router.push("/admin/login");
-        return;
-      }
-      fetchContent();
-    }
-    init();
-  }, [fetchContent, router]);
+    if (!checking) fetchContent();
+  }, [checking, fetchContent]);
 
   async function handleSave(key: string) {
     setSaving(p => ({ ...p, [key]: true }));
@@ -272,7 +258,7 @@ export default function ContentPage() {
   const pendingCount       = Object.entries(editing).filter(([k, v]) => v !== (content[k] ?? "")).length;
   const activeGroupPending = (groups[activeGroup] ?? []).filter(k => editing[k] !== (content[k] ?? "")).length;
 
-  if (loading) return (
+  if (checking || loading) return (
     <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
       <Sidebar active="/admin/content" username={username} />
       <main className="admin-main" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>

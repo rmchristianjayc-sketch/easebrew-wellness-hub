@@ -38,6 +38,10 @@ export async function POST(req: NextRequest) {
     const safeNotes =
       typeof notes === 'string' ? notes.trim().slice(0, 1000) : '';
 
+    if (!customerName) {
+      return NextResponse.json({ error: 'Customer name is required.' }, { status: 400 });
+    }
+
     for (let attempt = 0; attempt < 10; attempt++) {
       const { data: newCode, error: insertError } = await supabaseAdmin
         .from('access_codes')

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import Sidebar from "@/app/admin/_components/Sidebar";
+import { useAdminGuard } from "@/lib/useAdminGuard";
 import type { AccessCode } from "@/lib/supabase";
 
 const G    = "#39613B";
@@ -21,8 +21,7 @@ function StatCard({ icon, label, value, color }: { icon: string; label: string; 
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function AnalyticsPage() {
-  const router = useRouter();
-  const [username, setUsername] = useState("");
+  const { checking, username } = useAdminGuard(['owner']);
   const [codes, setCodes] = useState<AccessCode[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,21 +35,8 @@ export default function AnalyticsPage() {
   }, []);
 
   useEffect(() => {
-    async function init() {
-      try {
-        const res = await fetch("/api/admin/me");
-        if (!res.ok) { router.push("/admin/login"); return; }
-        const { role, username: u } = await res.json();
-        if (role === "coach") { router.push("/admin/codes"); return; }
-        setUsername(u);
-      } catch {
-        router.push("/admin/login");
-        return;
-      }
-      fetchData();
-    }
-    init();
-  }, [fetchData, router]);
+    if (!checking) fetchData();
+  }, [checking, fetchData]);
 
   const now        = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());

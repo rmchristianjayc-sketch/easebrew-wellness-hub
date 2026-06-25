@@ -20,6 +20,10 @@ export async function GET(req: NextRequest) {
     .eq('code', session.code)
     .maybeSingle();
 
+  if (error) {
+    console.error('Session DB lookup failed:', error);
+  }
+
   const isValid =
     !error &&
     data?.is_used === true &&

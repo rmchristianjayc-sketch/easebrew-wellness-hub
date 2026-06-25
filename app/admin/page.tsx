@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Sidebar from "@/app/admin/_components/Sidebar";
+import { useAdminGuard } from "@/lib/useAdminGuard";
 import type { AccessCode } from "@/lib/supabase";
 
 const G    = "#39613B";
@@ -24,7 +25,7 @@ function StatCard({ icon, label, value, sub, color }: { icon: string; label: str
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function AdminDashboard() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const { checking, username } = useAdminGuard(['owner']);
   const [codes, setCodes]       = useState<AccessCode[]>([]);
   const [loading, setLoading]   = useState(true);
 
@@ -38,21 +39,8 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    async function init() {
-      try {
-        const res = await fetch("/api/admin/me");
-        if (!res.ok) { router.push("/admin/login"); return; }
-        const { role, username: u } = await res.json();
-        if (role === "coach") { router.push("/admin/codes"); return; }
-        setUsername(u);
-      } catch {
-        router.push("/admin/login");
-        return;
-      }
-      fetchCodes();
-    }
-    init();
-  }, [fetchCodes, router]);
+    if (!checking) fetchCodes();
+  }, [checking, fetchCodes]);
 
   async function handleLogout() {
     await fetch("/api/admin/login", { method: "DELETE" });
