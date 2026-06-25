@@ -33,6 +33,7 @@ export type AccessCode = {
   customer_name: string | null;
   notes: string | null;
   created_at: string;
+  last_active_at?: string | null;
 };
 
 export type CustomerSession = {

@@ -331,7 +331,7 @@ export default function CodesPage() {
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ background: "#f8f9fa", borderBottom: "2px solid #f0f0f0" }}>
-                    {["Code", "Customer", "Package", "Coach / Notes", "Date Used", "Expires", "Status", ""].map(h => (
+                    {["Code", "Customer", "Package", "Coach / Notes", "Date Used", "Expires", "Status", "Last Active", ""].map(h => (
                       <th key={h} style={{ textAlign: "left", padding: "10px 14px", fontSize: 11, color: MID, fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px", whiteSpace: "nowrap" }}>{h}</th>
                     ))}
                   </tr>
@@ -363,6 +363,16 @@ export default function CodesPage() {
                         </td>
                         <td style={{ padding: "11px 14px" }}>
                           <span style={{ background: st.bg, color: st.color, borderRadius: 8, padding: "3px 10px", fontSize: 11, fontWeight: "bold" }}>{st.label}</span>
+                        </td>
+                        <td style={{ padding: "11px 14px", whiteSpace: "nowrap" }}>
+                          {(() => {
+                            const la = (c as AccessCode & { last_active_at?: string | null }).last_active_at;
+                            if (!la) return <span style={{ color: "#ccc", fontSize: 11 }}>—</span>;
+                            const days = Math.floor((Date.now() - new Date(la).getTime()) / 86400000);
+                            const color = days <= 3 ? "#15803d" : days <= 7 ? "#b45309" : "#dc2626";
+                            const label = days === 0 ? "Ngayon" : days === 1 ? "Kahapon" : `${days}d ago`;
+                            return <span style={{ fontSize: 11, fontWeight: "bold", color }}>{label}</span>;
+                          })()}
                         </td>
                         <td style={{ padding: "11px 14px" }}>
                           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>

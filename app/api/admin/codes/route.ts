@@ -33,7 +33,19 @@ export async function GET(req: NextRequest) {
     const { data, error } = await query;
     if (error) return NextResponse.json({ error: 'Failed to fetch codes.' }, { status: 500 });
 
-    return NextResponse.json({ success: true, codes: data || [] });
+    // Enrich with last tracker activity
+    let enriched = data || [];
+    const usedCodes = enriched.filter(c => c.is_used).map(c => c.code);
+    if (usedCodes.length > 0) {
+      const { data: progressData } = await supabaseAdmin
+        .from('progress')
+        .select('code, updated_at')
+        .in('code', usedCodes)
+        .eq('type', 'tracker');
+      const actMap = new Map(progressData?.map((p: { code: string; updated_at: string }) => [p.code, p.updated_at]) ?? []);
+      enriched = enriched.map(c => ({ ...c, last_active_at: actMap.get(c.code) ?? null }));
+    }
+    return NextResponse.json({ success: true, codes: enriched });
 
   } catch (err) {
     console.error('Fetch codes error:', err);
