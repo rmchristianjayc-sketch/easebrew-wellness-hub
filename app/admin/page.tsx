@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Sidebar from "@/app/admin/_components/Sidebar";
-import { useAdminGuard } from "@/lib/useAdminGuard";
+import { useAdminGuard, clearAdminAuthCache } from "@/lib/useAdminGuard";
 import type { AccessCode } from "@/lib/supabase";
 
 const G    = "#39613B";
@@ -43,6 +43,7 @@ export default function AdminDashboard() {
   }, [checking, fetchCodes]);
 
   async function handleLogout() {
+    clearAdminAuthCache();
     await fetch("/api/admin/login", { method: "DELETE" });
     router.push("/admin/login");
   }

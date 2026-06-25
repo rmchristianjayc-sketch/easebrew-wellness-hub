@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { clearAdminAuthCache } from "@/lib/useAdminGuard";
 import {
   BarChart3,
   Bell,
@@ -44,6 +45,7 @@ export default function Sidebar({
   const links = isCoach ? COACH_LINKS : OWNER_LINKS;
 
   async function handleLogout() {
+    clearAdminAuthCache();
     if (onLogout) {
       onLogout();
       return;
