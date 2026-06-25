@@ -1,6 +1,9 @@
 export const PUBLIC_CONTENT_KEYS = [
   'promo_enabled',
   'promo_text',
+  'notification_active',
+  'notification_title',
+  'notification_message',
   'hero_title',
   'hero_subtitle',
   'product_1_name', 'product_1_desc',

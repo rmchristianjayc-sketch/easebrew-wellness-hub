@@ -152,6 +152,22 @@ function extractYouTubeId(url: string): string {
 }
 
 // ============================================================
+// NOTIFICATION BANNER (admin-sent announcements)
+// ============================================================
+function NotificationBanner({ title, message, onDismiss }: { title: string; message: string; onDismiss: () => void }) {
+  return (
+    <div style={{ background: "#1B201A", borderBottom: `3px solid ${G}`, padding: "14px 20px", display: "flex", alignItems: "flex-start", gap: 12 }}>
+      <span style={{ fontSize: 22, flexShrink: 0, marginTop: 1 }}>📣</span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ fontSize: 15, fontWeight: 700, color: "#FED255", margin: "0 0 2px" }}>{title}</p>
+        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.85)", margin: 0, lineHeight: 1.5 }}>{message}</p>
+      </div>
+      <button onClick={onDismiss} aria-label="Isara" style={{ background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 999, width: 32, height: 32, fontSize: 16, cursor: "pointer", color: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
+    </div>
+  );
+}
+
+// ============================================================
 // PROMO BANNER
 // ============================================================
 function PromoBanner({ text, onDismiss }: { text: string; onDismiss: () => void }) {
@@ -364,6 +380,10 @@ export default function Home() {
   const [showCoachModal, setShowCoachModal] = useState(false);
 
   // ── DYNAMIC STATE ────────────────────────────────────────────
+  const [notifTitle, setNotifTitle]         = useState("");
+  const [notifMessage, setNotifMessage]     = useState("");
+  const [notifActive, setNotifActive]       = useState(false);
+  const [notifDismissed, setNotifDismissed] = useState(false);
   const [promoText, setPromoText]           = useState("");
   const [promoEnabled, setPromoEnabled]     = useState(false);
   const [promoDismissed, setPromoDismissed] = useState(false);
@@ -383,6 +403,15 @@ export default function Home() {
       .then(data => {
         if (!data?.content) return;
         const c = data.content as Record<string, string>;
+
+        if (c.notification_active === "true" && c.notification_title?.trim()) {
+          const title = c.notification_title.trim();
+          const dismissed = localStorage.getItem(`eb_notif_dismissed_${title}`) === "1";
+          setNotifTitle(title);
+          setNotifMessage(c.notification_message?.trim() || "");
+          setNotifActive(true);
+          setNotifDismissed(dismissed);
+        }
 
         if (c.promo_enabled === "true" && c.promo_text?.trim()) {
           setPromoEnabled(true);
@@ -432,6 +461,16 @@ export default function Home() {
 
       {/* ── STICKY HEADER + TABS ─────────────────────────────── */}
       <div style={{ background: G, position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 12px rgba(0,0,0,0.15)" }}>
+        {notifActive && !notifDismissed && (
+          <NotificationBanner
+            title={notifTitle}
+            message={notifMessage}
+            onDismiss={() => {
+              localStorage.setItem(`eb_notif_dismissed_${notifTitle}`, "1");
+              setNotifDismissed(true);
+            }}
+          />
+        )}
         {promoEnabled && !promoDismissed && (
           <PromoBanner text={promoText} onDismiss={() => setPromoDismissed(true)} />
         )}
