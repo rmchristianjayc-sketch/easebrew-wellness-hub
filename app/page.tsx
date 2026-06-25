@@ -206,18 +206,31 @@ function PromoBanner({ text, onDismiss }: { text: string; onDismiss: () => void 
 // ============================================================
 // COACH PICKER MODAL
 // ============================================================
-function CoachModal({ coaches, onClose }: { coaches: Coach[]; onClose: () => void }) {
+function CoachModal({ coaches, onClose, reorderMessage }: { coaches: Coach[]; onClose: () => void; reorderMessage?: string }) {
+  const [msgCopied, setMsgCopied] = useState(false);
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
       <div onClick={e => e.stopPropagation()} style={{ background: WHITE, borderRadius: "24px 24px 0 0", width: "100%", maxWidth: 680, maxHeight: "85vh", overflowY: "auto", padding: "0 0 32px 0" }}>
         <div style={{ display: "flex", justifyContent: "center", padding: "14px 0 4px" }}>
           <div style={{ width: 48, height: 5, borderRadius: 999, background: "#D9D0C0" }} />
         </div>
+        {reorderMessage && (
+          <div style={{ margin: "0 20px 4px", background: "#E8F5E0", border: "2px solid #39613B", borderRadius: 16, padding: "16px 18px" }}>
+            <p style={{ fontSize: 12, fontWeight: 700, color: "#39613B", margin: "0 0 8px", textTransform: "uppercase" as const, letterSpacing: 1 }}>📋 I-copy ang mensahe, tapos i-send sa coach:</p>
+            <p style={{ fontSize: 14, color: "#1B201A", margin: "0 0 12px", lineHeight: 1.7, whiteSpace: "pre-wrap" as const }}>{reorderMessage}</p>
+            <button
+              onClick={() => navigator.clipboard.writeText(reorderMessage).then(() => { setMsgCopied(true); setTimeout(() => setMsgCopied(false), 3000); })}
+              style={{ background: msgCopied ? "#39613B" : "white", color: msgCopied ? "white" : "#39613B", border: "2px solid #39613B", borderRadius: 10, padding: "10px 18px", fontSize: 14, fontWeight: 700, cursor: "pointer", width: "100%" }}
+            >
+              {msgCopied ? "✅ Nakopya na!" : "📋 I-copy ang Mensahe"}
+            </button>
+          </div>
+        )}
         <div style={{ padding: "12px 24px 20px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 4px 0" }}>👥 Piliin ang Inyong Coach</h2>
-              <p style={{ fontSize: 15, color: MID, margin: 0 }}>Tumawag o mag-message para mag-order</p>
+              <p style={{ fontSize: 15, color: MID, margin: 0 }}>{reorderMessage ? "I-copy ang mensahe sa itaas, tapos i-send sa coach!" : "Tumawag o mag-message para mag-order"}</p>
             </div>
             <button onClick={onClose} style={{ background: "#F0EDE6", border: "none", borderRadius: 999, width: 40, height: 40, fontSize: 20, cursor: "pointer", color: MID, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
           </div>
@@ -540,6 +553,7 @@ export default function Home() {
   const [tipIndex, setTipIndex] = useState(0);
   const [tab, setTab] = useState<Tab>("home");
   const [showCoachModal, setShowCoachModal] = useState(false);
+  const [reorderMessage, setReorderMessage] = useState<string | undefined>();
 
   // ── DYNAMIC STATE ────────────────────────────────────────────
   const [notifTitle, setNotifTitle]         = useState("");
@@ -603,7 +617,11 @@ export default function Home() {
 
   useEffect(() => {
     setLargeFont(localStorage.getItem("eb_large_font") === "1");
-    setReminderOn(localStorage.getItem("eb_reminder_on") === "1");
+    const r = localStorage.getItem("eb_reminder_on") === "1";
+    setReminderOn(r);
+    if (r) {
+      navigator.serviceWorker?.ready.then(reg => reg.active?.postMessage({ type: "SET_REMINDER", enabled: true }));
+    }
   }, []);
 
   useEffect(() => {
@@ -643,6 +661,14 @@ export default function Home() {
 
   const { unlocked: unlockedProducts, locked: lockedProducts } = splitByTier(products, customerTier);
 
+  function buildReorderMessage() {
+    const pkgLabel = getTierLabel(customerTier);
+    const expiryStr = session?.expires_at
+      ? new Date(session.expires_at).toLocaleDateString("fil-PH", { month: "long", day: "numeric", year: "numeric" })
+      : null;
+    return `Magandang araw po! Gusto ko pong mag-order ulit ng EaseBrew.\n\nPackage: ${pkgLabel}${expiryStr ? `\nMag-e-expire: ${expiryStr}` : ""}\n\nPwede po bang i-order? Salamat po! 🙏`;
+  }
+
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <p style={{ color: G, fontSize: 18, fontWeight: 600 }}>☕ Loading...</p>
@@ -666,14 +692,14 @@ export default function Home() {
   return (
     <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", fontSize: largeFont ? "110%" : "100%" }}>
       <InstallBanner />
-      {showCoachModal && <CoachModal coaches={coaches} onClose={() => setShowCoachModal(false)} />}
+      {showCoachModal && <CoachModal coaches={coaches} onClose={() => { setShowCoachModal(false); setReorderMessage(undefined); }} reorderMessage={reorderMessage} />}
 
       {/* ── STICKY HEADER + TABS ─────────────────────────────── */}
       <div style={{ background: G, position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 12px rgba(0,0,0,0.15)" }}>
         {showExpiryBanner && (
           <ExpiryBanner
             daysLeft={daysLeft!}
-            onReorder={() => setShowCoachModal(true)}
+            onReorder={() => { setReorderMessage(buildReorderMessage()); setShowCoachModal(true); }}
             onDismiss={() => setExpiryDismissed(true)}
           />
         )}
@@ -739,7 +765,7 @@ export default function Home() {
                 tier={customerTier}
                 packs={session.packs ?? 1}
                 daysLeft={daysLeft}
-                onReorder={() => setShowCoachModal(true)}
+                onReorder={() => { setReorderMessage(buildReorderMessage()); setShowCoachModal(true); }}
               />
             )}
 
@@ -764,7 +790,12 @@ export default function Home() {
 
             <DailyReminderCard
               enabled={reminderOn}
-              onToggle={() => setReminderOn(v => { const n = !v; localStorage.setItem("eb_reminder_on", n ? "1" : "0"); return n; })}
+              onToggle={() => setReminderOn(v => {
+                const n = !v;
+                localStorage.setItem("eb_reminder_on", n ? "1" : "0");
+                navigator.serviceWorker?.ready.then(reg => reg.active?.postMessage({ type: "SET_REMINDER", enabled: n }));
+                return n;
+              })}
             />
 
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Ang Inyong 90-Day Journey 📅</h2>
