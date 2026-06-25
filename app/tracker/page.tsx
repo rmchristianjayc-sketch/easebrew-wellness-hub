@@ -56,6 +56,14 @@ const MOOD_OPTIONS = [
   { val: 5, emoji: "😄", label: "Masayang-Masaya" },
 ];
 
+const MILESTONES: Record<number, { emoji: string; title: string; message: string }> = {
+  7:  { emoji: "🌟", title: "Isang Linggo Na!",    message: "Magaling! Nagsimula ka na! Patuloy lang — ang pinaka-mabilis na resulta ay darating sa mga susunod na linggo!" },
+  14: { emoji: "💪", title: "Dalawang Linggo!",    message: "Incredible! Dapat nararamdaman mo na ang pagbabago. Ang joints mo ay nagpapasalamat sa iyo araw-araw!" },
+  30: { emoji: "🏅", title: "Isang Buwan Complete!", message: "WOW! 30 days of consistency! Ikwento mo sa pamilya mo ang iyong results. Ipinagmamalaki ka namin!" },
+  60: { emoji: "🔥", title: "Dalawang Buwan!",     message: "Kahanga-hanga! 60 days na! Ikaw na ang inspirasyon ng mga taong nakapaligid sa iyo. Tuloy lang!" },
+  90: { emoji: "🏆", title: "90 Days — BAGONG KATAWAN!", message: "CONGRATS! Naabot mo ang pinakamataas na milestone! Bagong katawan, bagong buhay! Ipinagdiriwang namin ang iyong tagumpay!" },
+};
+
 function getPainColor(score: number) {
   if (score <= 2) return "#22c55e";
   if (score <= 4) return "#84cc16";
@@ -93,6 +101,26 @@ function getStoredTodayEntry(storageKey: string): DayEntry {
   return getStoredTrackerEntries(storageKey).find(e => e.date === todayStr) ?? emptyEntry();
 }
 
+function MilestoneModal({ days, onClose }: { days: number; onClose: () => void }) {
+  const m = MILESTONES[days];
+  if (!m) return null;
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.88)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+      <div style={{ background: "white", borderRadius: 28, padding: "44px 32px", maxWidth: 360, width: "100%", textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.4)" }}>
+        <div style={{ fontSize: 80, marginBottom: 16, lineHeight: 1 }}>{m.emoji}</div>
+        <h2 style={{ fontSize: 26, fontWeight: 700, color: "#1B201A", margin: "0 0 14px", lineHeight: 1.3 }}>Day {days}! {m.title}</h2>
+        <p style={{ fontSize: 17, color: "#4E504F", margin: "0 0 28px", lineHeight: 1.7 }}>{m.message}</p>
+        <button
+          onClick={onClose}
+          style={{ width: "100%", background: "#39613B", color: "white", border: "none", borderRadius: 16, padding: "20px", fontSize: 20, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif" }}
+        >
+          Salamat! Tuloy Tuloy! 💪
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function TrackerPage() {
   const { checking, session } = useSessionGuard();
   const storageKey = progressStorageKey("easebrew-tracker-v2", session?.code);
@@ -101,6 +129,7 @@ export default function TrackerPage() {
   const [view, setView]       = useState<"ngayon" | "history">("ngayon");
   const [saved, setSaved]     = useState(false);
   const [summaryCopied, setSummaryCopied] = useState(false);
+  const [milestone, setMilestone] = useState<number | null>(null);
   const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -161,6 +190,11 @@ export default function TrackerPage() {
     triggerSync(updated);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
+    const newTotal = updated.length;
+    if (MILESTONES[newTotal] && localStorage.getItem(`eb_milestone_${newTotal}`) !== "1") {
+      localStorage.setItem(`eb_milestone_${newTotal}`, "1");
+      setMilestone(newTotal);
+    }
   };
 
   function generateSummary() {
@@ -206,6 +240,7 @@ export default function TrackerPage() {
 
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 100, fontFamily: "Georgia, serif" }}>
+      {milestone && <MilestoneModal days={milestone} onClose={() => setMilestone(null)} />}
 
       {/* ── HEADER ── */}
       <div style={{ background: G, padding: "24px 24px 0", color: WHITE }}>

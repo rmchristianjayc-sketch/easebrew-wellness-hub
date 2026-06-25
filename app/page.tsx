@@ -6,6 +6,8 @@ import Image from "next/image";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { G, GOLD, AMBER, CREAM, WHITE, DARK, MID } from "@/lib/colors";
 import { DEFAULT_PRODUCTS, applyContentOverrides, splitByTier } from "@/lib/products";
+import { PRICE_CONFIG } from "@/lib/price-config";
+import { progressStorageKey, readProgressCache } from "@/lib/progressStorage";
 
 // ✅ 1.2 — Imported from single source of truth (no more duplicate definitions)
 import { Coach, DEFAULT_COACHES, buildCoaches } from "@/lib/coaches";
@@ -388,6 +390,97 @@ type Tab = "home" | "gifts" | "tips" | "coaches";
 // ============================================================
 // DAILY REMINDER CARD
 // ============================================================
+// PACK COUNTDOWN (Feature 3)
+// ============================================================
+function PackCountdownCard({ tier, packs, daysLeft, onReorder }: { tier: number; packs: number; daysLeft: number; onReorder: () => void }) {
+  const config = PRICE_CONFIG[tier];
+  if (!config) return null;
+  const { validityDays } = config;
+  const daysElapsed = Math.max(0, validityDays - daysLeft);
+  const progressPct = Math.min(100, Math.round(daysElapsed / validityDays * 100));
+  const packDuration = validityDays / packs;
+  const currentPack = Math.min(packs, Math.ceil(Math.max(1, daysElapsed) / packDuration));
+  const barColor = progressPct >= 80 ? "#ef4444" : progressPct >= 55 ? "#f59e0b" : "#39613B";
+  const borderColor = progressPct >= 80 ? "#fca5a5" : progressPct >= 55 ? "#fde68a" : "#c8e6c9";
+  return (
+    <div style={{ background: "white", border: `2px solid ${borderColor}`, borderRadius: 18, padding: "20px", marginBottom: 24 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <div>
+          <p style={{ fontSize: 15, fontWeight: 700, color: "#1B201A", margin: "0 0 3px" }}>📦 Pack {currentPack} of {packs}</p>
+          <p style={{ fontSize: 14, color: "#4E504F", margin: 0 }}>{daysLeft} araw • ~{daysLeft * 2} sachets na lang</p>
+        </div>
+        {daysLeft <= 14 && (
+          <button onClick={onReorder} style={{ background: "#39613B", color: "white", border: "none", borderRadius: 10, padding: "11px 16px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
+            🛒 Mag-order
+          </button>
+        )}
+      </div>
+      <div style={{ background: "#f0f0f0", borderRadius: 999, height: 13, overflow: "hidden" }}>
+        <div style={{ width: `${progressPct}%`, height: "100%", background: barColor, borderRadius: 999 }} />
+      </div>
+      <p style={{ fontSize: 12, color: "#9E9E9E", margin: "6px 0 0", textAlign: "right" as const }}>{progressPct}% nagamit na</p>
+    </div>
+  );
+}
+
+// ============================================================
+// ENGAGEMENT NUDGE (Feature 2)
+// ============================================================
+function EngagementNudge({ days, onDismiss }: { days: number; onDismiss: () => void }) {
+  return (
+    <div style={{ background: "#FEF9E7", border: "2px solid #FED255", borderRadius: 18, padding: "18px 20px", marginBottom: 24, display: "flex", alignItems: "center", gap: 14 }}>
+      <span style={{ fontSize: 36, flexShrink: 0 }}>📋</span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ fontSize: 17, fontWeight: 700, color: "#1B201A", margin: "0 0 4px" }}>{days} araw na walang log!</p>
+        <p style={{ fontSize: 15, color: "#4E504F", margin: 0, lineHeight: 1.5 }}>I-update ang pain tracker para ma-track ang inyong progress.</p>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
+        <Link href="/tracker" style={{ background: "#39613B", color: "white", textDecoration: "none", borderRadius: 10, padding: "11px 16px", fontSize: 14, fontWeight: 700, textAlign: "center" as const }}>
+          📝 I-log
+        </Link>
+        <button onClick={onDismiss} style={{ background: "transparent", border: "none", fontSize: 12, color: "#9E9E9E", cursor: "pointer", padding: "4px" }}>
+          Mamaya na
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// WEEKLY SUMMARY CARD (Feature 4)
+// ============================================================
+function WeeklySummaryCard({ data, onDismiss }: { data: { avgPain: number; consistency: number; entries: number }; onDismiss: () => void }) {
+  const isGood = data.consistency >= 70;
+  const stats = [
+    { label: "Araw na naka-log", value: `${data.entries}/7`, icon: "📅" },
+    { label: "Consistency",      value: `${data.consistency}%`, icon: "🎯" },
+    { label: "Avg Pain",         value: `${data.avgPain}/10`, icon: "💊" },
+  ];
+  return (
+    <div style={{ background: isGood ? "#E8F5E0" : "#FEF9E7", border: `2px solid ${isGood ? "#39613B" : "#FED255"}`, borderRadius: 18, padding: "20px", marginBottom: 24 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+        <div>
+          <p style={{ fontSize: 11, fontWeight: 700, color: isGood ? "#39613B" : "#b45309", margin: "0 0 3px", textTransform: "uppercase" as const, letterSpacing: 1 }}>📊 Weekly Summary</p>
+          <p style={{ fontSize: 16, fontWeight: 700, color: "#1B201A", margin: 0, lineHeight: 1.4 }}>
+            {isGood ? "Magaling! Consistent ka ngayong linggo! 🌟" : "Kaya mo pa! Subukang maabot ang 7/7 ngayon! 💪"}
+          </p>
+        </div>
+        <button onClick={onDismiss} style={{ background: "transparent", border: "none", fontSize: 20, cursor: "pointer", color: "#9E9E9E", padding: "0 0 0 10px", flexShrink: 0 }}>✕</button>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+        {stats.map((s, i) => (
+          <div key={i} style={{ background: "white", borderRadius: 12, padding: "13px 10px", textAlign: "center" as const }}>
+            <p style={{ fontSize: 22, margin: "0 0 4px" }}>{s.icon}</p>
+            <p style={{ fontSize: 19, fontWeight: 700, color: "#1B201A", margin: "0 0 2px" }}>{s.value}</p>
+            <p style={{ fontSize: 11, color: "#9E9E9E", margin: 0, lineHeight: 1.3 }}>{s.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 function DailyReminderCard({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
   const [perm, setPerm] = useState<NotificationPermission>("default");
   useEffect(() => {
@@ -459,6 +552,10 @@ export default function Home() {
   const [largeFont, setLargeFont] = useState(false);
   const [reminderOn, setReminderOn] = useState(false);
   const [expiryDismissed, setExpiryDismissed] = useState(false);
+  const [daysSinceLog, setDaysSinceLog]     = useState<number | null>(null);
+  const [nudgeDismissed, setNudgeDismissed] = useState(false);
+  const [weeklyData, setWeeklyData]         = useState<{ avgPain: number; consistency: number; entries: number } | null>(null);
+  const [weeklyDismissed, setWeeklyDismissed] = useState(false);
   const [products, setProducts]             = useState(DEFAULT_PRODUCTS);
   const [coaches, setCoaches]               = useState<Coach[]>(DEFAULT_COACHES);
   const [heroTitle, setHeroTitle]           = useState("Kamusta, Nanay at Tatay! 👋");
@@ -508,6 +605,25 @@ export default function Home() {
     setLargeFont(localStorage.getItem("eb_large_font") === "1");
     setReminderOn(localStorage.getItem("eb_reminder_on") === "1");
   }, []);
+
+  useEffect(() => {
+    if (checking || !session) return;
+    const key = progressStorageKey("easebrew-tracker-v2", session.code);
+    const entries = readProgressCache<{ date: string; painScore: number }[]>(key, []);
+    if (entries.length === 0) return;
+
+    const lastDate = entries[entries.length - 1].date;
+    const days = Math.floor((Date.now() - new Date(lastDate + "T00:00:00").getTime()) / 86400000);
+    setDaysSinceLog(days);
+
+    const todayStr = new Date().toISOString().split("T")[0];
+    const sevenAgo = new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0];
+    const weekEntries = entries.filter(e => e.date >= sevenAgo && e.date <= todayStr);
+    if (weekEntries.length >= 2) {
+      const avgPain = Math.round(weekEntries.reduce((s, e) => s + e.painScore, 0) / weekEntries.length * 10) / 10;
+      setWeeklyData({ avgPain, consistency: Math.round(weekEntries.length / 7 * 100), entries: weekEntries.length });
+    }
+  }, [checking, session]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !("Notification" in window)) return;
@@ -611,6 +727,21 @@ export default function Home() {
               <h1 style={{ fontSize: 30, fontWeight: 700, margin: "0 0 12px 0", lineHeight: 1.3, color: "#fff" }}>{heroTitle}</h1>
               <p style={{ fontSize: 17, opacity: 0.9, lineHeight: 1.65, margin: 0 }}>{heroSubtitle}</p>
             </div>
+
+            {weeklyData && !weeklyDismissed && (
+              <WeeklySummaryCard data={weeklyData} onDismiss={() => setWeeklyDismissed(true)} />
+            )}
+            {daysSinceLog !== null && daysSinceLog >= 3 && !nudgeDismissed && (
+              <EngagementNudge days={daysSinceLog} onDismiss={() => setNudgeDismissed(true)} />
+            )}
+            {session && daysLeft !== null && (
+              <PackCountdownCard
+                tier={customerTier}
+                packs={session.packs ?? 1}
+                daysLeft={daysLeft}
+                onReorder={() => setShowCoachModal(true)}
+              />
+            )}
 
             <div style={{ background: "#FEF9E7", border: `2.5px solid ${GOLD}`, borderRadius: 18, padding: "18px 20px", marginBottom: 24, textAlign: "center" }}>
               <p style={{ fontSize: 18, fontWeight: 700, color: AMBER, margin: "0 0 6px 0" }}>☕ Inumin 2x sa isang araw</p>
