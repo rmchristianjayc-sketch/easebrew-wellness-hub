@@ -69,7 +69,7 @@ async function findAdminUser(username: string) {
 
   if (error) {
     console.error('Admin user lookup error:', JSON.stringify(error));
-    throw new Error('Admin login lookup failed: ' + error.message + ' (code: ' + error.code + ')');
+    throw new Error('Admin login lookup failed.');
   }
 
   return isLoginAdminUser(data) ? data : null;
@@ -122,9 +122,8 @@ export async function POST(req: NextRequest) {
     return response;
   } catch (err) {
     console.error('Admin login error:', String(err));
-    const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { error: 'Something went wrong. Please try again.', detail: message },
+      { error: 'Something went wrong. Please try again.' },
       { status: 500 }
     );
   }
