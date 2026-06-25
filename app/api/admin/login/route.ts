@@ -121,9 +121,10 @@ export async function POST(req: NextRequest) {
     });
     return response;
   } catch (err) {
-    console.error('Admin login error:', err);
+    console.error('Admin login error:', String(err));
+    const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { error: 'Something went wrong. Please try again.' },
+      { error: 'Something went wrong. Please try again.', detail: message },
       { status: 500 }
     );
   }
