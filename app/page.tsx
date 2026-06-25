@@ -7,7 +7,7 @@ import { useSessionGuard } from "@/lib/useSessionGuard";
 import { G, GOLD, AMBER, CREAM, WHITE, DARK, MID } from "@/lib/colors";
 import { DEFAULT_PRODUCTS, applyContentOverrides, splitByTier } from "@/lib/products";
 import { PRICE_CONFIG } from "@/lib/price-config";
-import { progressStorageKey, readProgressCache } from "@/lib/progressStorage";
+import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
 
 // ✅ 1.2 — Imported from single source of truth (no more duplicate definitions)
 import { Coach, DEFAULT_COACHES, buildCoaches } from "@/lib/coaches";
@@ -311,6 +311,86 @@ type BeforeInstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
 };
 
+// ============================================================
+// AUDIO FEEDBACK (Web Audio API — no files needed)
+// ============================================================
+function playChime(type: "check" | "save" = "check") {
+  try {
+    type AC = typeof AudioContext;
+    const Ctx = (window.AudioContext || (window as unknown as { webkitAudioContext: AC }).webkitAudioContext);
+    const ctx = new Ctx();
+    const notes = type === "save" ? [659, 784] : [784, 880];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.13);
+      osc.connect(gain); gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.001, ctx.currentTime + i * 0.13);
+      gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + i * 0.13 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.13 + 0.3);
+      osc.start(ctx.currentTime + i * 0.13);
+      osc.stop(ctx.currentTime + i * 0.13 + 0.35);
+    });
+  } catch {}
+}
+
+// ============================================================
+// QUICK CHECK-IN (1-tap log from home page)
+// ============================================================
+type QuickEntry = { date: string; painScore: number; painLocation: string; easebrewUmaga: boolean; easebrewGabi: boolean; avocadoOil: boolean; mood: number; notes: string };
+
+function QuickCheckIn({ storageKey }: { storageKey: string }) {
+  const today = new Date().toISOString().split("T")[0];
+  const [umaga, setUmaga] = useState(false);
+  const [gabi,  setGabi]  = useState(false);
+
+  useEffect(() => {
+    const entries = readProgressCache<QuickEntry[]>(storageKey, []);
+    const t = entries.find(e => e.date === today);
+    if (t) { setUmaga(t.easebrewUmaga); setGabi(t.easebrewGabi); }
+  }, [storageKey, today]);
+
+  function logIntake(period: "umaga" | "gabi") {
+    const entries = readProgressCache<QuickEntry[]>(storageKey, []);
+    const idx = entries.findIndex(e => e.date === today);
+    const base: QuickEntry = idx >= 0 ? entries[idx] : { date: today, painScore: 0, painLocation: "", easebrewUmaga: false, easebrewGabi: false, avocadoOil: false, mood: 0, notes: "" };
+    const updated = { ...base, [period === "umaga" ? "easebrewUmaga" : "easebrewGabi"]: true };
+    const next = idx >= 0 ? entries.map((e, i) => i === idx ? updated : e) : [...entries, updated];
+    writeProgressCache(storageKey, next);
+    fetch("/api/progress", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "tracker", data: { entries: next } }) }).catch(() => {});
+    if (period === "umaga") setUmaga(true); else setGabi(true);
+    playChime("check");
+  }
+
+  const both = umaga && gabi;
+  const btn = (period: "umaga" | "gabi", icon: string, label: string, done: boolean) => (
+    <button
+      onClick={() => !done && logIntake(period)}
+      style={{ flex: 1, background: done ? G : "white", color: done ? "white" : DARK, border: `2.5px solid ${done ? G : "#D9D0C0"}`, borderRadius: 20, padding: "22px 10px", cursor: done ? "default" : "pointer", transition: "all 0.2s", textAlign: "center" as const }}
+    >
+      <div style={{ fontSize: 34, marginBottom: 6 }}>{done ? "✅" : icon}</div>
+      <div style={{ fontSize: 16, fontWeight: 700 }}>{label}</div>
+      <div style={{ fontSize: 12, opacity: 0.7, marginTop: 3 }}>{done ? "Nakinom na!" : "I-tap para i-log"}</div>
+    </button>
+  );
+
+  return (
+    <div style={{ background: both ? "#E8F5E0" : "white", border: `2px solid ${both ? G : "#D9D0C0"}`, borderRadius: 22, padding: "18px", marginBottom: 24 }}>
+      <p style={{ fontSize: 12, fontWeight: 700, color: both ? G : MID, margin: "0 0 12px", textAlign: "center" as const, textTransform: "uppercase" as const, letterSpacing: 1.2 }}>
+        {both ? "✅ Kumpleto na para ngayon!" : "☕ Naiinom mo na ngayon?"}
+      </p>
+      <div style={{ display: "flex", gap: 12 }}>
+        {btn("umaga", "☀️", "Umaga", umaga)}
+        {btn("gabi",  "🌙", "Gabi",  gabi)}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// INSTALL BANNER — iOS, Android, Tablet
+// ============================================================
 function InstallBanner() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showAndroid, setShowAndroid] = useState(false);
@@ -322,15 +402,22 @@ function InstallBanner() {
 
   useEffect(() => {
     if (window.matchMedia("(display-mode: standalone)").matches) return;
-    const wasDismissed = localStorage.getItem("pwa-banner-dismissed");
-    if (wasDismissed) return;
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const isSafari = /safari/i.test(navigator.userAgent) && !/chrome/i.test(navigator.userAgent);
-    if (isIOS && isSafari) { setTimeout(() => setShowIOS(true), 2000); return; }
+    // Re-show after 3 days (not permanent dismiss)
+    const dismissedAt = localStorage.getItem("pwa-banner-dismissed");
+    if (dismissedAt && Date.now() - Number(dismissedAt) < 3 * 86400000) return;
+
+    // iOS 13+ iPads show as MacIntel with touch — detect both cases
+    const ua = navigator.userAgent;
+    const isIOS = /iphone|ipad|ipod/i.test(ua) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const isSafari = /safari/i.test(ua) && !/chrome|crios|fxios/i.test(ua);
+
+    if (isIOS && isSafari) { setTimeout(() => setShowIOS(true), 3000); return; }
+
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setShowAndroid(true);
+      setTimeout(() => setShowAndroid(true), 3000);
     };
     window.addEventListener("beforeinstallprompt", handler);
     return () => window.removeEventListener("beforeinstallprompt", handler);
@@ -343,7 +430,10 @@ function InstallBanner() {
     if (outcome === "accepted") { setInstalled(true); setShowAndroid(false); }
     setDeferredPrompt(null);
   };
-  const handleDismiss = () => { setShowAndroid(false); setShowIOS(false); setDismissed(true); localStorage.setItem("pwa-banner-dismissed", "true"); };
+  const handleDismiss = () => {
+    setShowAndroid(false); setShowIOS(false); setDismissed(true);
+    localStorage.setItem("pwa-banner-dismissed", Date.now().toString());
+  };
 
   if (installed || dismissed) return null;
 
@@ -643,6 +733,41 @@ export default function Home() {
     }
   }, [checking, session]);
 
+  // Handle quick_log from SW notification action (URL param or postMessage)
+  useEffect(() => {
+    if (checking || !session) return;
+    const key = progressStorageKey("easebrew-tracker-v2", session.code);
+
+    function doQuickLog(period: "umaga" | "gabi") {
+      const today = new Date().toISOString().split("T")[0];
+      const entries = readProgressCache<QuickEntry[]>(key, []);
+      const idx = entries.findIndex(e => e.date === today);
+      const base: QuickEntry = idx >= 0 ? entries[idx] : { date: today, painScore: 0, painLocation: "", easebrewUmaga: false, easebrewGabi: false, avocadoOil: false, mood: 0, notes: "" };
+      const updated = { ...base, [period === "umaga" ? "easebrewUmaga" : "easebrewGabi"]: true };
+      const next = idx >= 0 ? entries.map((e, i) => i === idx ? updated : e) : [...entries, updated];
+      writeProgressCache(key, next);
+      fetch("/api/progress", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "tracker", data: { entries: next } }) }).catch(() => {});
+      playChime("check");
+    }
+
+    // From URL param (SW opened app with ?quick_log=umaga)
+    const params = new URLSearchParams(window.location.search);
+    const ql = params.get("quick_log");
+    if (ql === "umaga" || ql === "gabi") {
+      window.history.replaceState({}, "", "/");
+      doQuickLog(ql);
+    }
+
+    // From SW postMessage (app was already open)
+    const handler = (e: MessageEvent) => {
+      if (e.data?.type === "QUICK_LOG" && (e.data.period === "umaga" || e.data.period === "gabi")) {
+        doQuickLog(e.data.period);
+      }
+    };
+    navigator.serviceWorker?.addEventListener("message", handler);
+    return () => navigator.serviceWorker?.removeEventListener("message", handler);
+  }, [checking, session]);
+
   useEffect(() => {
     if (typeof window === "undefined" || !("Notification" in window)) return;
     if (Notification.permission !== "granted") return;
@@ -767,6 +892,10 @@ export default function Home() {
                 daysLeft={daysLeft}
                 onReorder={() => { setReorderMessage(buildReorderMessage()); setShowCoachModal(true); }}
               />
+            )}
+
+            {session && (
+              <QuickCheckIn storageKey={progressStorageKey("easebrew-tracker-v2", session.code)} />
             )}
 
             <div style={{ background: "#FEF9E7", border: `2.5px solid ${GOLD}`, borderRadius: 18, padding: "18px 20px", marginBottom: 24, textAlign: "center" }}>

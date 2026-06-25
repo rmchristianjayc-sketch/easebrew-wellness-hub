@@ -121,6 +121,76 @@ function MilestoneModal({ days, onClose }: { days: number; onClose: () => void }
   );
 }
 
+function playChime(type: "check" | "save" | "milestone" = "save") {
+  try {
+    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const ctx = new AudioCtx();
+    const notes =
+      type === "milestone" ? [523, 659, 784, 1047] :
+      type === "check"     ? [784, 880]             :
+                             [659, 784];
+    notes.forEach((freq, i) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.13);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.001, ctx.currentTime + i * 0.13);
+      gain.gain.linearRampToValueAtTime(0.22, ctx.currentTime + i * 0.13 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.13 + 0.32);
+      osc.start(ctx.currentTime + i * 0.13);
+      osc.stop(ctx.currentTime  + i * 0.13 + 0.35);
+    });
+  } catch {}
+}
+
+function VoiceButton({ onResult }: { onResult: (text: string) => void }) {
+  const [listening, setListening] = useState(false);
+  const [supported, setSupported] = useState(false);
+  useEffect(() => {
+    setSupported("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
+  }, []);
+  if (!supported) return null;
+
+  function startListening() {
+    const SpeechRec = (window as unknown as { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition
+                   || (window as unknown as { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
+    if (!SpeechRec) return;
+    const rec = new SpeechRec();
+    rec.lang = "fil-PH";
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+    setListening(true);
+    rec.onresult = (e: SpeechRecognitionEvent) => {
+      const transcript = e.results[0][0].transcript;
+      onResult(transcript);
+      setListening(false);
+    };
+    rec.onerror = () => setListening(false);
+    rec.onend   = () => setListening(false);
+    rec.start();
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={startListening}
+      disabled={listening}
+      style={{
+        background: listening ? "#ef4444" : "#E8F5E0",
+        border: `1.5px solid ${listening ? "#ef4444" : "#39613B"}`,
+        borderRadius: 8, padding: "5px 12px", fontSize: 13,
+        color: listening ? "white" : "#39613B",
+        cursor: listening ? "default" : "pointer", fontWeight: 700,
+        display: "flex", alignItems: "center", gap: 6, flexShrink: 0,
+      }}
+    >
+      {listening ? "🔴 Nakinikinig..." : "🎤 Magsalita"}
+    </button>
+  );
+}
+
 export default function TrackerPage() {
   const { checking, session } = useSessionGuard();
   const storageKey = progressStorageKey("easebrew-tracker-v2", session?.code);
@@ -130,6 +200,7 @@ export default function TrackerPage() {
   const [saved, setSaved]     = useState(false);
   const [summaryCopied, setSummaryCopied] = useState(false);
   const [milestone, setMilestone] = useState<number | null>(null);
+  const [prefilledFromYesterday, setPrefilledFromYesterday] = useState(false);
   const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -139,6 +210,22 @@ export default function TrackerPage() {
       const localEntries = getStoredTrackerEntries(storageKey);
       setEntries(localEntries);
       setToday(getStoredTodayEntry(storageKey));
+
+      // Smart pre-fill: if today is empty, carry yesterday's values
+      const todayStr = new Date().toISOString().split("T")[0];
+      const todayExists = localEntries.some(e => e.date === todayStr);
+      if (!todayExists && localEntries.length > 0) {
+        const yesterday = localEntries[localEntries.length - 1];
+        if (yesterday) {
+          setToday(prev => ({
+            ...prev,
+            painScore:     yesterday.painScore     || prev.painScore,
+            painLocation:  yesterday.painLocation  || prev.painLocation,
+            mood:          yesterday.mood          || prev.mood,
+          }));
+          setPrefilledFromYesterday(true);
+        }
+      }
 
       fetch('/api/progress?type=tracker')
         .then(r => r.json())
@@ -190,10 +277,12 @@ export default function TrackerPage() {
     triggerSync(updated);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
+    playChime("save");
     const newTotal = updated.length;
     if (MILESTONES[newTotal] && localStorage.getItem(`eb_milestone_${newTotal}`) !== "1") {
       localStorage.setItem(`eb_milestone_${newTotal}`, "1");
       setMilestone(newTotal);
+      playChime("milestone");
     }
   };
 
@@ -295,6 +384,12 @@ export default function TrackerPage() {
       {/* ═══ NGAYON TAB ═══ */}
       {view === "ngayon" && (
         <div style={{ padding: "24px 20px" }}>
+
+              {prefilledFromYesterday && (
+                <div style={{ background: "#EEF4FF", border: "1px solid #93C5FD", borderRadius: 10, padding: "8px 14px", marginBottom: 16, fontSize: 13, color: "#1D4ED8", display: "flex", alignItems: "center", gap: 8 }}>
+                  <span>⚡</span> Pre-filled mula sa kahapon — i-update kung nagbago.
+                </div>
+              )}
 
           <p style={{ fontSize: 16, color: MID, margin: "0 0 24px 0", textAlign: "center", fontWeight: 600 }}>
             📅 {todayStr}
@@ -433,19 +528,19 @@ export default function TrackerPage() {
           <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 20, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
             <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>✍️ Ano ang nararamdaman mo?</h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 14px 0" }}>Optional — isulat lang kung gusto mo</p>
-            <textarea
-              placeholder="Halimbawa: Mas gaan na ang tuhod ko ngayon, nakakaabot na ako ng mesa nang hindi sumasakit..."
-              value={today.notes}
-              onChange={e => setToday(prev => ({ ...prev, notes: e.target.value }))}
-              rows={4}
-              style={{
-                width: "100%", padding: "16px", borderRadius: 14,
-                border: "2px solid #E0D8CC", fontSize: 17,
-                background: WHITE, resize: "none",
-                boxSizing: "border-box" as const, color: DARK,
-                fontFamily: "Georgia, serif", lineHeight: 1.6,
-              }}
-            />
+            <div>
+              <label style={{ fontSize: 13, fontWeight: 700, color: DARK, display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <span>📝 Notes (optional)</span>
+                <VoiceButton onResult={(text) => setToday(p => ({ ...p, notes: p.notes ? p.notes + " " + text : text }))} />
+              </label>
+              <textarea
+                value={today.notes}
+                onChange={e => setToday(p => ({ ...p, notes: e.target.value }))}
+                placeholder="Kumusta ang pakiramdam mo ngayon? Anong nangyari?"
+                rows={3}
+                style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: `1.5px solid #D9D0C0`, fontSize: 15, resize: "none", outline: "none", background: WHITE, color: DARK, fontFamily: "inherit", boxSizing: "border-box" as const }}
+              />
+            </div>
           </div>
 
           {/* ── SAVE BUTTON ── */}
