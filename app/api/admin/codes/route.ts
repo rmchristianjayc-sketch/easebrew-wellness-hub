@@ -61,9 +61,19 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
-    const { id, action } = await req.json();
-    if (!id || !['deactivate', 'reactivate'].includes(action)) {
+    const body = await req.json();
+    const { id, action } = body;
+    if (!id || !['deactivate', 'reactivate', 'update_notes'].includes(action)) {
       return NextResponse.json({ error: 'ID and action are required.' }, { status: 400 });
+    }
+
+    if (action === 'update_notes') {
+      const notes = typeof body.notes === 'string' ? body.notes.slice(0, 500) : '';
+      let query = supabaseAdmin.from('access_codes').update({ notes }).eq('id', id);
+      if (admin.role === 'coach') query = query.eq('created_by', admin.username);
+      const { error } = await query;
+      if (error) return NextResponse.json({ error: 'Failed to update notes.' }, { status: 500 });
+      return NextResponse.json({ success: true });
     }
 
     if (admin.role === 'coach' && action === 'reactivate') {

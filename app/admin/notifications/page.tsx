@@ -15,6 +15,49 @@ const QUICK_MESSAGES = [
   { label: "Milestone",         icon: "🏆", title: "30 Days Complete! 🏆",         body: "Congrats sa 30 days ng consistent EaseBrew! Ikwento mo sa amin ang iyong results!" },
 ];
 
+const MESSENGER_TEMPLATES = [
+  {
+    label: "Umaga Check-in",
+    icon: "🌅",
+    text: "Magandang umaga po! ☀️ Huwag kalimutang uminom ng EaseBrew ngayong umaga bago kumain. Mahal namin kayo! — R&M EaseBrew",
+  },
+  {
+    label: "Gabi Reminder",
+    icon: "🌙",
+    text: "Magandang gabi po! 🌙 Bago po kayo matulog, inumin ang EaseBrew para sa pinaka-mabuting resulta. Stay consistent — kaya ninyo ito! — R&M EaseBrew",
+  },
+  {
+    label: "Progress Check",
+    icon: "📊",
+    text: "Kumusta na po ang pakiramdam ninyo? 😊 Sana bumababa na ang sakit! I-log po sa Pain Tracker para makita natin ang inyong progress. Ipagpatuloy lang! — R&M EaseBrew",
+  },
+  {
+    label: "Malapit Mag-expire",
+    icon: "⏰",
+    text: "Hello po! 👋 Malapit na po mag-expire ang inyong EaseBrew subscription. Para hindi mapuputol ang inyong wellness journey, mag-order na po kayo ng bagong package. Message lang po kayo sa inyong coach! — R&M EaseBrew",
+  },
+  {
+    label: "Payday Promo",
+    icon: "💰",
+    text: "Payday na po! 🎉 Ngayong payday, mag-stock up na ng EaseBrew para sa inyong pamilya. May espesyal na package kami para sa inyong budget. Message lang po para sa details! — R&M EaseBrew",
+  },
+  {
+    label: "Missed a Few Days",
+    icon: "💌",
+    text: "Kamusta na po kayo? 🙏 Medyo hindi kayo naka-log sa tracker recently. Huwag po kayong mag-alala — pwede pa kayong magsimulang muli ngayon! Consistent na tayo ulit. — R&M EaseBrew",
+  },
+  {
+    label: "7-Day Milestone",
+    icon: "🌟",
+    text: "WOW! 🌟 Isang linggo na kayong nag-iinom ng EaseBrew! Magaling! Patuloy lang — ang mga resulta ay darating sa mga susunod na linggo. Ipinagmamalaki namin kayo! — R&M EaseBrew",
+  },
+  {
+    label: "30-Day Congrats",
+    icon: "🏆",
+    text: "CONGRATS! 🏆 30 days na kayong consistent sa EaseBrew! Ang ganda ng inyong discipline! Ikwento ninyo sa amin ang inyong results — inspire tayo ng iba! — R&M EaseBrew",
+  },
+];
+
 const inp: React.CSSProperties = {
   width: "100%", padding: "10px 13px", borderRadius: 8,
   border: "1.5px solid #e0e0e0", fontSize: 13, outline: "none",
@@ -28,6 +71,7 @@ export default function NotificationsPage() {
   const [body, setBody]     = useState("");
   const [selected, setSelected] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
+  const [messengerCopiedIdx, setMessengerCopiedIdx] = useState<number | null>(null);
 
   // App notification state
   const [current, setCurrent] = useState<{ title: string; message: string; active: boolean } | null>(null);
@@ -159,6 +203,40 @@ export default function NotificationsPage() {
               <p style={{ color: MID, fontSize: 11, margin: 0, lineHeight: 1.5 }}>{current.message}</p>
             </div>
           )}
+
+          {/* ── Messenger / Viber Templates ── */}
+          <div style={{ marginTop: 24 }}>
+            <h2 style={{ color: DARK, fontSize: 13, fontWeight: "bold", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>💬 Messenger Templates</h2>
+            <p style={{ color: MID, fontSize: 11, margin: "0 0 10px", lineHeight: 1.5 }}>I-copy at i-paste sa Messenger, Viber, o SMS ng customer</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {MESSENGER_TEMPLATES.map((t, i) => {
+                const isCopied = messengerCopiedIdx === i;
+                return (
+                  <button key={i}
+                    onClick={() => {
+                      navigator.clipboard.writeText(t.text).then(() => {
+                        setMessengerCopiedIdx(i);
+                        setTimeout(() => setMessengerCopiedIdx(null), 2500);
+                      }).catch(() => {});
+                    }}
+                    style={{
+                      background: isCopied ? "#e8f5e0" : "white",
+                      border: `1.5px solid ${isCopied ? G : "#e0e0e0"}`,
+                      borderRadius: 10, padding: "10px 12px", textAlign: "left", cursor: "pointer",
+                      display: "flex", alignItems: "center", gap: 10,
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.04)", transition: "all 0.15s",
+                    }}>
+                    <span style={{ fontSize: 18, flexShrink: 0 }}>{isCopied ? "✅" : t.icon}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ color: isCopied ? G : DARK, fontWeight: "bold", fontSize: 12 }}>{isCopied ? "Copied!" : t.label}</div>
+                      {!isCopied && <div style={{ color: MID, fontSize: 10, marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.text.slice(0, 55)}…</div>}
+                    </div>
+                    <span style={{ fontSize: 10, color: isCopied ? G : "#ccc", flexShrink: 0 }}>📋</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         {/* ── Right: Compose + Publish ── */}

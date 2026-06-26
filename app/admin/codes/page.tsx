@@ -55,6 +55,9 @@ export default function CodesPage() {
   const [coachError, setCoachError] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [confirm, setConfirm]     = useState<{ message: string; onConfirm: () => void; danger?: boolean } | null>(null);
+  const [editingNotesId, setEditingNotesId]     = useState<string | null>(null);
+  const [editingNotesVal, setEditingNotesVal]   = useState("");
+  const [savingNotesId, setSavingNotesId]       = useState<string | null>(null);
 
   const fetchCodes = useCallback(async () => {
     setCodesLoading(true);
@@ -121,6 +124,21 @@ export default function CodesPage() {
       setReorderCopiedId(c.id);
       setTimeout(() => setReorderCopiedId(null), 2500);
     }).catch(() => {});
+  }
+
+  async function saveNotes(id: string) {
+    setSavingNotesId(id);
+    try {
+      const res = await fetch("/api/admin/codes", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action: "update_notes", notes: editingNotesVal }),
+      });
+      if (res.ok) {
+        setCodes(prev => prev.map(c => c.id === id ? { ...c, notes: editingNotesVal } : c));
+        setEditingNotesId(null);
+      }
+    } catch { /* silent */ }
+    setSavingNotesId(null);
   }
 
   function handleDelete(id: string, code: string) {
@@ -351,7 +369,33 @@ export default function CodesPage() {
                         <td style={{ padding: "11px 14px", fontFamily: "monospace", color: G, fontWeight: "bold", fontSize: 13, whiteSpace: "nowrap" }}>{c.code}</td>
                         <td style={{ padding: "11px 14px", color: DARK, fontSize: 13, fontWeight: "bold" }}>{c.customer_name || "—"}</td>
                         <td style={{ padding: "11px 14px", fontSize: 12, color: MID, whiteSpace: "nowrap" }}>₱{c.tier?.toLocaleString()} · {c.packs}pk · {c.validity_days}d</td>
-                        <td style={{ padding: "11px 14px", fontSize: 11, color: "#888", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.notes || "—"}</td>
+                        <td style={{ padding: "6px 14px", maxWidth: 180 }}>
+                          {editingNotesId === c.id ? (
+                            <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                              <input
+                                autoFocus
+                                value={editingNotesVal}
+                                onChange={e => setEditingNotesVal(e.target.value)}
+                                onKeyDown={e => { if (e.key === "Enter") saveNotes(c.id); if (e.key === "Escape") setEditingNotesId(null); }}
+                                style={{ flex: 1, padding: "4px 8px", borderRadius: 6, border: `1.5px solid ${G}`, fontSize: 11, outline: "none", minWidth: 0 }}
+                              />
+                              <button onClick={() => saveNotes(c.id)} disabled={savingNotesId === c.id} style={{ background: G, color: "white", border: "none", borderRadius: 5, padding: "4px 8px", fontSize: 11, cursor: "pointer", flexShrink: 0 }}>
+                                {savingNotesId === c.id ? "..." : "✓"}
+                              </button>
+                              <button onClick={() => setEditingNotesId(null)} style={{ background: "none", border: "1px solid #ddd", borderRadius: 5, padding: "4px 6px", fontSize: 11, cursor: "pointer", flexShrink: 0 }}>✕</button>
+                            </div>
+                          ) : (
+                            <div
+                              onClick={() => { setEditingNotesId(c.id); setEditingNotesVal(c.notes || ""); }}
+                              title="Click to edit"
+                              style={{ fontSize: 11, color: "#888", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", cursor: "text", padding: "4px 6px", borderRadius: 6, border: "1px solid transparent" }}
+                              onMouseEnter={e => (e.currentTarget as HTMLElement).style.border = "1px dashed #ccc"}
+                              onMouseLeave={e => (e.currentTarget as HTMLElement).style.border = "1px solid transparent"}
+                            >
+                              {c.notes || <span style={{ color: "#ddd", fontStyle: "italic" }}>+ add note</span>}
+                            </div>
+                          )}
+                        </td>
                         <td style={{ padding: "11px 14px", fontSize: 11, color: MID, whiteSpace: "nowrap" }}>
                           {c.used_at ? new Date(c.used_at).toLocaleDateString("en-PH") : "—"}
                         </td>

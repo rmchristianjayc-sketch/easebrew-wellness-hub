@@ -92,6 +92,25 @@ function getPainEmoji(score: number) {
   return "😭";
 }
 
+function calcStreak(entries: DayEntry[]): number {
+  if (entries.length === 0) return 0;
+  const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date));
+  const today = new Date().toISOString().split("T")[0];
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+  let check: string | null = (sorted[0].date === today || sorted[0].date === yesterday) ? sorted[0].date : null;
+  if (!check) return 0;
+  let streak = 0;
+  for (const e of sorted) {
+    if (e.date === check) {
+      streak++;
+      const d: Date = new Date(check + "T00:00:00");
+      d.setDate(d.getDate() - 1);
+      check = d.toISOString().split("T")[0];
+    } else break;
+  }
+  return streak;
+}
+
 async function syncTrackerProgress(entries: DayEntry[]) {
   try {
     await fetch('/api/progress', {
@@ -200,6 +219,58 @@ function VoiceButton({ onResult }: { onResult: (text: string) => void }) {
     >
       {listening ? "🔴 Nakinikinig..." : "🎤 Magsalita"}
     </button>
+  );
+}
+
+function PainChart({ entries }: { entries: DayEntry[] }) {
+  const recent = entries.slice(-30);
+  if (recent.length < 2) return null;
+  const W = 560, H = 150;
+  const PAD = { top: 12, right: 16, bottom: 30, left: 32 };
+  const cW = W - PAD.left - PAD.right;
+  const cH = H - PAD.top - PAD.bottom;
+  const n = recent.length;
+  const px = (i: number) => PAD.left + (i / (n - 1)) * cW;
+  const py = (s: number) => PAD.top + cH - (s / 10) * cH;
+  const pts = recent.map((e, i) => ({ x: px(i), y: py(e.painScore), s: e.painScore }));
+  const line = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" ");
+  const area = `${line} L ${pts[n-1].x.toFixed(1)} ${py(0).toFixed(1)} L ${pts[0].x.toFixed(1)} ${py(0).toFixed(1)} Z`;
+  const first = recent[0].painScore;
+  const last  = recent[n - 1].painScore;
+  const trend = last - first;
+  const lineColor = trend <= 0 ? "#22c55e" : "#ef4444";
+  const labelIdxs = n <= 5 ? recent.map((_, i) => i) : [0, Math.floor(n / 2), n - 1];
+  return (
+    <div style={{ background: "#FFFFFB", borderRadius: 16, padding: "20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <h3 style={{ fontSize: 18, fontWeight: 700, color: "#39613B", margin: 0 }}>📈 Pain Trend</h3>
+        <span style={{ fontSize: 14, fontWeight: 700, color: lineColor }}>
+          {trend < 0 ? `▼ ${Math.abs(trend)} — Bumababa! 🎉` : trend === 0 ? "→ Stable" : `▲ ${trend} — Nag-taas`}
+        </span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto" }}>
+        {[0, 2, 4, 6, 8, 10].map(s => (
+          <g key={s}>
+            <line x1={PAD.left} y1={py(s)} x2={W - PAD.right} y2={py(s)} stroke="#f0ece4" strokeWidth={1} />
+            <text x={PAD.left - 5} y={py(s) + 4} textAnchor="end" fontSize={9} fill="#bbb">{s}</text>
+          </g>
+        ))}
+        <path d={area} fill={lineColor} fillOpacity={0.08} />
+        <path d={line} fill="none" stroke={lineColor} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+        {pts.map((p, i) => (
+          <circle key={i} cx={p.x} cy={p.y} r={3.5} fill={lineColor} stroke="white" strokeWidth={1.5} />
+        ))}
+        {labelIdxs.map(i => {
+          if (!pts[i]) return null;
+          const label = new Date(recent[i].date + "T00:00:00").toLocaleDateString("en-PH", { month: "short", day: "numeric" });
+          return <text key={i} x={pts[i].x} y={H - 5} textAnchor="middle" fontSize={9} fill="#aaa">{label}</text>;
+        })}
+      </svg>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
+        <span style={{ fontSize: 13, color: "#4E504F" }}>Simula: <strong style={{ color: "#1B201A" }}>{first}/10</strong></span>
+        <span style={{ fontSize: 13, color: "#4E504F" }}>Ngayon: <strong style={{ color: lineColor }}>{last}/10</strong></span>
+      </div>
+    </div>
   );
 }
 
@@ -312,6 +383,7 @@ export default function TrackerPage() {
       `Petsa: ${today}`,
       ``,
       `Kabuuang araw na naka-log: ${totalDays}`,
+      `🔥 Streak: ${calcStreak(entries)} araw sunod-sunod`,
       `Average pain score: ${avgPain}/10`,
       `Consistency (2x/day): ${consistRate}%`,
       `Pain trend: ${firstPain} → ${latestPain} ${trend}`,
@@ -357,10 +429,17 @@ export default function TrackerPage() {
             {/* 4.1 FIX: 15px → 16px */}
             <p style={{ fontSize: 16, opacity: 0.8, margin: "4px 0 0 0" }}>I-track ang iyong progress araw-araw</p>
           </div>
-          <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 14, padding: "10px 18px" }}>
-            <p style={{ fontSize: 32, fontWeight: 700, margin: 0, color: GOLD }}>Day {totalDays}</p>
-            {/* 4.1 FIX: 13px → 16px */}
-            <p style={{ fontSize: 16, margin: 0, opacity: 0.8 }}>logged na</p>
+          <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 14, padding: "10px 16px" }}>
+              <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: GOLD }}>Day {totalDays}</p>
+              <p style={{ fontSize: 14, margin: 0, opacity: 0.8 }}>logged na</p>
+            </div>
+            {calcStreak(entries) > 0 && (
+              <div style={{ textAlign: "center", background: "rgba(255,200,0,0.2)", borderRadius: 14, padding: "10px 16px" }}>
+                <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: GOLD }}>🔥{calcStreak(entries)}</p>
+                <p style={{ fontSize: 14, margin: 0, opacity: 0.8 }}>day streak!</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -629,6 +708,8 @@ export default function TrackerPage() {
               >
                 {summaryCopied ? "✅ Nakopya! I-paste sa chat ng Coach" : "📋 I-share ang Progress sa Coach"}
               </button>
+
+              <PainChart entries={entries} />
 
               {[...entries].reverse().map((entry, i) => (
                 <div key={i} style={{

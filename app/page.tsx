@@ -625,6 +625,60 @@ function DailyReminderCard({ enabled, onToggle }: { enabled: boolean; onToggle: 
 }
 
 // ============================================================
+// ONBOARDING MODAL — shows only on first visit
+// ============================================================
+function OnboardingModal({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState(0);
+  const steps = [
+    {
+      emoji: "☕",
+      title: "Maligayang Pagdating!",
+      body: "Ito ang inyong personal na EaseBrew Wellness Hub. Nandito kami para samahan kayo sa bawat hakbang ng inyong wellness journey!",
+    },
+    {
+      emoji: "💊",
+      title: "Uminom 2x Bawat Araw",
+      body: "Para sa pinakamabuting resulta — uminom ng EaseBrew tuwing umaga at gabi. Huwag laktawan kahit isang araw para sa pinakamabilis na resulta!",
+    },
+    {
+      emoji: "📊",
+      title: "I-track ang Progress Mo",
+      body: "Gamitin ang Pain Tracker araw-araw para makita ang inyong improvement. Makikita ninyo kung gaano kabilis bumababa ang inyong sakit!",
+    },
+  ];
+  const s = steps[step];
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.75)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div style={{ background: "white", borderRadius: 28, padding: "40px 28px", maxWidth: 360, width: "100%", textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.4)" }}>
+        <div style={{ fontSize: 72, marginBottom: 16, lineHeight: 1 }}>{s.emoji}</div>
+        <h2 style={{ fontSize: 24, fontWeight: 700, color: "#1B201A", margin: "0 0 14px", lineHeight: 1.3, fontFamily: "Georgia, serif" }}>{s.title}</h2>
+        <p style={{ fontSize: 17, color: "#4E504F", margin: "0 0 28px", lineHeight: 1.7, fontFamily: "Georgia, serif" }}>{s.body}</p>
+        <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 20 }}>
+          {steps.map((_, i) => (
+            <div key={i} style={{ width: i === step ? 24 : 8, height: 8, borderRadius: 4, background: i === step ? "#39613B" : "#E0D8CC", transition: "all 0.3s" }} />
+          ))}
+        </div>
+        {step < steps.length - 1 ? (
+          <button
+            onClick={() => setStep(s => s + 1)}
+            style={{ width: "100%", background: "#39613B", color: "white", border: "none", borderRadius: 16, padding: "20px", fontSize: 20, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif" }}
+          >
+            Susunod →
+          </button>
+        ) : (
+          <button
+            onClick={onClose}
+            style={{ width: "100%", background: "#39613B", color: "white", border: "none", borderRadius: 16, padding: "20px", fontSize: 20, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif" }}
+          >
+            ✅ Sige, Magsimula Na!
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 // MAIN PAGE
 // ============================================================
 export default function Home() {
@@ -667,6 +721,15 @@ export default function Home() {
   const [faqs, setFaqs]                     = useState(DEFAULT_FAQS);
   const [testimonials, setTestimonials]     = useState(DEFAULT_TESTIMONIALS);
   const [videos, setVideos]                 = useState(DEFAULT_VIDEOS);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // ── ONBOARDING — show once on first visit ────────────────────
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!localStorage.getItem("eb_onboarded_v1")) {
+      setShowOnboarding(true);
+    }
+  }, []);
 
   const showExpiryBanner = daysLeft !== null && daysLeft <= 7 && daysLeft > 0 && !expiryDismissed;
 
@@ -821,6 +884,12 @@ export default function Home() {
   return (
     <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", fontSize: largeFont ? "110%" : "100%" }}>
       <InstallBanner />
+      {showOnboarding && (
+        <OnboardingModal onClose={() => {
+          localStorage.setItem("eb_onboarded_v1", "1");
+          setShowOnboarding(false);
+        }} />
+      )}
       {showCoachModal && <CoachModal coaches={coaches} onClose={() => { setShowCoachModal(false); setReorderMessage(undefined); }} reorderMessage={reorderMessage} />}
 
       {/* ── STICKY HEADER + TABS ─────────────────────────────── */}
