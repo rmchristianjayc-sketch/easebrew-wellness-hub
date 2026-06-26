@@ -6,7 +6,6 @@ import { clearAdminAuthCache } from "@/lib/useAdminGuard";
 import {
   BarChart3,
   Bell,
-  Coffee,
   FileText,
   KeyRound,
   LayoutDashboard,
@@ -74,19 +73,20 @@ export default function Sidebar({
             style={{
               width: 42,
               height: 42,
-              background: "#FED255",
-              color: "#183b28",
               borderRadius: 8,
+              overflow: "hidden",
+              flexShrink: 0,
+              background: "white",
               display: "grid",
               placeItems: "center",
-              flexShrink: 0,
             }}
           >
-            <Coffee size={23} strokeWidth={2.5} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/rm-logo.png.png" alt="RM Digital Trading" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           </div>
           <div>
-            <div style={{ color: "white", fontWeight: 750, fontSize: 16 }}>
-              EaseBrew
+            <div style={{ color: "white", fontWeight: 750, fontSize: 12, lineHeight: 1.2, letterSpacing: "0.2px" }}>
+              R&amp;M DIGITAL TRADING
             </div>
             <div style={{ color: "rgba(255,255,255,0.58)", fontSize: 12, marginTop: 2 }}>
               {isCoach ? "Coach workspace" : "Operations console"}
