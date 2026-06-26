@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Sidebar from "@/app/admin/_components/Sidebar";
 import { useAdminGuard } from "@/lib/useAdminGuard";
+import { PRICE_CONFIG } from "@/lib/price-config";
 
 const G    = "#39613B";
 const DARK = "#1B201A";
@@ -157,6 +158,88 @@ const VIDEO_DIVIDERS: Record<string, string> = {
   video_3_title: "🎬 Video 3",
 };
 
+const PRODUCTS_META = [
+  { n: 1, emoji: "📊", name: "Pain Tracker",   tier: "Lahat ng customers"   },
+  { n: 2, emoji: "🥗", name: "Meal Plan",      tier: "₱1,499+"              },
+  { n: 3, emoji: "💪", name: "Exercise Guide", tier: "₱1,499+"              },
+  { n: 4, emoji: "📖", name: "Recipe Book",    tier: "₱2,998+"              },
+  { n: 5, emoji: "🏆", name: "Bagong Katawan", tier: "₱4,497+"              },
+  { n: 6, emoji: "🌿", name: "VIP Bundle",     tier: "Pinakamataas na tier" },
+];
+
+type ContentState = Record<string, string>;
+type BoolState    = Record<string, boolean>;
+
+function ProductsSection({ editing, content, saved, setEditing, setContent, setSaved }: {
+  editing: ContentState; content: ContentState; saved: BoolState;
+  setEditing: React.Dispatch<React.SetStateAction<ContentState>>;
+  setContent: React.Dispatch<React.SetStateAction<ContentState>>;
+  setSaved:   React.Dispatch<React.SetStateAction<BoolState>>;
+}) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {PRODUCTS_META.map(({ n, emoji, name, tier }) => {
+        const nameKey = `product_${n}_name`;
+        const descKey = `product_${n}_desc`;
+        const nameVal = editing[nameKey] ?? "";
+        const descVal = editing[descKey] ?? "";
+        const nameChanged = nameVal !== (content[nameKey] ?? "");
+        const descChanged = descVal !== (content[descKey] ?? "");
+        const hasPending = nameChanged || descChanged;
+        const allSaved = saved[nameKey] && saved[descKey];
+        return (
+          <div key={n} style={{ background: "white", border: "1.5px solid #e8e8e8", borderRadius: 12, padding: 18 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 28 }}>{emoji}</span>
+                <div>
+                  <div style={{ fontWeight: "bold", fontSize: 14, color: DARK }}>{name}</div>
+                  <div style={{ fontSize: 11, color: MID }}>👥 {tier}</div>
+                </div>
+              </div>
+              {hasPending && (
+                <button onClick={async () => {
+                  const updates = [{ key: nameKey, value: nameVal }, { key: descKey, value: descVal }];
+                  const res = await fetch("/api/admin/content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ updates }) });
+                  if (res.ok) {
+                    setContent(p => ({ ...p, [nameKey]: nameVal, [descKey]: descVal }));
+                    setSaved(p => ({ ...p, [nameKey]: true, [descKey]: true }));
+                    setTimeout(() => setSaved(p => ({ ...p, [nameKey]: false, [descKey]: false })), 2000);
+                  }
+                }} style={{ background: allSaved ? "#dcfce7" : G, color: allSaved ? G : "white", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: "bold", cursor: "pointer" }}>
+                  {allSaved ? "✅ Saved!" : "💾 Save"}
+                </button>
+              )}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 4 }}>
+                  Pangalan {nameChanged && <span style={{ color: "#f59e0b" }}>●</span>}
+                </label>
+                <input type="text" value={nameVal}
+                  onChange={e => setEditing(p => ({ ...p, [nameKey]: e.target.value }))}
+                  placeholder={`e.g. ${name}`}
+                  style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${nameChanged ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, background: nameChanged ? "#fffbeb" : "white", color: DARK }}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 4 }}>
+                  Description {descChanged && <span style={{ color: "#f59e0b" }}>●</span>}
+                </label>
+                <textarea value={descVal}
+                  onChange={e => setEditing(p => ({ ...p, [descKey]: e.target.value }))}
+                  rows={2} placeholder="Ilarawan ang feature na ito..."
+                  style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${descChanged ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const, background: descChanged ? "#fffbeb" : "white", color: DARK }}
+                />
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function ContentPage() {
   const { checking, username } = useAdminGuard(['owner']);
   const [content, setContent]         = useState<Record<string, string>>({});
@@ -248,6 +331,23 @@ export default function ContentPage() {
     setSaving(p => ({ ...p, ...notSavingMap }));
   }
 
+  async function clearCoach(n: number) {
+    const keys = [`coach_${n}_name`, `coach_${n}_number`, `coach_${n}_display`, `coach_${n}_facebook`, `coach_${n}_photo`];
+    const updates = keys.map(k => ({ key: k, value: "" }));
+    try {
+      const res = await fetch("/api/admin/content", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ updates }),
+      });
+      if (res.ok) {
+        const cleared: Record<string, string> = {};
+        keys.forEach(k => { cleared[k] = ""; });
+        setEditing(p => ({ ...p, ...cleared }));
+        setContent(p => ({ ...p, ...cleared }));
+      }
+    } catch { /* silent */ }
+  }
+
   const groups: Record<string, string[]> = {};
   Object.entries(CONTENT_LABELS).forEach(([key, meta]) => {
     if (!groups[meta.group]) groups[meta.group] = [];
@@ -325,82 +425,192 @@ export default function ContentPage() {
               )}
             </div>
 
-            {activeGroup === "🎬 Videos" && (
-              <div style={{ background: "#f0f7f0", border: "1px solid #d4e8d4", borderRadius: 10, padding: "12px 16px", marginBottom: 18, fontSize: 12, color: G, lineHeight: 1.6 }}>
-                💡 <strong>Paano gamitin:</strong> I-upload ang video sa YouTube (puwedeng &quot;Unlisted&quot; para hindi makita sa public search), tapos i-copy-paste ang buong link dito (kahit anong format — youtube.com/watch?v=..., youtu.be/..., atbp.)
-              </div>
-            )}
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-              {groups[activeGroup]?.map(key => {
-                const meta      = CONTENT_LABELS[key];
-                const val       = editing[key] ?? "";
-                const isSaving  = saving[key];
-                const isSaved   = saved[key];
-                const hasChange = val !== (content[key] ?? "");
-
-                const fieldStyle: React.CSSProperties = {
-                  width: "100%", padding: "10px 13px", borderRadius: 8,
-                  border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`,
-                  fontSize: 13, outline: "none", boxSizing: "border-box",
-                  fontFamily: "Inter, system-ui, sans-serif", color: DARK,
-                  background: hasChange ? "#fffbeb" : "white",
-                  transition: "border-color 0.2s, background 0.2s",
-                };
-
-                const dividerLabel =
-                  COACH_DIVIDERS[key] || TESTIMONIAL_DIVIDERS[key] ||
-                  FAQ_DIVIDERS[key]   || VIDEO_DIVIDERS[key] || null;
-
-                return (
-                  <div key={key}>
-                    {dividerLabel && (
-                      <div style={{ background: "#f0f7f0", borderRadius: 8, padding: "8px 14px", marginBottom: 14, borderLeft: `3px solid ${G}`, fontSize: 13, fontWeight: "bold", color: G }}>
-                        {dividerLabel}
-                      </div>
-                    )}
-                    <div style={{ borderBottom: "1px solid #f5f5f5", paddingBottom: 18 }}>
-                      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
-                        <div style={{ flex: 1 }}>
-                          <label style={{ fontSize: 12, color: DARK, fontWeight: "bold", display: "block", marginBottom: 6 }}>
-                            {meta.label}
-                            {hasChange && <span style={{ color: "#f59e0b", marginLeft: 6, fontSize: 11 }}>● Modified</span>}
-                          </label>
-                          {meta.type === "boolean" ? (
-                            <select value={val === "true" ? "true" : "false"}
-                              onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
-                              style={{ ...fieldStyle, cursor: "pointer" }}
-                            >
-                              <option value="true">✅ Oo — Ipakita</option>
-                              <option value="false">🚫 Hindi — Itago</option>
-                            </select>
-                          ) : meta.multiline ? (
-                            <textarea value={val}
-                              onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
-                              rows={3} style={{ ...fieldStyle, resize: "vertical" }}
-                            />
-                          ) : (
-                            <input type="text" value={val}
-                              onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
-                              style={fieldStyle}
-                            />
+            {/* ── COACH MANAGEMENT — card grid ── */}
+            {activeGroup === "👥 Coach Management" ? (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                {[1,2,3,4,5,6].map(n => {
+                  const fields: { key: string; label: string }[] = [
+                    { key: `coach_${n}_name`,     label: "Pangalan" },
+                    { key: `coach_${n}_number`,   label: "Phone (09xxxxxxxxx)" },
+                    { key: `coach_${n}_display`,  label: "Display (0917 xxx xxxx)" },
+                    { key: `coach_${n}_facebook`, label: "Facebook Link" },
+                    { key: `coach_${n}_photo`,    label: "Photo URL" },
+                  ];
+                  const hasAny = fields.some(f => (editing[f.key] ?? "").trim() !== "");
+                  const hasPending = fields.some(f => (editing[f.key] ?? "") !== (content[f.key] ?? ""));
+                  return (
+                    <div key={n} style={{ background: hasAny ? "#f9fdfb" : "#fafafa", border: `1.5px solid ${hasAny ? "#c3ddc5" : "#e8e8e8"}`, borderRadius: 12, padding: 16 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                        <span style={{ fontWeight: "bold", fontSize: 13, color: hasAny ? G : MID }}>
+                          👤 Coach {n} {!hasAny && <span style={{ fontWeight: "normal", color: "#bbb" }}>— Walang laman</span>}
+                        </span>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          {hasPending && (
+                            <button onClick={async () => {
+                              const updates = fields.map(f => ({ key: f.key, value: editing[f.key] ?? "" }));
+                              const res = await fetch("/api/admin/content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ updates }) });
+                              if (res.ok) {
+                                const saved: Record<string, string> = {};
+                                updates.forEach(({ key, value }) => { saved[key] = value; });
+                                setContent(p => ({ ...p, ...saved }));
+                                const s: Record<string, boolean> = {};
+                                fields.forEach(f => { s[f.key] = true; });
+                                setSaved(p => ({ ...p, ...s }));
+                                setTimeout(() => setSaved(p => { const c = { ...p }; fields.forEach(f => { c[f.key] = false; }); return c; }), 2000);
+                              }
+                            }} style={{ background: G, color: "white", border: "none", borderRadius: 6, padding: "3px 10px", fontSize: 11, cursor: "pointer", fontWeight: "bold" }}>
+                              💾 Save
+                            </button>
+                          )}
+                          {hasAny && (
+                            <button onClick={() => clearCoach(n)} style={{ background: "none", border: "1px solid #fca5a5", borderRadius: 6, padding: "3px 10px", fontSize: 11, color: "#dc2626", cursor: "pointer" }}>
+                              🗑️ Clear
+                            </button>
                           )}
                         </div>
-                        <button onClick={() => handleSave(key)} disabled={isSaving || !hasChange} style={{
-                          marginTop: 22, background: isSaved ? "#dcfce7" : hasChange ? G : "#f0f0f0",
-                          color: isSaved ? G : hasChange ? "white" : "#aaa",
-                          border: "none", borderRadius: 8, padding: "9px 18px",
-                          fontSize: 12, fontWeight: "bold",
-                          cursor: hasChange ? "pointer" : "not-allowed", whiteSpace: "nowrap",
-                        }}>
-                          {isSaved ? "✅ Saved!" : isSaving ? "Saving..." : "Save"}
-                        </button>
                       </div>
+                      {fields.map(({ key, label }) => {
+                        const val = editing[key] ?? "";
+                        const changed = val !== (content[key] ?? "");
+                        return (
+                          <div key={key} style={{ marginBottom: 8 }}>
+                            <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>
+                              {label}{changed && <span style={{ color: "#f59e0b", marginLeft: 4 }}>●</span>}
+                            </label>
+                            <input type="text" value={val}
+                              onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                              placeholder={label}
+                              style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: `1.5px solid ${changed ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, background: changed ? "#fffbeb" : "white", color: DARK }}
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
+                  );
+                })}
+              </div>
+
+            /* ── ORDER LINKS — table with tier info + test button ── */
+            ) : activeGroup === "🛒 Order Links" ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ background: "#f0f7f0", border: "1px solid #d4e8d4", borderRadius: 10, padding: "10px 14px", fontSize: 12, color: G }}>
+                  💡 Gamitin ang Shopee, Lazada, Facebook, o kahit anong checkout link. I-click ang <strong>🔗 Test</strong> para i-verify na gumagana ang link.
+                </div>
+                {Object.entries(PRICE_CONFIG).map(([price, cfg]) => {
+                  const key = `order_url_${price}`;
+                  const val = editing[key] ?? "";
+                  const hasChange = val !== (content[key] ?? "");
+                  const isSaved = saved[key];
+                  return (
+                    <div key={key} style={{ display: "flex", alignItems: "center", gap: 12, background: "white", border: `1.5px solid ${hasChange ? "#f59e0b" : "#e8e8e8"}`, borderRadius: 10, padding: "12px 14px" }}>
+                      <div style={{ width: 170, flexShrink: 0 }}>
+                        <div style={{ fontWeight: "bold", fontSize: 13, color: DARK }}>₱{Number(price).toLocaleString()}</div>
+                        <div style={{ fontSize: 11, color: MID }}>{cfg.packs} pack{cfg.packs > 1 ? "s" : ""} · {cfg.validityDays} days</div>
+                      </div>
+                      <input type="text" value={val}
+                        onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                        placeholder="https://..."
+                        style={{ flex: 1, padding: "8px 12px", borderRadius: 8, border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", background: hasChange ? "#fffbeb" : "white", color: DARK }}
+                      />
+                      {val && (
+                        <a href={val} target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>
+                          <button type="button" style={{ background: "#f0f7f0", border: "1px solid #c3ddc5", borderRadius: 8, padding: "8px 12px", fontSize: 12, color: G, cursor: "pointer", whiteSpace: "nowrap" }}>
+                            🔗 Test
+                          </button>
+                        </a>
+                      )}
+                      <button onClick={() => handleSave(key)} disabled={!hasChange || saving[key]} style={{
+                        background: isSaved ? "#dcfce7" : hasChange ? G : "#f0f0f0",
+                        color: isSaved ? G : hasChange ? "white" : "#aaa",
+                        border: "none", borderRadius: 8, padding: "8px 14px",
+                        fontSize: 12, fontWeight: "bold",
+                        cursor: hasChange ? "pointer" : "not-allowed", whiteSpace: "nowrap",
+                      }}>
+                        {isSaved ? "✅" : saving[key] ? "..." : "Save"}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+
+            ) : activeGroup === "🛍️ Products & Gifts" ? (
+              <ProductsSection editing={editing} content={content} saved={saved} setEditing={setEditing} setContent={setContent} setSaved={setSaved} />
+            ) : (
+              <>
+                {activeGroup === "🎬 Videos" && (
+                  <div style={{ background: "#f0f7f0", border: "1px solid #d4e8d4", borderRadius: 10, padding: "12px 16px", marginBottom: 18, fontSize: 12, color: G, lineHeight: 1.6 }}>
+                    💡 <strong>Paano gamitin:</strong> I-upload ang video sa YouTube (puwedeng &quot;Unlisted&quot; para hindi makita sa public search), tapos i-copy-paste ang buong link dito (kahit anong format — youtube.com/watch?v=..., youtu.be/..., atbp.)
                   </div>
-                );
-              })}
-            </div>
+                )}
+                <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                  {groups[activeGroup]?.map(key => {
+                    const meta      = CONTENT_LABELS[key];
+                    const val       = editing[key] ?? "";
+                    const isSaving  = saving[key];
+                    const isSaved   = saved[key];
+                    const hasChange = val !== (content[key] ?? "");
+                    const fieldStyle: React.CSSProperties = {
+                      width: "100%", padding: "10px 13px", borderRadius: 8,
+                      border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`,
+                      fontSize: 13, outline: "none", boxSizing: "border-box",
+                      fontFamily: "Inter, system-ui, sans-serif", color: DARK,
+                      background: hasChange ? "#fffbeb" : "white",
+                      transition: "border-color 0.2s, background 0.2s",
+                    };
+                    const dividerLabel =
+                      COACH_DIVIDERS[key] || TESTIMONIAL_DIVIDERS[key] ||
+                      FAQ_DIVIDERS[key]   || VIDEO_DIVIDERS[key] || null;
+                    return (
+                      <div key={key}>
+                        {dividerLabel && (
+                          <div style={{ background: "#f0f7f0", borderRadius: 8, padding: "8px 14px", marginBottom: 14, borderLeft: `3px solid ${G}`, fontSize: 13, fontWeight: "bold", color: G }}>
+                            {dividerLabel}
+                          </div>
+                        )}
+                        <div style={{ borderBottom: "1px solid #f5f5f5", paddingBottom: 18 }}>
+                          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
+                            <div style={{ flex: 1 }}>
+                              <label style={{ fontSize: 12, color: DARK, fontWeight: "bold", display: "block", marginBottom: 6 }}>
+                                {meta.label}
+                                {hasChange && <span style={{ color: "#f59e0b", marginLeft: 6, fontSize: 11 }}>● Modified</span>}
+                              </label>
+                              {meta.type === "boolean" ? (
+                                <select value={val === "true" ? "true" : "false"}
+                                  onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                                  style={{ ...fieldStyle, cursor: "pointer" }}
+                                >
+                                  <option value="true">✅ Oo — Ipakita</option>
+                                  <option value="false">🚫 Hindi — Itago</option>
+                                </select>
+                              ) : meta.multiline ? (
+                                <textarea value={val}
+                                  onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                                  rows={3} style={{ ...fieldStyle, resize: "vertical" }}
+                                />
+                              ) : (
+                                <input type="text" value={val}
+                                  onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                                  style={fieldStyle}
+                                />
+                              )}
+                            </div>
+                            <button onClick={() => handleSave(key)} disabled={isSaving || !hasChange} style={{
+                              marginTop: 22, background: isSaved ? "#dcfce7" : hasChange ? G : "#f0f0f0",
+                              color: isSaved ? G : hasChange ? "white" : "#aaa",
+                              border: "none", borderRadius: 8, padding: "9px 18px",
+                              fontSize: 12, fontWeight: "bold",
+                              cursor: hasChange ? "pointer" : "not-allowed", whiteSpace: "nowrap",
+                            }}>
+                              {isSaved ? "✅ Saved!" : isSaving ? "Saving..." : "Save"}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </main>
