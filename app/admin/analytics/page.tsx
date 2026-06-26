@@ -21,7 +21,7 @@ function StatCard({ icon, label, value, color }: { icon: string; label: string; 
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function AnalyticsPage() {
-  const { checking, username } = useAdminGuard(['owner']);
+  const { checking, username, role } = useAdminGuard(['owner']);
   const [codes, setCodes] = useState<AccessCode[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -71,7 +71,7 @@ export default function AnalyticsPage() {
 
   return (
     <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
-      <Sidebar active="/admin/analytics" username={username} />
+      <Sidebar active="/admin/analytics" username={username} role={role} />
 
       <main className="admin-main" style={{ flex: 1, minWidth: 0 }}>
         <div style={{ marginBottom: 28 }}>
@@ -153,6 +153,52 @@ export default function AnalyticsPage() {
               </div>
             </div>
 
+            {(() => {
+              const months: { label: string; revenue: number }[] = [];
+              for (let i = 5; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const label = d.toLocaleDateString("en-PH", { month: "short", year: "2-digit" });
+                const revenue = used
+                  .filter(c => {
+                    if (!c.used_at) return false;
+                    const u = new Date(c.used_at);
+                    return u.getFullYear() === d.getFullYear() && u.getMonth() === d.getMonth();
+                  })
+                  .reduce((s, c) => s + (c.tier || 0), 0);
+                months.push({ label, revenue });
+              }
+              const maxRevenue = Math.max(...months.map(m => m.revenue), 1);
+
+              return (
+                <div style={{ background: "white", borderRadius: 14, padding: "20px 24px", boxShadow: "0 1px 6px rgba(0,0,0,0.06)", marginBottom: 20 }}>
+                  <h2 style={{ color: DARK, fontSize: 14, fontWeight: "bold", margin: "0 0 16px" }}>📈 Monthly Revenue (Last 6 Months)</h2>
+                  <svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", overflow: "visible" }}>
+                    {months.map((m, i) => {
+                      const barW = 60;
+                      const gap = 13;
+                      const maxH = 100;
+                      const x = i * (barW + gap);
+                      const barH = maxRevenue > 0 ? Math.round((m.revenue / maxRevenue) * maxH) : 0;
+                      const y = 20 + (maxH - barH);
+                      return (
+                        <g key={i}>
+                          <rect x={x} y={y} width={barW} height={barH} fill={G} rx={4} />
+                          {m.revenue > 0 && (
+                            <text x={x + barW / 2} y={y - 5} textAnchor="middle" fontSize={10} fill={DARK} fontWeight="bold">
+                              ₱{m.revenue.toLocaleString()}
+                            </text>
+                          )}
+                          <text x={x + barW / 2} y={155} textAnchor="middle" fontSize={10} fill={MID}>
+                            {m.label}
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </svg>
+                </div>
+              );
+            })()}
+
             {expiringSoon.length > 0 && (
               <div style={{ background: "white", borderRadius: 14, padding: "20px 24px", boxShadow: "0 1px 6px rgba(0,0,0,0.06)", marginBottom: 20 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
@@ -191,7 +237,7 @@ export default function AnalyticsPage() {
             )}
 
             <p style={{ textAlign: "center", color: "#ccc", fontSize: 11, marginTop: 20 }}>
-              R&M EaseBrew Wellness Hub © 2025
+              R&M EaseBrew Wellness Hub © 2026
             </p>
           </>
         )}

@@ -3,16 +3,13 @@ import { useState, useEffect, useCallback } from "react";
 import Sidebar from "@/app/admin/_components/Sidebar";
 import { useAdminGuard } from "@/lib/useAdminGuard";
 import { PRICE_CONFIG } from "@/lib/price-config";
-import { DEFAULT_COACHES } from "@/lib/coaches";
+import { DEFAULT_COACHES, buildCoaches } from "@/lib/coaches";
 import type { AccessCode } from "@/lib/supabase";
 
 const G    = "#39613B";
 const GOLD = "#FED255";
 const DARK = "#1B201A";
 const MID  = "#4E504F";
-
-// ✅ Galing na sa lib/coaches.ts — isang source of truth
-const COACHES = DEFAULT_COACHES.map(c => c.name);
 
 // ─── Confirm Card ─────────────────────────────────────────────────────────────
 function ConfirmCard({ message, onConfirm, onCancel, danger = true }: {
@@ -58,6 +55,8 @@ export default function CodesPage() {
   const [editingNotesId, setEditingNotesId]     = useState<string | null>(null);
   const [editingNotesVal, setEditingNotesVal]   = useState("");
   const [savingNotesId, setSavingNotesId]       = useState<string | null>(null);
+  const [dynamicCoaches, setDynamicCoaches]     = useState<string[]>(DEFAULT_COACHES.map(c => c.name));
+  const [bulkCopied, setBulkCopied]             = useState(false);
 
   const fetchCodes = useCallback(async () => {
     setCodesLoading(true);
@@ -72,6 +71,18 @@ export default function CodesPage() {
   useEffect(() => {
     if (!checking) fetchCodes();
   }, [checking, fetchCodes]);
+
+  useEffect(() => {
+    fetch("/api/content")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.content) {
+          const built = buildCoaches(data.content, DEFAULT_COACHES);
+          setDynamicCoaches(built.map(c => c.name).filter(Boolean));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   async function handleGenerate() {
     setError(""); setGeneratedCode(""); setGeneratedMessage("");
@@ -195,12 +206,24 @@ export default function CodesPage() {
     return { label: "Active", bg: "#dcfce7", color: G };
   }
 
-  const filtered = codes.filter(c =>
-    search.trim() === "" ||
-    (c.customer_name || "").toLowerCase().includes(search.toLowerCase()) ||
-    (c.code || "").toLowerCase().includes(search.toLowerCase()) ||
-    (c.notes || "").toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = codes
+    .filter(c =>
+      search.trim() === "" ||
+      (c.customer_name || "").toLowerCase().includes(search.toLowerCase()) ||
+      (c.code || "").toLowerCase().includes(search.toLowerCase()) ||
+      (c.notes || "").toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      // At-risk (active but no log / log > 7 days) → top
+      const riskScore = (c: AccessCode & { last_active_at?: string | null }) => {
+        if (!c.is_used) return 0;
+        const la = c.last_active_at;
+        if (!la) return 2; // used but never logged — medium risk
+        const days = Math.floor((Date.now() - new Date(la).getTime()) / 86400000);
+        return days >= 7 ? 3 : 0;
+      };
+      return riskScore(b as AccessCode & { last_active_at?: string | null }) - riskScore(a as AccessCode & { last_active_at?: string | null });
+    });
 
   const totalCodes  = codes.length;
   const activeCodes = codes.filter(c => c.is_used && c.expires_at && new Date(c.expires_at) > now).length;
@@ -212,6 +235,57 @@ export default function CodesPage() {
     border: `1.5px solid ${err ? "#ef4444" : "#e0e0e0"}`,
     fontSize: 13, outline: "none", boxSizing: "border-box", color: DARK, background: "white",
   });
+
+  function exportCSV() {
+    const headers = ["Code", "Customer Name", "Package (₱)", "Packs", "Validity (days)", "Status", "Used At", "Expires At", "Last Active", "Notes", "Created By"];
+    const rows = codes.map(c => {
+      const now2 = new Date();
+      let status = "Unused";
+      if (c.is_used) {
+        status = c.expires_at && new Date(c.expires_at) > now2 ? "Active" : "Expired";
+      }
+      const la = (c as AccessCode & { last_active_at?: string | null }).last_active_at;
+      return [
+        c.code,
+        c.customer_name || "",
+        c.tier || "",
+        c.packs || "",
+        c.validity_days || "",
+        status,
+        c.used_at ? new Date(c.used_at).toLocaleDateString("en-PH") : "",
+        c.expires_at ? new Date(c.expires_at).toLocaleDateString("en-PH") : "",
+        la ? new Date(la).toLocaleDateString("en-PH") : "",
+        (c.notes || "").replace(/,/g, ";"),
+        c.created_by || "",
+      ];
+    });
+    const csv = [headers, ...rows].map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `easebrew-customers-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function copyAllExpiringMessages() {
+    const expiring = codes.filter(c => {
+      if (!c.is_used || !c.expires_at) return false;
+      const d = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
+      return d > 0 && d <= 7;
+    });
+    if (expiring.length === 0) return;
+    const messages = expiring.map(c => {
+      const daysLeft = Math.ceil((new Date(c.expires_at!).getTime() - now.getTime()) / 86400000);
+      const expiresDate = new Date(c.expires_at!).toLocaleDateString("en-PH", { month: "long", day: "numeric", year: "numeric" });
+      const packageLabel = PRICE_CONFIG[c.tier]?.label ?? `₱${c.tier?.toLocaleString()} package`;
+      return `Hello po ${c.customer_name || ""}!\n\nAng inyong EaseBrew ${packageLabel} ay mag-e-expire na po sa ${expiresDate} (${daysLeft} araw na lang).\n\nPara hindi mapuputol ang inyong wellness journey, mag-order na po kayo ng bagong package!\n\nKung may tanong po kayo, message lang po kayo sa inyong coach.\n\n— R&M EaseBrew Wellness Team`;
+    });
+    navigator.clipboard.writeText(messages.join("\n\n---\n\n"))
+      .then(() => { setBulkCopied(true); setTimeout(() => setBulkCopied(false), 3000); })
+      .catch(() => {});
+  }
 
   if (checking) return null;
 
@@ -257,7 +331,7 @@ export default function CodesPage() {
               <label style={{ fontSize: 12, color: DARK, fontWeight: "bold", display: "block", marginBottom: 5 }}>Coach <span style={{ color: "#ef4444" }}>*</span></label>
               <select value={coachName} onChange={e => { setCoachName(e.target.value); if (e.target.value) setCoachError(false); }} style={{ ...inp(coachError), cursor: "pointer", color: coachName ? DARK : "#aaa" }}>
                 <option value="">— Select Coach —</option>
-                {COACHES.map(c => <option key={c} value={c}>{c}</option>)}
+                {dynamicCoaches.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
               {coachError && <p style={{ color: "#ef4444", fontSize: 11, margin: "3px 0 0" }}>⚠️ Required</p>}
             </div>
@@ -321,14 +395,35 @@ export default function CodesPage() {
               <h2 style={{ color: DARK, fontSize: 18, fontWeight: "bold", margin: 0 }}>All Codes</h2>
               <p style={{ color: MID, fontSize: 12, margin: "3px 0 0" }}>Showing {filtered.length} of {codes.length}</p>
             </div>
-            <div style={{ display: "flex", gap: 6 }}>
-              {["all", "unused", "used"].map(f => (
-                <button key={f} onClick={() => setFilter(f)} style={{ background: filter === f ? G : "white", color: filter === f ? "white" : MID, border: `1.5px solid ${filter === f ? G : "#ddd"}`, borderRadius: 8, padding: "7px 14px", fontSize: 12, cursor: "pointer", fontWeight: filter === f ? "bold" : "normal", textTransform: "capitalize" }}>
-                  {f}
-                </button>
-              ))}
+            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+              <div style={{ display: "flex", gap: 6 }}>
+                {["all", "unused", "used"].map(f => (
+                  <button key={f} onClick={() => setFilter(f)} style={{ background: filter === f ? G : "white", color: filter === f ? "white" : MID, border: `1.5px solid ${filter === f ? G : "#ddd"}`, borderRadius: 8, padding: "7px 14px", fontSize: 12, cursor: "pointer", fontWeight: filter === f ? "bold" : "normal", textTransform: "capitalize" }}>
+                    {f}
+                  </button>
+                ))}
+              </div>
+              <button onClick={exportCSV} style={{ background: "white", color: G, border: `1.5px solid ${G}`, borderRadius: 8, padding: "7px 14px", fontSize: 12, cursor: "pointer", fontWeight: "bold", display: "flex", alignItems: "center", gap: 5 }}>
+                ⬇️ Export CSV
+              </button>
             </div>
           </div>
+
+          {(() => {
+            const expiringCount = codes.filter(c => {
+              if (!c.is_used || !c.expires_at) return false;
+              const d = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
+              return d > 0 && d <= 7;
+            }).length;
+            return expiringCount > 0 ? (
+              <div style={{ background: "#fffbeb", border: "1.5px solid #f59e0b", borderRadius: 10, padding: "10px 14px", marginBottom: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                <span style={{ fontSize: 13, color: "#b45309", fontWeight: "bold" }}>⚠️ {expiringCount} customer{expiringCount > 1 ? "s" : ""} mag-e-expire sa loob ng 7 araw!</span>
+                <button onClick={copyAllExpiringMessages} style={{ background: bulkCopied ? "#dcfce7" : "#f59e0b", color: bulkCopied ? G : "white", border: "none", borderRadius: 8, padding: "7px 14px", fontSize: 12, fontWeight: "bold", cursor: "pointer", flexShrink: 0 }}>
+                  {bulkCopied ? "✅ Nakopya!" : "📋 Copy All Messages"}
+                </button>
+              </div>
+            ) : null;
+          })()}
 
           <div style={{ position: "relative", marginBottom: 16 }}>
             <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", fontSize: 15 }}>🔍</span>

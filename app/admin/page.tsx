@@ -25,7 +25,7 @@ function StatCard({ icon, label, value, sub, color }: { icon: string; label: str
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function AdminDashboard() {
   const router = useRouter();
-  const { checking, username } = useAdminGuard(['owner']);
+  const { checking, username, role } = useAdminGuard(['owner']);
   const [codes, setCodes]       = useState<AccessCode[]>([]);
   const [loading, setLoading]   = useState(true);
 
@@ -68,7 +68,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
-      <Sidebar active="/admin" username={username} onLogout={handleLogout} />
+      <Sidebar active="/admin" username={username} role={role} onLogout={handleLogout} />
 
       <main className="admin-main" style={{ flex: 1, minWidth: 0 }}>
         <div style={{ marginBottom: 28 }}>
@@ -196,7 +196,7 @@ export default function AdminDashboard() {
             </div>
 
             <p style={{ textAlign: "center", color: "#ccc", fontSize: 11, marginTop: 28 }}>
-              R&M EaseBrew Wellness Hub © 2025
+              R&M EaseBrew Wellness Hub © 2026
             </p>
           </>
         )}
