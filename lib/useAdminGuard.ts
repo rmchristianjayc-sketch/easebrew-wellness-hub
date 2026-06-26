@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Role = "owner" | "coach";
@@ -12,7 +12,8 @@ type CachedAuth = {
 };
 
 const CACHE_KEY = "eb_admin_auth";
-const CACHE_TTL = 2 * 60 * 1000; // 2 minutes
+const CACHE_TTL = 2 * 60 * 1000;       // 2 minutes client-side cache
+const REVALIDATE_MS = 2 * 60 * 1000;   // re-check server every 2 minutes
 
 function readCache(): CachedAuth | null {
   if (typeof window === "undefined") return null;
@@ -44,24 +45,20 @@ export function useAdminGuard(allowedRoles: Role[] = ["owner", "coach"]) {
   const [checking, setChecking] = useState(true);
   const [username, setUsername] = useState("");
   const [role, setRole] = useState<Role | "">("");
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     let active = true;
 
-    async function check() {
-      // Use cache if still valid — eliminates flicker on tab switches
-      const cached = readCache();
-      if (cached && allowedRoles.includes(cached.role)) {
-        if (!active) return;
-        setUsername(cached.username);
-        setRole(cached.role);
-        setChecking(false);
-        return;
-      }
-
+    async function verifyWithServer(skipRedirectOnCacheHit = false) {
       try {
         const res = await fetch("/api/admin/me");
-        if (!res.ok) { router.replace("/admin/login"); return; }
+        if (!res.ok) {
+          clearAdminAuthCache();
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          router.replace("/admin/login");
+          return;
+        }
         const data = await res.json();
         const r = data.role as Role;
         const u = data.username as string;
@@ -69,23 +66,51 @@ export function useAdminGuard(allowedRoles: Role[] = ["owner", "coach"]) {
         if (!active) return;
 
         if (!allowedRoles.includes(r)) {
+          clearAdminAuthCache();
           router.replace(r === "coach" ? "/admin/codes" : "/admin");
           return;
         }
 
         writeCache(u, r);
-        setUsername(u);
-        setRole(r);
-        setChecking(false);
+        if (!skipRedirectOnCacheHit) {
+          setUsername(u);
+          setRole(r);
+          setChecking(false);
+        } else {
+          setUsername(u);
+          setRole(r);
+        }
       } catch {
         if (!active) return;
+        clearAdminAuthCache();
+        if (intervalRef.current) clearInterval(intervalRef.current);
         router.replace("/admin/login");
       }
     }
 
+    async function check() {
+      const cached = readCache();
+      if (cached && allowedRoles.includes(cached.role)) {
+        if (!active) return;
+        setUsername(cached.username);
+        setRole(cached.role);
+        setChecking(false);
+        // Still verify with server in background to catch deactivated accounts
+        verifyWithServer(true);
+        return;
+      }
+
+      await verifyWithServer(false);
+    }
+
     check();
 
-    return () => { active = false; };
+    intervalRef.current = setInterval(() => verifyWithServer(true), REVALIDATE_MS);
+
+    return () => {
+      active = false;
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

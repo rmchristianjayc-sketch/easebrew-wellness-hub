@@ -1,8 +1,29 @@
 const CACHE_NAME = 'eb-reminder-v1';
+const OFFLINE_URL = '/offline.html';
 
-self.addEventListener('install', () => self.skipWaiting());
+// Pre-cache the offline page on install
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.add(OFFLINE_URL))
+  );
+  // Do NOT call skipWaiting() — let the old SW finish before takeover
+  // so active sessions aren't interrupted mid-request
+});
+
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
-self.addEventListener('fetch', (event) => event.respondWith(fetch(event.request)));
+
+// Fetch: pass through to network, serve offline page on failure
+self.addEventListener('fetch', (event) => {
+  // Only handle same-origin navigation requests for the offline fallback
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(OFFLINE_URL))
+    );
+    return;
+  }
+  // All other requests: network only (API calls, assets)
+  event.respondWith(fetch(event.request));
+});
 
 // ── Preference helpers (Cache API — localStorage not available in SW) ─────────
 async function isReminderEnabled() {
@@ -19,7 +40,7 @@ async function wasShown(tag) {
   return !!(await cache.match(tag));
 }
 
-// ── Background reminder scheduler (every 30 min while browser open) ──────────
+// ── Reminder logic ─────────────────────────────────────────────────────────────
 async function maybeShowReminder() {
   if (!(await isReminderEnabled())) return;
   const now = new Date();
@@ -57,9 +78,10 @@ async function maybeShowReminder() {
   }
 }
 
-setInterval(maybeShowReminder, 30 * 60 * 1000);
-
-// ── Message from page ─────────────────────────────────────────────────────────
+// ── Reliable reminder scheduling via message from page ────────────────────────
+// setInterval in a SW is unreliable on mobile (browser suspends the SW).
+// Instead, the page sends a TICK message every 30 minutes while it's open,
+// and we also check on every notificationclick (user interaction keeps SW alive).
 self.addEventListener('message', async (event) => {
   if (event.data?.type === 'SET_REMINDER') {
     const cache = await caches.open(CACHE_NAME);
@@ -69,6 +91,10 @@ self.addEventListener('message', async (event) => {
     } else {
       await cache.delete('reminder-enabled');
     }
+  }
+
+  if (event.data?.type === 'REMINDER_TICK') {
+    maybeShowReminder();
   }
 });
 
@@ -94,12 +120,13 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const period = event.notification.data?.period;
 
+  // Also check reminders on user interaction — keeps SW alive on mobile
+  maybeShowReminder();
+
   if (event.action === 'log-done' && period) {
-    // Open app with quick_log param so the home page auto-logs the intake
     const target = `/?quick_log=${period}`;
     event.waitUntil(
       self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
-        // If app already open, post a message to it
         const existing = clients.find((c) => c.url.includes(self.location.origin));
         if (existing) {
           existing.postMessage({ type: 'QUICK_LOG', period });
@@ -112,7 +139,6 @@ self.addEventListener('notificationclick', (event) => {
   }
 
   if (event.action === 'snooze') {
-    // Snooze: clear the "shown" flag for this period so it fires again in 1h
     const today = new Date().toISOString().split('T')[0];
     const tag   = period === 'umaga' ? `shown-${today}-am` : `shown-${today}-pm`;
     event.waitUntil(
@@ -121,7 +147,6 @@ self.addEventListener('notificationclick', (event) => {
     return;
   }
 
-  // Default tap — open tracker
   const url = event.notification.data?.url || '/tracker';
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {

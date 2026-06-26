@@ -21,11 +21,12 @@ export async function GET(req: NextRequest) {
     .maybeSingle();
 
   if (error) {
-    console.error('Session DB lookup failed:', error);
+    const response = NextResponse.json({ error: 'Session expired or deactivated.' }, { status: 401 });
+    clearCustomerSessionCookie(response);
+    return response;
   }
 
   const isValid =
-    !error &&
     data?.is_used === true &&
     data.device_id === session.device_id &&
     typeof data.expires_at === 'string' &&

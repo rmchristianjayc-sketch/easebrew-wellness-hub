@@ -3,14 +3,14 @@ import { setCustomerSessionCookie, type CustomerSession } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 
 function normalizeCode(value: unknown) {
-  if (typeof value !== 'string') return null;
+  if (typeof value !== 'string' || value.length > 20) return null;
   const stripped = value.replace(/[-\s]/g, '').toUpperCase();
   if (!/^EASE[A-Z0-9]{8}$/.test(stripped)) return null;
   return `${stripped.slice(0, 4)}-${stripped.slice(4, 8)}-${stripped.slice(8)}`;
 }
 
 function isValidDeviceId(value: unknown): value is string {
-  return typeof value === 'string' && /^dev_[a-z0-9]{10,100}$/i.test(value);
+  return typeof value === 'string' && /^dev_[0-9a-f]{32}$/.test(value);
 }
 
 export async function POST(req: NextRequest) {
@@ -33,7 +33,6 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     if (fetchError) {
-      console.error('Access code lookup failed:', fetchError);
       return NextResponse.json(
         { error: 'Unable to verify the code right now. Please try again.' },
         { status: 500 }
@@ -77,7 +76,6 @@ export async function POST(req: NextRequest) {
         .maybeSingle();
 
       if (sessionError) {
-        console.error('Existing session lookup failed:', sessionError);
         return NextResponse.json({ error: 'Failed to restore session.' }, { status: 500 });
       }
 
@@ -108,7 +106,6 @@ export async function POST(req: NextRequest) {
             last_seen_at: now,
           });
         if (restoreError) {
-          console.error('Session restore failed:', restoreError);
           return NextResponse.json({ error: 'Failed to restore session.' }, { status: 500 });
         }
       }
@@ -136,7 +133,6 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     if (claimError) {
-      console.error('Code activation failed:', claimError);
       return NextResponse.json({ error: 'Failed to activate code.' }, { status: 500 });
     }
     if (!claimedCode) {
@@ -163,14 +159,18 @@ export async function POST(req: NextRequest) {
       });
 
     if (sessionError) {
-      await supabaseAdmin
+      const { error: rollbackError } = await supabaseAdmin
         .from('access_codes')
         .update({ is_used: false, used_at: null, expires_at: null, device_id: null })
         .eq('id', accessCode.id)
         .eq('device_id', deviceId);
-      console.error('Session creation failed:', sessionError);
+
       return NextResponse.json(
-        { error: 'Failed to create session. Please try again.' },
+        {
+          error: rollbackError
+            ? 'May problema sa pag-activate. Ang inyong code ay naka-lock. Makipag-ugnayan sa inyong coach para tulungan kayo.'
+            : 'Hindi ma-activate ang code. Subukan ulit.',
+        },
         { status: 500 }
       );
     }
@@ -184,8 +184,7 @@ export async function POST(req: NextRequest) {
     const response = NextResponse.json({ success: true, session });
     await setCustomerSessionCookie(response, session);
     return response;
-  } catch (error) {
-    console.error('Verify code error:', error);
+  } catch {
     return NextResponse.json(
       { error: 'Something went wrong. Please try again.' },
       { status: 500 }

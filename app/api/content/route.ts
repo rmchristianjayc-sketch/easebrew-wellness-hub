@@ -29,10 +29,11 @@ export async function GET() {
       map[row.key] = row.value;
     });
 
-    return NextResponse.json({ success: true, content: map });
+    const res = NextResponse.json({ success: true, content: map });
+    res.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
+    return res;
 
-  } catch (err) {
-    console.error('Public content fetch error:', err);
+  } catch {
     return NextResponse.json({ error: 'Something went wrong.' }, { status: 500 });
   }
 }

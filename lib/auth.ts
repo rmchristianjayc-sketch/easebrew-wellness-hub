@@ -64,7 +64,6 @@ async function getActiveAdminPayload(payload: AdminPayload): Promise<AdminPayloa
     .maybeSingle();
 
   if (error) {
-    console.error('Admin session lookup error:', error);
     return null;
   }
 

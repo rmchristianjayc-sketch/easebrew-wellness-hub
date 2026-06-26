@@ -36,29 +36,32 @@ async function getAuthorizedSession(req: NextRequest, type: string) {
 }
 
 export async function GET(req: NextRequest) {
-  const type = new URL(req.url).searchParams.get('type') ?? '';
-  const session = await getAuthorizedSession(req, type);
-  if (!session) {
-    return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+  try {
+    const type = new URL(req.url).searchParams.get('type') ?? '';
+    const session = await getAuthorizedSession(req, type);
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('progress')
+      .select('data, updated_at')
+      .eq('code', session.code)
+      .eq('type', type)
+      .maybeSingle();
+
+    if (error) {
+      return NextResponse.json({ error: 'Failed to fetch progress.' }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: data?.data ?? null,
+      updated_at: data?.updated_at ?? null,
+    });
+  } catch {
+    return NextResponse.json({ error: 'Something went wrong.' }, { status: 500 });
   }
-
-  const { data, error } = await supabaseAdmin
-    .from('progress')
-    .select('data, updated_at')
-    .eq('code', session.code)
-    .eq('type', type)
-    .maybeSingle();
-
-  if (error) {
-    console.error('Progress lookup failed:', error);
-    return NextResponse.json({ error: 'Failed to fetch progress.' }, { status: 500 });
-  }
-
-  return NextResponse.json({
-    success: true,
-    data: data?.data ?? null,
-    updated_at: data?.updated_at ?? null,
-  });
 }
 
 export async function POST(req: NextRequest) {
@@ -89,7 +92,6 @@ export async function POST(req: NextRequest) {
       );
 
     if (error) {
-      console.error('Progress save failed:', error);
       return NextResponse.json({ error: 'Failed to save progress.' }, { status: 500 });
     }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 export type EbSession = {
@@ -11,11 +11,14 @@ export type EbSession = {
   device_id: string;
 };
 
+const REVALIDATE_INTERVAL_MS = 60_000; // re-check session every 60 seconds
+
 export function useSessionGuard() {
   const router = useRouter();
   const pathname = usePathname();
   const [checking, setChecking] = useState(true);
   const [session, setSession] = useState<EbSession | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -27,6 +30,7 @@ export function useSessionGuard() {
         if (!active) return;
 
         if (!response.ok || !data?.session) {
+          if (intervalRef.current) clearInterval(intervalRef.current);
           router.replace(`/verify?from=${encodeURIComponent(pathname)}`);
           return;
         }
@@ -35,14 +39,19 @@ export function useSessionGuard() {
         setChecking(false);
       } catch {
         if (active) {
+          if (intervalRef.current) clearInterval(intervalRef.current);
           router.replace(`/verify?from=${encodeURIComponent(pathname)}`);
         }
       }
     }
 
     checkSession();
+
+    intervalRef.current = setInterval(checkSession, REVALIDATE_INTERVAL_MS);
+
     return () => {
       active = false;
+      if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [pathname, router]);
 

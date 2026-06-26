@@ -64,7 +64,10 @@ export default function CodesPage() {
       const res  = await fetch(`/api/admin/codes?filter=${filter}&limit=200`);
       const data = await res.json();
       if (res.ok) setCodes(data.codes || []);
-    } catch { }
+      else setError('Hindi ma-load ang mga codes. I-refresh ang page.');
+    } catch {
+      setError('Hindi ma-load ang mga codes. I-refresh ang page.');
+    }
     setCodesLoading(false);
   }, [filter]);
 
