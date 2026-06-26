@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
@@ -866,22 +867,29 @@ useEffect(() => {
     <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 110 }}>
 
       {/* ── HEADER ── */}
-      <div style={{ background: G, padding: "36px 24px 24px", color: "#fff" }}>
-        {/* 4.1 FIX: 16px ✅ OK na | 4.2 FIX: minHeight 44px */}
+      <div style={{ background: G, color: "#fff" }}>
+        {/* Hero image */}
+        <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden" }}>
+          <Image src="/images/meal-banner.jpg" alt="Filipino Recipes" fill style={{ objectFit: "cover", objectPosition: "center" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} priority />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(24,59,40,0.1) 0%, rgba(24,59,40,0.80) 100%)" }} />
+          <div style={{ position: "absolute", bottom: 16, left: 20, right: 80 }}>
+            <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 999, padding: "4px 14px", fontSize: 12, fontWeight: 900, letterSpacing: 1, marginBottom: 6 }}>
+              🍽️ RECIPE BOOK
+            </div>
+            <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#fff", lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}>Pinoy Anti-Inflammation<br />Recipes</h1>
+          </div>
+          <div style={{ position: "absolute", bottom: 16, right: 20, textAlign: "center", background: "rgba(0,0,0,0.45)", borderRadius: 14, padding: "10px 14px", backdropFilter: "blur(4px)" }}>
+            <p style={{ fontSize: 26, fontWeight: 900, margin: 0, color: GOLD }}>{favorites.length}</p>
+            <p style={{ fontSize: 13, margin: 0, color: "rgba(255,255,255,0.85)" }}>favorites</p>
+          </div>
+        </div>
+        <div style={{ padding: "16px 24px 24px" }}>
         <Link href="/" style={{ color: GOLD, fontSize: 16, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", minHeight: 44, marginBottom: 16 }}>
           ← Bumalik sa Hub
         </Link>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
           <div>
-            <h1 style={{ fontSize: 26, fontWeight: 700, margin: "0 0 6px 0", lineHeight: 1.3 }}>
-              🍽️ Pinoy Anti-Inflammation Recipes
-            </h1>
             <p style={{ fontSize: 16, opacity: 0.85, margin: 0 }}>30 Masustansiyang Lutong Pilipino</p>
-          </div>
-          <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 14, padding: "12px 16px", flexShrink: 0 }}>
-            <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: GOLD }}>{favorites.length}</p>
-            {/* 4.1 FIX: 13px → 16px */}
-            <p style={{ fontSize: 16, margin: 0, opacity: 0.85 }}>favorites</p>
           </div>
         </div>
 
@@ -899,6 +907,7 @@ useEffect(() => {
             }}
           />
         </div>
+        </div>{/* /inner padding */}
       </div>
 
       {/* ── DAILY TIP STRIP ── */}
@@ -953,6 +962,13 @@ useEffect(() => {
           const isFav = favorites.includes(recipe.id);
           const catInfo = CATEGORY_COLORS[recipe.category] || { bg: CREAM, color: G, icon: "🍴" };
 
+          const recipePhotoMap: Record<number, string> = {
+            1: "/images/recipe-sinigang.jpg",
+            2: "/images/recipe-tinola.jpg",
+            5: "/images/recipe-lugaw.jpg",
+          };
+          const recipePhoto = recipePhotoMap[recipe.id];
+
           return (
             <div key={recipe.id} style={{ marginBottom: 16 }}>
               <div
@@ -960,11 +976,26 @@ useEffect(() => {
                 style={{
                   background: "#FFFFFB",
                   border: `2px solid ${isFav ? AMBER : "#C5B99A"}`,
-                  borderRadius: 18, padding: "18px 20px", cursor: "pointer",
-                  boxShadow: isFav ? `0 2px 10px rgba(192,134,59,0.2)` : "none",
+                  borderRadius: 18, overflow: "hidden", cursor: "pointer",
+                  boxShadow: isFav ? `0 4px 16px rgba(192,134,59,0.2)` : "0 2px 8px rgba(27,32,26,0.06)",
                 }}
               >
+                {/* Recipe photo for featured recipes */}
+                {recipePhoto && (
+                  <div style={{ position: "relative", width: "100%", aspectRatio: "16/9" }}>
+                    <Image src={recipePhoto} alt={recipe.name} fill style={{ objectFit: "cover" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                    <div style={{ position: "absolute", top: 10, left: 10, background: catInfo.color, borderRadius: 8, padding: "3px 10px" }}>
+                      <span style={{ fontSize: 12, color: "#fff", fontWeight: 900 }}>{recipe.benefit}</span>
+                    </div>
+                    {isFav && (
+                      <div style={{ position: "absolute", top: 10, right: 10, background: "rgba(0,0,0,0.5)", borderRadius: 8, padding: "3px 10px" }}>
+                        <span style={{ fontSize: 14 }}>❤️</span>
+                      </div>
+                    )}
+                  </div>
+                )}
                 {/* Card Header */}
+                <div style={{ padding: "18px 20px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 14, flex: 1 }}>
                     <div style={{
@@ -1114,6 +1145,7 @@ useEffect(() => {
 
                   </div>
                 )}
+                </div>{/* /inner padding */}
               </div>
             </div>
           );

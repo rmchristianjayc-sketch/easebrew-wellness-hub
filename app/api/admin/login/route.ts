@@ -2,6 +2,7 @@ import { compare } from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { clearAdminSessionCookie, setAdminSessionCookie } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { writeAuditLog } from '@/lib/audit';
 
 const MAX_ATTEMPTS = 8;
 const WINDOW_MS = 15 * 60 * 1000;
@@ -68,7 +69,6 @@ async function findAdminUser(username: string) {
     .maybeSingle();
 
   if (error) {
-    console.error('Admin user lookup error:', JSON.stringify(error));
     throw new Error('Admin login lookup failed.');
   }
 
@@ -81,7 +81,12 @@ export async function POST(req: NextRequest) {
     const rateLimitKey = getRateLimitKey(req, username);
     const normalizedUsername = normalizeUsername(username);
 
-    if (!normalizedUsername || typeof password !== 'string') {
+    if (
+      !normalizedUsername ||
+      normalizedUsername.length > 64 ||
+      typeof password !== 'string' ||
+      password.length > 256
+    ) {
       return NextResponse.json(
         { error: 'Username and password are required.' },
         { status: 400 }
@@ -103,6 +108,7 @@ export async function POST(req: NextRequest) {
 
     if (!adminUser || !isValidPassword) {
       recordFailedAttempt(rateLimitKey);
+      writeAuditLog({ admin_username: normalizedUsername, action: 'admin_login_failed' });
       return NextResponse.json(
         { error: 'Invalid username or password.' },
         { status: 401 }
@@ -110,6 +116,7 @@ export async function POST(req: NextRequest) {
     }
 
     attempts.delete(rateLimitKey);
+    writeAuditLog({ admin_username: adminUser.username, action: 'admin_login' });
     const response = NextResponse.json({
       success: true,
       role: adminUser.role,
@@ -120,8 +127,7 @@ export async function POST(req: NextRequest) {
       role: adminUser.role,
     });
     return response;
-  } catch (err) {
-    console.error('Admin login error:', String(err));
+  } catch {
     return NextResponse.json(
       { error: 'Something went wrong. Please try again.' },
       { status: 500 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
@@ -166,8 +167,19 @@ export default function MealPlanPage() {
     <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 100, fontFamily: "Georgia, serif" }}>
 
       {/* ── HEADER ── */}
-      <div style={{ background: G, padding: "24px 24px 24px", color: WHITE }}>
-        {/* 4.2 FIX: minHeight 44px para sa back link */}
+      <div style={{ background: G, color: WHITE }}>
+        {/* Hero image banner */}
+        <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden" }}>
+          <Image src="/images/meal-banner.jpg" alt="Healthy Filipino Food" fill style={{ objectFit: "cover", objectPosition: "center" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} priority />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(24,59,40,0.1) 0%, rgba(24,59,40,0.75) 100%)" }} />
+          <div style={{ position: "absolute", bottom: 16, left: 20 }}>
+            <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 999, padding: "4px 14px", fontSize: 12, fontWeight: 900, letterSpacing: 1, marginBottom: 6 }}>
+              🥗 50-DAY PROGRAM
+            </div>
+            <h1 style={{ fontSize: 26, fontWeight: 900, margin: 0, color: WHITE, lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}>Anti-Inflammation<br />Pinoy Meal Plan</h1>
+          </div>
+        </div>
+        <div style={{ padding: "18px 24px 24px" }}>
         <Link href="/" style={{ color: GOLD, fontSize: 16, textDecoration: "none", display: "flex", alignItems: "center", minHeight: 44, marginBottom: 14, fontWeight: 600 }}>
           ← Bumalik sa Hub
         </Link>
@@ -202,6 +214,7 @@ export default function MealPlanPage() {
             Uminom ng EaseBrew <strong style={{ color: GOLD }}>2x bawat araw</strong> — Umaga at Gabi
           </p>
         </div>
+        </div>{/* /inner padding */}
       </div>
 
       {/* ── WEEK SELECTOR ── */}

@@ -13,11 +13,12 @@ const MID  = "#4E504F";
 // ─── Stat Card ────────────────────────────────────────────────────────────────
 function StatCard({ icon, label, value, sub, color }: { icon: string; label: string; value: string | number; sub?: string; color: string }) {
   return (
-    <div style={{ background: "white", borderRadius: 14, padding: "20px 22px", boxShadow: "0 1px 6px rgba(0,0,0,0.06)", borderTop: `3px solid ${color}`, display: "flex", flexDirection: "column", gap: 4 }}>
-      <div style={{ fontSize: 22 }}>{icon}</div>
-      <div style={{ fontSize: 28, fontWeight: "bold", color: DARK, lineHeight: 1.1 }}>{value}</div>
-      <div style={{ fontSize: 12, color: MID, fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px" }}>{label}</div>
-      {sub && <div style={{ fontSize: 11, color: "#aaa" }}>{sub}</div>}
+    <div style={{ background: "white", borderRadius: 16, padding: "20px 22px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", borderLeft: `4px solid ${color}`, display: "flex", flexDirection: "column", gap: 4, position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: -16, right: -12, width: 64, height: 64, background: color + "12", borderRadius: "50%" }} />
+      <div style={{ fontSize: 24, marginBottom: 4 }}>{icon}</div>
+      <div style={{ fontSize: 30, fontWeight: 900, color: DARK, lineHeight: 1.1 }}>{value}</div>
+      <div style={{ fontSize: 11, color: MID, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.8px" }}>{label}</div>
+      {sub && <div style={{ fontSize: 11, color: "#b0b0b0", marginTop: 2 }}>{sub}</div>}
     </div>
   );
 }
@@ -28,13 +29,17 @@ export default function AdminDashboard() {
   const { checking, username, role } = useAdminGuard(['owner']);
   const [codes, setCodes]       = useState<AccessCode[]>([]);
   const [loading, setLoading]   = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   const fetchCodes = useCallback(async () => {
     try {
       const res = await fetch("/api/admin/codes?filter=all&limit=200");
       const data = await res.json();
       if (res.ok) setCodes(data.codes || []);
-    } catch { }
+      else setFetchError(true);
+    } catch {
+      setFetchError(true);
+    }
     setLoading(false);
   }, []);
 
@@ -71,12 +76,25 @@ export default function AdminDashboard() {
       <Sidebar active="/admin" username={username} role={role} onLogout={handleLogout} />
 
       <main className="admin-main" style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ marginBottom: 28 }}>
-          <h1 style={{ color: DARK, fontSize: 22, fontWeight: "bold", margin: 0 }}>Dashboard</h1>
-          <p style={{ color: MID, fontSize: 13, margin: "4px 0 0" }}>
-            {new Date().toLocaleDateString("en-PH", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-          </p>
+        {/* Welcome bar */}
+        <div style={{ background: "linear-gradient(135deg, #183b28 0%, #27622f 100%)", borderRadius: 18, padding: "22px 28px", marginBottom: 28, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 4px 20px rgba(24,59,40,0.2)" }}>
+          <div>
+            <div style={{ fontSize: 12, color: "rgba(254,210,85,0.85)", fontWeight: 700, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 4 }}>R&M Digital Trading</div>
+            <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 900, margin: "0 0 4px 0" }}>Magandang araw, {username || "Admin"}! 👋</h1>
+            <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 13, margin: 0 }}>
+              {new Date().toLocaleDateString("en-PH", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+            </p>
+          </div>
+          <div style={{ width: 56, height: 56, borderRadius: 14, background: "rgba(255,255,255,0.1)", display: "grid", placeItems: "center", flexShrink: 0 }}>
+            <span style={{ fontSize: 28 }}>☕</span>
+          </div>
         </div>
+
+        {fetchError && (
+          <div style={{ background: "#fff1f1", border: "1px solid #fca5a5", borderRadius: 10, padding: "14px 18px", marginBottom: 20, color: "#b91c1c", fontSize: 13 }}>
+            ⚠️ Hindi ma-load ang data. I-refresh ang page o i-check ang internet connection.
+          </div>
+        )}
 
         {loading ? (
           <div style={{ textAlign: "center", padding: "80px 0", color: MID }}>Loading dashboard...</div>

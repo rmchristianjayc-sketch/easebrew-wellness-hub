@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { verifyToken } from '@/lib/auth';
-import { PUBLIC_CONTENT_KEYS, validateContentUpdate } from '@/lib/contentKeys';
+import { PUBLIC_CONTENT_KEY_SET, PUBLIC_CONTENT_KEYS, validateContentUpdate } from '@/lib/contentKeys';
+import { writeAuditLog } from '@/lib/audit';
 
 // ── GET — returns editable public content rows only ─────────────────────────
 export async function GET(req: NextRequest) {
@@ -36,8 +37,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ success: true, content: map });
 
-  } catch (err) {
-    console.error('Admin content GET error:', err);
+  } catch {
     return NextResponse.json({ error: 'Something went wrong.' }, { status: 500 });
   }
 }
@@ -105,14 +105,57 @@ export async function POST(req: NextRequest) {
       .upsert(rows, { onConflict: 'key' });
 
     if (error) {
-      console.error('Content upsert error:', error);
       return NextResponse.json({ error: 'Failed to save content.' }, { status: 500 });
     }
 
+    writeAuditLog({
+      admin_username: admin.username,
+      action: 'update_content',
+      metadata: { keys: rows.map((r) => r.key) },
+    });
     return NextResponse.json({ success: true, saved: rows.length });
 
-  } catch (err) {
-    console.error('Admin content POST error:', err);
+  } catch {
+    return NextResponse.json({ error: 'Something went wrong.' }, { status: 500 });
+  }
+}
+
+// ── DELETE — remove a content row so it falls back to the default ────────────
+// Body: { key: string }
+export async function DELETE(req: NextRequest) {
+  try {
+    const admin = await verifyToken(req);
+    if (!admin) {
+      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+    }
+
+    if (admin.role !== 'owner') {
+      return NextResponse.json(
+        { error: 'Forbidden. Content management is for owner only.' },
+        { status: 403 }
+      );
+    }
+
+    const body = await req.json();
+    const key = typeof body?.key === 'string' ? body.key.trim() : '';
+
+    if (!key || !PUBLIC_CONTENT_KEY_SET.has(key)) {
+      return NextResponse.json({ error: 'Invalid or unknown content key.' }, { status: 400 });
+    }
+
+    const { error } = await supabaseAdmin
+      .from('content')
+      .delete()
+      .eq('key', key);
+
+    if (error) {
+      return NextResponse.json({ error: 'Failed to delete content.' }, { status: 500 });
+    }
+
+    writeAuditLog({ admin_username: admin.username, action: 'delete_content', metadata: { key } });
+    return NextResponse.json({ success: true });
+
+  } catch {
     return NextResponse.json({ error: 'Something went wrong.' }, { status: 500 });
   }
 }

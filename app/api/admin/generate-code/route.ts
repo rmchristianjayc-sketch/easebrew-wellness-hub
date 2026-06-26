@@ -3,6 +3,7 @@ import { randomInt } from 'crypto';
 import { supabaseAdmin } from '@/lib/supabase';
 import { PRICE_CONFIG } from '@/lib/price-config';
 import { verifyToken } from '@/lib/auth';
+import { writeAuditLog } from '@/lib/audit';
 
 function generateCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -59,19 +60,24 @@ export async function POST(req: NextRequest) {
         .single();
 
       if (!insertError) {
+        writeAuditLog({
+          admin_username: admin.username,
+          action: 'generate_code',
+          target_id: newCode.id,
+          target_code: newCode.code,
+          metadata: { tier: tierNum, customer_name: customerName, notes: safeNotes || null },
+        });
         return NextResponse.json({ success: true, code: newCode });
       }
 
       if (!isDuplicateCodeError(insertError)) {
-        console.error('Insert error:', insertError);
-        return NextResponse.json({ error: 'Failed to save code: ' + insertError.message }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to save code.' }, { status: 500 });
       }
     }
 
     return NextResponse.json({ error: 'Failed to generate unique code.' }, { status: 500 });
 
-  } catch (err) {
-    console.error('Generate code error:', err);
-    return NextResponse.json({ error: 'Something went wrong: ' + String(err) }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: 'Something went wrong.' }, { status: 500 });
   }
 }

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSessionGuard } from "@/lib/useSessionGuard";
-import { G, GOLD, AMBER, CREAM, WHITE, DARK, MID } from "@/lib/colors";
+import { G, GOLD, AMBER, CREAM, WHITE, DARK, MID, LIGHT_G } from "@/lib/colors";
 import { DEFAULT_PRODUCTS, applyContentOverrides, splitByTier } from "@/lib/products";
 import { PRICE_CONFIG } from "@/lib/price-config";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
@@ -776,6 +776,13 @@ export default function Home() {
     if (r) {
       navigator.serviceWorker?.ready.then(reg => reg.active?.postMessage({ type: "SET_REMINDER", enabled: true }));
     }
+
+    // Send a TICK to the SW every 30 min while the page is open.
+    // This replaces the unreliable setInterval inside the SW (browsers suspend SWs on mobile).
+    const tick = setInterval(() => {
+      navigator.serviceWorker?.ready.then(reg => reg.active?.postMessage({ type: "REMINDER_TICK" }));
+    }, 30 * 60 * 1000);
+    return () => clearInterval(tick);
   }, []);
 
   useEffect(() => {
@@ -946,10 +953,27 @@ export default function Home() {
         {/* ═══ HOME TAB ═════════════════════════════════════════ */}
         {tab === "home" && (
           <div>
-            <div style={{ background: G, borderRadius: 22, padding: "32px 24px", color: "#fff", textAlign: "center", marginBottom: 24, position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", top: -30, right: -30, width: 140, height: 140, background: "rgba(125,174,47,0.2)", borderRadius: "50%" }} />
-              <h1 style={{ fontSize: 30, fontWeight: 700, margin: "0 0 12px 0", lineHeight: 1.3, color: "#fff" }}>{heroTitle}</h1>
-              <p style={{ fontSize: 17, opacity: 0.9, lineHeight: 1.65, margin: 0 }}>{heroSubtitle}</p>
+            {/* ── Hero Banner with Image ── */}
+            <div style={{ borderRadius: 22, marginBottom: 24, overflow: "hidden", position: "relative", boxShadow: "0 8px 32px rgba(24,59,40,0.25)" }}>
+              <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", background: G }}>
+                <Image
+                  src="/images/home-hero.jpg"
+                  alt="EaseBrew Wellness"
+                  fill
+                  style={{ objectFit: "cover", objectPosition: "center" }}
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  priority
+                />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(24,59,40,0.15) 0%, rgba(24,59,40,0.82) 100%)" }} />
+              </div>
+              <div style={{ background: G, padding: "20px 24px 24px", position: "relative" }}>
+                <div style={{ position: "absolute", top: -30, right: -20, width: 100, height: 100, background: "rgba(125,174,47,0.18)", borderRadius: "50%" }} />
+                <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 999, padding: "4px 14px", fontSize: 11, fontWeight: 900, letterSpacing: 1.2, marginBottom: 10 }}>
+                  ☕ EVERYDAY WE CARE
+                </div>
+                <h1 style={{ fontSize: 26, fontWeight: 900, margin: "0 0 10px 0", lineHeight: 1.3, color: "#fff" }}>{heroTitle}</h1>
+                <p style={{ fontSize: 16, opacity: 0.9, lineHeight: 1.65, margin: 0, color: "#fff" }}>{heroSubtitle}</p>
+              </div>
             </div>
 
             {weeklyData && !weeklyDismissed && (
@@ -1050,17 +1074,21 @@ export default function Home() {
             )}
 
             {unlockedProducts.map(p => (
-              <div key={p.id} style={{ background: WHITE, border: `2.5px solid ${G}`, borderRadius: 18, padding: "22px", marginBottom: 14 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-                  <span style={{ fontSize: 40 }}>{p.icon}</span>
-                  <span style={{ background: "#E8F5E0", color: G, borderRadius: 8, padding: "5px 12px", fontSize: 14, fontWeight: 800 }}>🎁 FREE!</span>
+              <div key={p.id} style={{ background: WHITE, border: `2.5px solid ${G}`, borderRadius: 20, marginBottom: 14, overflow: "hidden", boxShadow: "0 6px 20px rgba(24,59,40,0.12)" }}>
+                <div style={{ background: `linear-gradient(135deg, ${G} 0%, #2d6e40 100%)`, padding: "18px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <span style={{ background: GOLD, color: G, borderRadius: 999, padding: "4px 12px", fontSize: 12, fontWeight: 900 }}>🎁 FREE GIFT</span>
+                    <div style={{ fontSize: 48, marginTop: 8 }}>{p.icon}</div>
+                  </div>
+                  <div style={{ width: 80, height: 80, borderRadius: 16, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 44 }}>
+                    {p.icon}
+                  </div>
                 </div>
-                <h3 style={{ fontSize: 19, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>{p.name}</h3>
-                <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.65 }}>{p.desc}</p>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 14, color: G, fontWeight: 600 }}>✅ Unlocked na!</span>
-                  <Link href={p.appUrl} style={{ background: G, color: "#fff", borderRadius: 12, padding: "13px 22px", fontSize: 16, fontWeight: 700, textDecoration: "none", display: "inline-block" }}>
-                    {p.appLabel}
+                <div style={{ padding: "18px 20px" }}>
+                  <h3 style={{ fontSize: 19, fontWeight: 900, color: G, margin: "0 0 8px 0" }}>{p.name}</h3>
+                  <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.65 }}>{p.desc}</p>
+                  <Link href={p.appUrl} style={{ background: G, color: "#fff", borderRadius: 14, padding: "16px 22px", fontSize: 17, fontWeight: 900, textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                    {p.appLabel} →
                   </Link>
                 </div>
               </div>
@@ -1103,18 +1131,34 @@ export default function Home() {
             {/* Recipe Preview */}
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0" }}>Recipe Preview 🍲</h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>3 recipes mula sa aming libreng Recipe Book.</p>
-            {DEFAULT_RECIPES.map((r, i) => (
-              <div key={i} style={{ background: WHITE, border: "1.5px solid #C5B99A", borderRadius: 16, padding: "18px 20px", marginBottom: 12 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                  <span style={{ fontSize: 34 }}>{r.icon}</span>
+            {DEFAULT_RECIPES.map((r, i) => {
+              const recipePhotos = ["/images/recipe-sinigang.jpg", "/images/recipe-tinola.jpg", "/images/recipe-lugaw.jpg"];
+              return (
+              <div key={i} style={{ background: WHITE, border: "1.5px solid #C5B99A", borderRadius: 18, marginBottom: 14, overflow: "hidden", boxShadow: "0 4px 14px rgba(27,32,26,0.07)" }}>
+                <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", background: CREAM }}>
+                  <Image
+                    src={recipePhotos[i] ?? recipePhotos[0]}
+                    alt={r.name}
+                    fill
+                    style={{ objectFit: "cover" }}
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  />
+                  <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(24,59,40,0.85)", borderRadius: 8, padding: "4px 10px" }}>
+                    <span style={{ fontSize: 12, color: GOLD, fontWeight: 900 }}>{r.benefit}</span>
+                  </div>
+                </div>
+                <div style={{ padding: "16px 18px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                  <span style={{ fontSize: 28 }}>{r.icon}</span>
                   <div>
-                    <h3 style={{ fontSize: 17, fontWeight: 700, color: DARK, margin: "0 0 3px 0" }}>{r.name}</h3>
-                    <span style={{ fontSize: 12, background: "#E8F5E0", color: G, borderRadius: 6, padding: "3px 9px", fontWeight: 700 }}>{r.benefit}</span>
+                    <h3 style={{ fontSize: 17, fontWeight: 700, color: DARK, margin: 0 }}>{r.name}</h3>
                   </div>
                 </div>
                 <p style={{ fontSize: 15, color: MID, margin: 0, lineHeight: 1.6 }}><strong>Ingredients:</strong> {r.ingredients}</p>
+                </div>
               </div>
-            ))}
+              );
+            })}
             <div style={{ background: G, borderRadius: 18, padding: "22px", textAlign: "center" as const }}>
               <p style={{ fontSize: 16, color: GOLD, fontWeight: 700, margin: "0 0 12px 0" }}>📖 May 27 pang recipes sa buong Recipe Book!</p>
               <Link href="/recipes" style={{ background: GOLD, color: G, borderRadius: 12, padding: "15px 24px", fontSize: 16, fontWeight: 700, textDecoration: "none", display: "block", boxSizing: "border-box" as const }}>
@@ -1140,24 +1184,40 @@ export default function Home() {
 
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Sinasabi ng mga Customers 💬</h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Real stories mula sa mga katulad ninyo.</p>
-            {testimonials.map((t, i) => (
-              <div key={i} style={{ background: WHITE, border: "1.5px solid #C5B99A", borderRadius: 18, padding: "22px", marginBottom: 14 }}>
-                <StarRating count={t.stars} />
-                <p style={{ fontSize: 17, color: DARK, margin: "12px 0 16px 0", lineHeight: 1.75, fontStyle: "italic" }}>&ldquo;{t.quote}&rdquo;</p>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <p style={{ fontSize: 16, fontWeight: 700, color: DARK, margin: 0 }}>{t.name}{t.age > 0 ? `, ${t.age}` : ""}</p>
-                    <p style={{ fontSize: 14, color: MID, margin: 0 }}>{t.location}</p>
+            {testimonials.map((t, i) => {
+              const isFemale = i !== 1;
+              const photoSrc = isFemale ? "/images/testimonial-female.jpg" : "/images/testimonial-male.jpg";
+              return (
+                <div key={i} style={{ background: WHITE, border: `2px solid ${LIGHT_G}`, borderRadius: 20, padding: "20px", marginBottom: 14, boxShadow: "0 4px 16px rgba(27,32,26,0.07)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
+                    <div style={{ width: 64, height: 64, borderRadius: "50%", overflow: "hidden", border: `3px solid ${G}`, flexShrink: 0, background: CREAM, position: "relative" }}>
+                      <Image
+                        src={photoSrc}
+                        alt={t.name}
+                        fill
+                        style={{ objectFit: "cover" }}
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 17, fontWeight: 900, color: DARK, margin: 0 }}>{t.name}{t.age > 0 ? `, ${t.age} taong gulang` : ""}</p>
+                      <p style={{ fontSize: 13, color: MID, margin: "2px 0 0" }}>{t.location}</p>
+                      <StarRating count={t.stars} />
+                    </div>
                   </div>
+                  <p style={{ fontSize: 17, color: DARK, margin: "0 0 14px", lineHeight: 1.75, fontStyle: "italic" }}>&ldquo;{t.quote}&rdquo;</p>
                   {t.painBefore > 0 && t.painAfter > 0 && (
-                    <div style={{ textAlign: "right" as const }}>
-                      <p style={{ fontSize: 12, color: MID, margin: "0 0 2px 0" }}>Pain Score</p>
-                      <p style={{ fontSize: 14, fontWeight: 700, color: G, margin: 0 }}>{t.painBefore} → {t.painAfter} ✅</p>
+                    <div style={{ background: "#F0F8F0", border: `1.5px solid ${LIGHT_G}`, borderRadius: 12, padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ fontSize: 14, color: MID }}>Pain Score:</span>
+                      <span style={{ fontSize: 16, fontWeight: 900, color: "#dc2626" }}>{t.painBefore}</span>
+                      <span style={{ fontSize: 18 }}>→</span>
+                      <span style={{ fontSize: 16, fontWeight: 900, color: G }}>{t.painAfter}</span>
+                      <span style={{ fontSize: 14, color: G, fontWeight: 700 }}>✅ Malaking improvement!</span>
                     </div>
                   )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0" }}>Mga Tanong ❓</h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 8px 0", lineHeight: 1.6 }}>I-tap ang tanong para makita ang sagot.</p>

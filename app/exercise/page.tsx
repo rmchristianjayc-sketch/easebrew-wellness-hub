@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
@@ -236,22 +237,31 @@ export default function ExercisePage() {
     <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 100 }}>
 
       {/* ── HEADER ── */}
-      <div style={{ background: G, padding: "44px 24px 36px", color: "#fff", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: -30, right: -30, width: 160, height: 160, background: "rgba(254,210,85,0.1)", borderRadius: "50%" }} />
-        <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 17, fontWeight: 600, marginBottom: 20 }}>
-          ← Bumalik sa Hub
-        </Link>
-        <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 20, padding: "6px 18px", fontSize: 16, fontWeight: 700, marginBottom: 14, letterSpacing: 1 }}>
-          💪 30-DAY PROGRAM
+      <div style={{ background: G, color: "#fff" }}>
+        {/* Hero image */}
+        <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden" }}>
+          <Image src="/images/exercise-home.jpg" alt="Home Exercise" fill style={{ objectFit: "cover", objectPosition: "top" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} priority />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(24,59,40,0.15) 0%, rgba(24,59,40,0.78) 100%)" }} />
+          <div style={{ position: "absolute", bottom: 16, left: 20 }}>
+            <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 999, padding: "4px 14px", fontSize: 12, fontWeight: 900, letterSpacing: 1, marginBottom: 6 }}>
+              💪 HOME EXERCISE
+            </div>
+            <h1 style={{ fontSize: 28, fontWeight: 900, margin: 0, color: "#fff", lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}>30-Day Program<br />Para sa Seniors</h1>
+          </div>
         </div>
-        <h1 style={{ fontSize: 34, fontWeight: 700, margin: "0 0 12px 0", color: "#fff", lineHeight: 1.2 }}>Home Exercise Guide</h1>
-        <p style={{ fontSize: 18, opacity: 0.9, margin: "0 0 24px 0", lineHeight: 1.6 }}>Safe, low-impact exercises para sa joint pain.<br />Walang gym equipment needed!</p>
-        <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: 12, height: 14, overflow: "hidden" }}>
-          <div style={{ background: GOLD, height: "100%", width: `${progressPct}%`, transition: "width 0.4s ease", borderRadius: 12 }} />
+        <div style={{ padding: "18px 24px 28px", position: "relative" }}>
+          <div style={{ position: "absolute", top: -20, right: 20, width: 120, height: 120, background: "rgba(254,210,85,0.08)", borderRadius: "50%" }} />
+          <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 17, fontWeight: 600, marginBottom: 16 }}>
+            ← Bumalik sa Hub
+          </Link>
+          <p style={{ fontSize: 17, opacity: 0.9, margin: "0 0 20px 0", lineHeight: 1.6 }}>Safe, low-impact exercises para sa joint pain.<br />Walang gym equipment needed!</p>
+          <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: 12, height: 14, overflow: "hidden" }}>
+            <div style={{ background: GOLD, height: "100%", width: `${progressPct}%`, transition: "width 0.4s ease", borderRadius: 12 }} />
+          </div>
+          <p style={{ fontSize: 16, opacity: 0.85, margin: "10px 0 0 0", fontWeight: 600 }}>
+            {completedDays.size} / {totalDays} araw na nakumpleto ({progressPct}%)
+          </p>
         </div>
-        <p style={{ fontSize: 16, opacity: 0.85, margin: "10px 0 0 0", fontWeight: 600 }}>
-          {completedDays.size} / {totalDays} araw na nakumpleto ({progressPct}%)
-        </p>
       </div>
 
       {/* ── EASEBREW REMINDER STRIP ── */}

@@ -6,6 +6,7 @@ import { clearAdminAuthCache } from "@/lib/useAdminGuard";
 import {
   BarChart3,
   Bell,
+  ClipboardList,
   FileText,
   KeyRound,
   LayoutDashboard,
@@ -20,6 +21,7 @@ const OWNER_LINKS = [
   { href: "/admin/analytics", icon: BarChart3, label: "Analytics" },
   { href: "/admin/content", icon: FileText, label: "Content" },
   { href: "/admin/notifications", icon: Bell, label: "Messages" },
+  { href: "/admin/audit-log", icon: ClipboardList, label: "Audit Log" },
 ];
 
 const COACH_LINKS = [
@@ -82,7 +84,7 @@ export default function Sidebar({
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/rm-logo.png.png" alt="RM Digital Trading" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+            <img src="/rm-logo.png" alt="RM Digital Trading" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           </div>
           <div>
             <div style={{ color: "white", fontWeight: 750, fontSize: 12, lineHeight: 1.2, letterSpacing: "0.2px" }}>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { verifyToken } from '@/lib/auth';
+import { writeAuditLog } from '@/lib/audit';
 
 // ✅ GET — coach makakakita ng sariling codes lang, owner makakakita ng lahat
 export async function GET(req: NextRequest) {
@@ -47,8 +48,7 @@ export async function GET(req: NextRequest) {
     }
     return NextResponse.json({ success: true, codes: enriched });
 
-  } catch (err) {
-    console.error('Fetch codes error:', err);
+  } catch {
     return NextResponse.json({ error: 'Something went wrong.' }, { status: 500 });
   }
 }
@@ -73,6 +73,7 @@ export async function PATCH(req: NextRequest) {
       if (admin.role === 'coach') query = query.eq('created_by', admin.username);
       const { error } = await query;
       if (error) return NextResponse.json({ error: 'Failed to update notes.' }, { status: 500 });
+      writeAuditLog({ admin_username: admin.username, action: 'update_code_notes', target_id: id });
       return NextResponse.json({ success: true });
     }
 
@@ -91,7 +92,7 @@ export async function PATCH(req: NextRequest) {
       if (admin.role === 'coach') {
         query = query.eq('created_by', admin.username);
       }
-      const { data, error } = await query.select('id').maybeSingle();
+      const { data, error } = await query.select('id, code').maybeSingle();
       if (error) return NextResponse.json({ error: 'Failed to deactivate code.' }, { status: 500 });
       if (!data) {
         return NextResponse.json(
@@ -99,6 +100,7 @@ export async function PATCH(req: NextRequest) {
           { status: 404 }
         );
       }
+      writeAuditLog({ admin_username: admin.username, action: 'deactivate_code', target_id: id, target_code: (data as { code?: string }).code });
     }
 
     if (action === 'reactivate') {
@@ -106,18 +108,18 @@ export async function PATCH(req: NextRequest) {
         .from('access_codes')
         .update({ is_used: false, used_at: null, expires_at: null, device_id: null })
         .eq('id', id)
-        .select('id')
+        .select('id, code')
         .maybeSingle();
       if (error) return NextResponse.json({ error: 'Failed to reactivate code.' }, { status: 500 });
       if (!data) {
         return NextResponse.json({ error: 'Code not found.' }, { status: 404 });
       }
+      writeAuditLog({ admin_username: admin.username, action: 'reactivate_code', target_id: id, target_code: (data as { code?: string }).code });
     }
 
     return NextResponse.json({ success: true });
 
-  } catch (err) {
-    console.error('Update code error:', err);
+  } catch {
     return NextResponse.json({ error: 'Something went wrong.' }, { status: 500 });
   }
 }
@@ -160,10 +162,7 @@ export async function DELETE(req: NextRequest) {
       .eq('code_id', id);
 
     if (sessionsError) {
-      return NextResponse.json(
-        { error: `Failed to delete related sessions: ${sessionsError.message}` },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to delete code.' }, { status: 500 });
     }
 
     // ✅ STEP 3: Delete orphaned progress rows (Bug #6 fix)
@@ -173,10 +172,7 @@ export async function DELETE(req: NextRequest) {
       .eq('code', codeRow.code);
 
     if (progressError) {
-      return NextResponse.json(
-        { error: `Failed to delete related progress: ${progressError.message}` },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to delete code.' }, { status: 500 });
     }
 
     // ✅ STEP 4: Delete the code itself
@@ -186,16 +182,13 @@ export async function DELETE(req: NextRequest) {
       .eq('id', id);
 
     if (error) {
-      return NextResponse.json(
-        { error: `Failed to delete code: ${error.message}` },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to delete code.' }, { status: 500 });
     }
 
+    writeAuditLog({ admin_username: admin.username, action: 'delete_code', target_id: id, target_code: codeRow.code });
     return NextResponse.json({ success: true });
 
-  } catch (err) {
-    console.error('Delete code error:', err);
+  } catch {
     return NextResponse.json({ error: 'Something went wrong.' }, { status: 500 });
   }
 }
