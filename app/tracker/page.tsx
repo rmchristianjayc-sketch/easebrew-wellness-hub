@@ -1,5 +1,17 @@
 "use client";
 
+type SpeechRecognitionResult = { 0: { transcript: string }; isFinal: boolean };
+type SpeechRecognitionResultList = { 0: SpeechRecognitionResult; length: number };
+type SpeechRecognitionEvent = Event & { results: SpeechRecognitionResultList };
+interface SpeechRecognitionInstance {
+  lang: string; interimResults: boolean; maxAlternatives: number;
+  start(): void;
+  onresult: ((e: SpeechRecognitionEvent) => void) | null;
+  onerror: (() => void) | null;
+  onend: (() => void) | null;
+}
+type SpeechRecognitionCtor = new () => SpeechRecognitionInstance;
+
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
@@ -154,8 +166,8 @@ function VoiceButton({ onResult }: { onResult: (text: string) => void }) {
   if (!supported) return null;
 
   function startListening() {
-    const SpeechRec = (window as unknown as { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition
-                   || (window as unknown as { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
+    const SpeechRec = (window as unknown as { SpeechRecognition?: SpeechRecognitionCtor; webkitSpeechRecognition?: SpeechRecognitionCtor }).SpeechRecognition
+                   || (window as unknown as { webkitSpeechRecognition?: SpeechRecognitionCtor }).webkitSpeechRecognition;
     if (!SpeechRec) return;
     const rec = new SpeechRec();
     rec.lang = "fil-PH";
@@ -249,6 +261,7 @@ export default function TrackerPage() {
     }
 
     loadProgress();
+    return () => { if (syncTimeout.current) clearTimeout(syncTimeout.current); };
   }, [checking, session, storageKey]);
 
   if (checking) return (
@@ -266,6 +279,7 @@ export default function TrackerPage() {
   };
 
   const saveEntry = () => {
+    if (!session) return;
     const todayStr = new Date().toISOString().split("T")[0];
     const entry = { ...today, date: todayStr };
     const idx = entries.findIndex(e => e.date === todayStr);

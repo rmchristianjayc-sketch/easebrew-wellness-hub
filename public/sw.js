@@ -26,7 +26,7 @@ async function maybeShowReminder() {
   const h = now.getHours();
   const today = now.toISOString().split('T')[0];
 
-  if (h >= 7 && h <= 9 && !(await wasShown(`shown-${today}-am`))) {
+  if (h >= 7 && h < 9 && !(await wasShown(`shown-${today}-am`))) {
     await markShown(`shown-${today}-am`);
     await self.registration.showNotification('☕ EaseBrew — Umaga!', {
       body: 'Inumin na ang EaseBrew mo para sa pinakamabilis na resulta!',
@@ -40,7 +40,7 @@ async function maybeShowReminder() {
         { action: 'snooze',   title: '⏰ Mamaya'      },
       ],
     });
-  } else if (h >= 19 && h <= 21 && !(await wasShown(`shown-${today}-pm`))) {
+  } else if (h >= 19 && h < 21 && !(await wasShown(`shown-${today}-pm`))) {
     await markShown(`shown-${today}-pm`);
     await self.registration.showNotification('🌙 EaseBrew — Gabi!', {
       body: 'Huwag kalimutang inumin ang EaseBrew bago matulog!',
@@ -126,7 +126,10 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
       const existing = clients.find((c) => c.url.includes(self.location.origin));
-      if (existing) { existing.navigate(url); return existing.focus(); }
+      if (existing) {
+        existing.postMessage({ type: 'NAVIGATE', url });
+        return existing.focus();
+      }
       return self.clients.openWindow(url);
     })
   );

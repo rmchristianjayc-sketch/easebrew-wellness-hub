@@ -109,6 +109,8 @@ export default function CodesPage() {
   function copyListCode(code: string) {
     navigator.clipboard.writeText(code).then(() => { setCopiedId(code); setTimeout(() => setCopiedId(null), 2000); });
   }
+  const now = new Date();
+
   function copyReorderMessage(c: AccessCode) {
     if (!c.expires_at) return;
     const daysLeft = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
@@ -175,7 +177,6 @@ export default function CodesPage() {
     return { label: "Active", bg: "#dcfce7", color: G };
   }
 
-  const now      = new Date();
   const filtered = codes.filter(c =>
     search.trim() === "" ||
     (c.customer_name || "").toLowerCase().includes(search.toLowerCase()) ||

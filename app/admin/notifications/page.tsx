@@ -22,7 +22,7 @@ const inp: React.CSSProperties = {
 };
 
 export default function NotificationsPage() {
-  const { checking, username } = useAdminGuard(['owner']);
+  const { checking, username, role } = useAdminGuard(['owner']);
 
   const [title, setTitle]   = useState("");
   const [body, setBody]     = useState("");
@@ -121,7 +121,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
-      <Sidebar active="/admin/notifications" username={username} />
+      <Sidebar active="/admin/notifications" role={role} username={username} />
 
       <main className="admin-main" style={{ flex: 1, minWidth: 0, display: "flex", gap: 24 }}>
 

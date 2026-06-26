@@ -3,7 +3,7 @@ import { verifyCustomerToken } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 
 const MINIMUM_TIER_BY_TYPE: Record<string, number> = {
-  tracker: 999,
+  tracker: 399,
   mealplan: 1499,
   exercise: 1499,
   recipe_favorites: 2998,

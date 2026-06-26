@@ -638,7 +638,6 @@ export default function Home() {
   const daysLeft = session?.expires_at
     ? Math.ceil((new Date(session.expires_at).getTime() - Date.now()) / 86400000)
     : null;
-  const showExpiryBanner = daysLeft !== null && daysLeft <= 7 && daysLeft > 0 && !expiryDismissed;
 
   const [tipIndex, setTipIndex] = useState(0);
   const [tab, setTab] = useState<Tab>("home");
@@ -668,6 +667,8 @@ export default function Home() {
   const [faqs, setFaqs]                     = useState(DEFAULT_FAQS);
   const [testimonials, setTestimonials]     = useState(DEFAULT_TESTIMONIALS);
   const [videos, setVideos]                 = useState(DEFAULT_VIDEOS);
+
+  const showExpiryBanner = daysLeft !== null && daysLeft <= 7 && daysLeft > 0 && !expiryDismissed;
 
   // ── FETCH PUBLIC CONTENT ─────────────────────────────────────
   useEffect(() => {
@@ -762,6 +763,9 @@ export default function Home() {
     const handler = (e: MessageEvent) => {
       if (e.data?.type === "QUICK_LOG" && (e.data.period === "umaga" || e.data.period === "gabi")) {
         doQuickLog(e.data.period);
+      }
+      if (e.data?.type === "NAVIGATE" && typeof e.data.url === "string") {
+        window.location.href = e.data.url;
       }
     };
     navigator.serviceWorker?.addEventListener("message", handler);
