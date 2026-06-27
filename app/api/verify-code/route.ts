@@ -10,7 +10,7 @@ function normalizeCode(value: unknown) {
 }
 
 function isValidDeviceId(value: unknown): value is string {
-  return typeof value === 'string' && /^dev_[0-9a-f]{32}$/.test(value);
+  return typeof value === 'string' && value.length >= 8 && value.length <= 128;
 }
 
 export async function POST(req: NextRequest) {
