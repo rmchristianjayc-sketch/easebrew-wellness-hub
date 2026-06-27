@@ -9,7 +9,7 @@ import { getDeviceId } from "@/lib/device";
 import { PRICE_CONFIG } from "@/lib/price-config";
 import { DEFAULT_PRODUCTS, getGiftsForTier } from "@/lib/products";
 
-type ErrorType = "invalid" | "expired" | "other_device" | "generic" | null;
+type ErrorType = "invalid" | "expired" | "other_device" | "incomplete" | "server" | null;
 type View = "verify" | "gifts" | "coaches";
 
 const TIER_KEYS = Object.keys(PRICE_CONFIG).map(Number).sort((a, b) => a - b);
@@ -19,7 +19,7 @@ function getErrorType(errorMsg: string): ErrorType {
   if (msg.includes("expired")) return "expired";
   if (msg.includes("another device") || msg.includes("other device")) return "other_device";
   if (msg.includes("invalid") || msg.includes("not found") || msg.includes("404")) return "invalid";
-  return "generic";
+  return "server";
 }
 
 const ERROR_COPY: Record<Exclude<ErrorType, null>, { title: string; message: string; color: string }> = {
@@ -38,9 +38,14 @@ const ERROR_COPY: Record<Exclude<ErrorType, null>, { title: string; message: str
     message: "Para sa seguridad, isang phone lang ang bawat code. Makipag-ugnayan sa coach kung kailangan ng tulong.",
     color: "#185FA5",
   },
-  generic: {
+  incomplete: {
     title: "⚠️ Hindi pa kumpleto ang code",
     message: "Ilagay ang buong format: EASE-XXXX-XXXX.",
+    color: AMBER,
+  },
+  server: {
+    title: "⚠️ May problema sa pag-verify",
+    message: "Subukan ulit. Kung paulit-ulit na nangyayari, makipag-ugnayan sa inyong coach.",
     color: AMBER,
   },
 };
@@ -151,7 +156,7 @@ export default function VerifyPage() {
   }, [router]);
 
   async function handleVerify() {
-    if (!isComplete) { setErrorType("generic"); return; }
+    if (!isComplete) { setErrorType("incomplete"); return; }
     const stripped = code.replace(/[-\s]/g, "").toUpperCase().slice(0, 12);
     const cleanCode = `${stripped.slice(0, 4)}-${stripped.slice(4, 8)}-${stripped.slice(8, 12)}`;
     setLoading(true);
@@ -167,7 +172,7 @@ export default function VerifyPage() {
       setSuccess(true);
       setTimeout(() => router.replace(getReturnPath()), 1000);
     } catch {
-      setErrorType("generic");
+      setErrorType("server");
     } finally {
       setLoading(false);
     }
