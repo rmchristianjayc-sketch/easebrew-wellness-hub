@@ -884,7 +884,7 @@ useEffect(() => {
           </div>
         </div>
         <div style={{ padding: "16px 24px 24px" }}>
-        <Link href="/" style={{ color: GOLD, fontSize: 16, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", minHeight: 44, marginBottom: 16 }}>
+        <Link href="/" style={{ color: GOLD, fontSize: 18, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", minHeight: 44, marginBottom: 16 }}>
           ← Bumalik sa Hub
         </Link>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>

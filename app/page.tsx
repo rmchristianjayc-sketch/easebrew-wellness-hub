@@ -369,15 +369,15 @@ function QuickCheckIn({ storageKey }: { storageKey: string }) {
       onClick={() => !done && logIntake(period)}
       style={{ flex: 1, background: done ? G : "white", color: done ? "white" : DARK, border: `2.5px solid ${done ? G : "#D9D0C0"}`, borderRadius: 20, padding: "22px 10px", cursor: done ? "default" : "pointer", transition: "all 0.2s", textAlign: "center" as const }}
     >
-      <div style={{ fontSize: 34, marginBottom: 6 }}>{done ? "✅" : icon}</div>
-      <div style={{ fontSize: 16, fontWeight: 700 }}>{label}</div>
-      <div style={{ fontSize: 12, opacity: 0.7, marginTop: 3 }}>{done ? "Nakinom na!" : "I-tap para i-log"}</div>
+      <div style={{ fontSize: 36, marginBottom: 6 }}>{done ? "✅" : icon}</div>
+      <div style={{ fontSize: 18, fontWeight: 700 }}>{label}</div>
+      <div style={{ fontSize: 16, opacity: 0.7, marginTop: 3 }}>{done ? "Nakinom na!" : "I-tap para i-log"}</div>
     </button>
   );
 
   return (
     <div style={{ background: both ? "#E8F5E0" : "white", border: `2px solid ${both ? G : "#D9D0C0"}`, borderRadius: 22, padding: "18px", marginBottom: 24 }}>
-      <p style={{ fontSize: 12, fontWeight: 700, color: both ? G : MID, margin: "0 0 12px", textAlign: "center" as const, textTransform: "uppercase" as const, letterSpacing: 1.2 }}>
+      <p style={{ fontSize: 17, fontWeight: 700, color: both ? G : MID, margin: "0 0 12px", textAlign: "center" as const }}>
         {both ? "✅ Kumpleto na para ngayon!" : "☕ Naiinom mo na ngayon?"}
       </p>
       <div style={{ display: "flex", gap: 12 }}>
@@ -509,11 +509,11 @@ function PackCountdownCard({ tier, packs, daysLeft, onReorder }: { tier: number;
     <div style={{ background: "white", border: `2px solid ${borderColor}`, borderRadius: 18, padding: "20px", marginBottom: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
         <div>
-          <p style={{ fontSize: 15, fontWeight: 700, color: "#1B201A", margin: "0 0 3px" }}>📦 Pack {currentPack} of {packs}</p>
-          <p style={{ fontSize: 14, color: "#4E504F", margin: 0 }}>{daysLeft} araw • ~{daysLeft * 2} sachets na lang</p>
+          <p style={{ fontSize: 18, fontWeight: 700, color: "#1B201A", margin: "0 0 3px" }}>📦 Pack {currentPack} of {packs}</p>
+          <p style={{ fontSize: 17, color: "#4E504F", margin: 0 }}>{daysLeft} araw • ~{daysLeft * 2} sachets na lang</p>
         </div>
         {daysLeft <= 14 && (
-          <button onClick={onReorder} style={{ background: "#39613B", color: "white", border: "none", borderRadius: 10, padding: "11px 16px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
+          <button onClick={onReorder} style={{ background: "#39613B", color: "white", border: "none", borderRadius: 12, padding: "14px 18px", fontSize: 17, fontWeight: 700, cursor: "pointer" }}>
             🛒 Mag-order
           </button>
         )}
@@ -521,7 +521,7 @@ function PackCountdownCard({ tier, packs, daysLeft, onReorder }: { tier: number;
       <div style={{ background: "#f0f0f0", borderRadius: 999, height: 13, overflow: "hidden" }}>
         <div style={{ width: `${progressPct}%`, height: "100%", background: barColor, borderRadius: 999 }} />
       </div>
-      <p style={{ fontSize: 12, color: "#9E9E9E", margin: "6px 0 0", textAlign: "right" as const }}>{progressPct}% nagamit na</p>
+      <p style={{ fontSize: 16, color: "#9E9E9E", margin: "6px 0 0", textAlign: "right" as const }}>{progressPct}% nagamit na</p>
     </div>
   );
 }
@@ -563,7 +563,7 @@ function WeeklySummaryCard({ data, onDismiss }: { data: { avgPain: number; consi
     <div style={{ background: isGood ? "#E8F5E0" : "#FEF9E7", border: `2px solid ${isGood ? "#39613B" : "#FED255"}`, borderRadius: 18, padding: "20px", marginBottom: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
         <div>
-          <p style={{ fontSize: 11, fontWeight: 700, color: isGood ? "#39613B" : "#b45309", margin: "0 0 3px", textTransform: "uppercase" as const, letterSpacing: 1 }}>📊 Weekly Summary</p>
+          <p style={{ fontSize: 15, fontWeight: 700, color: isGood ? "#39613B" : "#b45309", margin: "0 0 3px", textTransform: "uppercase" as const, letterSpacing: 1 }}>📊 Weekly Summary</p>
           <p style={{ fontSize: 16, fontWeight: 700, color: "#1B201A", margin: 0, lineHeight: 1.4 }}>
             {isGood ? "Magaling! Consistent ka ngayong linggo! 🌟" : "Kaya mo pa! Subukang maabot ang 7/7 ngayon! 💪"}
           </p>
@@ -575,7 +575,7 @@ function WeeklySummaryCard({ data, onDismiss }: { data: { avgPain: number; consi
           <div key={i} style={{ background: "white", borderRadius: 12, padding: "13px 10px", textAlign: "center" as const }}>
             <p style={{ fontSize: 22, margin: "0 0 4px" }}>{s.icon}</p>
             <p style={{ fontSize: 19, fontWeight: 700, color: "#1B201A", margin: "0 0 2px" }}>{s.value}</p>
-            <p style={{ fontSize: 11, color: "#9E9E9E", margin: 0, lineHeight: 1.3 }}>{s.label}</p>
+            <p style={{ fontSize: 14, color: "#9E9E9E", margin: 0, lineHeight: 1.3 }}>{s.label}</p>
           </div>
         ))}
       </div>
@@ -923,8 +923,8 @@ export default function Home() {
         )}
         <div style={{ padding: "16px 20px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
-            <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 12, padding: "3px 12px", fontSize: 11, fontWeight: 700, letterSpacing: 1 }}>☕ EVERYDAY WE CARE</div>
-            <p style={{ color: "rgba(255,255,255,0.9)", fontSize: 13, margin: "4px 0 0 0", fontWeight: 500 }}>
+            <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 12, padding: "5px 14px", fontSize: 14, fontWeight: 700, letterSpacing: 1 }}>☕ EVERYDAY WE CARE</div>
+            <p style={{ color: "rgba(255,255,255,0.9)", fontSize: 16, margin: "4px 0 0 0", fontWeight: 500 }}>
               📦 {getTierLabel(customerTier)} — {unlockedProducts.length} {unlockedProducts.length === 1 ? "Gift" : "Gifts"} Unlocked
             </p>
           </div>
@@ -968,7 +968,7 @@ export default function Home() {
               </div>
               <div style={{ background: G, padding: "20px 24px 24px", position: "relative" }}>
                 <div style={{ position: "absolute", top: -30, right: -20, width: 100, height: 100, background: "rgba(125,174,47,0.18)", borderRadius: "50%" }} />
-                <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 999, padding: "4px 14px", fontSize: 11, fontWeight: 900, letterSpacing: 1.2, marginBottom: 10 }}>
+                <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 999, padding: "5px 16px", fontSize: 14, fontWeight: 900, letterSpacing: 1.2, marginBottom: 10 }}>
                   ☕ EVERYDAY WE CARE
                 </div>
                 <h1 style={{ fontSize: 26, fontWeight: 900, margin: "0 0 10px 0", lineHeight: 1.3, color: "#fff" }}>{heroTitle}</h1>
@@ -995,6 +995,42 @@ export default function Home() {
               <QuickCheckIn storageKey={progressStorageKey("easebrew-tracker-v2", session.code)} />
             )}
 
+            {/* ── Quick Access to Unlocked Tools ── */}
+            {unlockedProducts.length > 0 && (
+              <div style={{ marginBottom: 24 }}>
+                <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>Mabilis na Access 🚀</h2>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {unlockedProducts.map(p => (
+                    <Link key={p.id} href={p.appUrl} style={{
+                      background: WHITE, border: `2px solid ${G}`, borderRadius: 18,
+                      padding: "20px 22px", textDecoration: "none",
+                      display: "flex", alignItems: "center", gap: 16, minHeight: 72,
+                      boxShadow: "0 2px 10px rgba(24,59,40,0.10)",
+                    }}>
+                      <span style={{ fontSize: 36, flexShrink: 0 }}>{p.icon}</span>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: 18, fontWeight: 700, color: G, margin: 0, lineHeight: 1.3 }}>{p.name}</p>
+                        <p style={{ fontSize: 16, color: MID, margin: "4px 0 0 0" }}>{p.appLabel}</p>
+                      </div>
+                      <span style={{ fontSize: 24, color: G, flexShrink: 0, fontWeight: 700 }}>›</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── Daily Wellness Tip ── */}
+            <div style={{ background: "#FFFBF0", border: `2px solid ${GOLD}`, borderRadius: 18, padding: "20px 22px", marginBottom: 24 }}>
+              <p style={{ fontSize: 16, fontWeight: 700, color: AMBER, margin: "0 0 10px 0", textTransform: "uppercase" as const, letterSpacing: 1 }}>💡 Tip ng Araw</p>
+              <p style={{ fontSize: 18, color: DARK, margin: "0 0 16px 0", lineHeight: 1.75 }}>🌿 {wellnessTips[tipIndex % wellnessTips.length]}</p>
+              <button
+                onClick={() => setTipIndex(i => (i + 1) % wellnessTips.length)}
+                style={{ background: GOLD, color: G, border: "none", borderRadius: 12, padding: "14px 22px", fontSize: 17, fontWeight: 700, cursor: "pointer", width: "100%" }}
+              >
+                Susunod na Tip →
+              </button>
+            </div>
+
             <div style={{ background: "#FEF9E7", border: `2.5px solid ${GOLD}`, borderRadius: 18, padding: "18px 20px", marginBottom: 24, textAlign: "center" }}>
               <p style={{ fontSize: 18, fontWeight: 700, color: AMBER, margin: "0 0 6px 0" }}>☕ Inumin 2x sa isang araw</p>
               <p style={{ fontSize: 16, color: MID, margin: 0, lineHeight: 1.6 }}><strong style={{ color: G }}>Umaga</strong> at <strong style={{ color: G }}>Gabi</strong> — para sa pinakamabilis na resulta!</p>
@@ -1007,7 +1043,7 @@ export default function Home() {
                 <div key={i} style={{ background: r.bg, border: `2px solid ${r.border}`, borderRadius: 18, padding: "18px 20px", display: "flex", alignItems: "center", gap: 16 }}>
                   <span style={{ fontSize: 36, flexShrink: 0 }}>{r.icon}</span>
                   <div>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: r.textColor, margin: "0 0 4px 0", textTransform: "uppercase" as const, letterSpacing: 1.2 }}>{r.time}</p>
+                    <p style={{ fontSize: 16, fontWeight: 700, color: r.textColor, margin: "0 0 4px 0", textTransform: "uppercase" as const, letterSpacing: 1.2 }}>{r.time}</p>
                     <p style={{ fontSize: 17, color: DARK, margin: 0, lineHeight: 1.45, fontWeight: 500 }}>{r.text}</p>
                   </div>
                 </div>
@@ -1029,7 +1065,7 @@ export default function Home() {
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
               {PROGRESS_GUIDE.map((p, i) => (
                 <div key={i} style={{ background: p.bg, border: `2px solid ${p.border}`, borderRadius: 18, padding: "22px" }}>
-                  <p style={{ fontSize: 12, fontWeight: 700, color: p.color, margin: "0 0 5px 0", textTransform: "uppercase" as const, letterSpacing: 1.2 }}>{p.period}</p>
+                  <p style={{ fontSize: 16, fontWeight: 700, color: p.color, margin: "0 0 5px 0", textTransform: "uppercase" as const, letterSpacing: 1.2 }}>{p.period}</p>
                   <h3 style={{ fontSize: 19, fontWeight: 700, color: DARK, margin: "0 0 6px 0" }}>{p.title}</h3>
                   <p style={{ fontSize: 16, color: MID, margin: 0, lineHeight: 1.7 }}>{p.desc}</p>
                 </div>
@@ -1105,7 +1141,7 @@ export default function Home() {
                   <div key={p.id} style={{ background: "#F5F0E8", border: "2px solid #C5B99A", borderRadius: 18, padding: "22px", marginBottom: 14, opacity: 0.85 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                       <span style={{ fontSize: 40, filter: "grayscale(1)" }}>{p.icon}</span>
-                      <span style={{ background: "#E8E0D0", color: "#8A7D6A", borderRadius: 8, padding: "5px 12px", fontSize: 12, fontWeight: 700 }}>🔒 I-unlock sa {p.tierLabel}</span>
+                      <span style={{ background: "#E8E0D0", color: "#8A7D6A", borderRadius: 8, padding: "7px 14px", fontSize: 15, fontWeight: 700 }}>🔒 I-unlock sa {p.tierLabel}</span>
                     </div>
                     <h3 style={{ fontSize: 19, fontWeight: 700, color: "#8A7D6A", margin: "0 0 6px 0" }}>{p.name}</h3>
                     <p style={{ fontSize: 16, color: "#A89880", margin: "0 0 18px 0", lineHeight: 1.65 }}>{p.desc}</p>

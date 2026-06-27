@@ -142,7 +142,7 @@ function Stepper({ label, sub, value, min, max, onChange }: {
 }) {
   return (
     <div style={{ flex: 1, background: "#fff", border: "1.5px solid #ddd", borderRadius: 14, padding: "12px 10px", textAlign: "center" }}>
-      <p style={{ fontSize: 16, fontWeight: 700, margin: "0 0 2px 0", color: "#1B201A" }}>{label}</p>
+      <p style={{ fontSize: 17, fontWeight: 700, margin: "0 0 2px 0", color: "#1B201A" }}>{label}</p>
       <p style={{ fontSize: 16, color: "#4E504F", margin: "0 0 10px 0" }}>{sub}</p>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
         <button
@@ -175,11 +175,18 @@ function Stepper({ label, sub, value, min, max, onChange }: {
   );
 }
 
+function getDayNumber(activatedAt: string | undefined): number {
+  if (!activatedAt) return 1;
+  const diff = Math.floor((Date.now() - new Date(activatedAt).getTime()) / 86400000) + 1;
+  return Math.min(90, Math.max(1, diff));
+}
+
 export default function BagongKatawanPage() {
   const { checking, session } = useSessionGuard();
   const daysStorageKey = progressStorageKey("easebrew-90days", session?.code);
   const trackStorageKey = progressStorageKey("easebrew-90days-track", session?.code);
   const measurementsStorageKey = progressStorageKey("easebrew-90days-meas", session?.code);
+  const currentDay = getDayNumber(session?.activated_at);
 
   const [activeTab, setActiveTab] = useState(0);
   const [activePhase, setActivePhase] = useState(1);
@@ -299,7 +306,7 @@ export default function BagongKatawanPage() {
 
       {/* ── HEADER ── */}
       <div style={{ background: G, padding: "36px 24px 28px", color: "#fff" }}>
-        <Link href="/" style={{ color: GOLD, fontSize: 16, fontWeight: 600, textDecoration: "none", display: "block", marginBottom: 16 }}>
+        <Link href="/" style={{ color: GOLD, fontSize: 18, fontWeight: 600, textDecoration: "none", display: "block", marginBottom: 16 }}>
           ← Bumalik sa Hub
         </Link>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
@@ -307,11 +314,12 @@ export default function BagongKatawanPage() {
             <h1 style={{ fontSize: 26, fontWeight: 700, margin: "0 0 6px 0", lineHeight: 1.3 }}>
               🏆 Bagong Katawan sa 90 Days
             </h1>
-            <p style={{ fontSize: 16, opacity: 0.85, margin: 0 }}>Complete Wellness Program • 3 Phases</p>
+            <p style={{ fontSize: 17, opacity: 0.85, margin: 0 }}>Complete Wellness Program • 3 Phases</p>
           </div>
           <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 16, padding: "14px 18px", flexShrink: 0 }}>
-            <p style={{ fontSize: 32, fontWeight: 700, margin: 0, color: GOLD }}>{completedDays.length}</p>
-            <p style={{ fontSize: 16, margin: 0, opacity: 0.85 }}>/ 90 araw</p>
+            <p style={{ fontSize: 13, margin: "0 0 2px 0", opacity: 0.8 }}>Ikaw ay nasa</p>
+            <p style={{ fontSize: 30, fontWeight: 700, margin: 0, color: GOLD }}>Araw {currentDay}</p>
+            <p style={{ fontSize: 14, margin: "2px 0 0 0", opacity: 0.85 }}>ng 90</p>
           </div>
         </div>
 
@@ -515,8 +523,8 @@ export default function BagongKatawanPage() {
                             placeholder="Ano ang naramdaman mo ngayon?..."
                             value={track.notes}
                             onChange={e => saveTrack(d.day, { ...track, notes: e.target.value })}
-                            rows={2}
-                            style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid #ddd", fontSize: 16, background: "#fff", resize: "none", boxSizing: "border-box", color: DARK, lineHeight: 1.6 }}
+                            rows={3}
+                            style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "1.5px solid #ddd", fontSize: 18, background: "#fff", resize: "none", boxSizing: "border-box", color: DARK, lineHeight: 1.7 }}
                           />
                         </div>
                       </div>

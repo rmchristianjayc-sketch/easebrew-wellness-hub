@@ -180,7 +180,7 @@ export default function MealPlanPage() {
           </div>
         </div>
         <div style={{ padding: "18px 24px 24px" }}>
-        <Link href="/" style={{ color: GOLD, fontSize: 16, textDecoration: "none", display: "flex", alignItems: "center", minHeight: 44, marginBottom: 14, fontWeight: 600 }}>
+        <Link href="/" style={{ color: GOLD, fontSize: 18, textDecoration: "none", display: "flex", alignItems: "center", minHeight: 44, marginBottom: 14, fontWeight: 600 }}>
           ← Bumalik sa Hub
         </Link>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
