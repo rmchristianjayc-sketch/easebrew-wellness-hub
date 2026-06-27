@@ -44,6 +44,7 @@ export type CustomerSession = {
   packs: number;
   expires_at: string;
   device_id: string;
+  activated_at?: string;
 };
 
 function isValidAdminPayload(payload: unknown): payload is AdminPayload {

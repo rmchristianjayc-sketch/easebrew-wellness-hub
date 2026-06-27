@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabaseAdmin
     .from('access_codes')
-    .select('code, tier, packs, expires_at, device_id, is_used')
+    .select('code, tier, packs, expires_at, device_id, is_used, used_at')
     .eq('code', session.code)
     .maybeSingle();
 
@@ -47,6 +47,7 @@ export async function GET(req: NextRequest) {
     packs: data.packs,
     expires_at: data.expires_at,
     device_id: data.device_id,
+    activated_at: data.used_at ?? undefined,
   };
   const response = NextResponse.json({ success: true, session: freshSession });
   await setCustomerSessionCookie(response, freshSession);

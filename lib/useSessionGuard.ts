@@ -9,6 +9,7 @@ export type EbSession = {
   packs: number;
   expires_at: string;
   device_id: string;
+  activated_at?: string;
 };
 
 const REVALIDATE_INTERVAL_MS = 60_000; // re-check session every 60 seconds
