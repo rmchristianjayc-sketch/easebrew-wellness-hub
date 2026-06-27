@@ -370,18 +370,10 @@ export default function VerifyPage() {
                       ) : (
                         <p style={{ color: perk.highlight ? "rgba(255,255,255,0.78)" : MID, fontSize: 16, margin: "0 0 14px" }}>Basic hub access</p>
                       )}
-                      {url ? (
-                        <a href={url} target="_blank" rel="noopener noreferrer" style={{
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          minHeight: 54, borderRadius: 14, background: GOLD, color: G,
-                          fontSize: 17, fontWeight: 900, textDecoration: "none",
-                        }}>🛒 Mag-order nito</a>
-                      ) : (
-                        <button type="button" onClick={() => setView("coaches")} style={{
-                          width: "100%", minHeight: 54, border: 0, borderRadius: 14,
-                          background: GOLD, color: G, fontSize: 17, fontWeight: 900, cursor: "pointer",
-                        }}>📞 Mag-order sa Coach</button>
-                      )}
+                      <button type="button" onClick={() => setView("coaches")} style={{
+                        width: "100%", minHeight: 54, border: 0, borderRadius: 14,
+                        background: GOLD, color: G, fontSize: 17, fontWeight: 900, cursor: "pointer",
+                      }}>📞 Mag-order sa Coach</button>
                     </div>
                   );
                 })}
