@@ -41,7 +41,7 @@ const PAIN_LOCATIONS = [
 type DayEntry = {
   date: string;
   painScore: number;
-  painLocation: string;
+  painLocations: string[];
   easebrewUmaga: boolean;
   easebrewGabi: boolean;
   avocadoOil: boolean;
@@ -52,7 +52,7 @@ type DayEntry = {
 const emptyEntry = (): DayEntry => ({
   date: new Date().toISOString().split("T")[0],
   painScore: 0,
-  painLocation: "",
+  painLocations: [],
   easebrewUmaga: false,
   easebrewGabi: false,
   avocadoOil: false,
@@ -129,7 +129,13 @@ function getStoredTrackerEntries(storageKey: string): DayEntry[] {
 
 function getStoredTodayEntry(storageKey: string): DayEntry {
   const todayStr = new Date().toISOString().split("T")[0];
-  return getStoredTrackerEntries(storageKey).find(e => e.date === todayStr) ?? emptyEntry();
+  const found = getStoredTrackerEntries(storageKey).find(e => e.date === todayStr) ?? emptyEntry();
+  // migrate old single-string painLocation to array
+  const legacy = found as DayEntry & { painLocation?: string };
+  if (legacy.painLocation && !found.painLocations?.length) {
+    found.painLocations = [legacy.painLocation];
+  }
+  return found;
 }
 
 function MilestoneModal({ days, onClose }: { days: number; onClose: () => void }) {
@@ -210,11 +216,11 @@ function VoiceButton({ onResult }: { onResult: (text: string) => void }) {
       disabled={listening}
       style={{
         background: listening ? "#ef4444" : "#E8F5E0",
-        border: `1.5px solid ${listening ? "#ef4444" : "#39613B"}`,
-        borderRadius: 8, padding: "5px 12px", fontSize: 13,
+        border: `2px solid ${listening ? "#ef4444" : "#39613B"}`,
+        borderRadius: 12, padding: "12px 20px", fontSize: 17,
         color: listening ? "white" : "#39613B",
         cursor: listening ? "default" : "pointer", fontWeight: 700,
-        display: "flex", alignItems: "center", gap: 6, flexShrink: 0,
+        display: "flex", alignItems: "center", gap: 8, flexShrink: 0, minHeight: 48,
       }}
     >
       {listening ? "🔴 Nakinikinig..." : "🎤 Magsalita"}
@@ -267,8 +273,8 @@ function PainChart({ entries }: { entries: DayEntry[] }) {
         })}
       </svg>
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
-        <span style={{ fontSize: 13, color: "#4E504F" }}>Simula: <strong style={{ color: "#1B201A" }}>{first}/10</strong></span>
-        <span style={{ fontSize: 13, color: "#4E504F" }}>Ngayon: <strong style={{ color: lineColor }}>{last}/10</strong></span>
+        <span style={{ fontSize: 16, color: "#4E504F" }}>Simula: <strong style={{ color: "#1B201A" }}>{first}/10</strong></span>
+        <span style={{ fontSize: 16, color: "#4E504F" }}>Ngayon: <strong style={{ color: lineColor }}>{last}/10</strong></span>
       </div>
     </div>
   );
@@ -302,9 +308,9 @@ export default function TrackerPage() {
         if (yesterday) {
           setToday(prev => ({
             ...prev,
-            painScore:     yesterday.painScore     || prev.painScore,
-            painLocation:  yesterday.painLocation  || prev.painLocation,
-            mood:          yesterday.mood          || prev.mood,
+            painScore:      yesterday.painScore      || prev.painScore,
+            painLocations:  yesterday.painLocations?.length ? yesterday.painLocations : prev.painLocations,
+            mood:           yesterday.mood           || prev.mood,
           }));
           setPrefilledFromYesterday(true);
         }
@@ -387,7 +393,7 @@ export default function TrackerPage() {
       `Average pain score: ${avgPain}/10`,
       `Consistency (2x/day): ${consistRate}%`,
       `Pain trend: ${firstPain} → ${latestPain} ${trend}`,
-      recentNotes.length > 0 ? `\nMga kamakailang notes:\n${recentNotes.join("\n")}` : "",
+      recentNotes.length > 0 ? `\nMga kamakailang notes:\n${recentNotes.join("\n")}` : ``,
       ``,
       `— Mula sa EaseBrew Wellness Hub`,
     ].filter(l => l !== undefined).join("\n");
@@ -479,8 +485,8 @@ export default function TrackerPage() {
         <div style={{ padding: "24px 20px" }}>
 
               {prefilledFromYesterday && (
-                <div style={{ background: "#EEF4FF", border: "1px solid #93C5FD", borderRadius: 10, padding: "8px 14px", marginBottom: 16, fontSize: 13, color: "#1D4ED8", display: "flex", alignItems: "center", gap: 8 }}>
-                  <span>⚡</span> Pre-filled mula sa kahapon — i-update kung nagbago.
+                <div style={{ background: "#EEF4FF", border: "1px solid #93C5FD", borderRadius: 12, padding: "14px 18px", marginBottom: 16, fontSize: 17, color: "#1D4ED8", display: "flex", alignItems: "center", gap: 10, fontWeight: 600 }}>
+                  <span style={{ fontSize: 22 }}>⚡</span> Na-pre-fill mula sa kahapon — i-bago kung kailangan.
                 </div>
               )}
 
@@ -490,8 +496,11 @@ export default function TrackerPage() {
 
           {/* ── EASEBREW 2x CHECK ── */}
           <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>☕ EaseBrew ngayon</h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0" }}>Na-inom mo na ba ang EaseBrew mo?</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+              <div style={{ width: 34, height: 34, borderRadius: "50%", background: G, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, flexShrink: 0 }}>1</div>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0 }}>☕ EaseBrew ngayon</h2>
+            </div>
+            <p style={{ fontSize: 18, color: MID, margin: "0 0 18px 0" }}>Na-inom mo na ba ang EaseBrew mo?</p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
@@ -538,8 +547,11 @@ export default function TrackerPage() {
 
           {/* ── PAIN LEVEL ── */}
           <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>😣 Gaano kasakit ngayon?</h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0" }}>Piliin ang pinaka-tama para sa inyong pakiramdam</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+              <div style={{ width: 34, height: 34, borderRadius: "50%", background: G, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, flexShrink: 0 }}>2</div>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0 }}>😣 Gaano kasakit ngayon?</h2>
+            </div>
+            <p style={{ fontSize: 18, color: MID, margin: "0 0 18px 0" }}>Piliin ang pinaka-tama para sa inyong pakiramdam</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {PAIN_LEVELS.map(p => (
                 <button
@@ -567,32 +579,55 @@ export default function TrackerPage() {
 
           {/* ── PAIN LOCATION ── */}
           <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>📍 Saan sumasakit?</h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 16px 0" }}>I-tap ang pinakamasakit na parte</p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-              {PAIN_LOCATIONS.map(loc => (
-                <button
-                  key={loc}
-                  onClick={() => setToday(e => ({ ...e, painLocation: today.painLocation === loc ? "" : loc }))}
-                  style={{
-                    padding: "14px 20px", borderRadius: 14, border: "none",
-                    minHeight: 52, // 4.2 FIX
-                    background: today.painLocation === loc ? G : "#F0EDE6",
-                    color: today.painLocation === loc ? WHITE : DARK,
-                    fontSize: 17, fontWeight: 600, cursor: "pointer",
-                    transition: "all 0.15s",
-                  }}
-                >
-                  {today.painLocation === loc ? "✅ " : ""}{loc}
-                </button>
-              ))}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+              <div style={{ width: 34, height: 34, borderRadius: "50%", background: G, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, flexShrink: 0 }}>3</div>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0 }}>📍 Saan sumasakit?</h2>
             </div>
+            <p style={{ fontSize: 18, color: MID, margin: "0 0 16px 0" }}>Pwedeng pumili ng marami — i-tap ang lahat ng masakit</p>
+            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 10 }}>
+              {PAIN_LOCATIONS.map(loc => {
+                const selected = today.painLocations.includes(loc);
+                return (
+                  <button
+                    key={loc}
+                    onClick={() => {
+                      setToday(e => ({
+                        ...e,
+                        painLocations: selected
+                          ? e.painLocations.filter(l => l !== loc)
+                          : [...e.painLocations, loc],
+                      }));
+                      playChime("check");
+                    }}
+                    style={{
+                      padding: "16px 22px", borderRadius: 14,
+                      border: selected ? `3px solid ${G}` : "2px solid #D9D0C0",
+                      minHeight: 58,
+                      background: selected ? G : "#F0EDE6",
+                      color: selected ? WHITE : DARK,
+                      fontSize: 18, fontWeight: 700, cursor: "pointer",
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    {selected ? "✅ " : ""}{loc}
+                  </button>
+                );
+              })}
+            </div>
+            {today.painLocations.length === 0 && (
+              <p style={{ fontSize: 16, color: "#aaa", margin: "12px 0 0", textAlign: "center" as const }}>
+                Walang masakit ngayon? Magaling! 🎉
+              </p>
+            )}
           </div>
 
           {/* ── MOOD ── */}
           <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>😊 Paano ang mood mo?</h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 16px 0" }}>I-tap ang naglalarawan sa inyong mood</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+              <div style={{ width: 34, height: 34, borderRadius: "50%", background: G, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, flexShrink: 0 }}>4</div>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0 }}>😊 Paano ang mood mo?</h2>
+            </div>
+            <p style={{ fontSize: 18, color: MID, margin: "0 0 16px 0" }}>I-tap ang naglalarawan sa inyong mood ngayon</p>
             <div style={{ display: "flex", gap: 8 }}>
               {MOOD_OPTIONS.map(m => (
                 <button
@@ -619,21 +654,21 @@ export default function TrackerPage() {
 
           {/* ── NOTES ── */}
           <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 20, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>✍️ Ano ang nararamdaman mo?</h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 14px 0" }}>Optional — isulat lang kung gusto mo</p>
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 700, color: DARK, display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                <span>📝 Notes (optional)</span>
-                <VoiceButton onResult={(text) => setToday(p => ({ ...p, notes: p.notes ? p.notes + " " + text : text }))} />
-              </label>
-              <textarea
-                value={today.notes}
-                onChange={e => setToday(p => ({ ...p, notes: e.target.value }))}
-                placeholder="Kumusta ang pakiramdam mo ngayon? Anong nangyari?"
-                rows={3}
-                style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: `1.5px solid #D9D0C0`, fontSize: 15, resize: "none", outline: "none", background: WHITE, color: DARK, fontFamily: "inherit", boxSizing: "border-box" as const }}
-              />
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+              <div style={{ width: 34, height: 34, borderRadius: "50%", background: G, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, flexShrink: 0 }}>5</div>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0 }}>✍️ Ano ang nararamdaman mo?</h2>
             </div>
+            <p style={{ fontSize: 18, color: MID, margin: "0 0 14px 0" }}>Hindi kailangan — pero makakatulong kung isusulat mo</p>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+              <VoiceButton onResult={(text) => setToday(p => ({ ...p, notes: p.notes ? p.notes + " " + text : text }))} />
+            </div>
+            <textarea
+              value={today.notes}
+              onChange={e => setToday(p => ({ ...p, notes: e.target.value }))}
+              placeholder="Hal: Mas gaan na ang tuhod ko ngayon. Nakatulog nang maayos kagabi."
+              rows={5}
+              style={{ width: "100%", padding: "16px", borderRadius: 14, border: `2px solid #D9D0C0`, fontSize: 18, resize: "none", outline: "none", background: "#FAFAF8", color: DARK, fontFamily: "inherit", boxSizing: "border-box" as const, lineHeight: 1.7 }}
+            />
           </div>
 
           {/* ── SAVE BUTTON ── */}
@@ -746,11 +781,11 @@ export default function TrackerPage() {
                         🌿✅ Avocado Oil
                       </span>
                     )}
-                    {entry.painLocation && (
-                      <span style={{ fontSize: 16, background: "#F0EDE6", color: MID, borderRadius: 8, padding: "5px 12px" }}>
-                        📍 {entry.painLocation}
+                    {(entry.painLocations?.length > 0) && entry.painLocations.map(loc => (
+                      <span key={loc} style={{ fontSize: 16, background: "#F0EDE6", color: MID, borderRadius: 8, padding: "5px 12px" }}>
+                        📍 {loc}
                       </span>
-                    )}
+                    ))}
                   </div>
 
                   {/* 4.1 FIX: 15px → 16px */}
