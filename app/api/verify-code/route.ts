@@ -21,7 +21,16 @@ export async function POST(req: NextRequest) {
 
     if (!code || !isValidDeviceId(deviceId)) {
       return NextResponse.json(
-        { error: 'A valid code and device ID are required.' },
+        {
+          error: 'A valid code and device ID are required.',
+          debug: {
+            codeReceived: typeof body.code === 'string' ? body.code.slice(0, 20) : typeof body.code,
+            codeValid: !!code,
+            deviceIdReceived: typeof deviceId === 'string' ? deviceId.slice(0, 20) : typeof deviceId,
+            deviceIdLength: typeof deviceId === 'string' ? deviceId.length : 0,
+            deviceIdValid: isValidDeviceId(deviceId),
+          },
+        },
         { status: 400 }
       );
     }
