@@ -19,14 +19,20 @@
 // app/bagong-katawan/page.tsx
 // ============================================================
 
+const DEVICE_ID_RE = /^dev_[0-9a-f]{32}$/;
+
+function generateDeviceId(): string {
+  const bytes = new Uint8Array(16);
+  window.crypto.getRandomValues(bytes);
+  return "dev_" + Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
 export function getDeviceId(): string {
-    if (typeof window === "undefined") return "";
-    let id = localStorage.getItem("eb_device_id");
-    if (!id) {
-      const bytes = new Uint8Array(16);
-      window.crypto.getRandomValues(bytes);
-      id = "dev_" + Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
-      localStorage.setItem("eb_device_id", id);
-    }
-    return id;
+  if (typeof window === "undefined") return "";
+  let id = localStorage.getItem("eb_device_id");
+  if (!id || !DEVICE_ID_RE.test(id)) {
+    id = generateDeviceId();
+    localStorage.setItem("eb_device_id", id);
   }
+  return id;
+}
