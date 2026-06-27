@@ -396,8 +396,8 @@ export default function ExercisePage() {
         </div>
       </div>
 
-      <div style={{ padding: "32px 24px 0" }}>
-        <Link href="/" style={{ display: "block", background: G, color: "#fff", borderRadius: 16, padding: "22px", fontSize: 20, fontWeight: 700, textDecoration: "none", textAlign: "center", letterSpacing: 0.5 }}>
+      <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 680, background: "#fff", borderTop: `2px solid ${CREAM}`, padding: "12px 20px 16px", zIndex: 100 }}>
+        <Link href="/" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: G, color: "#fff", borderRadius: 16, padding: "18px 22px", fontSize: 18, fontWeight: 700, textDecoration: "none", minHeight: 56 }}>
           ← Bumalik sa Wellness Hub
         </Link>
       </div>

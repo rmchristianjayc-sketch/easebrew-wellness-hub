@@ -343,7 +343,6 @@ export default function TrackerPage() {
 
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      {/* 4.1 FIX: 20px → 22px (already OK, bumped slightly for consistency) */}
       <p style={{ color: G, fontSize: 22, fontWeight: 700 }}>☕ Sandali lang...</p>
     </div>
   );
@@ -425,14 +424,12 @@ export default function TrackerPage() {
 
       {/* ── HEADER ── */}
       <div style={{ background: G, padding: "24px 24px 0", color: WHITE }}>
-        {/* 4.1 FIX: 15px → 16px | 4.2 FIX: minHeight 44px */}
         <Link href="/" style={{ color: GOLD, fontSize: 16, textDecoration: "none", display: "flex", alignItems: "center", minHeight: 44, marginBottom: 14, fontWeight: 600 }}>
           ← Bumalik sa Hub
         </Link>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
             <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>📊 Pain Tracker</h1>
-            {/* 4.1 FIX: 15px → 16px */}
             <p style={{ fontSize: 16, opacity: 0.8, margin: "4px 0 0 0" }}>I-track ang iyong progress araw-araw</p>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -458,7 +455,6 @@ export default function TrackerPage() {
           ].map((s, i) => (
             <div key={i} style={{ flex: 1, background: "rgba(255,255,255,0.12)", borderRadius: 12, padding: "10px 14px", textAlign: "center" as const }}>
               <p style={{ fontSize: 22, fontWeight: 700, color: GOLD, margin: 0 }}>{s.value}</p>
-              {/* 4.1 FIX: 12px → 16px */}
               <p style={{ fontSize: 16, opacity: 0.8, margin: 0 }}>{s.label}</p>
             </div>
           ))}
@@ -472,7 +468,7 @@ export default function TrackerPage() {
               fontSize: 18, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif",
               color: view === t ? GOLD : "rgba(255,255,255,0.6)",
               borderBottom: view === t ? `4px solid ${GOLD}` : "4px solid transparent",
-              minHeight: 56, // 4.2 FIX
+              minHeight: 56,
             }}>
               {t === "ngayon" ? "📝 Ngayon" : "📅 History"}
             </button>
@@ -515,14 +511,13 @@ export default function TrackerPage() {
                     width: "100%", padding: "20px 24px", borderRadius: 16, border: "none",
                     background: today[key] ? activeColor : "#F0F0E8",
                     display: "flex", alignItems: "center", justifyContent: "space-between",
-                    cursor: "pointer", transition: "all 0.2s", minHeight: 72, // 4.2 FIX
+                    cursor: "pointer", transition: "all 0.2s", minHeight: 72,
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                     <span style={{ fontSize: 34 }}>{icon}</span>
                     <div style={{ textAlign: "left" as const }}>
                       <p style={{ fontSize: 19, fontWeight: 700, color: today[key] ? WHITE : DARK, margin: 0 }}>{label}</p>
-                      {/* 4.1 FIX: 14px → 16px */}
                       <p style={{ fontSize: 16, color: today[key] ? "rgba(255,255,255,0.8)" : MID, margin: 0 }}>{sub}</p>
                     </div>
                   </div>
@@ -562,7 +557,7 @@ export default function TrackerPage() {
                     border: today.painScore === p.score ? `3px solid ${p.color}` : "2.5px solid #E0D8CC",
                     background: today.painScore === p.score ? p.color : WHITE,
                     display: "flex", alignItems: "center", gap: 16,
-                    cursor: "pointer", transition: "all 0.15s", minHeight: 64, // 4.2 FIX
+                    cursor: "pointer", transition: "all 0.15s", minHeight: 64,
                   }}
                 >
                   <span style={{ fontSize: 36, flexShrink: 0 }}>{p.emoji}</span>
@@ -639,11 +634,10 @@ export default function TrackerPage() {
                     background: today.mood === m.val ? "#E8F5E0" : WHITE,
                     display: "flex", flexDirection: "column", alignItems: "center",
                     gap: 6, cursor: "pointer", transition: "all 0.15s",
-                    minHeight: 80, // 4.2 FIX: tall enough para madaling i-tap
+                    minHeight: 80,
                   }}
                 >
                   <span style={{ fontSize: 28 }}>{m.emoji}</span>
-                  {/* 4.1 FIX: 11px → 16px */}
                   <span style={{ fontSize: 16, color: today.mood === m.val ? G : MID, fontWeight: 600, textAlign: "center" as const, lineHeight: 1.2 }}>
                     {m.label}
                   </span>
@@ -680,13 +674,12 @@ export default function TrackerPage() {
               color: WHITE, border: "none", borderRadius: 18,
               fontSize: 22, fontWeight: 700, cursor: "pointer",
               transition: "background 0.3s", fontFamily: "Georgia, serif",
-              boxShadow: "0 4px 16px rgba(57,97,59,0.3)", minHeight: 68, // 4.2 FIX
+              boxShadow: "0 4px 16px rgba(57,97,59,0.3)", minHeight: 68,
             }}
           >
             {saved ? "✅ Nai-save na! Magaling!" : "💾 I-save ang Record Ko"}
           </button>
 
-          {/* 4.1 FIX: 15px → 16px */}
           <p style={{ textAlign: "center", fontSize: 16, color: MID, marginTop: 14, lineHeight: 1.6 }}>
             Gawin ito araw-araw para makita ang inyong progress! 💪
           </p>
@@ -722,7 +715,6 @@ export default function TrackerPage() {
                 ].map((s, i) => (
                   <div key={i} style={{ flex: 1, textAlign: "center" as const }}>
                     <p style={{ fontSize: 28, fontWeight: 700, color: GOLD, margin: 0 }}>{s.value}</p>
-                    {/* 4.1 FIX: 13px → 16px */}
                     <p style={{ fontSize: 16, color: "rgba(255,255,255,0.8)", margin: 0 }}>{s.label}</p>
                   </div>
                 ))}
@@ -758,7 +750,6 @@ export default function TrackerPage() {
                     </p>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ fontSize: 24 }}>{getPainEmoji(entry.painScore)}</span>
-                      {/* 4.1 FIX: 15px → 16px */}
                       <span style={{
                         background: getPainColor(entry.painScore), color: WHITE,
                         borderRadius: 10, padding: "4px 12px", fontSize: 16, fontWeight: 700,
@@ -768,7 +759,6 @@ export default function TrackerPage() {
                     </div>
                   </div>
 
-                  {/* 4.1 FIX: 15px → 16px (all chips) */}
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: entry.notes ? 10 : 0 }}>
                     <span style={{ fontSize: 16, background: entry.easebrewUmaga ? "#E8F5E0" : "#F5F0E8", color: entry.easebrewUmaga ? G : "#aaa", borderRadius: 8, padding: "5px 12px", fontWeight: 600 }}>
                       {entry.easebrewUmaga ? "☕✅" : "☕❌"} Umaga
@@ -788,7 +778,6 @@ export default function TrackerPage() {
                     ))}
                   </div>
 
-                  {/* 4.1 FIX: 15px → 16px */}
                   {entry.notes ? (
                     <p style={{ fontSize: 16, color: MID, margin: 0, fontStyle: "italic", lineHeight: 1.6 }}>
                       &quot;{entry.notes}&quot;
@@ -809,7 +798,6 @@ export default function TrackerPage() {
         display: "flex", justifyContent: "center",
         boxShadow: "0 -4px 16px rgba(0,0,0,0.08)",
       }}>
-        {/* 4.2 FIX: minHeight 52px + display flex para centered */}
         <Link href="/" style={{
           background: G, color: WHITE, borderRadius: 14,
           padding: "16px 40px", minHeight: 52,

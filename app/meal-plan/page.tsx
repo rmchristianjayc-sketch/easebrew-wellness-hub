@@ -186,19 +186,16 @@ export default function MealPlanPage() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
             <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>🥗 50-Day Meal Plan</h1>
-            {/* 4.1 FIX: 15px → 16px */}
             <p style={{ fontSize: 16, opacity: 0.85, margin: "4px 0 0 0" }}>Anti-Inflammation Pinoy Meals</p>
           </div>
           <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 14, padding: "12px 18px" }}>
             <p style={{ fontSize: 32, fontWeight: 700, margin: 0, color: GOLD }}>{completedDays.length}</p>
-            {/* 4.1 FIX: 13px → 16px */}
             <p style={{ fontSize: 16, margin: 0, opacity: 0.8 }}>sa 50 araw</p>
           </div>
         </div>
 
         {/* Progress */}
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-          {/* 4.1 FIX: 15px → 16px (both labels) */}
           <p style={{ fontSize: 16, margin: 0, opacity: 0.85 }}>Progress mo</p>
           <p style={{ fontSize: 16, margin: 0, color: GOLD, fontWeight: 700 }}>{progress}%</p>
         </div>
@@ -209,7 +206,6 @@ export default function MealPlanPage() {
         {/* 2x per day reminder */}
         <div style={{ marginTop: 16, background: "rgba(254,210,85,0.15)", borderRadius: 14, padding: "12px 16px", border: "1.5px solid rgba(254,210,85,0.4)" }}>
           <p style={{ fontSize: 16, color: GOLD, fontWeight: 700, margin: "0 0 4px 0" }}>☕ Huwag kalimutan!</p>
-          {/* 4.1 FIX: 15px → 16px */}
           <p style={{ fontSize: 16, color: "rgba(255,255,255,0.9)", margin: 0 }}>
             Uminom ng EaseBrew <strong style={{ color: GOLD }}>2x bawat araw</strong> — Umaga at Gabi
           </p>
@@ -224,7 +220,7 @@ export default function MealPlanPage() {
           {WEEKS.map(w => (
             <button key={w} onClick={() => { setSelectedWeek(w); setExpandedDay(null); }} style={{
               padding: "14px 18px",
-              minHeight: 52, // 4.2 FIX: explicit minimum touch height
+              minHeight: 52,
               borderRadius: 14,
               border: selectedWeek === w ? `2.5px solid ${G}` : "2px solid #C5B99A",
               background: selectedWeek === w ? G : WHITE,
@@ -272,7 +268,6 @@ export default function MealPlanPage() {
                     <p style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: 0 }}>
                       Day {d.day} — {d.weekday}
                     </p>
-                    {/* 4.1 FIX: 14px → 16px */}
                     <p style={{ fontSize: 16, color: MID, margin: "3px 0 0 0" }}>{d.calories}</p>
                   </div>
                 </div>
@@ -281,7 +276,6 @@ export default function MealPlanPage() {
 
               {/* Focus badge */}
               <div style={{ marginTop: 10 }}>
-                {/* 4.1 FIX: 14px → 16px */}
                 <span style={{ background: bgColor, color: G, borderRadius: 20, padding: "6px 16px", fontSize: 16, fontWeight: 700 }}>
                   🎯 {d.focus}
                 </span>
@@ -297,8 +291,7 @@ export default function MealPlanPage() {
                     { label: "🍲 Hapunan",   value: d.hapunan   },
                   ].map((meal, i) => (
                     <div key={i} style={{ marginBottom: 14 }}>
-                      {/* 4.1 FIX: 13px → 16px */}
-                      <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 5px 0", textTransform: "uppercase" as const, letterSpacing: 1 }}>
+                        <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 5px 0", textTransform: "uppercase" as const, letterSpacing: 1 }}>
                         {meal.label}
                       </p>
                       <p style={{ fontSize: 17, color: DARK, margin: 0, lineHeight: 1.6 }}>{meal.value}</p>
@@ -306,12 +299,10 @@ export default function MealPlanPage() {
                   ))}
 
                   <div style={{ background: CREAM, borderRadius: 12, padding: "12px 16px", marginBottom: 16 }}>
-                    {/* 4.1 FIX: 14px → 16px (both lines) */}
                     <p style={{ fontSize: 16, color: AMBER, fontWeight: 700, margin: "0 0 4px 0" }}>💊 Key Nutrients</p>
                     <p style={{ fontSize: 16, color: DARK, margin: 0 }}>{d.nutrients}</p>
                   </div>
 
-                  {/* 4.2 FIX: minHeight 56px para siguradong malaki ang tap area */}
                   <button
                     onClick={e => toggleComplete(d.day, e)}
                     style={{
@@ -357,7 +348,6 @@ export default function MealPlanPage() {
         display: "flex", justifyContent: "center",
         boxShadow: "0 -4px 16px rgba(0,0,0,0.08)",
       }}>
-        {/* 4.2 FIX: minHeight 52px para siguradong malaki ang tap area */}
         <Link href="/" style={{
           background: G, color: WHITE, borderRadius: 14,
           padding: "16px 40px",

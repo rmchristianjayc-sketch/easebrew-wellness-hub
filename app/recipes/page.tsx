@@ -920,7 +920,6 @@ useEffect(() => {
         ].map((tip, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             <span style={{ fontSize: 20 }}>{tip.icon}</span>
-            {/* 4.1 FIX: 14px → 16px */}
             <span style={{ fontSize: 16, color: G, fontWeight: 700, whiteSpace: "nowrap" }}>{tip.text}</span>
           </div>
         ))}
@@ -934,7 +933,6 @@ useEffect(() => {
             const info = CATEGORY_COLORS[raw];
             const isActive = selectedCategory === cat;
             return (
-              // 4.1 FIX: 15px → 16px | 4.2 FIX: minHeight 48px
               <button key={cat} onClick={() => setSelectedCategory(cat)} style={{
                 padding: "12px 16px", borderRadius: 22, flexShrink: 0,
                 minHeight: 48,
@@ -949,7 +947,6 @@ useEffect(() => {
             );
           })}
         </div>
-        {/* 4.1 FIX: 15px → 16px */}
         <p style={{ fontSize: 16, color: MID, margin: "12px 0 0 0", fontWeight: 600 }}>
           {filtered.length} recipe{filtered.length !== 1 ? "s" : ""} ang nahanap
         </p>
@@ -1010,13 +1007,11 @@ useEffect(() => {
                       <p style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "0 0 4px 0", lineHeight: 1.3 }}>
                         #{recipe.id} {recipe.name}
                       </p>
-                      {/* 4.1 FIX: 15px → 16px */}
                       <p style={{ fontSize: 16, color: MID, margin: 0 }}>
                         {"⭐".repeat(recipe.stars)} · {recipe.calories}
                       </p>
                     </div>
                   </div>
-                  {/* 4.2 FIX: explicit 48×48 tap area for favorite button */}
                   <button onClick={e => toggleFavorite(recipe.id, e)} style={{
                     background: "none", border: "none", fontSize: 30,
                     cursor: "pointer", flexShrink: 0,
@@ -1029,7 +1024,6 @@ useEffect(() => {
 
                 {/* Badges */}
                 <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                  {/* 4.1 FIX: 13px → 16px (all 3 badges) */}
                   <span style={{ background: catInfo.bg, color: catInfo.color, borderRadius: 20, padding: "6px 14px", fontSize: 16, fontWeight: 700, border: `1px solid ${catInfo.color}` }}>
                     {catInfo.icon} {recipe.category}
                   </span>
@@ -1041,8 +1035,6 @@ useEffect(() => {
                   </span>
                 </div>
 
-                {/* Tap hint */}
-                {/* 4.1 FIX: 14px → 16px */}
                 <div style={{ textAlign: "center", marginTop: 10 }}>
                   <span style={{ fontSize: 16, color: MID, fontWeight: 600 }}>
                     {isExpanded ? "▲ I-collapse" : "▼ Tingnan ang recipe"}
@@ -1059,7 +1051,6 @@ useEffect(() => {
 
                     {/* Easebrew Tip */}
                     <div style={{ background: "#FFFBF0", border: `2px solid ${GOLD}`, borderRadius: 14, padding: "14px 18px", marginBottom: 16 }}>
-                      {/* 4.1 FIX: 15px → 16px */}
                       <p style={{ fontSize: 16, fontWeight: 700, color: AMBER, margin: "0 0 6px 0" }}>☕ Easebrew Tip</p>
                       <p style={{ fontSize: 16, color: DARK, margin: 0, lineHeight: 1.6 }}>{recipe.easebrewTip}</p>
                     </div>
@@ -1073,7 +1064,6 @@ useEffect(() => {
                         { label: "Hirap",    value: recipe.difficulty },
                       ].map((info, i) => (
                         <div key={i} style={{ background: CREAM, borderRadius: 12, padding: "12px 8px", textAlign: "center" }}>
-                          {/* 4.1 FIX: 12px → 16px (label) & 14px → 16px (value) */}
                           <p style={{ fontSize: 16, color: MID, margin: "0 0 4px 0" }}>{info.label}</p>
                           <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: 0 }}>{info.value}</p>
                         </div>
@@ -1090,12 +1080,10 @@ useEffect(() => {
                           marginBottom: 10,
                         }}>
                           <div style={{ display: "flex", gap: 10, alignItems: "flex-start", flex: 1 }}>
-                            {/* 4.1 FIX: 15px → 16px (qty) */}
-                            <span style={{ fontSize: 16, fontWeight: 700, color: AMBER, minWidth: 70, flexShrink: 0 }}>{ing.qty}</span>
+                              <span style={{ fontSize: 16, fontWeight: 700, color: AMBER, minWidth: 70, flexShrink: 0 }}>{ing.qty}</span>
                             <span style={{ fontSize: 16, color: DARK, lineHeight: 1.4 }}>{ing.ingredient}</span>
                           </div>
                           {ing.notes && (
-                            // 4.1 FIX: 13px → 16px (notes)
                             <span style={{ fontSize: 16, color: MID, textAlign: "right", marginLeft: 8, maxWidth: "42%", flexShrink: 0, lineHeight: 1.4 }}>
                               — {ing.notes}
                             </span>
@@ -1134,7 +1122,6 @@ useEffect(() => {
                               borderRadius: 10, padding: "8px 14px",
                               display: "flex", flexDirection: "column", alignItems: "center",
                             }}>
-                              {/* 4.1 FIX: 12px → 16px (key) & 15px → 16px (value) */}
                               <span style={{ fontSize: 16, color: MID }}>{key}</span>
                               <span style={{ fontSize: 16, fontWeight: 700, color: hl || DARK }}>{val}</span>
                             </div>
@@ -1167,7 +1154,6 @@ useEffect(() => {
         borderTop: `2px solid ${CREAM}`, padding: "14px 24px",
         display: "flex", justifyContent: "center",
       }}>
-        {/* 4.2 FIX: minHeight 52px + display flex */}
         <Link href="/" style={{
           background: G, color: "#fff", borderRadius: 14,
           padding: "16px 48px", fontSize: 18, fontWeight: 700,
