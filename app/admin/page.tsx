@@ -25,10 +25,14 @@ function StatCard({
   accent: string;
 }) {
   return (
-    <div className="a-stat" style={{
+    <div style={{
+      background: "#ffffff",
+      borderRadius: 10,
+      padding: "20px 22px",
+      border: "1px solid #dde4df",
+      boxShadow: "0 1px 3px rgba(20,35,25,0.05), 0 4px 16px rgba(20,35,25,0.06)",
       borderTop: `3px solid ${accent}`,
       position: "relative",
-      overflow: "hidden",
       transition: "transform 0.15s ease, box-shadow 0.15s ease",
     }}
       onMouseEnter={e => {
@@ -37,30 +41,27 @@ function StatCard({
       }}
       onMouseLeave={e => {
         (e.currentTarget as HTMLDivElement).style.transform = "";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "";
+        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 3px rgba(20,35,25,0.05), 0 4px 16px rgba(20,35,25,0.06)";
       }}
     >
-      {/* subtle bg glow */}
-      <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: `${accent}0d`, pointerEvents: "none" }} />
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
         <div style={{
           width: 42, height: 42, borderRadius: 10,
-          background: `linear-gradient(135deg, ${accent}22 0%, ${accent}0a 100%)`,
-          border: `1px solid ${accent}28`,
+          background: `${accent}18`,
+          border: `1px solid ${accent}30`,
           display: "grid", placeItems: "center",
-          boxShadow: `0 2px 8px ${accent}18`,
         }}>
           <Icon size={20} color={accent} strokeWidth={2} />
         </div>
       </div>
-      <div style={{ fontSize: 30, fontWeight: 800, color: "var(--ink)", lineHeight: 1, marginBottom: 5, fontFamily: "var(--admin-font)", letterSpacing: "-0.5px" }}>
+      <div style={{ fontSize: 30, fontWeight: 800, color: "#1B201A", lineHeight: 1, marginBottom: 5, fontFamily: "Inter, system-ui, sans-serif", letterSpacing: "-0.5px" }}>
         {value}
       </div>
-      <div style={{ fontSize: 11, color: "var(--ink-mid)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.7px", fontFamily: "var(--admin-font)" }}>
+      <div style={{ fontSize: 11, color: "#4E504F", fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.7px", fontFamily: "Inter, system-ui, sans-serif" }}>
         {label}
       </div>
       {sub && (
-        <div style={{ fontSize: 11, color: "#b0bdb6", marginTop: 5, fontFamily: "var(--admin-font)", display: "flex", alignItems: "center", gap: 4 }}>
+        <div style={{ fontSize: 11, color: "#b0bdb6", marginTop: 5, fontFamily: "Inter, system-ui, sans-serif" }}>
           {sub}
         </div>
       )}
@@ -71,7 +72,7 @@ function StatCard({
 // ─── Section Card ─────────────────────────────────────────────────────────────
 function SectionCard({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="a-card" style={{ padding: "20px 22px" }}>
+    <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #dde4df", boxShadow: "0 1px 3px rgba(20,35,25,0.05)", padding: "20px 22px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid var(--admin-border, #eaeeec)" }}>
         <h2 style={{ fontSize: 12.5, fontWeight: 700, color: "var(--ink)", margin: 0, fontFamily: "var(--admin-font)", textTransform: "uppercase", letterSpacing: "0.5px" }}>{title}</h2>
         {action}
@@ -140,30 +141,24 @@ export default function AdminDashboard() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          boxShadow: "0 8px 32px rgba(15,37,24,0.28), inset 0 1px 0 rgba(255,255,255,0.06)",
-          position: "relative",
-          overflow: "hidden",
+          boxShadow: "0 8px 32px rgba(15,37,24,0.28)",
         }}>
-          {/* decorative circles */}
-          <div style={{ position: "absolute", top: -40, right: 80, width: 140, height: 140, borderRadius: "50%", background: "rgba(254,210,85,0.05)", pointerEvents: "none" }} />
-          <div style={{ position: "absolute", bottom: -30, right: -10, width: 100, height: 100, borderRadius: "50%", background: "rgba(125,174,47,0.08)", pointerEvents: "none" }} />
-          <div style={{ position: "relative", zIndex: 1 }}>
-            <div style={{ fontSize: 10, color: "#FED255", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 6, fontFamily: "var(--admin-font)", opacity: 0.85 }}>
+          <div>
+            <div style={{ fontSize: 10, color: "#FED255", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase" as const, marginBottom: 6, fontFamily: "Inter, system-ui, sans-serif", opacity: 0.85 }}>
               ☕ R&amp;M Digital Trading
             </div>
-            <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 800, margin: "0 0 4px", fontFamily: "var(--admin-font)", letterSpacing: "-0.3px" }}>
+            <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 800, margin: "0 0 4px", fontFamily: "Inter, system-ui, sans-serif", letterSpacing: "-0.3px" }}>
               Good day, {username || "Admin"} 👋
             </h1>
-            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 12.5, margin: 0, fontFamily: "var(--admin-font)" }}>
+            <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 12.5, margin: 0, fontFamily: "Inter, system-ui, sans-serif" }}>
               {now.toLocaleDateString("en-PH", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
             </p>
           </div>
           <div style={{
-            width: 52, height: 52, borderRadius: 14, flexShrink: 0, position: "relative", zIndex: 1,
-            background: "linear-gradient(135deg, rgba(254,210,85,0.18) 0%, rgba(254,210,85,0.08) 100%)",
+            width: 52, height: 52, borderRadius: 14, flexShrink: 0,
+            background: "rgba(254,210,85,0.15)",
             border: "1px solid rgba(254,210,85,0.25)",
             display: "grid", placeItems: "center",
-            boxShadow: "0 2px 12px rgba(254,210,85,0.12)",
           }}>
             <Package size={24} color="#FED255" strokeWidth={1.8} />
           </div>
@@ -184,7 +179,7 @@ export default function AdminDashboard() {
         ) : (
           <>
             {/* ── Stat cards ── */}
-            <div className="a-stats-grid">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 28 }}>
               <StatCard icon={Users}           label="Active Customers" value={active.length}                          accent="#39613B" />
               <StatCard icon={BadgeDollarSign} label="Total Revenue"    value={`₱${totalRevenue.toLocaleString()}`}  accent="#f59e0b" />
               <StatCard icon={TrendingUp}      label="New This Month"   value={newThisMonth}                          accent="#3b82f6" />
