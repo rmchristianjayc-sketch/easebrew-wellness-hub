@@ -157,27 +157,27 @@ export default function NotificationsPage() {
   if (checking) return null;
 
   return (
-    <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
+    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f7f5", fontFamily: "Inter, system-ui, sans-serif" }}>
       <Sidebar active="/admin/notifications" role={role} username={username} />
 
-      <main className="admin-main" style={{ flex: 1, minWidth: 0, display: "flex", gap: 24 }}>
+      <main style={{ flex: 1, minWidth: 0, marginLeft: 248, padding: "36px 40px", display: "flex", gap: 24 }}>
 
         {/* ── Left: Quick Messages ── */}
         <div style={{ width: 300, flexShrink: 0 }}>
-          <h1 className="a-page-title">Messages</h1>
-          <p className="a-page-subtitle" style={{ marginBottom: 20 }}>Create and send messages to customers</p>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#1B201A", margin: 0, fontFamily: "Inter, system-ui, sans-serif" }}>Messages</h1>
+          <p style={{ fontSize: 13, color: "#4E504F", margin: "4px 0 20px", fontFamily: "Inter, system-ui, sans-serif" }}>Create and send messages to customers</p>
 
-          <h2 className="a-section-title" style={{ marginBottom: 12 }}>Quick Messages</h2>
+          <h2 style={{ fontSize: 14, fontWeight: 700, color: "#1B201A", margin: "0 0 12px", textTransform: "uppercase" as const, letterSpacing: "0.5px", fontFamily: "Inter, system-ui, sans-serif" }}>Quick Messages</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {QUICK_MESSAGES.map((msg, i) => {
               const isSel = selected === i;
               return (
                 <button key={i} onClick={() => applyQuick(msg, i)} style={{
-                  background: isSel ? "var(--green)" : "white", border: `1.5px solid ${isSel ? "var(--green)" : "#e0e0e0"}`,
+                  background: isSel ? "#39613B" : "white", border: `1.5px solid ${isSel ? "#39613B" : "#e0e0e0"}`,
                   borderRadius: 10, padding: "11px 13px", textAlign: "left", cursor: "pointer",
                   display: "flex", alignItems: "center", gap: 11,
                   boxShadow: isSel ? "0 2px 8px rgba(57,97,59,0.18)" : "0 1px 3px rgba(0,0,0,0.05)",
-                  transition: "all 0.15s", fontFamily: "var(--admin-font)",
+                  transition: "all 0.15s", fontFamily: "Inter, system-ui, sans-serif",
                 }}>
                   <span style={{ fontSize: 20, flexShrink: 0 }}>{msg.icon}</span>
                   <div>
@@ -199,8 +199,8 @@ export default function NotificationsPage() {
 
           {/* ── Messenger / Viber Templates ── */}
           <div style={{ marginTop: 24 }}>
-            <h2 className="a-section-title" style={{ marginBottom: 6 }}>Messenger Templates</h2>
-            <p style={{ color: "var(--ink-mid)", fontSize: 11, margin: "0 0 10px", lineHeight: 1.5, fontFamily: "var(--admin-font)" }}>Copy at i-paste sa Messenger, Viber, o SMS</p>
+            <h2 style={{ fontSize: 14, fontWeight: 700, color: "#1B201A", margin: "0 0 6px", textTransform: "uppercase" as const, letterSpacing: "0.5px", fontFamily: "Inter, system-ui, sans-serif" }}>Messenger Templates</h2>
+            <p style={{ color: "#4E504F", fontSize: 11, margin: "0 0 10px", lineHeight: 1.5, fontFamily: "Inter, system-ui, sans-serif" }}>Copy at i-paste sa Messenger, Viber, o SMS</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {MESSENGER_TEMPLATES.map((t, i) => {
                 const isCopied = messengerCopiedIdx === i;
@@ -236,45 +236,47 @@ export default function NotificationsPage() {
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 20 }}>
 
           {/* Compose */}
-          <div className="a-card" style={{ padding: "24px 28px" }}>
-            <h2 className="a-section-title" style={{ marginBottom: 18 }}>Compose Message</h2>
+          <div style={{ background: "#ffffff", borderRadius: 10, border: "1px solid #dde4df", boxShadow: "0 1px 3px rgba(20,35,25,0.05)", padding: "24px 28px" }}>
+            <h2 style={{ fontSize: 14, fontWeight: 700, color: "#1B201A", margin: "0 0 18px", textTransform: "uppercase" as const, letterSpacing: "0.5px", fontFamily: "Inter, system-ui, sans-serif" }}>Compose Message</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
-                <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "var(--ink)", marginBottom: 5, fontFamily: "var(--admin-font)" }}>Title</label>
-                <input className="a-input" type="text" value={title}
+                <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "#1B201A", marginBottom: 5, fontFamily: "Inter, system-ui, sans-serif" }}>Title</label>
+                <input type="text" value={title}
                   onChange={e => { setTitle(e.target.value); setCopied(false); setPublishMsg(""); }}
                   placeholder="e.g. Special announcement!"
+                  style={{ width: "100%", minHeight: 38, padding: "8px 12px", borderRadius: 7, border: "1px solid #ccd6cf", background: "#fff", fontFamily: "Inter, system-ui, sans-serif", fontSize: 13, color: "#1B201A", outline: "none", boxSizing: "border-box" as const }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "var(--ink)", marginBottom: 5, fontFamily: "var(--admin-font)" }}>Message</label>
-                <textarea className="a-input" value={body}
+                <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "#1B201A", marginBottom: 5, fontFamily: "Inter, system-ui, sans-serif" }}>Message</label>
+                <textarea value={body}
                   onChange={e => { setBody(e.target.value); setCopied(false); setPublishMsg(""); }}
                   placeholder="Type your message here..."
                   rows={4}
-                  style={{ resize: "vertical" }}
+                  style={{ width: "100%", minHeight: 38, padding: "8px 12px", borderRadius: 7, border: "1px solid #ccd6cf", background: "#fff", fontFamily: "Inter, system-ui, sans-serif", fontSize: 13, color: "#1B201A", outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const }}
                 />
               </div>
             </div>
 
             <div style={{ display: "flex", gap: 8, marginTop: 18, flexWrap: "wrap" }}>
               <button onClick={handlePublish} disabled={!title || !body || publishing}
-                className="a-btn a-btn-primary" style={{ opacity: (!title || !body || publishing) ? 0.5 : 1 }}>
+                style={{ display: "inline-flex", alignItems: "center", gap: 7, minHeight: 36, padding: "0 14px", borderRadius: 7, border: "none", background: "#39613B", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Inter, system-ui, sans-serif", opacity: (!title || !body || publishing) ? 0.5 : 1 }}>
                 {publishing ? "Publishing..." : "Publish to App"}
               </button>
               <button onClick={handleCopyMessage} disabled={!title || !body}
-                className={`a-btn ${copied ? "a-btn-primary" : "a-btn-ghost"}`} style={{ opacity: (!title || !body) ? 0.5 : 1 }}>
+                style={{ display: "inline-flex", alignItems: "center", gap: 7, minHeight: 36, padding: "0 14px", borderRadius: 7, border: "1px solid #dde4df", background: copied ? "#39613B" : "transparent", color: copied ? "#fff" : "#4E504F", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Inter, system-ui, sans-serif", opacity: (!title || !body) ? 0.5 : 1 }}>
                 {copied ? "Copied!" : "Copy (Messenger/Viber)"}
               </button>
               {current?.active && (
-                <button onClick={handleClear} disabled={clearing} className="a-btn a-btn-danger">
+                <button onClick={handleClear} disabled={clearing}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 7, minHeight: 36, padding: "0 14px", borderRadius: 7, border: "none", background: "#ef4444", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Inter, system-ui, sans-serif" }}>
                   {clearing ? "Clearing..." : "Clear Notification"}
                 </button>
               )}
             </div>
 
             {publishMsg && (
-              <p style={{ marginTop: 12, fontSize: 13, fontWeight: 600, color: publishMsg.startsWith("✅") || publishMsg.startsWith("🗑️") ? "var(--green)" : "#ef4444", fontFamily: "var(--admin-font)" }}>
+              <p style={{ marginTop: 12, fontSize: 13, fontWeight: 600, color: publishMsg.startsWith("✅") || publishMsg.startsWith("🗑️") ? "#39613B" : "#ef4444", fontFamily: "Inter, system-ui, sans-serif" }}>
                 {publishMsg}
               </p>
             )}

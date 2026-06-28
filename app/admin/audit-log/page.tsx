@@ -68,48 +68,47 @@ export default function AuditLogPage() {
   if (authLoading) return null;
 
   return (
-    <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
+    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f7f5", fontFamily: "Inter, system-ui, sans-serif" }}>
       <Sidebar active="/admin/audit-log" username={username} role={role} onLogout={handleLogout} />
 
-      <main className="admin-main" style={{ flex: 1, minWidth: 0 }}>
+      <main style={{ flex: 1, minWidth: 0, marginLeft: 248, padding: "36px 40px" }}>
         <div style={{ marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <div>
-            <h1 className="a-page-title">Audit Log</h1>
-            <p className="a-page-subtitle">All admin and coach activity</p>
+            <h1 style={{ fontSize: 20, fontWeight: 700, color: "#1B201A", margin: 0, fontFamily: "Inter, system-ui, sans-serif" }}>Audit Log</h1>
+            <p style={{ fontSize: 13, color: "#4E504F", margin: "4px 0 0", fontFamily: "Inter, system-ui, sans-serif" }}>All admin and coach activity</p>
           </div>
-          <button onClick={load} className="a-btn a-btn-ghost" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={load} style={{ display: "inline-flex", alignItems: "center", gap: 6, minHeight: 36, padding: "0 14px", borderRadius: 7, border: "1px solid #dde4df", background: "transparent", color: "#4E504F", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Inter, system-ui, sans-serif" }}>
             <RefreshCw size={13} /> Refresh
           </button>
         </div>
 
         {fetchError && (
-          <div style={{ background: "#fff1f2", border: "1px solid #fecdd3", borderRadius: 8, padding: "12px 16px", marginBottom: 20, color: "#9f1239", fontSize: 13, fontFamily: "var(--admin-font)" }}>
+          <div style={{ background: "#fff1f2", border: "1px solid #fecdd3", borderRadius: 8, padding: "12px 16px", marginBottom: 20, color: "#9f1239", fontSize: 13, fontFamily: "Inter, system-ui, sans-serif" }}>
             Hindi ma-load ang audit log. I-refresh ang page.
           </div>
         )}
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: "60px 0", color: "var(--ink-mid)", fontFamily: "var(--admin-font)", fontSize: 13 }}>
+          <div style={{ textAlign: "center", padding: "60px 0", color: "#4E504F", fontFamily: "Inter, system-ui, sans-serif", fontSize: 13 }}>
             Loading...
           </div>
         ) : entries.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "60px 0", color: "var(--ink-mid)", fontFamily: "var(--admin-font)", fontSize: 13 }}>
+          <div style={{ textAlign: "center", padding: "60px 0", color: "#4E504F", fontFamily: "Inter, system-ui, sans-serif", fontSize: 13 }}>
             Wala pang naka-record na aktibidad.
           </div>
         ) : (
-          <div className="a-table-wrap">
-            <table className="a-table">
+          <div style={{ background: "#ffffff", border: "1px solid #dde4df", borderRadius: 10, boxShadow: "0 1px 3px rgba(20,35,25,0.05)", overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, fontFamily: "Inter, system-ui, sans-serif" }}>
               <thead>
-                <tr>
-                  <th style={{ whiteSpace: "nowrap" }}>Oras</th>
-                  <th>Admin</th>
-                  <th>Aksyon</th>
-                  <th>Code / Details</th>
+                <tr style={{ background: "#f9fafb" }}>
+                  {["Oras", "Admin", "Aksyon", "Code / Details"].map(h => (
+                    <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#4E504F", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #e8eeea", whiteSpace: "nowrap" }}>{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {entries.map((e) => {
-                  const badge = ACTION_LABELS[e.action] ?? { label: e.action, color: "var(--ink-mid)" };
+                  const badge = ACTION_LABELS[e.action] ?? { label: e.action, color: "#4E504F" };
                   const meta  = e.metadata;
                   let detail  = e.target_code ?? "";
                   if (meta?.customer_name) detail += ` — ${meta.customer_name}`;
@@ -119,19 +118,19 @@ export default function AuditLogPage() {
                   if (meta?.key)  detail = String(meta.key);
                   return (
                     <tr key={e.id}>
-                      <td style={{ whiteSpace: "nowrap", fontSize: 12 }}>{formatDate(e.created_at)}</td>
-                      <td style={{ fontWeight: 600 }}>{e.admin_username}</td>
-                      <td>
+                      <td style={{ padding: "10px 16px", whiteSpace: "nowrap", fontSize: 12, borderBottom: "1px solid #f0f2f0" }}>{formatDate(e.created_at)}</td>
+                      <td style={{ padding: "10px 16px", fontWeight: 600, fontSize: 13, borderBottom: "1px solid #f0f2f0" }}>{e.admin_username}</td>
+                      <td style={{ padding: "10px 16px", borderBottom: "1px solid #f0f2f0" }}>
                         <span style={{
                           display: "inline-block", padding: "2px 9px", borderRadius: 99,
                           fontSize: 11, fontWeight: 700,
                           background: badge.color + "18", color: badge.color, whiteSpace: "nowrap",
-                          fontFamily: "var(--admin-font)",
+                          fontFamily: "Inter, system-ui, sans-serif",
                         }}>
                           {badge.label}
                         </span>
                       </td>
-                      <td style={{ fontFamily: "monospace", fontSize: 12 }}>{detail || "—"}</td>
+                      <td style={{ padding: "10px 16px", fontFamily: "monospace", fontSize: 12, borderBottom: "1px solid #f0f2f0" }}>{detail || "—"}</td>
                     </tr>
                   );
                 })}

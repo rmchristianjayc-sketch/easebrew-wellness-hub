@@ -10,12 +10,20 @@ import {
 // ─── Stat card ────────────────────────────────────────────────────────────────
 function StatCard({ icon: Icon, label, value, accent }: { icon: React.ElementType; label: string; value: string | number; accent: string }) {
   return (
-    <div className="a-stat" style={{ borderTop: `3px solid ${accent}` }}>
+    <div style={{
+      background: "#ffffff",
+      borderRadius: 10,
+      padding: "20px 22px",
+      border: "1px solid #dde4df",
+      boxShadow: "0 1px 3px rgba(20,35,25,0.05), 0 4px 16px rgba(20,35,25,0.06)",
+      borderTop: `3px solid ${accent}`,
+      position: "relative",
+    }}>
       <div style={{ width: 34, height: 34, borderRadius: 8, background: `${accent}1a`, display: "grid", placeItems: "center", marginBottom: 14 }}>
         <Icon size={17} color={accent} strokeWidth={2} />
       </div>
-      <div style={{ fontSize: 28, fontWeight: 800, color: "var(--ink)", lineHeight: 1, marginBottom: 4, fontFamily: "var(--admin-font)" }}>{value}</div>
-      <div style={{ fontSize: 11, color: "var(--ink-mid)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.6px", fontFamily: "var(--admin-font)" }}>{label}</div>
+      <div style={{ fontSize: 28, fontWeight: 800, color: "#1B201A", lineHeight: 1, marginBottom: 4, fontFamily: "Inter, system-ui, sans-serif" }}>{value}</div>
+      <div style={{ fontSize: 11, color: "#4E504F", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.6px", fontFamily: "Inter, system-ui, sans-serif" }}>{label}</div>
     </div>
   );
 }
@@ -23,8 +31,8 @@ function StatCard({ icon: Icon, label, value, accent }: { icon: React.ElementTyp
 // ─── Section card ─────────────────────────────────────────────────────────────
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="a-card" style={{ padding: "20px 22px" }}>
-      <h2 className="a-section-title" style={{ marginBottom: 16 }}>{title}</h2>
+    <div style={{ background: "#ffffff", borderRadius: 10, border: "1px solid #dde4df", boxShadow: "0 1px 3px rgba(20,35,25,0.05)", padding: "20px 22px", marginBottom: 20 }}>
+      <h2 style={{ fontSize: 14, fontWeight: 700, color: "#1B201A", margin: "0 0 16px", textTransform: "uppercase" as const, letterSpacing: "0.5px", fontFamily: "Inter, system-ui, sans-serif" }}>{title}</h2>
       {children}
     </div>
   );
@@ -139,8 +147,8 @@ function RevenueChart({ months }: { months: { label: string; revenue: number }[]
           { label: "This Month",  value: `₱${months[months.length - 1].revenue.toLocaleString()}`, color: "#3b82f6" },
         ].map((s, i) => (
           <div key={i} style={{ flex: "1 1 120px", background: "#f8faf9", borderRadius: 10, padding: "10px 14px", borderLeft: `3px solid ${s.color}` }}>
-            <div style={{ fontSize: 10, color: "#9ca8a3", fontWeight: 700, fontFamily: "var(--admin-font)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 3 }}>{s.label}</div>
-            <div style={{ fontSize: 13.5, fontWeight: 700, color: s.color, fontFamily: "var(--admin-font)" }}>{s.value}</div>
+            <div style={{ fontSize: 10, color: "#9ca8a3", fontWeight: 700, fontFamily: "Inter, system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 3 }}>{s.label}</div>
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: s.color, fontFamily: "Inter, system-ui, sans-serif" }}>{s.value}</div>
           </div>
         ))}
       </div>
@@ -209,23 +217,23 @@ export default function AnalyticsPage() {
   const maxRevenue = Math.max(...months.map(m => m.revenue), 1);
 
   return (
-    <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
+    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f7f5", fontFamily: "Inter, system-ui, sans-serif" }}>
       <Sidebar active="/admin/analytics" username={username} role={role} />
 
-      <main className="admin-main" style={{ flex: 1, minWidth: 0 }}>
+      <main style={{ flex: 1, minWidth: 0, marginLeft: 248, padding: "36px 40px" }}>
         <div style={{ marginBottom: 24 }}>
-          <h1 className="a-page-title">Analytics</h1>
-          <p className="a-page-subtitle">Customer activity &amp; sales overview</p>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#1B201A", margin: 0, fontFamily: "Inter, system-ui, sans-serif" }}>Analytics</h1>
+          <p style={{ fontSize: 13, color: "#4E504F", margin: "4px 0 0", fontFamily: "Inter, system-ui, sans-serif" }}>Customer activity &amp; sales overview</p>
         </div>
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: "80px 0", color: "var(--ink-mid)", fontSize: 13, fontFamily: "var(--admin-font)" }}>
+          <div style={{ textAlign: "center", padding: "80px 0", color: "#4E504F", fontSize: 13, fontFamily: "Inter, system-ui, sans-serif" }}>
             Loading analytics...
           </div>
         ) : (
           <>
             {/* ── Stats ── */}
-            <div className="a-stats-grid">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
               <StatCard icon={Package}      label="Total Codes"  value={codes.length}   accent="#6366f1" />
               <StatCard icon={CheckCircle2} label="Active Users" value={active.length}  accent="#39613B" />
               <StatCard icon={Clock}        label="Expired"      value={expired.length} accent="#ef4444" />
@@ -241,8 +249,8 @@ export default function AnalyticsPage() {
                   { label: "This Month", value: monthNew, bg: "#fefce8", text: "#a16207" },
                 ].map(s => (
                   <div key={s.label} style={{ background: s.bg, borderRadius: 10, padding: "18px 20px", textAlign: "center" }}>
-                    <div style={{ fontSize: 32, fontWeight: 800, color: s.text, lineHeight: 1, fontFamily: "var(--admin-font)" }}>{s.value}</div>
-                    <div style={{ fontSize: 12, color: "var(--ink-mid)", marginTop: 5, fontWeight: 600, fontFamily: "var(--admin-font)" }}>{s.label}</div>
+                    <div style={{ fontSize: 32, fontWeight: 800, color: s.text, lineHeight: 1, fontFamily: "Inter, system-ui, sans-serif" }}>{s.value}</div>
+                    <div style={{ fontSize: 12, color: "#4E504F", marginTop: 5, fontWeight: 600, fontFamily: "Inter, system-ui, sans-serif" }}>{s.label}</div>
                   </div>
                 ))}
               </div>
@@ -253,7 +261,7 @@ export default function AnalyticsPage() {
               {/* Sales by package */}
               <Card title="Sales by Package">
                 {Object.entries(revenueByTier).length === 0 ? (
-                  <p style={{ color: "var(--ink-mid)", fontSize: 13, textAlign: "center", padding: "24px 0", margin: 0, fontFamily: "var(--admin-font)" }}>No sales yet.</p>
+                  <p style={{ color: "#4E504F", fontSize: 13, textAlign: "center", padding: "24px 0", margin: 0, fontFamily: "Inter, system-ui, sans-serif" }}>No sales yet.</p>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                     {Object.entries(revenueByTier).sort((a, b) => Number(b[0]) - Number(a[0])).map(([tier, count]) => {
@@ -261,13 +269,13 @@ export default function AnalyticsPage() {
                       return (
                         <div key={tier}>
                           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                            <span style={{ fontSize: 13, color: "var(--ink)", fontWeight: 600, fontFamily: "var(--admin-font)" }}>₱{Number(tier).toLocaleString()}</span>
-                            <span style={{ fontSize: 12, color: "var(--ink-mid)", fontFamily: "var(--admin-font)" }}>
+                            <span style={{ fontSize: 13, color: "#1B201A", fontWeight: 600, fontFamily: "Inter, system-ui, sans-serif" }}>₱{Number(tier).toLocaleString()}</span>
+                            <span style={{ fontSize: 12, color: "#4E504F", fontFamily: "Inter, system-ui, sans-serif" }}>
                               {count}× · <strong>₱{(Number(tier) * count).toLocaleString()}</strong>
                             </span>
                           </div>
                           <div style={{ background: "#f0f2f0", borderRadius: 4, height: 7, overflow: "hidden" }}>
-                            <div style={{ background: "var(--green)", height: "100%", width: `${pct}%`, borderRadius: 4, transition: "width 0.6s" }} />
+                            <div style={{ background: "#39613B", height: "100%", width: `${pct}%`, borderRadius: 4, transition: "width 0.6s" }} />
                           </div>
                         </div>
                       );
@@ -279,7 +287,7 @@ export default function AnalyticsPage() {
               {/* Top generators */}
               <Card title="Top Code Generators">
                 {topCoaches.length === 0 ? (
-                  <p style={{ color: "var(--ink-mid)", fontSize: 13, textAlign: "center", padding: "24px 0", margin: 0, fontFamily: "var(--admin-font)" }}>No data yet.</p>
+                  <p style={{ color: "#4E504F", fontSize: 13, textAlign: "center", padding: "24px 0", margin: 0, fontFamily: "Inter, system-ui, sans-serif" }}>No data yet.</p>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                     {topCoaches.map(([coach, count], i) => (
@@ -297,9 +305,9 @@ export default function AnalyticsPage() {
                           }}>
                             <Trophy size={13} color={i === 0 ? "#a16207" : i === 1 ? "#6b7280" : i === 2 ? "#c2410c" : "#9ca3af"} />
                           </div>
-                          <span style={{ color: "var(--ink)", fontWeight: i === 0 ? 700 : 400, fontSize: 13, fontFamily: "var(--admin-font)" }}>{coach}</span>
+                          <span style={{ color: "#1B201A", fontWeight: i === 0 ? 700 : 400, fontSize: 13, fontFamily: "Inter, system-ui, sans-serif" }}>{coach}</span>
                         </div>
-                        <span className={i === 0 ? "a-badge a-badge-yellow" : "a-badge a-badge-green"}>
+                        <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 99, fontSize: 11, fontWeight: 700, background: i === 0 ? "#fef9c3" : "#dcfce7", color: i === 0 ? "#854d0e" : "#166534" }}>
                           {count} code{count > 1 ? "s" : ""}
                         </span>
                       </div>
@@ -317,20 +325,20 @@ export default function AnalyticsPage() {
             {/* ── Expiring soon ── */}
             {expiringSoon.length > 0 && (
               <Card title={`Expiring Soon — ${expiringSoon.length} within 7 days`}>
-                <div className="a-table-wrap" style={{ border: "none", borderRadius: 0, margin: "0 -22px -20px" }}>
-                  <table className="a-table">
+                <div style={{ overflowX: "auto", margin: "0 -22px -20px" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, fontFamily: "Inter, system-ui, sans-serif" }}>
                     <thead>
-                      <tr>{["Code", "Customer", "Package", "Days Left"].map(h => <th key={h}>{h}</th>)}</tr>
+                      <tr>{["Code", "Customer", "Package", "Days Left"].map(h => <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#4E504F", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #e8eeea", background: "#f9fafb" }}>{h}</th>)}</tr>
                     </thead>
                     <tbody>
                       {expiringSoon.map((c, i) => {
                         const d = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
                         return (
                           <tr key={i}>
-                            <td style={{ fontFamily: "monospace", fontSize: 12, color: "var(--green)", fontWeight: 700 }}>{c.code}</td>
-                            <td style={{ fontWeight: 600 }}>{c.customer_name || "—"}</td>
-                            <td>₱{c.tier?.toLocaleString()}</td>
-                            <td><span className={`a-badge ${d <= 3 ? "a-badge-red" : "a-badge-yellow"}`}>{d}d left</span></td>
+                            <td style={{ padding: "10px 16px", fontFamily: "monospace", fontSize: 12, color: "#39613B", fontWeight: 700, borderBottom: "1px solid #f0f2f0" }}>{c.code}</td>
+                            <td style={{ padding: "10px 16px", fontWeight: 600, fontSize: 13, borderBottom: "1px solid #f0f2f0" }}>{c.customer_name || "—"}</td>
+                            <td style={{ padding: "10px 16px", fontSize: 13, borderBottom: "1px solid #f0f2f0" }}>₱{c.tier?.toLocaleString()}</td>
+                            <td style={{ padding: "10px 16px", borderBottom: "1px solid #f0f2f0" }}><span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 99, fontSize: 11, fontWeight: 700, background: d <= 3 ? "#fee2e2" : "#fef9c3", color: d <= 3 ? "#991b1b" : "#854d0e" }}>{d}d left</span></td>
                           </tr>
                         );
                       })}
@@ -340,7 +348,7 @@ export default function AnalyticsPage() {
               </Card>
             )}
 
-            <p style={{ textAlign: "center", color: "#c0c8c4", fontSize: 11, marginTop: 28, fontFamily: "var(--admin-font)" }}>
+            <p style={{ textAlign: "center", color: "#c0c8c4", fontSize: 11, marginTop: 28, fontFamily: "Inter, system-ui, sans-serif" }}>
               R&amp;M EaseBrew Wellness Hub
             </p>
           </>

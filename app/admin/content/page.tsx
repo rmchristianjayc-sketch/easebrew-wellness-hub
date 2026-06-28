@@ -360,23 +360,23 @@ export default function ContentPage() {
   const activeGroupPending = (groups[activeGroup] ?? []).filter(k => editing[k] !== (content[k] ?? "")).length;
 
   if (checking || loading) return (
-    <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
+    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f7f5", fontFamily: "Inter, system-ui, sans-serif" }}>
       <Sidebar active="/admin/content" username={username} />
-      <main className="admin-main" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <main style={{ flex: 1, marginLeft: 248, padding: "36px 40px", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ color: MID }}>Loading content...</div>
       </main>
     </div>
   );
 
   return (
-    <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
+    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f7f5", fontFamily: "Inter, system-ui, sans-serif" }}>
       <Sidebar active="/admin/content" username={username} />
 
-      <main className="admin-main" style={{ flex: 1, minWidth: 0, display: "flex", gap: 24 }}>
+      <main style={{ flex: 1, minWidth: 0, marginLeft: 248, padding: "36px 40px", display: "flex", gap: 24 }}>
         {/* ── Left: Group Tabs ── */}
         <div style={{ width: 200, flexShrink: 0 }}>
-          <h1 className="a-page-title">Content</h1>
-          <p className="a-page-subtitle" style={{ marginBottom: 18 }}>Edit app text &amp; links</p>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#1B201A", margin: 0, fontFamily: "Inter, system-ui, sans-serif" }}>Content</h1>
+          <p style={{ fontSize: 13, color: "#4E504F", margin: "4px 0 18px", fontFamily: "Inter, system-ui, sans-serif" }}>Edit app text &amp; links</p>
 
           {pendingCount > 0 && (
             <div style={{ background: "#fef9c3", border: "1px solid #fde68a", borderRadius: 10, padding: "10px 14px", marginBottom: 16, fontSize: 12, color: "#b45309" }}>
@@ -396,7 +396,7 @@ export default function ContentPage() {
                   borderRadius: 7, padding: "9px 12px", fontSize: 12.5,
                   cursor: "pointer", textAlign: "left", fontWeight: isActive ? 700 : 400,
                   display: "flex", alignItems: "center", justifyContent: "space-between",
-                  fontFamily: "var(--admin-font)",
+                  fontFamily: "Inter, system-ui, sans-serif",
                 }}>
                   <span>{g}</span>
                   {hasPending && !isActive && (
@@ -417,11 +417,11 @@ export default function ContentPage() {
             </div>
           )}
 
-          <div className="a-card" style={{ padding: "22px 26px" }}>
+          <div style={{ background: "#ffffff", borderRadius: 10, border: "1px solid #dde4df", boxShadow: "0 1px 3px rgba(20,35,25,0.05)", padding: "22px 26px" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-              <h2 className="a-section-title">{activeGroup}</h2>
+              <h2 style={{ fontSize: 14, fontWeight: 700, color: "#1B201A", margin: 0, textTransform: "uppercase" as const, letterSpacing: "0.5px", fontFamily: "Inter, system-ui, sans-serif" }}>{activeGroup}</h2>
               {activeGroupPending > 0 && (
-                <button onClick={handleSaveAll} className="a-btn a-btn-primary a-btn-sm">
+                <button onClick={handleSaveAll} style={{ display: "inline-flex", alignItems: "center", gap: 6, minHeight: 30, padding: "0 10px", borderRadius: 6, border: "none", background: "#39613B", color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "Inter, system-ui, sans-serif" }}>
                   Save All ({activeGroupPending})
                 </button>
               )}
