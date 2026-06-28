@@ -4,10 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Sidebar from "@/app/admin/_components/Sidebar";
 import { useAdminGuard } from "@/lib/useAdminGuard";
 import { useRouter } from "next/navigation";
-
-const DARK = "#1B201A";
-const MID  = "#4E504F";
-const LIGHT = "#F5F0E8";
+import { RefreshCw } from "lucide-react";
 
 const ACTION_LABELS: Record<string, { label: string; color: string }> = {
   generate_code:     { label: "Gumawa ng code",  color: "#166534" },
@@ -77,90 +74,64 @@ export default function AuditLogPage() {
       <main className="admin-main" style={{ flex: 1, minWidth: 0 }}>
         <div style={{ marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <div>
-            <h1 style={{ color: DARK, fontSize: 22, fontWeight: "bold", margin: 0 }}>Audit Log</h1>
-            <p style={{ color: MID, fontSize: 13, margin: "4px 0 0" }}>
-              Lahat ng ginawa ng mga admin at coach
-            </p>
+            <h1 className="a-page-title">Audit Log</h1>
+            <p className="a-page-subtitle">All admin and coach activity</p>
           </div>
-          <button
-            onClick={load}
-            style={{
-              padding: "8px 18px", borderRadius: 8, border: "1px solid #d1d5db",
-              background: "white", cursor: "pointer", fontSize: 13, fontWeight: 600, color: DARK,
-            }}
-          >
-            🔄 I-refresh
+          <button onClick={load} className="a-btn a-btn-ghost" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <RefreshCw size={13} /> Refresh
           </button>
         </div>
 
         {fetchError && (
-          <div style={{ background: "#fff1f1", border: "1px solid #fca5a5", borderRadius: 10, padding: "14px 18px", marginBottom: 20, color: "#b91c1c", fontSize: 13 }}>
-            ⚠️ Hindi ma-load ang audit log. I-refresh ang page.
+          <div style={{ background: "#fff1f2", border: "1px solid #fecdd3", borderRadius: 8, padding: "12px 16px", marginBottom: 20, color: "#9f1239", fontSize: 13, fontFamily: "var(--admin-font)" }}>
+            Hindi ma-load ang audit log. I-refresh ang page.
           </div>
         )}
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: "60px 0", color: MID }}>Nilo-load...</div>
+          <div style={{ textAlign: "center", padding: "60px 0", color: "var(--ink-mid)", fontFamily: "var(--admin-font)", fontSize: 13 }}>
+            Loading...
+          </div>
         ) : entries.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "60px 0", color: MID, fontSize: 14 }}>
+          <div style={{ textAlign: "center", padding: "60px 0", color: "var(--ink-mid)", fontFamily: "var(--admin-font)", fontSize: 13 }}>
             Wala pang naka-record na aktibidad.
           </div>
         ) : (
-          <div style={{
-            background: "white", borderRadius: 14,
-            border: "1px solid #e5e7eb", overflow: "hidden",
-          }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <div className="a-table-wrap">
+            <table className="a-table">
               <thead>
-                <tr style={{ background: LIGHT, borderBottom: "1px solid #e5e7eb" }}>
-                  <th style={{ padding: "10px 14px", textAlign: "left", color: MID, fontWeight: 600, whiteSpace: "nowrap" }}>Oras</th>
-                  <th style={{ padding: "10px 14px", textAlign: "left", color: MID, fontWeight: 600 }}>Admin</th>
-                  <th style={{ padding: "10px 14px", textAlign: "left", color: MID, fontWeight: 600 }}>Aksyon</th>
-                  <th style={{ padding: "10px 14px", textAlign: "left", color: MID, fontWeight: 600 }}>Code / Details</th>
+                <tr>
+                  <th style={{ whiteSpace: "nowrap" }}>Oras</th>
+                  <th>Admin</th>
+                  <th>Aksyon</th>
+                  <th>Code / Details</th>
                 </tr>
               </thead>
               <tbody>
-                {entries.map((e, i) => {
-                  const badge = ACTION_LABELS[e.action] ?? { label: e.action, color: MID };
+                {entries.map((e) => {
+                  const badge = ACTION_LABELS[e.action] ?? { label: e.action, color: "var(--ink-mid)" };
                   const meta  = e.metadata;
                   let detail  = e.target_code ?? "";
                   if (meta?.customer_name) detail += ` — ${meta.customer_name}`;
-                  // Extract [CoachName] from notes field
-                  const coachMatch = typeof meta?.notes === 'string' ? meta.notes.match(/^\[([^\]]+)\]/) : null;
+                  const coachMatch = typeof meta?.notes === "string" ? meta.notes.match(/^\[([^\]]+)\]/) : null;
                   if (coachMatch) detail += ` (${coachMatch[1]})`;
-                  if (meta?.keys)          detail  = String((meta.keys as string[]).join(", "));
-                  if (meta?.key)           detail  = String(meta.key);
+                  if (meta?.keys) detail = String((meta.keys as string[]).join(", "));
+                  if (meta?.key)  detail = String(meta.key);
                   return (
-                    <tr
-                      key={e.id}
-                      style={{
-                        borderBottom: i < entries.length - 1 ? "1px solid #f3f4f6" : undefined,
-                        background: i % 2 === 0 ? "white" : "#fafafa",
-                      }}
-                    >
-                      <td style={{ padding: "10px 14px", color: MID, whiteSpace: "nowrap" }}>
-                        {formatDate(e.created_at)}
-                      </td>
-                      <td style={{ padding: "10px 14px", fontWeight: 600, color: DARK }}>
-                        {e.admin_username}
-                      </td>
-                      <td style={{ padding: "10px 14px" }}>
+                    <tr key={e.id}>
+                      <td style={{ whiteSpace: "nowrap", fontSize: 12 }}>{formatDate(e.created_at)}</td>
+                      <td style={{ fontWeight: 600 }}>{e.admin_username}</td>
+                      <td>
                         <span style={{
-                          display: "inline-block",
-                          padding: "2px 9px",
-                          borderRadius: 99,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          background: badge.color + "18",
-                          color: badge.color,
-                          whiteSpace: "nowrap",
+                          display: "inline-block", padding: "2px 9px", borderRadius: 99,
+                          fontSize: 11, fontWeight: 700,
+                          background: badge.color + "18", color: badge.color, whiteSpace: "nowrap",
+                          fontFamily: "var(--admin-font)",
                         }}>
                           {badge.label}
                         </span>
                       </td>
-                      <td style={{ padding: "10px 14px", color: MID, fontFamily: "monospace", fontSize: 12 }}>
-                        {detail || "—"}
-                      </td>
+                      <td style={{ fontFamily: "monospace", fontSize: 12 }}>{detail || "—"}</td>
                     </tr>
                   );
                 })}

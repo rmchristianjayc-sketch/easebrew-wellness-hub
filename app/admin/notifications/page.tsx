@@ -3,9 +3,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "@/app/admin/_components/Sidebar";
 import { useAdminGuard } from "@/lib/useAdminGuard";
 
-const G    = "#39613B";
-const DARK = "#1B201A";
-const MID  = "#4E504F";
+const G = "#39613B", DARK = "#1B201A", MID = "#4E504F";
 
 const QUICK_MESSAGES = [
   { label: "Daily Reminder",    icon: "☕", title: "EaseBrew Reminder ☕",        body: "Naiinom mo na ba ang EaseBrew mo ngayon? Stay consistent para sa best results!" },
@@ -58,11 +56,6 @@ const MESSENGER_TEMPLATES = [
   },
 ];
 
-const inp: React.CSSProperties = {
-  width: "100%", padding: "10px 13px", borderRadius: 8,
-  border: "1.5px solid #e0e0e0", fontSize: 13, outline: "none",
-  boxSizing: "border-box", color: DARK, fontFamily: "Inter, system-ui, sans-serif",
-};
 
 export default function NotificationsPage() {
   const { checking, username, role } = useAdminGuard(['owner']);
@@ -171,25 +164,25 @@ export default function NotificationsPage() {
 
         {/* ── Left: Quick Messages ── */}
         <div style={{ width: 300, flexShrink: 0 }}>
-          <h1 style={{ color: DARK, fontSize: 22, fontWeight: "bold", margin: "0 0 6px" }}>Messages</h1>
-          <p style={{ color: MID, fontSize: 13, margin: "0 0 20px" }}>Gumawa at mag-send ng mensahe sa customers</p>
+          <h1 className="a-page-title">Messages</h1>
+          <p className="a-page-subtitle" style={{ marginBottom: 20 }}>Create and send messages to customers</p>
 
-          <h2 style={{ color: DARK, fontSize: 13, fontWeight: "bold", margin: "0 0 12px", textTransform: "uppercase", letterSpacing: "0.5px" }}>⚡ Quick Messages</h2>
+          <h2 className="a-section-title" style={{ marginBottom: 12 }}>Quick Messages</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {QUICK_MESSAGES.map((msg, i) => {
               const isSel = selected === i;
               return (
                 <button key={i} onClick={() => applyQuick(msg, i)} style={{
-                  background: isSel ? G : "white", border: `1.5px solid ${isSel ? G : "#e0e0e0"}`,
-                  borderRadius: 12, padding: "12px 14px", textAlign: "left", cursor: "pointer",
-                  display: "flex", alignItems: "center", gap: 12,
-                  boxShadow: isSel ? "0 2px 8px rgba(57,97,59,0.2)" : "0 1px 3px rgba(0,0,0,0.05)",
-                  transition: "all 0.15s",
+                  background: isSel ? "var(--green)" : "white", border: `1.5px solid ${isSel ? "var(--green)" : "#e0e0e0"}`,
+                  borderRadius: 10, padding: "11px 13px", textAlign: "left", cursor: "pointer",
+                  display: "flex", alignItems: "center", gap: 11,
+                  boxShadow: isSel ? "0 2px 8px rgba(57,97,59,0.18)" : "0 1px 3px rgba(0,0,0,0.05)",
+                  transition: "all 0.15s", fontFamily: "var(--admin-font)",
                 }}>
-                  <span style={{ fontSize: 22, flexShrink: 0 }}>{msg.icon}</span>
+                  <span style={{ fontSize: 20, flexShrink: 0 }}>{msg.icon}</span>
                   <div>
-                    <div style={{ color: isSel ? "white" : DARK, fontWeight: "bold", fontSize: 13 }}>{msg.label}</div>
-                    <div style={{ color: isSel ? "rgba(255,255,255,0.7)" : MID, fontSize: 11, marginTop: 2, lineHeight: 1.4 }}>{msg.title}</div>
+                    <div style={{ color: isSel ? "white" : "var(--ink)", fontWeight: 700, fontSize: 13 }}>{msg.label}</div>
+                    <div style={{ color: isSel ? "rgba(255,255,255,0.65)" : "var(--ink-mid)", fontSize: 11, marginTop: 2, lineHeight: 1.4 }}>{msg.title}</div>
                   </div>
                 </button>
               );
@@ -206,8 +199,8 @@ export default function NotificationsPage() {
 
           {/* ── Messenger / Viber Templates ── */}
           <div style={{ marginTop: 24 }}>
-            <h2 style={{ color: DARK, fontSize: 13, fontWeight: "bold", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>💬 Messenger Templates</h2>
-            <p style={{ color: MID, fontSize: 11, margin: "0 0 10px", lineHeight: 1.5 }}>I-copy at i-paste sa Messenger, Viber, o SMS ng customer</p>
+            <h2 className="a-section-title" style={{ marginBottom: 6 }}>Messenger Templates</h2>
+            <p style={{ color: "var(--ink-mid)", fontSize: 11, margin: "0 0 10px", lineHeight: 1.5, fontFamily: "var(--admin-font)" }}>Copy at i-paste sa Messenger, Viber, o SMS</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {MESSENGER_TEMPLATES.map((t, i) => {
                 const isCopied = messengerCopiedIdx === i;
@@ -243,87 +236,45 @@ export default function NotificationsPage() {
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 20 }}>
 
           {/* Compose */}
-          <div style={{ background: "white", borderRadius: 14, padding: "28px 32px", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
-            <h2 style={{ color: DARK, fontSize: 15, fontWeight: "bold", margin: "0 0 20px" }}>✏️ Compose Message</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }}>
+          <div className="a-card" style={{ padding: "24px 28px" }}>
+            <h2 className="a-section-title" style={{ marginBottom: 18 }}>Compose Message</h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
-                <label style={{ fontSize: 12, color: DARK, fontWeight: "bold", display: "block", marginBottom: 6 }}>Title</label>
-                <input
-                  type="text"
-                  value={title}
+                <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "var(--ink)", marginBottom: 5, fontFamily: "var(--admin-font)" }}>Title</label>
+                <input className="a-input" type="text" value={title}
                   onChange={e => { setTitle(e.target.value); setCopied(false); setPublishMsg(""); }}
                   placeholder="e.g. Special announcement!"
-                  style={inp}
-                  onFocus={e => e.target.style.borderColor = G}
-                  onBlur={e => e.target.style.borderColor = "#e0e0e0"}
                 />
               </div>
               <div>
-                <label style={{ fontSize: 12, color: DARK, fontWeight: "bold", display: "block", marginBottom: 6 }}>Message</label>
-                <textarea
-                  value={body}
+                <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "var(--ink)", marginBottom: 5, fontFamily: "var(--admin-font)" }}>Message</label>
+                <textarea className="a-input" value={body}
                   onChange={e => { setBody(e.target.value); setCopied(false); setPublishMsg(""); }}
                   placeholder="Type your message here..."
                   rows={4}
-                  style={{ ...inp, resize: "vertical" }}
-                  onFocus={e => e.target.style.borderColor = G}
-                  onBlur={e => e.target.style.borderColor = "#e0e0e0"}
+                  style={{ resize: "vertical" }}
                 />
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 10, marginTop: 20, flexWrap: "wrap" }}>
-              {/* Publish to App */}
-              <button
-                onClick={handlePublish}
-                disabled={!title || !body || publishing}
-                style={{
-                  background: (!title || !body || publishing) ? "#f0f0f0" : G,
-                  color: (!title || !body || publishing) ? "#aaa" : "white",
-                  border: "none", borderRadius: 10, padding: "12px 22px",
-                  fontSize: 13, fontWeight: "bold",
-                  cursor: (!title || !body || publishing) ? "not-allowed" : "pointer",
-                }}
-              >
-                {publishing ? "Publishing..." : "📣 Publish to App"}
+            <div style={{ display: "flex", gap: 8, marginTop: 18, flexWrap: "wrap" }}>
+              <button onClick={handlePublish} disabled={!title || !body || publishing}
+                className="a-btn a-btn-primary" style={{ opacity: (!title || !body || publishing) ? 0.5 : 1 }}>
+                {publishing ? "Publishing..." : "Publish to App"}
               </button>
-
-              {/* Copy for Messenger/Viber */}
-              <button
-                onClick={handleCopyMessage}
-                disabled={!title || !body}
-                style={{
-                  background: copied ? "#dcfce7" : (!title || !body) ? "#f0f0f0" : "white",
-                  color: copied ? G : (!title || !body) ? "#aaa" : DARK,
-                  border: `1.5px solid ${(!title || !body) ? "#e0e0e0" : "#d0d0d0"}`,
-                  borderRadius: 10, padding: "12px 22px",
-                  fontSize: 13, fontWeight: "bold",
-                  cursor: (!title || !body) ? "not-allowed" : "pointer",
-                }}
-              >
-                {copied ? "✅ Copied!" : "📋 Copy (Messenger/Viber)"}
+              <button onClick={handleCopyMessage} disabled={!title || !body}
+                className={`a-btn ${copied ? "a-btn-primary" : "a-btn-ghost"}`} style={{ opacity: (!title || !body) ? 0.5 : 1 }}>
+                {copied ? "Copied!" : "Copy (Messenger/Viber)"}
               </button>
-
-              {/* Clear active notification */}
               {current?.active && (
-                <button
-                  onClick={handleClear}
-                  disabled={clearing}
-                  style={{
-                    background: "white", color: "#ef4444",
-                    border: "1.5px solid #fca5a5",
-                    borderRadius: 10, padding: "12px 22px",
-                    fontSize: 13, fontWeight: "bold",
-                    cursor: clearing ? "not-allowed" : "pointer",
-                  }}
-                >
-                  {clearing ? "Clearing..." : "🗑️ Clear Notification"}
+                <button onClick={handleClear} disabled={clearing} className="a-btn a-btn-danger">
+                  {clearing ? "Clearing..." : "Clear Notification"}
                 </button>
               )}
             </div>
 
             {publishMsg && (
-              <p style={{ marginTop: 12, fontSize: 13, fontWeight: "bold", color: publishMsg.startsWith("✅") || publishMsg.startsWith("🗑️") ? G : "#ef4444" }}>
+              <p style={{ marginTop: 12, fontSize: 13, fontWeight: 600, color: publishMsg.startsWith("✅") || publishMsg.startsWith("🗑️") ? "var(--green)" : "#ef4444", fontFamily: "var(--admin-font)" }}>
                 {publishMsg}
               </p>
             )}

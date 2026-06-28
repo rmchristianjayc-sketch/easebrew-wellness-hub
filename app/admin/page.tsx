@@ -5,20 +5,78 @@ import Link from "next/link";
 import Sidebar from "@/app/admin/_components/Sidebar";
 import { useAdminGuard, clearAdminAuthCache } from "@/lib/useAdminGuard";
 import type { AccessCode } from "@/lib/supabase";
-
-const G    = "#39613B";
-const DARK = "#1B201A";
-const MID  = "#4E504F";
+import {
+  Users, TrendingUp, BadgeDollarSign, Clock,
+  AlertTriangle, ChevronRight, Package,
+} from "lucide-react";
 
 // ─── Stat Card ────────────────────────────────────────────────────────────────
-function StatCard({ icon, label, value, sub, color }: { icon: string; label: string; value: string | number; sub?: string; color: string }) {
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  accent,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string | number;
+  sub?: string;
+  accent: string;
+}) {
   return (
-    <div style={{ background: "white", borderRadius: 16, padding: "20px 22px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", borderLeft: `4px solid ${color}`, display: "flex", flexDirection: "column", gap: 4, position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", top: -16, right: -12, width: 64, height: 64, background: color + "12", borderRadius: "50%" }} />
-      <div style={{ fontSize: 24, marginBottom: 4 }}>{icon}</div>
-      <div style={{ fontSize: 30, fontWeight: 900, color: DARK, lineHeight: 1.1 }}>{value}</div>
-      <div style={{ fontSize: 11, color: MID, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.8px" }}>{label}</div>
-      {sub && <div style={{ fontSize: 11, color: "#b0b0b0", marginTop: 2 }}>{sub}</div>}
+    <div className="a-stat" style={{
+      borderTop: `3px solid ${accent}`,
+      position: "relative",
+      overflow: "hidden",
+      transition: "transform 0.15s ease, box-shadow 0.15s ease",
+    }}
+      onMouseEnter={e => {
+        (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
+        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 24px rgba(0,0,0,0.10)";
+      }}
+      onMouseLeave={e => {
+        (e.currentTarget as HTMLDivElement).style.transform = "";
+        (e.currentTarget as HTMLDivElement).style.boxShadow = "";
+      }}
+    >
+      {/* subtle bg glow */}
+      <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: `${accent}0d`, pointerEvents: "none" }} />
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
+        <div style={{
+          width: 42, height: 42, borderRadius: 10,
+          background: `linear-gradient(135deg, ${accent}22 0%, ${accent}0a 100%)`,
+          border: `1px solid ${accent}28`,
+          display: "grid", placeItems: "center",
+          boxShadow: `0 2px 8px ${accent}18`,
+        }}>
+          <Icon size={20} color={accent} strokeWidth={2} />
+        </div>
+      </div>
+      <div style={{ fontSize: 30, fontWeight: 800, color: "var(--ink)", lineHeight: 1, marginBottom: 5, fontFamily: "var(--admin-font)", letterSpacing: "-0.5px" }}>
+        {value}
+      </div>
+      <div style={{ fontSize: 11, color: "var(--ink-mid)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.7px", fontFamily: "var(--admin-font)" }}>
+        {label}
+      </div>
+      {sub && (
+        <div style={{ fontSize: 11, color: "#b0bdb6", marginTop: 5, fontFamily: "var(--admin-font)", display: "flex", alignItems: "center", gap: 4 }}>
+          {sub}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Section Card ─────────────────────────────────────────────────────────────
+function SectionCard({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <div className="a-card" style={{ padding: "20px 22px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid var(--admin-border, #eaeeec)" }}>
+        <h2 style={{ fontSize: 12.5, fontWeight: 700, color: "var(--ink)", margin: 0, fontFamily: "var(--admin-font)", textTransform: "uppercase", letterSpacing: "0.5px" }}>{title}</h2>
+        {action}
+      </div>
+      {children}
     </div>
   );
 }
@@ -26,26 +84,22 @@ function StatCard({ icon, label, value, sub, color }: { icon: string; label: str
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function AdminDashboard() {
   const router = useRouter();
-  const { checking, username, role } = useAdminGuard(['owner']);
-  const [codes, setCodes]       = useState<AccessCode[]>([]);
-  const [loading, setLoading]   = useState(true);
+  const { checking, username, role } = useAdminGuard(["owner"]);
+  const [codes,      setCodes]     = useState<AccessCode[]>([]);
+  const [loading,    setLoading]   = useState(true);
   const [fetchError, setFetchError] = useState(false);
 
   const fetchCodes = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/codes?filter=all&limit=200");
+      const res  = await fetch("/api/admin/codes?filter=all&limit=200");
       const data = await res.json();
       if (res.ok) setCodes(data.codes || []);
       else setFetchError(true);
-    } catch {
-      setFetchError(true);
-    }
+    } catch { setFetchError(true); }
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    if (!checking) fetchCodes();
-  }, [checking, fetchCodes]);
+  useEffect(() => { if (!checking) fetchCodes(); }, [checking, fetchCodes]);
 
   async function handleLogout() {
     clearAdminAuthCache();
@@ -55,16 +109,17 @@ export default function AdminDashboard() {
 
   const now          = new Date();
   const used         = codes.filter(c => c.is_used);
-  const active       = used.filter((c): c is AccessCode & { expires_at: string } => Boolean(c.expires_at && new Date(c.expires_at) > now));
+  const active       = used.filter((c): c is AccessCode & { expires_at: string } =>
+    Boolean(c.expires_at && new Date(c.expires_at) > now));
   const expired      = used.filter(c => c.expires_at && new Date(c.expires_at) <= now);
   const unused       = codes.filter(c => !c.is_used);
   const totalRevenue = used.reduce((s, c) => s + (c.tier || 0), 0);
+  const monthStart   = new Date(now.getFullYear(), now.getMonth(), 1);
+  const newThisMonth = used.filter(c => c.used_at && new Date(c.used_at) >= monthStart).length;
   const expiringSoon = active.filter(c => {
     const d = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
     return d <= 7;
   });
-  const monthStart   = new Date(now.getFullYear(), now.getMonth(), 1);
-  const newThisMonth = used.filter(c => c.used_at && new Date(c.used_at) >= monthStart).length;
 
   const revenueByTier: Record<number, number> = {};
   used.forEach(c => { revenueByTier[c.tier] = (revenueByTier[c.tier] || 0) + 1; });
@@ -76,145 +131,187 @@ export default function AdminDashboard() {
       <Sidebar active="/admin" username={username} role={role} onLogout={handleLogout} />
 
       <main className="admin-main" style={{ flex: 1, minWidth: 0 }}>
-        {/* Welcome bar */}
-        <div style={{ background: "linear-gradient(135deg, #183b28 0%, #27622f 100%)", borderRadius: 18, padding: "22px 28px", marginBottom: 28, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 4px 20px rgba(24,59,40,0.2)" }}>
-          <div>
-            <div style={{ fontSize: 12, color: "rgba(254,210,85,0.85)", fontWeight: 700, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 4 }}>R&M Digital Trading</div>
-            <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 900, margin: "0 0 4px 0" }}>Magandang araw, {username || "Admin"}! 👋</h1>
-            <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 13, margin: 0 }}>
-              {new Date().toLocaleDateString("en-PH", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+        {/* ── Welcome bar ── */}
+        <div style={{
+          background: "linear-gradient(135deg, #0f2518 0%, #183b28 45%, #2a5c34 100%)",
+          borderRadius: 14,
+          padding: "22px 28px",
+          marginBottom: 28,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          boxShadow: "0 8px 32px rgba(15,37,24,0.28), inset 0 1px 0 rgba(255,255,255,0.06)",
+          position: "relative",
+          overflow: "hidden",
+        }}>
+          {/* decorative circles */}
+          <div style={{ position: "absolute", top: -40, right: 80, width: 140, height: 140, borderRadius: "50%", background: "rgba(254,210,85,0.05)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: -30, right: -10, width: 100, height: 100, borderRadius: "50%", background: "rgba(125,174,47,0.08)", pointerEvents: "none" }} />
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <div style={{ fontSize: 10, color: "#FED255", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 6, fontFamily: "var(--admin-font)", opacity: 0.85 }}>
+              ☕ R&amp;M Digital Trading
+            </div>
+            <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 800, margin: "0 0 4px", fontFamily: "var(--admin-font)", letterSpacing: "-0.3px" }}>
+              Good day, {username || "Admin"} 👋
+            </h1>
+            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 12.5, margin: 0, fontFamily: "var(--admin-font)" }}>
+              {now.toLocaleDateString("en-PH", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
             </p>
           </div>
-          <div style={{ width: 56, height: 56, borderRadius: 14, background: "rgba(255,255,255,0.1)", display: "grid", placeItems: "center", flexShrink: 0 }}>
-            <span style={{ fontSize: 28 }}>☕</span>
+          <div style={{
+            width: 52, height: 52, borderRadius: 14, flexShrink: 0, position: "relative", zIndex: 1,
+            background: "linear-gradient(135deg, rgba(254,210,85,0.18) 0%, rgba(254,210,85,0.08) 100%)",
+            border: "1px solid rgba(254,210,85,0.25)",
+            display: "grid", placeItems: "center",
+            boxShadow: "0 2px 12px rgba(254,210,85,0.12)",
+          }}>
+            <Package size={24} color="#FED255" strokeWidth={1.8} />
           </div>
         </div>
 
+        {/* ── Error ── */}
         {fetchError && (
-          <div style={{ background: "#fff1f1", border: "1px solid #fca5a5", borderRadius: 10, padding: "14px 18px", marginBottom: 20, color: "#b91c1c", fontSize: 13 }}>
-            ⚠️ Hindi ma-load ang data. I-refresh ang page o i-check ang internet connection.
+          <div style={{ background: "#fff1f2", border: "1px solid #fecdd3", borderRadius: 8, padding: "12px 16px", marginBottom: 20, color: "#9f1239", fontSize: 13, display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--admin-font)" }}>
+            <AlertTriangle size={16} />
+            Hindi ma-load ang data. I-refresh ang page.
           </div>
         )}
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: "80px 0", color: MID }}>Loading dashboard...</div>
+          <div style={{ textAlign: "center", padding: "80px 0", color: "var(--ink-mid)", fontFamily: "var(--admin-font)", fontSize: 13 }}>
+            Loading dashboard...
+          </div>
         ) : (
           <>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 28 }}>
-              <StatCard icon="✅" label="Active Customers" value={active.length}                        color={G}        />
-              <StatCard icon="💰" label="Total Revenue"    value={`₱${totalRevenue.toLocaleString()}`} color="#f59e0b"  />
-              <StatCard icon="🆕" label="New This Month"   value={newThisMonth}                        color="#3b82f6"  />
-              <StatCard icon="⏰" label="Expired"          value={expired.length} sub={`${unused.length} unused codes`} color="#ef4444" />
+            {/* ── Stat cards ── */}
+            <div className="a-stats-grid">
+              <StatCard icon={Users}           label="Active Customers" value={active.length}                          accent="#39613B" />
+              <StatCard icon={BadgeDollarSign} label="Total Revenue"    value={`₱${totalRevenue.toLocaleString()}`}  accent="#f59e0b" />
+              <StatCard icon={TrendingUp}      label="New This Month"   value={newThisMonth}                          accent="#3b82f6" />
+              <StatCard icon={Clock}           label="Expired"          value={expired.length} sub={`${unused.length} unused codes`} accent="#ef4444" />
             </div>
 
+            {/* ── Two column ── */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
-              {/* Expiring Soon */}
-              <div style={{ background: "white", borderRadius: 14, padding: "20px 22px", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                  <h2 style={{ color: DARK, fontSize: 14, fontWeight: "bold", margin: 0 }}>⚠️ Expiring Soon</h2>
-                  {expiringSoon.length > 0 && (
-                    <span style={{ background: "#fef3c7", color: "#b45309", borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: "bold" }}>
-                      {expiringSoon.length} within 7 days
-                    </span>
-                  )}
-                </div>
+              {/* Expiring soon */}
+              <SectionCard
+                title="Expiring Soon"
+                action={
+                  expiringSoon.length > 0 ? (
+                    <span className="a-badge a-badge-yellow">{expiringSoon.length} within 7 days</span>
+                  ) : undefined
+                }
+              >
                 {expiringSoon.length === 0 ? (
-                  <div style={{ color: MID, fontSize: 13, textAlign: "center", padding: "24px 0" }}>🎉 No expiring customers</div>
+                  <div style={{ color: "var(--ink-mid)", fontSize: 13, textAlign: "center", padding: "24px 0", fontFamily: "var(--admin-font)" }}>
+                    No expiring customers
+                  </div>
                 ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 280, overflowY: "auto" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 7, maxHeight: 280, overflowY: "auto" }}>
                     {expiringSoon.map((c, i) => {
-                      const d = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
+                      const d    = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
+                      const warn = d <= 3;
                       return (
-                        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: d <= 3 ? "#fff1f1" : "#fffbeb", borderRadius: 10, borderLeft: `3px solid ${d <= 3 ? "#ef4444" : "#f59e0b"}` }}>
+                        <div key={i} style={{
+                          display: "flex", justifyContent: "space-between", alignItems: "center",
+                          padding: "9px 12px", borderRadius: 8,
+                          background: warn ? "#fff1f2" : "#fffbeb",
+                          borderLeft: `3px solid ${warn ? "#ef4444" : "#f59e0b"}`,
+                        }}>
                           <div>
-                            <div style={{ color: DARK, fontWeight: "bold", fontSize: 13 }}>{c.customer_name || "Customer"}</div>
-                            <div style={{ color: MID, fontSize: 11, marginTop: 2 }}>₱{c.tier?.toLocaleString()} · {c.code}</div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink)", fontFamily: "var(--admin-font)" }}>{c.customer_name || "Customer"}</div>
+                            <div style={{ fontSize: 11, color: "var(--ink-mid)", marginTop: 2, fontFamily: "var(--admin-font)" }}>₱{c.tier?.toLocaleString()} · {c.code}</div>
                           </div>
-                          <span style={{ background: d <= 3 ? "#ef4444" : "#f59e0b", color: "white", borderRadius: 8, padding: "3px 10px", fontSize: 11, fontWeight: "bold" }}>{d}d left</span>
+                          <span className={`a-badge ${warn ? "a-badge-red" : "a-badge-yellow"}`}>{d}d left</span>
                         </div>
                       );
                     })}
                   </div>
                 )}
-              </div>
+              </SectionCard>
 
-              {/* Sales by Package */}
-              <div style={{ background: "white", borderRadius: 14, padding: "20px 22px", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
-                <h2 style={{ color: DARK, fontSize: 14, fontWeight: "bold", margin: "0 0 14px" }}>💰 Sales by Package</h2>
+              {/* Sales by package */}
+              <SectionCard title="Sales by Package">
                 {tierEntries.length === 0 ? (
-                  <div style={{ color: MID, fontSize: 13, textAlign: "center", padding: "24px 0" }}>No sales yet</div>
+                  <div style={{ color: "var(--ink-mid)", fontSize: 13, textAlign: "center", padding: "24px 0", fontFamily: "var(--admin-font)" }}>
+                    No sales yet
+                  </div>
                 ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 280, overflowY: "auto" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12, maxHeight: 280, overflowY: "auto" }}>
                     {tierEntries.map(([tier, count]) => {
                       const pct = Math.round((count / maxTierCount) * 100);
                       return (
                         <div key={tier}>
-                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                            <span style={{ fontSize: 12, color: DARK, fontWeight: "bold" }}>₱{Number(tier).toLocaleString()}</span>
-                            <span style={{ fontSize: 12, color: MID }}>{count} order{count > 1 ? "s" : ""} · ₱{(Number(tier) * count).toLocaleString()}</span>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                            <span style={{ fontSize: 12.5, color: "var(--ink)", fontWeight: 600, fontFamily: "var(--admin-font)" }}>₱{Number(tier).toLocaleString()}</span>
+                            <span style={{ fontSize: 12, color: "var(--ink-mid)", fontFamily: "var(--admin-font)" }}>{count}× · ₱{(Number(tier) * count).toLocaleString()}</span>
                           </div>
-                          <div style={{ background: "#f0f0f0", borderRadius: 6, height: 7, overflow: "hidden" }}>
-                            <div style={{ background: G, height: "100%", width: `${pct}%`, borderRadius: 6, transition: "width 0.5s" }} />
+                          <div style={{ background: "#f0f2f0", borderRadius: 4, height: 6, overflow: "hidden" }}>
+                            <div style={{ background: "var(--green)", height: "100%", width: `${pct}%`, borderRadius: 4, transition: "width 0.5s" }} />
                           </div>
                         </div>
                       );
                     })}
                   </div>
                 )}
-              </div>
+              </SectionCard>
             </div>
 
-            {/* Active Customers Table */}
-            <div style={{ background: "white", borderRadius: 14, padding: "20px 22px", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                <h2 style={{ color: DARK, fontSize: 14, fontWeight: "bold", margin: 0 }}>👥 Active Customers</h2>
-                <Link href="/admin/analytics" style={{ color: G, fontSize: 12, textDecoration: "none", fontWeight: "bold" }}>View all →</Link>
-              </div>
+            {/* ── Active customers table ── */}
+            <SectionCard
+              title="Active Customers"
+              action={
+                <Link href="/admin/analytics" className="a-btn a-btn-ghost a-btn-sm" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  View all <ChevronRight size={13} />
+                </Link>
+              }
+            >
               {active.length === 0 ? (
-                <div style={{ color: MID, fontSize: 13, textAlign: "center", padding: "24px 0" }}>No active customers yet.</div>
+                <div style={{ color: "var(--ink-mid)", fontSize: 13, textAlign: "center", padding: "24px 0", fontFamily: "var(--admin-font)" }}>
+                  No active customers yet.
+                </div>
               ) : (
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr style={{ borderBottom: "2px solid #f0f0f0" }}>
-                      {["Customer", "Package", "Packs", "Code", "Expires In", "Status"].map(h => (
-                        <th key={h} style={{ textAlign: "left", padding: "8px 12px", fontSize: 11, color: MID, fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px" }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {active.slice(0, 8).map((c, i) => {
-                      const d    = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
-                      const warn = d <= 7;
-                      return (
-                        <tr key={i} style={{ borderBottom: "1px solid #f8f8f8" }}
-                          onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "#fafafa"}
-                          onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "transparent"}
-                        >
-                          <td style={{ padding: "10px 12px", fontSize: 13, color: DARK, fontWeight: "bold" }}>{c.customer_name || "—"}</td>
-                          <td style={{ padding: "10px 12px", fontSize: 13, color: MID }}>₱{c.tier?.toLocaleString()}</td>
-                          <td style={{ padding: "10px 12px", fontSize: 13, color: MID }}>{c.packs}</td>
-                          <td style={{ padding: "10px 12px", fontSize: 12, color: G, fontFamily: "monospace", fontWeight: "bold" }}>{c.code}</td>
-                          <td style={{ padding: "10px 12px" }}>
-                            <span style={{ background: warn ? "#fef3c7" : "#e8f5e0", color: warn ? "#b45309" : G, borderRadius: 8, padding: "3px 10px", fontSize: 11, fontWeight: "bold" }}>{d}d</span>
-                          </td>
-                          <td style={{ padding: "10px 12px" }}>
-                            <span style={{ background: "#e8f5e0", color: G, borderRadius: 8, padding: "3px 10px", fontSize: 11, fontWeight: "bold" }}>Active</span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                <div className="a-table-wrap" style={{ border: "none", borderRadius: 0, margin: "0 -22px -20px" }}>
+                  <table className="a-table">
+                    <thead>
+                      <tr>
+                        {["Customer", "Package", "Packs", "Code", "Expires In", "Status"].map(h => (
+                          <th key={h}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {active.slice(0, 8).map((c, i) => {
+                        const d    = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
+                        const warn = d <= 7;
+                        return (
+                          <tr key={i}>
+                            <td style={{ fontWeight: 600 }}>{c.customer_name || "—"}</td>
+                            <td>₱{c.tier?.toLocaleString()}</td>
+                            <td>{c.packs}</td>
+                            <td style={{ fontFamily: "monospace", fontSize: 12, color: "var(--green)", fontWeight: 600 }}>{c.code}</td>
+                            <td>
+                              <span className={`a-badge ${warn ? "a-badge-yellow" : "a-badge-green"}`}>{d}d</span>
+                            </td>
+                            <td>
+                              <span className="a-badge a-badge-green">Active</span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               )}
               {active.length > 8 && (
-                <Link href="/admin/analytics" style={{ display: "block", textAlign: "center", color: G, fontSize: 12, textDecoration: "none", padding: "12px 0 2px", fontWeight: "bold" }}>
+                <Link href="/admin/analytics" style={{ display: "block", textAlign: "center", color: "var(--green)", fontSize: 12.5, textDecoration: "none", paddingTop: 14, fontWeight: 600, fontFamily: "var(--admin-font)" }}>
                   + {active.length - 8} more customers →
                 </Link>
               )}
-            </div>
+            </SectionCard>
 
-            <p style={{ textAlign: "center", color: "#ccc", fontSize: 11, marginTop: 28 }}>
-              R&M EaseBrew Wellness Hub © 2026
+            <p style={{ textAlign: "center", color: "#c0c8c4", fontSize: 11, marginTop: 28, fontFamily: "var(--admin-font)" }}>
+              R&amp;M EaseBrew Wellness Hub
             </p>
           </>
         )}

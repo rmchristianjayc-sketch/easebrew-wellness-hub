@@ -8,6 +8,7 @@ const G    = "#39613B";
 const DARK = "#1B201A";
 const MID  = "#4E504F";
 
+// keep legacy constants for inline field styles throughout the page
 const CONTENT_LABELS: Record<string, { label: string; group: string; multiline?: boolean; type?: "boolean" }> = {
   // ── Promo ────────────────────────────────────────────────
   promo_enabled: { label: "Ipakita ang Promo Banner?", group: "📢 Promo Announcement", type: "boolean" },
@@ -374,8 +375,8 @@ export default function ContentPage() {
       <main className="admin-main" style={{ flex: 1, minWidth: 0, display: "flex", gap: 24 }}>
         {/* ── Left: Group Tabs ── */}
         <div style={{ width: 200, flexShrink: 0 }}>
-          <h1 style={{ color: DARK, fontSize: 22, fontWeight: "bold", margin: "0 0 6px" }}>Content</h1>
-          <p style={{ color: MID, fontSize: 13, margin: "0 0 20px" }}>Edit app text & links</p>
+          <h1 className="a-page-title">Content</h1>
+          <p className="a-page-subtitle" style={{ marginBottom: 18 }}>Edit app text &amp; links</p>
 
           {pendingCount > 0 && (
             <div style={{ background: "#fef9c3", border: "1px solid #fde68a", borderRadius: 10, padding: "10px 14px", marginBottom: 16, fontSize: 12, color: "#b45309" }}>
@@ -383,22 +384,23 @@ export default function ContentPage() {
             </div>
           )}
 
-          <nav style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <nav style={{ display: "flex", flexDirection: "column", gap: 3 }}>
             {groupNames.map(g => {
               const isActive   = activeGroup === g;
               const hasPending = (groups[g] ?? []).some(k => editing[k] !== (content[k] ?? ""));
               return (
                 <button key={g} onClick={() => setActiveGroup(g)} style={{
-                  background: isActive ? G : "white", color: isActive ? "white" : DARK,
-                  border: `1.5px solid ${isActive ? G : "#e8e8e8"}`,
-                  borderRadius: 10, padding: "10px 14px", fontSize: 12,
-                  cursor: "pointer", textAlign: "left", fontWeight: isActive ? "bold" : "normal",
+                  background: isActive ? "#FED255" : "transparent",
+                  color: isActive ? "#183b28" : "var(--ink)",
+                  border: "none",
+                  borderRadius: 7, padding: "9px 12px", fontSize: 12.5,
+                  cursor: "pointer", textAlign: "left", fontWeight: isActive ? 700 : 400,
                   display: "flex", alignItems: "center", justifyContent: "space-between",
-                  boxShadow: isActive ? "0 2px 8px rgba(57,97,59,0.2)" : "0 1px 3px rgba(0,0,0,0.05)",
+                  fontFamily: "var(--admin-font)",
                 }}>
                   <span>{g}</span>
                   {hasPending && !isActive && (
-                    <span style={{ width: 8, height: 8, background: "#f59e0b", borderRadius: "50%", flexShrink: 0 }} />
+                    <span style={{ width: 7, height: 7, background: "#f59e0b", borderRadius: "50%", flexShrink: 0 }} />
                   )}
                 </button>
               );
@@ -415,12 +417,12 @@ export default function ContentPage() {
             </div>
           )}
 
-          <div style={{ background: "white", borderRadius: 14, padding: "24px 28px", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
+          <div className="a-card" style={{ padding: "22px 26px" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-              <h2 style={{ color: DARK, fontSize: 16, fontWeight: "bold", margin: 0 }}>{activeGroup}</h2>
+              <h2 className="a-section-title">{activeGroup}</h2>
               {activeGroupPending > 0 && (
-                <button onClick={handleSaveAll} style={{ background: G, color: "white", border: "none", borderRadius: 8, padding: "8px 18px", fontSize: 12, fontWeight: "bold", cursor: "pointer" }}>
-                  💾 Save All ({activeGroupPending})
+                <button onClick={handleSaveAll} className="a-btn a-btn-primary a-btn-sm">
+                  Save All ({activeGroupPending})
                 </button>
               )}
             </div>

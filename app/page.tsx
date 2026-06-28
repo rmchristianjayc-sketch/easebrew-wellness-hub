@@ -11,6 +11,7 @@ import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib
 
 // ✅ 1.2 — Imported from single source of truth (no more duplicate definitions)
 import { Coach, DEFAULT_COACHES, buildCoaches } from "@/lib/coaches";
+import { Gift, Home as HomeIcon, Lightbulb, Phone, Users } from "lucide-react";
 
 // ============================================================
 // ⚙️ CONFIG — FALLBACK DEFAULTS (used kung walang value sa DB)
@@ -870,20 +871,22 @@ export default function Home() {
 
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <p style={{ color: G, fontSize: 18, fontWeight: 600 }}>☕ Loading...</p>
+      <p className="c-body" style={{ color: G, fontWeight: 600 }}>☕ Loading...</p>
     </div>
   );
 
-  const tabBtn = (t: Tab, label: string) => (
+  const tabBtn = (t: Tab, label: string, Icon: React.ElementType) => (
     <button
       onClick={() => { setTab(t); window.scrollTo({ top: 0 }); }}
       style={{
-        flex: 1, padding: "14px 4px", fontSize: "15px", fontWeight: "bold",
+        flex: 1, padding: "12px 4px 10px", fontSize: "13px", fontWeight: "bold",
         border: "none", borderBottom: tab === t ? `4px solid ${GOLD}` : "4px solid transparent",
         background: "transparent", color: tab === t ? GOLD : "rgba(255,255,255,0.6)",
         cursor: "pointer", transition: "all 0.2s", fontFamily: "Georgia, serif", lineHeight: 1.2,
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
       }}
     >
+      <Icon size={22} strokeWidth={tab === t ? 2.5 : 1.8} />
       {label}
     </button>
   );
@@ -940,10 +943,10 @@ export default function Home() {
           </div>
         </div>
         <nav className="customer-home-nav" aria-label="Pangunahing menu" style={{ display: "flex", marginTop: 8 }}>
-          {tabBtn("home",    "🏠 Home")}
-          {tabBtn("gifts",   "🎁 Gifts")}
-          {tabBtn("tips",    "💡 Tips")}
-          {tabBtn("coaches", "👥 Coaches")}
+          {tabBtn("home",    "Home",    HomeIcon)}
+          {tabBtn("gifts",   "Gifts",   Gift)}
+          {tabBtn("tips",    "Tips",    Lightbulb)}
+          {tabBtn("coaches", "Coaches", Users)}
         </nav>
       </div>
 
@@ -1019,13 +1022,33 @@ export default function Home() {
               </div>
             )}
 
+            {/* ── Free Wellness Tools ── */}
+            <div style={{ marginBottom: 24 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>Libreng Health Tools 🛠️</h2>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <Link href="/water" style={{ background: "#e0f2fe", border: "2px solid #7dd3fc", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90 }}>
+                  <span style={{ fontSize: 32 }}>💧</span>
+                  <p style={{ fontSize: 16, fontWeight: 700, color: "#0284c7", margin: 0, textAlign: "center", lineHeight: 1.3 }}>Water Tracker</p>
+                </Link>
+                <Link href="/bmi" style={{ background: "#f3e8ff", border: "2px solid #c4b5fd", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90 }}>
+                  <span style={{ fontSize: 32 }}>⚖️</span>
+                  <p style={{ fontSize: 16, fontWeight: 700, color: "#7c3aed", margin: 0, textAlign: "center", lineHeight: 1.3 }}>BMI Calculator</p>
+                </Link>
+                <Link href="/report" style={{ background: "#fefce8", border: "2px solid #fcd34d", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90, gridColumn: "1 / -1" }}>
+                  <span style={{ fontSize: 32 }}>📋</span>
+                  <p style={{ fontSize: 16, fontWeight: 700, color: "#92400e", margin: 0, textAlign: "center", lineHeight: 1.3 }}>Weekly Wellness Report</p>
+                </Link>
+              </div>
+            </div>
+
             {/* ── Daily Wellness Tip ── */}
             <div style={{ background: "#FFFBF0", border: `2px solid ${GOLD}`, borderRadius: 18, padding: "20px 22px", marginBottom: 24 }}>
               <p style={{ fontSize: 16, fontWeight: 700, color: AMBER, margin: "0 0 10px 0", textTransform: "uppercase" as const, letterSpacing: 1 }}>💡 Tip ng Araw</p>
               <p style={{ fontSize: 18, color: DARK, margin: "0 0 16px 0", lineHeight: 1.75 }}>🌿 {wellnessTips[tipIndex % wellnessTips.length]}</p>
               <button
                 onClick={() => setTipIndex(i => (i + 1) % wellnessTips.length)}
-                style={{ background: GOLD, color: G, border: "none", borderRadius: 12, padding: "14px 22px", fontSize: 17, fontWeight: 700, cursor: "pointer", width: "100%" }}
+                className="c-btn c-btn-gold"
+                style={{ width: "100%" }}
               >
                 Susunod na Tip →
               </button>
@@ -1088,7 +1111,7 @@ export default function Home() {
                 <Link href="/bagong-katawan" style={{ background: GOLD, color: G, borderRadius: 14, padding: "18px 28px", fontSize: 18, fontWeight: 700, width: "100%", textAlign: "center" as const, textDecoration: "none", display: "block", boxSizing: "border-box" as const }}>
                   🏆 I-start ang 90-Day Program →
                 </Link>
-                <button onClick={() => setShowCoachModal(true)} style={{ background: "rgba(255,255,255,0.15)", color: "#fff", border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: 14, padding: "14px 28px", fontSize: 15, fontWeight: 600, width: "100%", cursor: "pointer", fontFamily: "Georgia, serif" }}>
+                <button onClick={() => setShowCoachModal(true)} className="c-btn c-btn-outline" style={{ width: "100%", color: "#fff", borderColor: "rgba(255,255,255,0.4)", background: "rgba(255,255,255,0.15)" }}>
                   🛒 Mag-order ng 90-Day Program
                 </button>
               </div>
@@ -1145,7 +1168,7 @@ export default function Home() {
                     </div>
                     <h3 style={{ fontSize: 19, fontWeight: 700, color: "#8A7D6A", margin: "0 0 6px 0" }}>{p.name}</h3>
                     <p style={{ fontSize: 16, color: "#A89880", margin: "0 0 18px 0", lineHeight: 1.65 }}>{p.desc}</p>
-                    <button onClick={() => setShowCoachModal(true)} style={{ display: "block", background: WHITE, color: G, border: `2px solid ${G}`, borderRadius: 12, padding: "13px 20px", fontSize: 15, fontWeight: 700, width: "100%", cursor: "pointer", fontFamily: "Georgia, serif", boxSizing: "border-box" as const }}>
+                    <button onClick={() => setShowCoachModal(true)} className="c-btn c-btn-outline" style={{ width: "100%" }}>
                       Mag-order pa para ma-unlock ito →
                     </button>
                   </div>
@@ -1213,7 +1236,8 @@ export default function Home() {
             </div>
             <button
               onClick={() => setTipIndex(i => (i + 1) % wellnessTips.length)}
-              style={{ background: WHITE, border: `2px solid ${G}`, borderRadius: 12, padding: "15px 24px", fontSize: 17, fontWeight: 600, color: G, cursor: "pointer", width: "100%", marginBottom: 32, fontFamily: "Georgia, serif" }}
+              className="c-btn c-btn-outline"
+              style={{ width: "100%", marginBottom: 32 }}
             >
               Susunod na Tip →
             </button>
@@ -1279,8 +1303,8 @@ export default function Home() {
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 10 }}>
-                    <a href={`tel:${c.number}`} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: G, color: "#fff", borderRadius: 12, padding: "14px 8px", fontSize: 15, fontWeight: 700, textDecoration: "none", textAlign: "center" as const }}>📞 {c.display}</a>
-                    <a href={c.facebook} target="_blank" rel="noopener noreferrer" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "#1877F2", color: "#fff", borderRadius: 12, padding: "14px 8px", fontSize: 15, fontWeight: 700, textDecoration: "none", textAlign: "center" as const }}>📘 Facebook</a>
+                    <a href={`tel:${c.number}`} className="c-btn c-btn-green" style={{ flex: 1, textDecoration: "none", gap: 6 }}>📞 {c.display}</a>
+                    <a href={c.facebook} target="_blank" rel="noopener noreferrer" className="c-btn c-btn-fb" style={{ flex: 1, textDecoration: "none" }}>📘 Facebook</a>
                   </div>
                 </div>
               ))}
@@ -1295,7 +1319,7 @@ export default function Home() {
               <div style={{ display: "inline-block", background: G, color: GOLD, borderRadius: 14, padding: "10px 22px", fontSize: 18, fontWeight: 700, marginBottom: 12 }}>R&M EaseBrew</div>
               <p style={{ fontSize: 13, color: G, fontWeight: 700, margin: "0 0 5px 0", letterSpacing: 1, textTransform: "uppercase" as const }}>Everyday We Care</p>
               <p style={{ fontSize: 15, color: MID, margin: "0 0 20px 0", lineHeight: 1.65 }}>Para sa mga Pilipinong naghahanap ng natural na lunas sa body pain at inflammation.</p>
-              <button onClick={() => setShowCoachModal(true)} style={{ background: GOLD, color: G, border: "none", borderRadius: 12, padding: "16px 28px", fontSize: 17, fontWeight: 700, cursor: "pointer", width: "100%", fontFamily: "Georgia, serif", boxSizing: "border-box" as const }}>
+              <button onClick={() => setShowCoachModal(true)} className="c-btn c-btn-gold" style={{ width: "100%" }}>
                 🛒 Mag-order Ulit
               </button>
               <p style={{ fontSize: 13, color: MID, marginTop: 24, lineHeight: 1.7 }}>
@@ -1322,7 +1346,7 @@ export default function Home() {
           cursor: "pointer", zIndex: 500, gap: 1,
         }}
       >
-        <span style={{ fontSize: 22 }}>📞</span>
+        <Phone size={20} color="#FED255" strokeWidth={2.5} />
         <span style={{ fontSize: 9, color: "#FED255", fontWeight: 700, letterSpacing: 0.5 }}>COACH</span>
       </button>
     </div>

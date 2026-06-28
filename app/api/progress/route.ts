@@ -8,6 +8,7 @@ const MINIMUM_TIER_BY_TYPE: Record<string, number> = {
   exercise: 1499,
   recipe_favorites: 2998,
   bagong_katawan: 4497,
+  water: 399,
 };
 
 async function getAuthorizedSession(req: NextRequest, type: string) {
