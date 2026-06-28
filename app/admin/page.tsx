@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Sidebar from "@/app/admin/_components/Sidebar";
 import { useAdminGuard, clearAdminAuthCache } from "@/lib/useAdminGuard";
+import { getCoachLabel } from "@/lib/coachLabel";
 import type { AccessCode } from "@/lib/supabase";
 import {
   Users, TrendingUp, BadgeDollarSign, Clock,
@@ -89,6 +90,7 @@ export default function AdminDashboard() {
   const [codes,      setCodes]     = useState<AccessCode[]>([]);
   const [loading,    setLoading]   = useState(true);
   const [fetchError, setFetchError] = useState(false);
+  const [displayName, setDisplayName] = useState("");
 
   const fetchCodes = useCallback(async () => {
     try {
@@ -101,6 +103,13 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => { if (!checking) fetchCodes(); }, [checking, fetchCodes]);
+
+  useEffect(() => {
+    if (!checking) {
+      const label = role === "coach" ? getCoachLabel() : null;
+      setDisplayName(label || username || "Admin");
+    }
+  }, [checking, username, role]);
 
   async function handleLogout() {
     clearAdminAuthCache();
@@ -148,7 +157,7 @@ export default function AdminDashboard() {
               ☕ R&amp;M Digital Trading
             </div>
             <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 800, margin: "0 0 4px", fontFamily: "Inter, system-ui, sans-serif", letterSpacing: "-0.3px" }}>
-              Good day, {username || "Admin"} 👋
+              Good day, {displayName} 👋
             </h1>
             <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 12.5, margin: 0, fontFamily: "Inter, system-ui, sans-serif" }}>
               {now.toLocaleDateString("en-PH", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}

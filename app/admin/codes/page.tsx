@@ -4,6 +4,7 @@ import Sidebar from "@/app/admin/_components/Sidebar";
 import { useAdminGuard } from "@/lib/useAdminGuard";
 import { PRICE_CONFIG } from "@/lib/price-config";
 import { DEFAULT_COACHES, buildCoaches } from "@/lib/coaches";
+import { getCoachLabel } from "@/lib/coachLabel";
 import type { AccessCode } from "@/lib/supabase";
 import {
   Check, ClipboardCopy, Download, MessageSquare, RefreshCw, Search, Ticket, Trash2, X, AlertTriangle, QrCode,
@@ -254,6 +255,14 @@ export default function CodesPage() {
       }
     }).catch(() => {});
   }, []);
+
+  // Pre-fill coach name from stored label
+  useEffect(() => {
+    if (role === "coach" && !coachName) {
+      const label = getCoachLabel();
+      if (label) setCoachName(label);
+    }
+  }, [role, coachName]);
 
   async function handleGenerate() {
     setError(""); setGeneratedCode(""); setGeneratedMessage("");
