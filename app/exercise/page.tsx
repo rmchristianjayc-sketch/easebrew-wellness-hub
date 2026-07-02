@@ -84,7 +84,7 @@ const EXERCISE_PROGRAM: Phase[] = [
         { name: "Lying Hip Flexor Stretch", sets: 2, duration: "25s each side", rest: "20s", instruction: "Humiga, i-hug ang isang tuhod sa dibdib at hawakan.", modification: "Gawin sa kama kung hindi makaya sa sahig" },
       ]},
       { day: 7, title: "Complete Rest", exercises: [
-        { name: "Full Rest Day", duration: "All day", rest: "N/A", instruction: "Pahinga ang katawan. Inumin ang Easebrew, mag-massage ng Avocado Oil, at matulog ng maaga." },
+        { name: "Full Rest Day", duration: "All day", rest: "N/A", instruction: "Pahinga ang katawan. Inumin ang Easebrew at matulog ng maaga." },
       ]},
     ]
   },
@@ -125,7 +125,7 @@ const EXERCISE_PROGRAM: Phase[] = [
         { name: "Cool-Down Stretch", duration: "10 mins", rest: "N/A", instruction: "Mag-stretch ng lahat ng major muscle groups. Mag-focus sa mga nag-trabaho ngayon." },
       ]},
       { day: 14, title: "Rest & Recovery", exercises: [
-        { name: "Rest Day", duration: "All day", rest: "N/A", instruction: "Pahinga ang katawan. Gamitin ang Avocado Oil para sa self-massage sa masakit na parte." },
+        { name: "Rest Day", duration: "All day", rest: "N/A", instruction: "Pahinga ang katawan. Kung may masakit na parte — light stretching lang at pahinga." },
       ]},
     ]
   },
@@ -383,12 +383,11 @@ export default function ExercisePage() {
           <h3 style={{ fontSize: 21, fontWeight: 700, color: G, margin: "0 0 18px 0" }}>💡 Tips para sa Best Results</h3>
           {[
             { emoji: "☕", text: "Inumin ang Easebrew 30 mins bago mag-exercise para sa mas magaan na pakiramdam." },
-            { emoji: "🫒", text: "I-massage ang Avocado Oil sa joints bago at pagkatapos ng exercise." },
             { emoji: "🛑", text: "Huwag puwersahin — kung masakit, stop agad at mag-rest." },
             { emoji: "💧", text: "Uminom ng tubig bago, habang, at pagkatapos ng exercise." },
             { emoji: "📅", text: "Consistent lang — mas mabuti ang 15 mins araw-araw kaysa 1 oras minsan." },
           ].map((tip, i) => (
-            <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: i < 4 ? 16 : 0, padding: "14px 16px", background: "#F6F2EA", borderRadius: 12 }}>
+            <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: i < 3 ? 16 : 0, padding: "14px 16px", background: "#F6F2EA", borderRadius: 12 }}>
               <span style={{ fontSize: 24, flexShrink: 0 }}>{tip.emoji}</span>
               <p style={{ fontSize: 17, color: DARK, margin: 0, lineHeight: 1.6 }}>{tip.text}</p>
             </div>

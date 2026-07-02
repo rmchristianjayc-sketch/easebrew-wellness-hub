@@ -19,10 +19,10 @@ const PHASE_COLORS = {
 };
 
 type DayEntry = {
-  easebrew: boolean; avocado: boolean; exercise: boolean;
+  easebrew: boolean; exercise: boolean;
   tubig: number; painScore: number; energyScore: number; notes: string;
 };
-const emptyDay = (): DayEntry => ({ easebrew: false, avocado: false, exercise: false, tubig: 0, painScore: 0, energyScore: 0, notes: "" });
+const emptyDay = (): DayEntry => ({ easebrew: false, exercise: false, tubig: 0, painScore: 0, energyScore: 0, notes: "" });
 
 type Measurements = {
   timbang1: string; timbang30: string; timbang60: string; timbang90: string;
@@ -482,8 +482,7 @@ export default function BagongKatawanPage() {
 
                       <div style={{ background: "#FFFBF0", border: `2px solid ${GOLD}`, borderRadius: 14, padding: "14px 18px", marginBottom: 18 }}>
                         <p style={{ fontSize: 16, color: AMBER, margin: 0, lineHeight: 1.6 }}>
-                          ☕ <strong>Easebrew</strong> — uminom 30 minuto bago kumain<br />
-                          🌿 <strong>Avocado Oil</strong> — i-massage gabi bago matulog
+                          ☕ <strong>Easebrew</strong> — uminom 30 minuto bago kumain
                         </p>
                       </div>
 
@@ -493,7 +492,6 @@ export default function BagongKatawanPage() {
                           {[
                             { key: "easebrew", label: "☕ Easebrew", val: track.easebrew },
                             { key: "exercise", label: "💪 Exercise", val: track.exercise },
-                            { key: "avocado", label: "🌿 Avocado Oil", val: track.avocado },
                           ].map(item => (
                             <div key={item.key}
                               onClick={e => { e.stopPropagation(); saveTrack(d.day, { ...track, [item.key]: !item.val }); }}
@@ -657,12 +655,11 @@ export default function BagongKatawanPage() {
             {[
               { icon: "🔥", tip: "Hot Compress — Para sa matigas na joints sa umaga. 15-20 minuto." },
               { icon: "🧊", tip: "Cold Compress — Para sa namamaga at inflamed joints. 15-20 minuto." },
-              { icon: "🌿", tip: "Avocado Oil + Massage — Circular motion, 10-15 minuto." },
               { icon: "☕", tip: "Easebrew + Pahinga — Uminom, humiga nang komportable." },
               { icon: "🦵", tip: "I-elevate ang masakit na parte — Para sa tuhod/paa, i-raise itaas ng puso level." },
               { icon: "🫁", tip: "Breathing — 5 counts inhale, 5 counts exhale. Nagpapababa ng sakit." },
             ].map((item, i) => (
-              <div key={i} style={{ display: "flex", gap: 12, marginBottom: i < 5 ? 10 : 0, alignItems: "flex-start", padding: "12px 14px", background: "#FFF5F5", borderRadius: 12 }}>
+              <div key={i} style={{ display: "flex", gap: 12, marginBottom: i < 4 ? 10 : 0, alignItems: "flex-start", padding: "12px 14px", background: "#FFF5F5", borderRadius: 12 }}>
                 <span style={{ fontSize: 24, flexShrink: 0 }}>{item.icon}</span>
                 <p style={{ fontSize: 16, margin: 0, color: DARK, lineHeight: 1.5 }}>{item.tip}</p>
               </div>
@@ -689,7 +686,7 @@ export default function BagongKatawanPage() {
           <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 18, padding: "20px", marginBottom: 16 }}>
             <p style={{ fontSize: 18, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>🎯 Goals bawat Phase</p>
             {[
-              { phase: "🌱 Phase 1 (Araw 1-30)", color: "#39613B", bg: "#E8F5E0", goals: ["Easebrew BAWAT umaga — walang skip", "Avocado Oil bawat gabi", "Maglakad 15-20 minuto araw-araw", "Gulay sa bawat kain", "8 glasses ng tubig araw-araw", "Tulog 7-8 oras"] },
+              { phase: "🌱 Phase 1 (Araw 1-30)", color: "#39613B", bg: "#E8F5E0", goals: ["Easebrew BAWAT umaga — walang skip", "Maglakad 15-20 minuto araw-araw", "Gulay sa bawat kain", "8 glasses ng tubig araw-araw", "Tulog 7-8 oras"] },
               { phase: "💪 Phase 2 (Araw 31-60)", color: "#185FA5", bg: "#E6F1FB", goals: ["Easebrew 2x araw — umaga at hapon", "Exercise — dagdagan ng 10 minuto", "Pain Score: bumaba ng 2-3 points", "100% gulay sa bawat kain", "I-update ang sukat lingguhan"] },
               { phase: "🏆 Phase 3 (Araw 61-90)", color: "#C0863B", bg: "#FEF0E0", goals: ["Pain Score: 50%+ pagbaba vs Araw 1", "Exercise — gawi na, natural na lang", "Anti-inflammation eating — instinct na", "Araw 90: complete assessment at sukat"] },
             ].map((item, i) => (

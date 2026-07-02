@@ -44,7 +44,6 @@ type DayEntry = {
   painLocations: string[];
   easebrewUmaga: boolean;
   easebrewGabi: boolean;
-  avocadoOil: boolean;
   mood: number;
   notes: string;
 };
@@ -55,7 +54,6 @@ const emptyEntry = (): DayEntry => ({
   painLocations: [],
   easebrewUmaga: false,
   easebrewGabi: false,
-  avocadoOil: false,
   mood: 0,
   notes: "",
 });
@@ -502,7 +500,6 @@ export default function TrackerPage() {
               {[
                 { key: "easebrewUmaga" as const, icon: "🌅", label: "Umaga",       sub: "1st sachet ng araw",      activeColor: G },
                 { key: "easebrewGabi"  as const, icon: "🌙", label: "Gabi",        sub: "2nd sachet ng araw",      activeColor: G },
-                { key: "avocadoOil"    as const, icon: "🌿", label: "Avocado Oil", sub: "Na-massage na bago matulog", activeColor: "#2D5A1B" },
               ].map(({ key, icon, label, sub, activeColor }) => (
                 <button
                   key={key}
@@ -766,11 +763,6 @@ export default function TrackerPage() {
                     <span style={{ fontSize: 16, background: entry.easebrewGabi ? "#E8F5E0" : "#F5F0E8", color: entry.easebrewGabi ? G : "#aaa", borderRadius: 8, padding: "5px 12px", fontWeight: 600 }}>
                       {entry.easebrewGabi ? "☕✅" : "☕❌"} Gabi
                     </span>
-                    {entry.avocadoOil && (
-                      <span style={{ fontSize: 16, background: "#E8F5E0", color: G, borderRadius: 8, padding: "5px 12px", fontWeight: 600 }}>
-                        🌿✅ Avocado Oil
-                      </span>
-                    )}
                     {(entry.painLocations?.length > 0) && entry.painLocations.map(loc => (
                       <span key={loc} style={{ fontSize: 16, background: "#F0EDE6", color: MID, borderRadius: 8, padding: "5px 12px" }}>
                         📍 {loc}

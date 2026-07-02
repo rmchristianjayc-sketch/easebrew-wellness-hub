@@ -18,14 +18,12 @@ import { Gift, Home as HomeIcon, Lightbulb, Phone, Users } from "lucide-react";
 // ============================================================
 const DEFAULT_VIDEOS = [
   { title: "Paano I-prepare ang Easebrew",        desc: "Ang tamang paraan para ma-maximize ang herbal benefits ng Easebrew.", url: "" },
-  { title: "Paano Mag-massage ng Avocado Oil",     desc: "Step-by-step massage technique para sa joint pain relief.",           url: "" },
   { title: "Simple Exercises para sa Joint Pain",  desc: "Low-impact exercises na safe para sa matatanda at may arthritis.",     url: "" },
 ];
 
 const DEFAULT_WELLNESS_TIPS = [
   "Inumin ang Easebrew 30 mins bago kumain para sa best effect.",
   "Uminom ng 8 glasses ng tubig araw-araw — ang dehydration ay nagpapalala ng joint pain.",
-  "I-massage ang Avocado Miracle Oil sa affected joints bago matulog gabi-gabi.",
   "Maglakad ng 15 mins pagkatapos kumain para sa mas magandang digestion.",
   "Kumain ng isda (salmon o bangus) tatlong beses sa isang linggo para sa omega-3.",
   "Ang turmeric at luya ay natural anti-inflammatory — dagdag sa ulam araw-araw.",
@@ -43,7 +41,6 @@ const DEFAULT_FAQS = [
   { q: "Kailan ko dapat inumin ang Easebrew?",                   a: "Umaga at gabi — 2 sachets bawat araw para sa pinakamabilis na resulta. Inumin 30 mins bago kumain para sa best effect." },
   { q: "Pwede ba ang may ulcer?",                                a: "Oo, pero uminom pagkatapos kumain ng konti. Huwag inumin nang empty stomach." },
   { q: "Kailan ko mararamdaman ang effect?",                     a: "Karamihan sa mga customers ay nakakaramdam ng change sa loob ng 7-14 days ng consistent na pag-inom. Para sa mas malalim na effect — 30-90 days." },
-  { q: "Paano gamitin ang Avocado Miracle Oil?",                 a: "I-massage ng 5-10 mins bawat gabi sa masakit na parte. Best pagkatapos ng mainit na shower — mas bukas ang pores, mas mabilis masipsip." },
   { q: "Ilang sachet bawat araw?",                               a: "2 sachets bawat araw — isa sa umaga at isa sa gabi. Ito ang recommended para sa pinakamabuting resulta." },
   { q: "Paano ko ma-access ang aking libreng digital products?", a: "I-tap ang button sa bawat product card. Automatic na ma-a-access ang lahat ng products na kasama sa inyong order!" },
   { q: "May side effects ba ang Easebrew?",                      a: "Ang Easebrew ay gawa sa natural na herbs. Walang known side effects para sa karamihan. Kung may allergy o maintenance medicine — kumonsulta muna sa doktor." },
@@ -59,7 +56,7 @@ const REMINDERS = [
   { time: "Umaga",    icon: "☕", text: "Inumin ang Easebrew — 1st sachet ng araw",               bg: "#E8F5E0", border: "#39613B", textColor: "#39613B" },
   { time: "Tanghali", icon: "🚶", text: "Maglakad ng 15 mins pagkatapos kumain",                  bg: "#FEF9E7", border: "#C0863B", textColor: "#C0863B" },
   { time: "Hapon",    icon: "💧", text: "Uminom ng 8 glasses ng tubig ngayon",                    bg: "#FFFBF0", border: "#FED255", textColor: "#8B6914" },
-  { time: "Gabi",     icon: "☕", text: "Inumin ang Easebrew — 2nd sachet + Avocado Oil massage",  bg: "#F4F8F0", border: "#7DAE2F", textColor: "#39613B" },
+  { time: "Gabi",     icon: "☕", text: "Inumin ang Easebrew — 2nd sachet ng araw",              bg: "#F4F8F0", border: "#7DAE2F", textColor: "#39613B" },
 ];
 
 const PROGRESS_GUIDE = [
@@ -339,7 +336,7 @@ function playChime(type: "check" | "save" = "check") {
 // ============================================================
 // QUICK CHECK-IN (1-tap log from home page)
 // ============================================================
-type QuickEntry = { date: string; painScore: number; painLocation: string; easebrewUmaga: boolean; easebrewGabi: boolean; avocadoOil: boolean; mood: number; notes: string };
+type QuickEntry = { date: string; painScore: number; painLocation: string; easebrewUmaga: boolean; easebrewGabi: boolean; mood: number; notes: string };
 
 function QuickCheckIn({ storageKey }: { storageKey: string }) {
   const today = new Date().toISOString().split("T")[0];
@@ -355,7 +352,7 @@ function QuickCheckIn({ storageKey }: { storageKey: string }) {
   function logIntake(period: "umaga" | "gabi") {
     const entries = readProgressCache<QuickEntry[]>(storageKey, []);
     const idx = entries.findIndex(e => e.date === today);
-    const base: QuickEntry = idx >= 0 ? entries[idx] : { date: today, painScore: 0, painLocation: "", easebrewUmaga: false, easebrewGabi: false, avocadoOil: false, mood: 0, notes: "" };
+    const base: QuickEntry = idx >= 0 ? entries[idx] : { date: today, painScore: 0, painLocation: "", easebrewUmaga: false, easebrewGabi: false, mood: 0, notes: "" };
     const updated = { ...base, [period === "umaga" ? "easebrewUmaga" : "easebrewGabi"]: true };
     const next = idx >= 0 ? entries.map((e, i) => i === idx ? updated : e) : [...entries, updated];
     writeProgressCache(storageKey, next);
@@ -814,7 +811,7 @@ export default function Home() {
       const today = new Date().toISOString().split("T")[0];
       const entries = readProgressCache<QuickEntry[]>(key, []);
       const idx = entries.findIndex(e => e.date === today);
-      const base: QuickEntry = idx >= 0 ? entries[idx] : { date: today, painScore: 0, painLocation: "", easebrewUmaga: false, easebrewGabi: false, avocadoOil: false, mood: 0, notes: "" };
+      const base: QuickEntry = idx >= 0 ? entries[idx] : { date: today, painScore: 0, painLocation: "", easebrewUmaga: false, easebrewGabi: false, mood: 0, notes: "" };
       const updated = { ...base, [period === "umaga" ? "easebrewUmaga" : "easebrewGabi"]: true };
       const next = idx >= 0 ? entries.map((e, i) => i === idx ? updated : e) : [...entries, updated];
       writeProgressCache(key, next);

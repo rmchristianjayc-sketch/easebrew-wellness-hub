@@ -329,7 +329,6 @@ export default function MealPlanPage() {
           <h3 style={{ fontSize: 19, fontWeight: 700, margin: "0 0 14px 0", color: GOLD }}>💡 Araw-araw na Paalala</h3>
           {[
             "☕ EaseBrew — 2 sachets bawat araw (Umaga at Gabi)",
-            "🌿 Avocado Oil — i-massage sa masakit na parte bago matulog",
             "💧 8 glasses ng tubig — mahalaga para sa joints",
             "🚶 15-min na lakad pagkatapos kumain — para sa digestion",
             "🍚 Brown rice (3/4 cup cooked) — mas healthy kaysa white rice",

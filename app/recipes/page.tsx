@@ -914,7 +914,6 @@ useEffect(() => {
       <div style={{ background: GOLD, padding: "12px 20px", display: "flex", gap: 20, overflowX: "auto" }}>
         {[
           { icon: "☕", text: "Easebrew 30 mins bago kumain" },
-          { icon: "🌿", text: "Avocado Oil pagkatapos kumain" },
           { icon: "💧", text: "8+ glasses tubig araw-araw" },
           { icon: "🫚", text: "Brown rice bilang base" },
         ].map((tip, i) => (
