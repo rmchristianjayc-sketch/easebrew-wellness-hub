@@ -1,15 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCustomerToken } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
-
-const MINIMUM_TIER_BY_TYPE: Record<string, number> = {
-  tracker: 399,
-  mealplan: 1499,
-  exercise: 1499,
-  recipe_favorites: 2998,
-  bagong_katawan: 4497,
-  water: 399,
-};
+import { MINIMUM_TIER_BY_TYPE } from '@/lib/tierGates';
 
 async function getAuthorizedSession(req: NextRequest, type: string) {
   const session = await verifyCustomerToken(req);

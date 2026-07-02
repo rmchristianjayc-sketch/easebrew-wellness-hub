@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { buildCoaches, DEFAULT_COACHES, type Coach } from "@/lib/coaches";
-import { G, GOLD, LIGHT_G, CREAM, WHITE, DARK, MID, AMBER } from "@/lib/colors";
+import { G, GOLD, WHITE, DARK, MID, AMBER } from "@/lib/colors";
 import { getDeviceId } from "@/lib/device";
 import { PRICE_CONFIG } from "@/lib/price-config";
 import { DEFAULT_PRODUCTS, getGiftsForTier } from "@/lib/products";
@@ -120,7 +120,6 @@ export default function VerifyPage() {
   const [view, setView]         = useState<View>("verify");
   const [content, setContent]   = useState<Record<string, string>>({});
   const [coaches, setCoaches]   = useState<Coach[]>(DEFAULT_COACHES);
-  const [orderUrls, setOrderUrls] = useState<Record<string, string>>({});
   const [imgError, setImgError] = useState(false);
 
   const isComplete    = code.replace(/-/g, "").length === 12;
@@ -132,12 +131,6 @@ export default function VerifyPage() {
       const map = (data?.content ?? {}) as Record<string, string>;
       setContent(map);
       setCoaches(buildCoaches(map, DEFAULT_COACHES));
-      const urls: Record<string, string> = {};
-      TIER_KEYS.forEach(tier => {
-        const url = map[`order_url_${tier}`]?.trim();
-        if (url) urls[`order_url_${tier}`] = url;
-      });
-      setOrderUrls(urls);
     }).catch(() => {});
   }, []);
 
@@ -317,7 +310,6 @@ export default function VerifyPage() {
                 <p className="c-body" style={{ margin: "0 0 18px" }}>Mas mataas na package, mas maraming wellness tools ang naka-unlock para sa inyo.</p>
                 <div style={{ display: "grid", gap: 14, marginBottom: 20 }}>
                   {perks.map(perk => {
-                    const url = orderUrls[`order_url_${perk.tier}`];
                     return (
                       <div key={perk.tier} style={{
                         background: perk.highlight ? G : WHITE,

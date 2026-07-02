@@ -5,9 +5,8 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { writeAuditLog } from '@/lib/audit';
 
 const MAX_ATTEMPTS = 8;
-const WINDOW_MS = 15 * 60 * 1000;
+const WINDOW_MINUTES = 15;
 
-const attempts = new Map<string, { count: number; resetAt: number }>();
 type AdminRole = 'owner' | 'coach';
 type LoginAdminUser = {
   username: string;
@@ -22,24 +21,24 @@ function getRateLimitKey(req: NextRequest, username: unknown) {
   return `${ip}:${typeof username === 'string' ? username.toLowerCase() : 'unknown'}`;
 }
 
-function isRateLimited(key: string) {
-  const now = Date.now();
-  const entry = attempts.get(key);
-  if (!entry || entry.resetAt <= now) {
-    attempts.set(key, { count: 0, resetAt: now + WINDOW_MS });
-    return false;
-  }
-  return entry.count >= MAX_ATTEMPTS;
+async function isRateLimited(identifier: string) {
+  const windowStart = new Date(Date.now() - WINDOW_MINUTES * 60 * 1000).toISOString();
+  const { count, error } = await supabaseAdmin
+    .from('admin_login_attempts')
+    .select('id', { count: 'exact', head: true })
+    .eq('identifier', identifier)
+    .gt('attempted_at', windowStart);
+
+  if (error) return false;
+  return (count ?? 0) >= MAX_ATTEMPTS;
 }
 
-function recordFailedAttempt(key: string) {
-  const now = Date.now();
-  const entry = attempts.get(key);
-  if (!entry || entry.resetAt <= now) {
-    attempts.set(key, { count: 1, resetAt: now + WINDOW_MS });
-    return;
-  }
-  attempts.set(key, { ...entry, count: entry.count + 1 });
+async function recordAttempt(identifier: string) {
+  await supabaseAdmin.from('admin_login_attempts').insert({ identifier });
+}
+
+async function clearAttempts(identifier: string) {
+  await supabaseAdmin.from('admin_login_attempts').delete().eq('identifier', identifier);
 }
 
 function normalizeUsername(username: unknown) {
@@ -93,12 +92,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (isRateLimited(rateLimitKey)) {
+    if (await isRateLimited(rateLimitKey)) {
       return NextResponse.json(
         { error: 'Too many login attempts. Please try again later.' },
         { status: 429 }
       );
     }
+
+    await recordAttempt(rateLimitKey);
 
     const adminUser = await findAdminUser(normalizedUsername);
     const isValidPassword =
@@ -107,7 +108,6 @@ export async function POST(req: NextRequest) {
         : false;
 
     if (!adminUser || !isValidPassword) {
-      recordFailedAttempt(rateLimitKey);
       writeAuditLog({ admin_username: normalizedUsername, action: 'admin_login_failed' });
       return NextResponse.json(
         { error: 'Invalid username or password.' },
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    attempts.delete(rateLimitKey);
+    await clearAttempts(rateLimitKey);
     writeAuditLog({ admin_username: adminUser.username, action: 'admin_login' });
     const response = NextResponse.json({
       success: true,

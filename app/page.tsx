@@ -687,9 +687,11 @@ export default function Home() {
   // patuloy pa ring may access ang customer hangga't valid ang lumang cookie.
   const { checking, session } = useSessionGuard();
   const customerTier = session?.tier ?? 0;
-  const daysLeft = session?.expires_at
-    ? Math.ceil((new Date(session.expires_at).getTime() - Date.now()) / 86400000)
-    : null;
+  const [daysLeft, setDaysLeft] = useState<number | null>(null);
+  useEffect(() => {
+    if (!session?.expires_at) { setDaysLeft(null); return; }
+    setDaysLeft(Math.ceil((new Date(session.expires_at).getTime() - Date.now()) / 86400000));
+  }, [session?.expires_at]);
 
   const [tipIndex, setTipIndex] = useState(0);
   const [tab, setTab] = useState<Tab>("home");

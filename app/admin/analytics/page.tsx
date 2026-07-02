@@ -4,7 +4,7 @@ import Sidebar from "@/app/admin/_components/Sidebar";
 import { useAdminGuard } from "@/lib/useAdminGuard";
 import type { AccessCode } from "@/lib/supabase";
 import {
-  BarChart3, CheckCircle2, Clock, Package, Trophy, Users,
+  CheckCircle2, Clock, Package, Trophy, Users,
 } from "lucide-react";
 
 // ─── Stat card ────────────────────────────────────────────────────────────────
@@ -214,7 +214,6 @@ export default function AnalyticsPage() {
       .reduce((s, c) => s + (c.tier || 0), 0);
     months.push({ label, revenue });
   }
-  const maxRevenue = Math.max(...months.map(m => m.revenue), 1);
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#f5f7f5", fontFamily: "Inter, system-ui, sans-serif" }}>

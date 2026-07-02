@@ -4,23 +4,7 @@ import {
   verifyCustomerToken,
   verifyToken,
 } from '@/lib/auth';
-
-const PROTECTED_CUSTOMER_PATHS = [
-  '/',
-  '/exercise',
-  '/meal-plan',
-  '/recipes',
-  '/tracker',
-  '/bagong-katawan',
-];
-
-const MINIMUM_TIER_BY_PATH: Record<string, number> = {
-  '/tracker': 999,
-  '/meal-plan': 1499,
-  '/exercise': 1499,
-  '/recipes': 2998,
-  '/bagong-katawan': 4497,
-};
+import { MINIMUM_TIER_BY_PATH, PROTECTED_CUSTOMER_PATHS } from '@/lib/tierGates';
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -77,6 +61,7 @@ export const config = {
     '/meal-plan/:path*',
     '/recipes/:path*',
     '/tracker/:path*',
+    '/water/:path*',
     '/bagong-katawan/:path*',
   ],
 };

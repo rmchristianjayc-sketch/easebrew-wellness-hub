@@ -541,6 +541,7 @@ export default function CodesPage() {
                     <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, margin: "0 0 8px", fontFamily: "var(--admin-font)", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
                       <QrCode size={12} /> QR Code — i-screenshot at i-share sa customer
                     </p>
+                    {/* eslint-disable-next-line @next/next/no-img-element -- external QR service, admin-only page (no LCP impact) */}
                     <img
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(generatedCode)}&bgcolor=183b28&color=FED255&qzone=2`}
                       alt={`QR Code for ${generatedCode}`}

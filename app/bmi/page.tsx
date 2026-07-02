@@ -116,7 +116,7 @@ export default function BmiPage() {
                 className="c-input"
                 style={{ width: "100%", boxSizing: "border-box" }}
               />
-              <p style={{ fontSize: 13, color: MID, marginTop: 5 }}>Tip: 5 talampakan = 152cm, 5'4" = 163cm, 5'7" = 170cm</p>
+              <p style={{ fontSize: 13, color: MID, marginTop: 5 }}>Tip: 5 talampakan = 152cm, 5&apos;4&quot; = 163cm, 5&apos;7&quot; = 170cm</p>
             </div>
 
             {/* Weight */}
