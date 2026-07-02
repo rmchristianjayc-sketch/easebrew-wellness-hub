@@ -61,7 +61,6 @@ export const config = {
     '/meal-plan/:path*',
     '/recipes/:path*',
     '/tracker/:path*',
-    '/water/:path*',
     '/bagong-katawan/:path*',
   ],
 };

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache } from "@/lib/progressStorage";
-import { ChevronLeft, FileText, Droplets, Activity, Scale, Apple } from "lucide-react";
+import { ChevronLeft, FileText, Activity, Scale, Apple, Heart } from "lucide-react";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";
@@ -12,9 +12,6 @@ const CREAM = "#EEE5D4";
 const DARK  = "#1B201A";
 const MID   = "#4E504F";
 const WHITE = "#FFFFFB";
-const BLUE  = "#0ea5e9";
-
-type DayLog = { date: string; glasses: number };
 type CheckIn = { date: string; weight?: number; energy?: number; pain?: number; notes?: string };
 
 function getWeekDates(): string[] {
@@ -40,15 +37,12 @@ function ScoreBar({ score, max = 10, color }: { score: number; max?: number; col
 
 export default function WeeklyReportPage() {
   const { checking, session } = useSessionGuard();
-  const [waterLogs,   setWaterLogs]   = useState<DayLog[]>([]);
-  const [checkIns,    setCheckIns]    = useState<CheckIn[]>([]);
+  const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
   const weekDates = getWeekDates();
 
   useEffect(() => {
     if (!session) return;
-    const wKey = progressStorageKey("easebrew-water-v1", session.code);
     const tKey = progressStorageKey("easebrew-tracker-v1", session.code);
-    setWaterLogs(readProgressCache<DayLog[]>(wKey, []));
     setCheckIns(readProgressCache<CheckIn[]>(tKey, []));
   }, [session]);
 
@@ -57,12 +51,6 @@ export default function WeeklyReportPage() {
       <p style={{ color: G, fontWeight: 600, fontFamily: "Georgia, serif", fontSize: 18 }}>☕ Loading...</p>
     </div>
   );
-
-  // Water stats
-  const weekWaterLogs = weekDates.map(d => ({ date: d, glasses: waterLogs.find(l => l.date === d)?.glasses ?? 0 }));
-  const totalGlasses  = weekWaterLogs.reduce((s, l) => s + l.glasses, 0);
-  const daysGoalMet   = weekWaterLogs.filter(l => l.glasses >= 8).length;
-  const avgGlasses    = Math.round((totalGlasses / 7) * 10) / 10;
 
   // Check-in stats
   const weekCheckIns = weekDates.map(d => checkIns.find(c => c.date === d));
@@ -77,11 +65,10 @@ export default function WeeklyReportPage() {
   })();
 
   // Wellness score (0–100)
-  const waterScore   = Math.round((daysGoalMet / 7) * 35);
-  const trackerScore = Math.round((checkedDays / 7) * 25);
-  const energyScore  = avgEnergy != null ? Math.round((avgEnergy / 10) * 20) : 0;
-  const painScore    = avgPain != null ? Math.round(((10 - avgPain) / 10) * 20) : 0;
-  const totalScore   = waterScore + trackerScore + energyScore + painScore;
+  const trackerScore = Math.round((checkedDays / 7) * 40);
+  const energyScore  = avgEnergy != null ? Math.round((avgEnergy / 10) * 30) : 0;
+  const painScore    = avgPain != null ? Math.round(((10 - avgPain) / 10) * 30) : 0;
+  const totalScore   = trackerScore + energyScore + painScore;
 
   const scoreLabel = totalScore >= 80 ? { text: "Napakagaling! 🏆", color: G, bg: "#dcfce7" }
     : totalScore >= 60 ? { text: "Magaling! ✅", color: "#1d4ed8", bg: "#eff6ff" }
@@ -128,10 +115,9 @@ export default function WeeklyReportPage() {
         <div style={{ background: WHITE, borderRadius: 20, padding: "22px", marginBottom: 20, border: "1.5px solid #D8CDBA" }}>
           <h2 className="c-heading" style={{ color: DARK, marginBottom: 18 }}>📊 Score Breakdown</h2>
           {[
-            { label: "Water Goal (35pts)", score: waterScore, max: 35, color: BLUE, detail: `${daysGoalMet}/7 araw ang na-achieve` },
-            { label: "Daily Check-ins (25pts)", score: trackerScore, max: 25, color: G, detail: `${checkedDays}/7 araw na nag-log` },
-            { label: "Energy Level (20pts)", score: energyScore, max: 20, color: "#f59e0b", detail: avgEnergy != null ? `Avg: ${avgEnergy}/10` : "Walang data" },
-            { label: "Pain Level (20pts)", score: painScore, max: 20, color: "#ef4444", detail: avgPain != null ? `Avg pain: ${avgPain}/10 (mas mababa = mas ok)` : "Walang data" },
+            { label: "Daily Check-ins (40pts)", score: trackerScore, max: 40, color: G, detail: `${checkedDays}/7 araw na nag-log` },
+            { label: "Energy Level (30pts)", score: energyScore, max: 30, color: "#f59e0b", detail: avgEnergy != null ? `Avg: ${avgEnergy}/10` : "Walang data" },
+            { label: "Pain Level (30pts)", score: painScore, max: 30, color: "#ef4444", detail: avgPain != null ? `Avg pain: ${avgPain}/10 (mas mababa = mas ok)` : "Walang data" },
           ].map((item, i) => (
             <div key={i} style={{ marginBottom: 16 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
@@ -142,43 +128,6 @@ export default function WeeklyReportPage() {
               <p style={{ fontSize: 12, color: MID, marginTop: 4, margin: "4px 0 0" }}>{item.detail}</p>
             </div>
           ))}
-        </div>
-
-        {/* Water this week */}
-        <div style={{ background: WHITE, borderRadius: 20, padding: "22px", marginBottom: 20, border: "1.5px solid #D8CDBA" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-            <Droplets size={22} color={BLUE} strokeWidth={2} />
-            <h2 className="c-heading" style={{ color: DARK, margin: 0 }}>Tubig ngayong linggo</h2>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 16 }}>
-            {[
-              { label: "Total na Baso", value: totalGlasses, unit: "baso", color: BLUE },
-              { label: "Araw na Goal Met", value: daysGoalMet, unit: "/ 7 araw", color: G },
-              { label: "Average / Araw", value: avgGlasses, unit: "baso", color: "#7c3aed" },
-            ].map((s, i) => (
-              <div key={i} style={{ background: "#f0f9ff", borderRadius: 14, padding: "14px 12px", textAlign: "center" }}>
-                <div style={{ fontSize: 26, fontWeight: 900, color: s.color, lineHeight: 1 }}>{s.value}</div>
-                <div style={{ fontSize: 11, color: MID, marginTop: 4 }}>{s.unit}</div>
-                <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{ display: "flex", gap: 6 }}>
-            {weekWaterLogs.map((l, i) => {
-              const pct = Math.min((l.glasses / 8) * 100, 100);
-              const done = l.glasses >= 8;
-              const dayName = ["Lin","Lun","Mar","Miy","Huw","Biy","Sab"][new Date(l.date + "T00:00:00").getDay()];
-              return (
-                <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                  <div style={{ width: "100%", height: 60, background: "#e0f2fe", borderRadius: 8, overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-                    <div style={{ height: `${pct}%`, background: done ? `linear-gradient(180deg, #7dd3fc, ${BLUE})` : "#93c5fd", borderRadius: 8, transition: "height 0.5s", minHeight: l.glasses > 0 ? 4 : 0 }} />
-                  </div>
-                  <span style={{ fontSize: 9, color: done ? BLUE : MID, fontWeight: done ? 700 : 400 }}>{dayName}</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: done ? BLUE : "#94a3b8" }}>{l.glasses}</span>
-                </div>
-              );
-            })}
-          </div>
         </div>
 
         {/* Check-in summary */}
@@ -220,11 +169,11 @@ export default function WeeklyReportPage() {
         <div style={{ background: G, borderRadius: 20, padding: "22px", marginBottom: 20 }}>
           <p style={{ color: GOLD, fontWeight: 700, fontSize: 17, margin: "0 0 12px" }}>☕ Personalized Tips para sa inyo</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {daysGoalMet < 4 && (
+            {avgPain != null && avgPain >= 6 && (
               <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 14px", display: "flex", gap: 10 }}>
-                <Droplets size={18} color="#7dd3fc" strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }} />
+                <Heart size={18} color="#fca5a5" strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }} />
                 <p style={{ color: "rgba(255,255,255,0.9)", fontSize: 14, margin: 0, lineHeight: 1.65 }}>
-                  Mag-focus sa pag-inom ng tubig ngayong linggo. Subukang mag-set ng alarm bawat 2 oras para mag-alala kang uminom.
+                  Mataas ang pain level ngayong linggo. Siguraduhing consistent ang pag-inom ng EaseBrew 2x kada araw at mag-rest kung kailangan.
                 </p>
               </div>
             )}
@@ -259,9 +208,6 @@ export default function WeeklyReportPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <Link href="/tracker" className="c-btn c-btn-green" style={{ textAlign: "center" as const, textDecoration: "none", display: "block" }}>
             📋 Mag-log sa Daily Tracker
-          </Link>
-          <Link href="/water" style={{ background: "#e0f2fe", color: "#0284c7", borderRadius: 16, padding: "16px 24px", fontSize: 16, fontWeight: 700, textAlign: "center" as const, textDecoration: "none", display: "block" }}>
-            💧 Water Tracker
           </Link>
         </div>
       </div>

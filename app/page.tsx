@@ -1025,17 +1025,25 @@ export default function Home() {
             <div style={{ marginBottom: 24 }}>
               <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>Libreng Health Tools 🛠️</h2>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                <Link href="/water" style={{ background: "#e0f2fe", border: "2px solid #7dd3fc", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90 }}>
-                  <span style={{ fontSize: 32 }}>💧</span>
-                  <p style={{ fontSize: 16, fontWeight: 700, color: "#0284c7", margin: 0, textAlign: "center", lineHeight: 1.3 }}>Water Tracker</p>
+                <Link href="/blood-pressure" style={{ background: "#fee2e2", border: "2px solid #fca5a5", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90 }}>
+                  <span style={{ fontSize: 32 }}>🩺</span>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: "#991b1b", margin: 0, textAlign: "center", lineHeight: 1.3 }}>Blood Pressure Log</p>
+                </Link>
+                <Link href="/medication" style={{ background: "#e0e7ff", border: "2px solid #a5b4fc", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90 }}>
+                  <span style={{ fontSize: 32 }}>💊</span>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: "#3730a3", margin: 0, textAlign: "center", lineHeight: 1.3 }}>Medication Log</p>
+                </Link>
+                <Link href="/medical-card" style={{ background: "#e0f2fe", border: "2px solid #7dd3fc", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90 }}>
+                  <span style={{ fontSize: 32 }}>📋</span>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: "#0369a1", margin: 0, textAlign: "center", lineHeight: 1.3 }}>Medical Info Card</p>
                 </Link>
                 <Link href="/bmi" style={{ background: "#f3e8ff", border: "2px solid #c4b5fd", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90 }}>
                   <span style={{ fontSize: 32 }}>⚖️</span>
-                  <p style={{ fontSize: 16, fontWeight: 700, color: "#7c3aed", margin: 0, textAlign: "center", lineHeight: 1.3 }}>BMI Calculator</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: "#7c3aed", margin: 0, textAlign: "center", lineHeight: 1.3 }}>BMI Calculator</p>
                 </Link>
                 <Link href="/report" style={{ background: "#fefce8", border: "2px solid #fcd34d", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90, gridColumn: "1 / -1" }}>
-                  <span style={{ fontSize: 32 }}>📋</span>
-                  <p style={{ fontSize: 16, fontWeight: 700, color: "#92400e", margin: 0, textAlign: "center", lineHeight: 1.3 }}>Weekly Wellness Report</p>
+                  <span style={{ fontSize: 32 }}>📊</span>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: "#92400e", margin: 0, textAlign: "center", lineHeight: 1.3 }}>Weekly Wellness Report</p>
                 </Link>
               </div>
             </div>
