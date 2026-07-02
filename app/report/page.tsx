@@ -42,7 +42,7 @@ export default function WeeklyReportPage() {
 
   useEffect(() => {
     if (!session) return;
-    const tKey = progressStorageKey("easebrew-tracker-v1", session.code);
+    const tKey = progressStorageKey("easebrew-tracker-v2", session.code);
     setCheckIns(readProgressCache<CheckIn[]>(tKey, []));
   }, [session]);
 
