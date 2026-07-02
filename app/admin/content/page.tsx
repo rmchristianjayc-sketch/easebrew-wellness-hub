@@ -537,81 +537,292 @@ export default function ContentPage() {
 
             ) : activeGroup === "🛍️ Products & Gifts" ? (
               <ProductsSection editing={editing} content={content} saved={saved} setEditing={setEditing} setContent={setContent} setSaved={setSaved} />
-            ) : (
-              <>
-                {activeGroup === "🎬 Videos" && (
-                  <div style={{ background: "#f0f7f0", border: "1px solid #d4e8d4", borderRadius: 10, padding: "12px 16px", marginBottom: 18, fontSize: 12, color: G, lineHeight: 1.6 }}>
-                    💡 <strong>Paano gamitin:</strong> I-upload ang video sa YouTube (puwedeng &quot;Unlisted&quot; para hindi makita sa public search), tapos i-copy-paste ang buong link dito (kahit anong format — youtube.com/watch?v=..., youtu.be/..., atbp.)
-                  </div>
-                )}
-                <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-                  {groups[activeGroup]?.map(key => {
-                    const meta      = CONTENT_LABELS[key];
-                    const val       = editing[key] ?? "";
-                    const isSaving  = saving[key];
-                    const isSaved   = saved[key];
-                    const hasChange = val !== (content[key] ?? "");
-                    const fieldStyle: React.CSSProperties = {
-                      width: "100%", padding: "10px 13px", borderRadius: 8,
-                      border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`,
-                      fontSize: 13, outline: "none", boxSizing: "border-box",
-                      fontFamily: "Inter, system-ui, sans-serif", color: DARK,
-                      background: hasChange ? "#fffbeb" : "white",
-                      transition: "border-color 0.2s, background 0.2s",
-                    };
-                    const dividerLabel =
-                      COACH_DIVIDERS[key] || TESTIMONIAL_DIVIDERS[key] ||
-                      FAQ_DIVIDERS[key]   || VIDEO_DIVIDERS[key] || null;
-                    return (
-                      <div key={key}>
-                        {dividerLabel && (
-                          <div style={{ background: "#f0f7f0", borderRadius: 8, padding: "8px 14px", marginBottom: 14, borderLeft: `3px solid ${G}`, fontSize: 13, fontWeight: "bold", color: G }}>
-                            {dividerLabel}
-                          </div>
+
+            /* ── WELLNESS TIPS — 2-col grid ── */
+            ) : activeGroup === "💡 Wellness Tips" ? (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                {[1,2,3,4,5,6,7,8].map(n => {
+                  const key = `daily_tip_${n}`;
+                  const val = editing[key] ?? "";
+                  const hasChange = val !== (content[key] ?? "");
+                  const isSaved2 = saved[key];
+                  return (
+                    <div key={n} style={{ background: "white", border: `1.5px solid ${hasChange ? "#f59e0b" : "#e8e8e8"}`, borderRadius: 12, padding: 16 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                        <span style={{ fontWeight: "bold", fontSize: 12, color: val ? G : MID }}>💡 Tip {n}</span>
+                        <button onClick={() => handleSave(key)} disabled={!hasChange} style={{
+                          background: isSaved2 ? "#dcfce7" : hasChange ? G : "#f0f0f0",
+                          color: isSaved2 ? G : hasChange ? "white" : "#aaa",
+                          border: "none", borderRadius: 6, padding: "4px 12px", fontSize: 11, fontWeight: "bold", cursor: hasChange ? "pointer" : "not-allowed",
+                        }}>{isSaved2 ? "✅" : "Save"}</button>
+                      </div>
+                      <textarea value={val}
+                        onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                        rows={3} placeholder="Isulat ang tip dito..."
+                        style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const, background: hasChange ? "#fffbeb" : "white", color: DARK }}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+
+            /* ── FAQs — card per Q&A pair ── */
+            ) : activeGroup === "❓ FAQs" ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {[1,2,3,4,5,6,7].map(n => {
+                  const qKey = `faq_${n}_q`;
+                  const aKey = `faq_${n}_a`;
+                  const qVal = editing[qKey] ?? "";
+                  const aVal = editing[aKey] ?? "";
+                  const hasChange = qVal !== (content[qKey] ?? "") || aVal !== (content[aKey] ?? "");
+                  const hasContent2 = qVal.trim() || aVal.trim();
+                  const allSaved2 = saved[qKey] && saved[aKey];
+                  return (
+                    <div key={n} style={{ background: hasContent2 ? "#f9fdfb" : "white", border: `1.5px solid ${hasChange ? "#f59e0b" : "#e8e8e8"}`, borderRadius: 12, padding: 16 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                        <span style={{ fontWeight: "bold", fontSize: 13, color: hasContent2 ? G : MID }}>❓ FAQ {n} {!hasContent2 && <span style={{ fontWeight: "normal", color: "#bbb" }}>— Walang laman</span>}</span>
+                        {hasChange && (
+                          <button onClick={async () => {
+                            const updates = [{ key: qKey, value: qVal }, { key: aKey, value: aVal }];
+                            const res = await fetch("/api/admin/content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ updates }) });
+                            if (res.ok) {
+                              setContent(p => ({ ...p, [qKey]: qVal, [aKey]: aVal }));
+                              setSaved(p => ({ ...p, [qKey]: true, [aKey]: true }));
+                              setTimeout(() => setSaved(p => ({ ...p, [qKey]: false, [aKey]: false })), 2000);
+                            }
+                          }} style={{ background: allSaved2 ? "#dcfce7" : G, color: allSaved2 ? G : "white", border: "none", borderRadius: 6, padding: "4px 12px", fontSize: 11, fontWeight: "bold", cursor: "pointer" }}>
+                            {allSaved2 ? "✅ Saved!" : "💾 Save"}
+                          </button>
                         )}
-                        <div style={{ borderBottom: "1px solid #f5f5f5", paddingBottom: 18 }}>
-                          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
-                            <div style={{ flex: 1 }}>
-                              <label style={{ fontSize: 12, color: DARK, fontWeight: "bold", display: "block", marginBottom: 6 }}>
-                                {meta.label}
-                                {hasChange && <span style={{ color: "#f59e0b", marginLeft: 6, fontSize: 11 }}>● Modified</span>}
-                              </label>
-                              {meta.type === "boolean" ? (
-                                <select value={val === "true" ? "true" : "false"}
-                                  onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
-                                  style={{ ...fieldStyle, cursor: "pointer" }}
-                                >
-                                  <option value="true">✅ Oo — Ipakita</option>
-                                  <option value="false">🚫 Hindi — Itago</option>
-                                </select>
-                              ) : meta.multiline ? (
-                                <textarea value={val}
-                                  onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
-                                  rows={3} style={{ ...fieldStyle, resize: "vertical" }}
-                                />
-                              ) : (
-                                <input type="text" value={val}
-                                  onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
-                                  style={fieldStyle}
-                                />
-                              )}
-                            </div>
-                            <button onClick={() => handleSave(key)} disabled={isSaving || !hasChange} style={{
-                              marginTop: 22, background: isSaved ? "#dcfce7" : hasChange ? G : "#f0f0f0",
-                              color: isSaved ? G : hasChange ? "white" : "#aaa",
-                              border: "none", borderRadius: 8, padding: "9px 18px",
-                              fontSize: 12, fontWeight: "bold",
-                              cursor: hasChange ? "pointer" : "not-allowed", whiteSpace: "nowrap",
-                            }}>
-                              {isSaved ? "✅ Saved!" : isSaving ? "Saving..." : "Save"}
-                            </button>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        <div>
+                          <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>Tanong</label>
+                          <input type="text" value={qVal}
+                            onChange={e => setEditing(p => ({ ...p, [qKey]: e.target.value }))}
+                            placeholder="Isulat ang tanong..."
+                            style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, color: DARK }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>Sagot</label>
+                          <textarea value={aVal}
+                            onChange={e => setEditing(p => ({ ...p, [aKey]: e.target.value }))}
+                            rows={2} placeholder="Isulat ang sagot..."
+                            style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const, color: DARK }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+            /* ── TESTIMONIALS — card per person ── */
+            ) : activeGroup === "💬 Testimonials" ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {[1,2,3].map(n => {
+                  const fields = [
+                    { key: `testimonial_${n}_name`, label: "Pangalan", placeholder: "e.g. Nena R." },
+                    { key: `testimonial_${n}_age`, label: "Edad", placeholder: "e.g. 58" },
+                    { key: `testimonial_${n}_location`, label: "Lokasyon", placeholder: "e.g. Quezon City" },
+                    { key: `testimonial_${n}_pain_before`, label: "Pain Bago (1-10)", placeholder: "e.g. 8" },
+                    { key: `testimonial_${n}_pain_after`, label: "Pain Pagkatapos (1-10)", placeholder: "e.g. 3" },
+                  ];
+                  const quoteKey = `testimonial_${n}_quote`;
+                  const allKeys = [...fields.map(f => f.key), quoteKey];
+                  const hasContent2 = allKeys.some(k => (editing[k] ?? "").trim());
+                  const hasChange = allKeys.some(k => (editing[k] ?? "") !== (content[k] ?? ""));
+                  const allSaved2 = allKeys.every(k => saved[k]);
+                  return (
+                    <div key={n} style={{ background: hasContent2 ? "#f9fdfb" : "white", border: `1.5px solid ${hasChange ? "#f59e0b" : "#e8e8e8"}`, borderRadius: 12, padding: 18 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                        <span style={{ fontWeight: "bold", fontSize: 13, color: hasContent2 ? G : MID }}>⭐ Testimonial {n} {!hasContent2 && <span style={{ fontWeight: "normal", color: "#bbb" }}>— Walang laman</span>}</span>
+                        {hasChange && (
+                          <button onClick={async () => {
+                            const updates = allKeys.map(k => ({ key: k, value: editing[k] ?? "" }));
+                            const res = await fetch("/api/admin/content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ updates }) });
+                            if (res.ok) {
+                              const s: Record<string, string> = {};
+                              allKeys.forEach(k => { s[k] = editing[k] ?? ""; });
+                              setContent(p => ({ ...p, ...s }));
+                              const sv: Record<string, boolean> = {};
+                              allKeys.forEach(k => { sv[k] = true; });
+                              setSaved(p => ({ ...p, ...sv }));
+                              setTimeout(() => setSaved(p => { const c = { ...p }; allKeys.forEach(k => { c[k] = false; }); return c; }), 2000);
+                            }
+                          }} style={{ background: allSaved2 ? "#dcfce7" : G, color: allSaved2 ? G : "white", border: "none", borderRadius: 6, padding: "5px 14px", fontSize: 11, fontWeight: "bold", cursor: "pointer" }}>
+                            {allSaved2 ? "✅ Saved!" : "💾 Save"}
+                          </button>
+                        )}
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 10 }}>
+                        {fields.slice(0, 3).map(({ key, label, placeholder }) => (
+                          <div key={key}>
+                            <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>{label}</label>
+                            <input type="text" value={editing[key] ?? ""}
+                              onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                              placeholder={placeholder}
+                              style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, color: DARK }}
+                            />
                           </div>
+                        ))}
+                      </div>
+                      <div style={{ marginBottom: 10 }}>
+                        <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>Quote</label>
+                        <textarea value={editing[quoteKey] ?? ""}
+                          onChange={e => setEditing(p => ({ ...p, [quoteKey]: e.target.value }))}
+                          rows={2} placeholder="Isulat ang testimonial quote..."
+                          style={{ width: "100%", padding: "8px 10px", borderRadius: 7, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const, color: DARK }}
+                        />
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                        {fields.slice(3).map(({ key, label, placeholder }) => (
+                          <div key={key}>
+                            <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>{label}</label>
+                            <input type="text" value={editing[key] ?? ""}
+                              onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                              placeholder={placeholder}
+                              style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, color: DARK }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+            /* ── VIDEOS — card per video ── */
+            ) : activeGroup === "🎬 Videos" ? (
+              <>
+                <div style={{ background: "#f0f7f0", border: "1px solid #d4e8d4", borderRadius: 10, padding: "12px 16px", marginBottom: 16, fontSize: 12, color: G, lineHeight: 1.6 }}>
+                  💡 <strong>Paano gamitin:</strong> I-upload ang video sa YouTube (puwedeng &quot;Unlisted&quot; para hindi makita sa public search), tapos i-copy-paste ang buong link dito.
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  {[1,2,3].map(n => {
+                    const titleKey = `video_${n}_title`;
+                    const descKey = `video_${n}_desc`;
+                    const urlKey = `video_${n}_url`;
+                    const allKeys = [titleKey, descKey, urlKey];
+                    const hasContent2 = allKeys.some(k => (editing[k] ?? "").trim());
+                    const hasChange = allKeys.some(k => (editing[k] ?? "") !== (content[k] ?? ""));
+                    const allSaved2 = allKeys.every(k => saved[k]);
+                    return (
+                      <div key={n} style={{ background: hasContent2 ? "#f9fdfb" : "white", border: `1.5px solid ${hasChange ? "#f59e0b" : "#e8e8e8"}`, borderRadius: 12, padding: 16 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                          <span style={{ fontWeight: "bold", fontSize: 13, color: hasContent2 ? G : MID }}>🎬 Video {n} {!hasContent2 && <span style={{ fontWeight: "normal", color: "#bbb" }}>— Walang laman</span>}</span>
+                          {hasChange && (
+                            <button onClick={async () => {
+                              const updates = allKeys.map(k => ({ key: k, value: editing[k] ?? "" }));
+                              const res = await fetch("/api/admin/content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ updates }) });
+                              if (res.ok) {
+                                const s: Record<string, string> = {};
+                                allKeys.forEach(k => { s[k] = editing[k] ?? ""; });
+                                setContent(p => ({ ...p, ...s }));
+                                const sv: Record<string, boolean> = {};
+                                allKeys.forEach(k => { sv[k] = true; });
+                                setSaved(p => ({ ...p, ...sv }));
+                                setTimeout(() => setSaved(p => { const c = { ...p }; allKeys.forEach(k => { c[k] = false; }); return c; }), 2000);
+                              }
+                            }} style={{ background: allSaved2 ? "#dcfce7" : G, color: allSaved2 ? G : "white", border: "none", borderRadius: 6, padding: "4px 12px", fontSize: 11, fontWeight: "bold", cursor: "pointer" }}>
+                              {allSaved2 ? "✅ Saved!" : "💾 Save"}
+                            </button>
+                          )}
+                        </div>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 10, marginBottom: 8 }}>
+                          <div>
+                            <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>Title</label>
+                            <input type="text" value={editing[titleKey] ?? ""}
+                              onChange={e => setEditing(p => ({ ...p, [titleKey]: e.target.value }))}
+                              placeholder="Video title..."
+                              style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, color: DARK }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>YouTube Link</label>
+                            <input type="text" value={editing[urlKey] ?? ""}
+                              onChange={e => setEditing(p => ({ ...p, [urlKey]: e.target.value }))}
+                              placeholder="https://youtube.com/watch?v=..."
+                              style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, color: DARK }}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>Description</label>
+                          <textarea value={editing[descKey] ?? ""}
+                            onChange={e => setEditing(p => ({ ...p, [descKey]: e.target.value }))}
+                            rows={2} placeholder="Maikling description..."
+                            style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const, color: DARK }}
+                          />
                         </div>
                       </div>
                     );
                   })}
                 </div>
               </>
+
+            /* ── Default: Promo & Homepage (simple fields) ── */
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                {groups[activeGroup]?.map(key => {
+                  const meta      = CONTENT_LABELS[key];
+                  const val       = editing[key] ?? "";
+                  const isSaving  = saving[key];
+                  const isSaved   = saved[key];
+                  const hasChange = val !== (content[key] ?? "");
+                  const fieldStyle: React.CSSProperties = {
+                    width: "100%", padding: "10px 13px", borderRadius: 8,
+                    border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`,
+                    fontSize: 13, outline: "none", boxSizing: "border-box",
+                    fontFamily: "Inter, system-ui, sans-serif", color: DARK,
+                    background: hasChange ? "#fffbeb" : "white",
+                    transition: "border-color 0.2s, background 0.2s",
+                  };
+                  return (
+                    <div key={key}>
+                      <div style={{ borderBottom: "1px solid #f5f5f5", paddingBottom: 18 }}>
+                        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
+                          <div style={{ flex: 1 }}>
+                            <label style={{ fontSize: 12, color: DARK, fontWeight: "bold", display: "block", marginBottom: 6 }}>
+                              {meta.label}
+                              {hasChange && <span style={{ color: "#f59e0b", marginLeft: 6, fontSize: 11 }}>● Modified</span>}
+                            </label>
+                            {meta.type === "boolean" ? (
+                              <select value={val === "true" ? "true" : "false"}
+                                onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                                style={{ ...fieldStyle, cursor: "pointer" }}
+                              >
+                                <option value="true">✅ Oo — Ipakita</option>
+                                <option value="false">🚫 Hindi — Itago</option>
+                              </select>
+                            ) : meta.multiline ? (
+                              <textarea value={val}
+                                onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                                rows={3} style={{ ...fieldStyle, resize: "vertical" }}
+                              />
+                            ) : (
+                              <input type="text" value={val}
+                                onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                                style={fieldStyle}
+                              />
+                            )}
+                          </div>
+                          <button onClick={() => handleSave(key)} disabled={isSaving || !hasChange} style={{
+                            marginTop: 22, background: isSaved ? "#dcfce7" : hasChange ? G : "#f0f0f0",
+                            color: isSaved ? G : hasChange ? "white" : "#aaa",
+                            border: "none", borderRadius: 8, padding: "9px 18px",
+                            fontSize: 12, fontWeight: "bold",
+                            cursor: hasChange ? "pointer" : "not-allowed", whiteSpace: "nowrap",
+                          }}>
+                            {isSaved ? "✅ Saved!" : isSaving ? "Saving..." : "Save"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
         </div>
