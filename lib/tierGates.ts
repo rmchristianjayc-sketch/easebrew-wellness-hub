@@ -45,8 +45,8 @@ const SESSION_MIN_TIER = 399;
 export const TIER_GATES: Record<PaidProgressType, Gate> = {
   tracker:          { path: '/tracker',         minTier: 999  },
   mealplan:         { path: '/meal-plan',       minTier: 1499 },
-  exercise:         { path: '/exercise',        minTier: 1499 },
-  recipe_favorites: { path: '/recipes',         minTier: 2998 },
+  exercise:         { path: '/exercise',        minTier: 2998 },
+  recipe_favorites: { path: '/recipes',         minTier: 1499 },
   bagong_katawan:   { path: '/bagong-katawan',  minTier: 4497 },
 };
 

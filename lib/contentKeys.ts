@@ -10,8 +10,6 @@ export const PUBLIC_CONTENT_KEYS = [
   'product_2_name', 'product_2_desc',
   'product_3_name', 'product_3_desc',
   'product_4_name', 'product_4_desc',
-  'product_5_name', 'product_5_desc',
-  'product_6_name', 'product_6_desc',
   'order_url_399',
   'order_url_699',
   'order_url_999',

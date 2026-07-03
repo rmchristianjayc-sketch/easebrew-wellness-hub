@@ -34,40 +34,28 @@ export type Product = {
   
   export const DEFAULT_PRODUCTS: Product[] = [
     {
-      id: 1, icon: "📊", name: "Body Pain Tracker + Journal",
-      desc: "I-track ang inyong pain levels, tulog, mood, at Easebrew intake araw-araw.",
+      id: 1, icon: "📊", name: "Daily Health Tracker",
+      desc: "Track your pain levels, energy, at weight daily. Simple lang — 1 minute per day.",
       tier: 999, tierLabel: "3 Packs (₱999)",
-      appUrl: "/tracker", appLabel: "📊 Open ang Tracker",
+      appUrl: "/tracker", appLabel: "📊 Open Tracker",
     },
     {
-      id: 2, icon: "🥗", name: "50-Day Anti-Inflammation Meal Plan",
-      desc: "50 days ng Pinoy-friendly na pagkain para sa rayuma, joint pain, at pagod.",
+      id: 2, icon: "🥗", name: "Meal Plan + Recipe Book",
+      desc: "50-day Pinoy-friendly meal plan at 30 healthy recipes para sa joint pain, rayuma, at pagod.",
       tier: 1499, tierLabel: "5 Packs (₱1,499)",
-      appUrl: "/meal-plan", appLabel: "🥗 Open ang Meal Plan",
+      appUrl: "/meal-plan", appLabel: "🥗 Open Meal Plan",
     },
     {
-      id: 3, icon: "💪", name: "30-Day Home Exercise Guide",
-      desc: "Low-impact exercises para sa may joint pain. Walang gym equipment needed.",
-      tier: 1499, tierLabel: "5 Packs (₱1,499)",
-      appUrl: "/exercise", appLabel: "💪 Open ang Exercises",
-    },
-    {
-      id: 4, icon: "📖", name: "Pinoy Anti-Inflammation Recipe Book",
-      desc: "30 healthy Pinoy recipes na anti-inflammatory.",
+      id: 3, icon: "💪", name: "Home Exercise Guide",
+      desc: "Gentle exercises na pwede gawin sa bahay. Para sa may joint pain — no gym needed.",
       tier: 2998, tierLabel: "10 Packs (₱2,998)",
-      appUrl: "/recipes", appLabel: "📖 Open ang Recipe Book",
+      appUrl: "/exercise", appLabel: "💪 Open Exercises",
     },
     {
-      id: 5, icon: "🏆", name: "Bagong Katawan 90-Day Program",
-      desc: "Ang pinaka-complete na wellness program. 90-day master plan, full exercise program, weekly check-in guide — lahat kasama!",
+      id: 4, icon: "🏆", name: "Complete Wellness Program",
+      desc: "Lahat kasama: 90-day program, full exercise plan, meal guide, at weekly check-in. The complete package.",
       tier: 4497, tierLabel: "15 Packs (₱4,497)",
-      appUrl: "/bagong-katawan", appLabel: "🏆 Open ang 90-Day Program",
-    },
-    {
-      id: 6, icon: "🌿", name: "VIP Wellness Bundle",
-      desc: "Lahat ng digital products + priority coach support + exclusive wellness tips para sa mga serious sa kanilang health journey.",
-      tier: 5996, tierLabel: "20 Packs (₱5,996)",
-      appUrl: "/bagong-katawan", appLabel: "🌿 Open ang VIP Bundle",
+      appUrl: "/bagong-katawan", appLabel: "🏆 Open Program",
     },
   ];
   

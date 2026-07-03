@@ -53,10 +53,10 @@ const DEFAULT_TESTIMONIALS = [
 ];
 
 const REMINDERS = [
-  { time: "Umaga",    icon: "☕", text: "Inumin ang Easebrew — 1st sachet ng araw",               bg: "#E8F5E0", border: "#39613B", textColor: "#39613B" },
-  { time: "Tanghali", icon: "🚶", text: "Maglakad ng 15 mins pagkatapos kumain",                  bg: "#FEF9E7", border: "#C0863B", textColor: "#C0863B" },
-  { time: "Hapon",    icon: "💧", text: "Uminom ng 8 glasses ng tubig ngayon",                    bg: "#FFFBF0", border: "#FED255", textColor: "#8B6914" },
-  { time: "Gabi",     icon: "☕", text: "Inumin ang Easebrew — 2nd sachet ng araw",              bg: "#F4F8F0", border: "#7DAE2F", textColor: "#39613B" },
+  { time: "Morning",   icon: "☕", text: "Drink EaseBrew — 1st sachet of the day",   bg: "#E8F5E0", border: "#39613B", textColor: "#39613B" },
+  { time: "Noon",      icon: "🚶", text: "Walk 15 mins after eating",               bg: "#FEF9E7", border: "#C0863B", textColor: "#C0863B" },
+  { time: "Afternoon", icon: "💧", text: "Drink 8 glasses of water today",          bg: "#FFFBF0", border: "#FED255", textColor: "#8B6914" },
+  { time: "Evening",   icon: "☕", text: "Drink EaseBrew — 2nd sachet of the day",  bg: "#F4F8F0", border: "#7DAE2F", textColor: "#39613B" },
 ];
 
 const PROGRESS_GUIDE = [
@@ -161,7 +161,7 @@ function ExpiryBanner({ daysLeft, onReorder, onDismiss }: { daysLeft: number; on
       <span style={{ fontSize: 22, flexShrink: 0 }}>{urgent ? "🚨" : "⏰"}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontSize: 15, fontWeight: 700, color: urgent ? "#fca5a5" : "#FED255", margin: "0 0 2px" }}>
-          {urgent ? `${daysLeft} araw na lang ang access ninyo!` : `Mag-e-expire na sa ${daysLeft} araw!`}
+          {urgent ? `Only ${daysLeft} days left!` : `Expires in ${daysLeft} days!`}
         </p>
         <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", margin: 0 }}>Mag-order na para hindi mapuputol ang wellness journey mo.</p>
       </div>
@@ -227,8 +227,8 @@ function CoachModal({ coaches, onClose, reorderMessage }: { coaches: Coach[]; on
         <div style={{ padding: "12px 24px 20px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 4px 0" }}>👥 Piliin ang Inyong Coach</h2>
-              <p style={{ fontSize: 15, color: MID, margin: 0 }}>{reorderMessage ? "I-copy ang mensahe sa itaas, tapos i-send sa coach!" : "Tumawag o mag-message para mag-order"}</p>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 4px 0" }}>👥 Choose Your Coach</h2>
+              <p style={{ fontSize: 15, color: MID, margin: 0 }}>{reorderMessage ? "Copy the message above, then send to your coach!" : "Call or message to order"}</p>
             </div>
             <button onClick={onClose} style={{ background: "#F0EDE6", border: "none", borderRadius: 999, width: 40, height: 40, fontSize: 20, cursor: "pointer", color: MID, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
           </div>
@@ -379,8 +379,8 @@ function QuickCheckIn({ storageKey }: { storageKey: string }) {
         {both ? "✅ Kumpleto na para ngayon!" : "☕ Naiinom mo na ngayon?"}
       </p>
       <div style={{ display: "flex", gap: 12 }}>
-        {btn("umaga", "☀️", "Umaga", umaga)}
-        {btn("gabi",  "🌙", "Gabi",  gabi)}
+        {btn("umaga", "☀️", "Morning", umaga)}
+        {btn("gabi",  "🌙", "Evening", gabi)}
       </div>
     </div>
   );
@@ -441,7 +441,7 @@ function InstallBanner() {
         <span style={{ fontSize: 40, flexShrink: 0 }}>📲</span>
         <div style={{ flex: 1 }}>
           <p style={{ fontSize: 17, fontWeight: 700, color: "#fff", margin: "0 0 4px 0" }}>I-install ang R&M EaseBrew App!</p>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.8)", margin: 0 }}>I-save sa inyong phone — madaling buksan anytime!</p>
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.8)", margin: 0 }}>Save to your phone — easy access anytime!</p>
         </div>
         <button onClick={handleDismiss} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.6)", fontSize: 24, cursor: "pointer", padding: "4px", flexShrink: 0 }}>✕</button>
       </div>
@@ -456,7 +456,7 @@ function InstallBanner() {
           <span style={{ fontSize: 32 }}>📱</span>
           <div>
             <p style={{ fontSize: 17, fontWeight: 700, color: DARK, margin: 0 }}>I-save sa iyong iPhone!</p>
-            <p style={{ fontSize: 13, color: MID, margin: 0 }}>Para madaling buksan anytime</p>
+            <p style={{ fontSize: 13, color: MID, margin: 0 }}>For easy access anytime</p>
           </div>
         </div>
         <button onClick={handleDismiss} style={{ background: "#f0f0f0", border: "none", borderRadius: 999, width: 32, height: 32, fontSize: 18, cursor: "pointer", color: MID, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
@@ -465,7 +465,7 @@ function InstallBanner() {
         {[
           { step: "1", icon: "🌐", label: "Open sa", highlight: "Safari" },
           { step: "2", icon: "⬆️", label: "I-tap ang", highlight: "Share button (⬆️) sa ibaba ng screen" },
-          { step: "3", icon: "➕", label: "Piliin ang", highlight: '"Add to Home Screen"' },
+          { step: "3", icon: "➕", label: "Select", highlight: '"Add to Home Screen"' },
           { step: "4", icon: "✅", label: "I-tap ang", highlight: '"Add" — done na!' },
         ].map(s => (
           <div key={s.step} style={{ display: "flex", alignItems: "center", gap: 12, background: "#F4FAF0", borderRadius: 12, padding: "12px 14px", border: "1.5px solid #C5D9BC" }}>
@@ -508,7 +508,7 @@ function PackCountdownCard({ tier, packs, daysLeft, onReorder }: { tier: number;
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
         <div>
           <p style={{ fontSize: 18, fontWeight: 700, color: "#1B201A", margin: "0 0 3px" }}>📦 Pack {currentPack} of {packs}</p>
-          <p style={{ fontSize: 17, color: "#4E504F", margin: 0 }}>{daysLeft} araw • ~{daysLeft * 2} sachets na lang</p>
+          <p style={{ fontSize: 17, color: "#4E504F", margin: 0 }}>{daysLeft} days • ~{daysLeft * 2} sachets left</p>
         </div>
         {daysLeft <= 14 && (
           <button onClick={onReorder} style={{ background: "#39613B", color: "white", border: "none", borderRadius: 12, padding: "14px 18px", fontSize: 17, fontWeight: 700, cursor: "pointer" }}>
@@ -519,7 +519,7 @@ function PackCountdownCard({ tier, packs, daysLeft, onReorder }: { tier: number;
       <div style={{ background: "#f0f0f0", borderRadius: 999, height: 13, overflow: "hidden" }}>
         <div style={{ width: `${progressPct}%`, height: "100%", background: barColor, borderRadius: 999 }} />
       </div>
-      <p style={{ fontSize: 16, color: "#9E9E9E", margin: "6px 0 0", textAlign: "right" as const }}>{progressPct}% nagamit na</p>
+      <p style={{ fontSize: 16, color: "#9E9E9E", margin: "6px 0 0", textAlign: "right" as const }}>{progressPct}% used</p>
     </div>
   );
 }
@@ -532,8 +532,8 @@ function EngagementNudge({ days, onDismiss }: { days: number; onDismiss: () => v
     <div style={{ background: "#FEF9E7", border: "2px solid #FED255", borderRadius: 18, padding: "18px 20px", marginBottom: 24, display: "flex", alignItems: "center", gap: 14 }}>
       <span style={{ fontSize: 36, flexShrink: 0 }}>📋</span>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 17, fontWeight: 700, color: "#1B201A", margin: "0 0 4px" }}>{days} araw na walang log!</p>
-        <p style={{ fontSize: 15, color: "#4E504F", margin: 0, lineHeight: 1.5 }}>I-update ang pain tracker para ma-track ang inyong progress.</p>
+        <p style={{ fontSize: 17, fontWeight: 700, color: "#1B201A", margin: "0 0 4px" }}>{days} days since last log!</p>
+        <p style={{ fontSize: 15, color: "#4E504F", margin: 0, lineHeight: 1.5 }}>Update your pain tracker to track your progress.</p>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
         <Link href="/tracker" style={{ background: "#39613B", color: "white", textDecoration: "none", borderRadius: 10, padding: "11px 16px", fontSize: 14, fontWeight: 700, textAlign: "center" as const }}>
@@ -594,7 +594,7 @@ function DailyReminderCard({ enabled, onToggle }: { enabled: boolean; onToggle: 
     setPerm(p);
     if (p === "granted") {
       onToggle();
-      new Notification("☕ EaseBrew Reminder", { body: "Na-set na ang inyong daily reminder! Mag-aalerto kami sa umaga (7–9 AM) at gabi (7–9 PM).", icon: "/icon-192.png" });
+      new Notification("☕ EaseBrew Reminder", { body: "Your daily reminder is set! We'll alert you morning (7–9 AM) and evening (7–9 PM).", icon: "/icon-192.png" });
     }
   }
 
@@ -630,18 +630,18 @@ function OnboardingModal({ onClose }: { onClose: () => void }) {
   const steps = [
     {
       emoji: "☕",
-      title: "Maligayang Pagdating!",
-      body: "Ito ang inyong personal na EaseBrew Wellness Hub. Nandito kami para samahan kayo sa bawat hakbang ng inyong wellness journey!",
+      title: "Welcome!",
+      body: "This is your personal EaseBrew Wellness Hub. We're here to guide you on your wellness journey!",
     },
     {
       emoji: "💊",
-      title: "Uminom 2x Bawat Araw",
-      body: "Para sa pinakamabuting resulta — uminom ng EaseBrew tuwing umaga at gabi. Huwag laktawan kahit isang araw para sa pinakamabilis na resulta!",
+      title: "Drink 2x Daily",
+      body: "For best results — drink EaseBrew every morning and evening. Don't skip a day for fastest results!",
     },
     {
       emoji: "📊",
-      title: "I-track ang Progress Mo",
-      body: "Gamitin ang Pain Tracker araw-araw para makita ang inyong improvement. Makikita ninyo kung gaano kabilis bumababa ang inyong sakit!",
+      title: "Track Your Progress",
+      body: "Use the Pain Tracker daily to see your improvement. You'll see how fast your pain goes down!",
     },
   ];
   const s = steps[step];
@@ -716,7 +716,7 @@ export default function Home() {
   const [products, setProducts]             = useState(DEFAULT_PRODUCTS);
   const [coaches, setCoaches]               = useState<Coach[]>(DEFAULT_COACHES);
   const [heroTitle, setHeroTitle]           = useState("Kamusta, Nanay at Tatay! 👋");
-  const [heroSubtitle, setHeroSubtitle]     = useState("Salamat sa inyong tiwala sa EaseBrew. Nandito na ang lahat ng kailangan ninyo para sa mas malusog na katawan.");
+  const [heroSubtitle, setHeroSubtitle]     = useState("Your daily companion para sa mas malusog na katawan.");
   const [wellnessTips, setWellnessTips]     = useState(DEFAULT_WELLNESS_TIPS);
   const [faqs, setFaqs]                     = useState(DEFAULT_FAQS);
   const [testimonials, setTestimonials]     = useState(DEFAULT_TESTIMONIALS);
@@ -865,7 +865,7 @@ export default function Home() {
     const expiryStr = session?.expires_at
       ? new Date(session.expires_at).toLocaleDateString("fil-PH", { month: "long", day: "numeric", year: "numeric" })
       : null;
-    return `Magandang araw po! Gusto ko pong mag-order ulit ng EaseBrew.\n\nPackage: ${pkgLabel}${expiryStr ? `\nMag-e-expire: ${expiryStr}` : ""}\n\nPwede po bang i-order? Salamat po! 🙏`;
+    return `Hi po! Gusto ko po mag-order ulit ng EaseBrew.\n\nPackage: ${pkgLabel}${expiryStr ? `\nExpires: ${expiryStr}` : ""}\n\nPwede po ba? Salamat po! 🙏`;
   }
 
   if (checking) return (
@@ -1023,7 +1023,7 @@ export default function Home() {
 
             {/* ── Free Wellness Tools ── */}
             <div style={{ marginBottom: 24 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>Libreng Health Tools 🛠️</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>Free Health Tools 🛠️</h2>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 <Link href="/blood-pressure" style={{ background: "#fee2e2", border: "2px solid #fca5a5", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90 }}>
                   <span style={{ fontSize: 32 }}>🩺</span>
@@ -1050,24 +1050,24 @@ export default function Home() {
 
             {/* ── Daily Wellness Tip ── */}
             <div style={{ background: "#FFFBF0", border: `2px solid ${GOLD}`, borderRadius: 18, padding: "20px 22px", marginBottom: 24 }}>
-              <p style={{ fontSize: 16, fontWeight: 700, color: AMBER, margin: "0 0 10px 0", textTransform: "uppercase" as const, letterSpacing: 1 }}>💡 Tip ng Araw</p>
+              <p style={{ fontSize: 16, fontWeight: 700, color: AMBER, margin: "0 0 10px 0", textTransform: "uppercase" as const, letterSpacing: 1 }}>💡 Tip of the Day</p>
               <p style={{ fontSize: 18, color: DARK, margin: "0 0 16px 0", lineHeight: 1.75 }}>🌿 {wellnessTips[tipIndex % wellnessTips.length]}</p>
               <button
                 onClick={() => setTipIndex(i => (i + 1) % wellnessTips.length)}
                 className="c-btn c-btn-gold"
                 style={{ width: "100%" }}
               >
-                Susunod na Tip →
+                Next Tip →
               </button>
             </div>
 
             <div style={{ background: "#FEF9E7", border: `2.5px solid ${GOLD}`, borderRadius: 18, padding: "18px 20px", marginBottom: 24, textAlign: "center" }}>
-              <p style={{ fontSize: 18, fontWeight: 700, color: AMBER, margin: "0 0 6px 0" }}>☕ Inumin 2x sa isang araw</p>
-              <p style={{ fontSize: 16, color: MID, margin: 0, lineHeight: 1.6 }}><strong style={{ color: G }}>Umaga</strong> at <strong style={{ color: G }}>Gabi</strong> — para sa pinakamabilis na resulta!</p>
+              <p style={{ fontSize: 18, fontWeight: 700, color: AMBER, margin: "0 0 6px 0" }}>☕ Drink 2x a day</p>
+              <p style={{ fontSize: 16, color: MID, margin: 0, lineHeight: 1.6 }}><strong style={{ color: G }}>Morning</strong> and <strong style={{ color: G }}>Evening</strong> — for best results!</p>
             </div>
 
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Inyong Daily Routine ☀️</h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Sundin ito every day para sa pinakamabilis na results.</p>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Your Daily Routine ☀️</h2>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Follow this daily for best results.</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
               {REMINDERS.map((r, i) => (
                 <div key={i} style={{ background: r.bg, border: `2px solid ${r.border}`, borderRadius: 18, padding: "18px 20px", display: "flex", alignItems: "center", gap: 16 }}>
@@ -1090,8 +1090,8 @@ export default function Home() {
               })}
             />
 
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Ang Inyong 90-Day Journey 📅</h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Ito ang mararamdaman ninyo sa bawat phase.</p>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Your 90-Day Journey 📅</h2>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Here's what to expect each phase.</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
               {PROGRESS_GUIDE.map((p, i) => (
                 <div key={i} style={{ background: p.bg, border: `2px solid ${p.border}`, borderRadius: 18, padding: "22px" }}>
@@ -1119,7 +1119,7 @@ export default function Home() {
                   🏆 I-start ang 90-Day Program →
                 </Link>
                 <button onClick={() => setShowCoachModal(true)} className="c-btn c-btn-outline" style={{ width: "100%", color: "#fff", borderColor: "rgba(255,255,255,0.4)", background: "rgba(255,255,255,0.15)" }}>
-                  🛒 Mag-order ng 90-Day Program
+                  🛒 Order 90-Day Program
                 </button>
               </div>
               <p style={{ fontSize: 13, opacity: 0.7, margin: "14px 0 0 0" }}>COD available • Free shipping • Nationwide</p>
@@ -1130,12 +1130,12 @@ export default function Home() {
         {/* ═══ GIFTS TAB ════════════════════════════════════════ */}
         {tab === "gifts" && (
           <div>
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>Inyong Free Gifts 🎁</h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>Lahat ng gifts na ito ay <strong style={{ color: G }}>LIBRE</strong> — kasama na sa inyong order!</p>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>Your Free Gifts 🎁</h2>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>Lahat ng gifts na ito ay <strong style={{ color: G }}>FREE</strong> — kasama na sa order mo!</p>
 
             {unlockedProducts.length === 0 && (
               <div style={{ background: "#FEF9E7", border: `1.5px solid ${GOLD}`, borderRadius: 16, padding: "18px 20px", marginBottom: 16 }}>
-                <p style={{ fontSize: 16, color: AMBER, margin: 0, fontWeight: 600 }}>ℹ️ Ang inyong order ay para sa basic access lang. Mag-order ng 3 packs (₱999) para ma-unlock ang unang free gift!</p>
+                <p style={{ fontSize: 16, color: AMBER, margin: 0, fontWeight: 600 }}>ℹ️ Basic access lang ang order mo. Order 3 packs (₱999) para ma-unlock ang first free gift!</p>
               </div>
             )}
 
@@ -1164,7 +1164,7 @@ export default function Home() {
               <>
                 <div style={{ background: "#FEF9E7", border: `1.5px solid ${GOLD}`, borderRadius: 14, padding: "14px 18px", margin: "20px 0 12px 0" }}>
                   <p style={{ fontSize: 15, color: AMBER, margin: 0, fontWeight: 700, textAlign: "center" as const }}>
-                    🔒 Mag-order pa para ma-unlock ang {lockedProducts.length} pang libreng {lockedProducts.length === 1 ? "gift" : "gifts"}!
+                    🔒 Order more to unlock {lockedProducts.length} more free {lockedProducts.length === 1 ? "gift" : "gifts"}!
                   </p>
                 </div>
                 {lockedProducts.map(p => (
@@ -1176,7 +1176,7 @@ export default function Home() {
                     <h3 style={{ fontSize: 19, fontWeight: 700, color: "#8A7D6A", margin: "0 0 6px 0" }}>{p.name}</h3>
                     <p style={{ fontSize: 16, color: "#A89880", margin: "0 0 18px 0", lineHeight: 1.65 }}>{p.desc}</p>
                     <button onClick={() => setShowCoachModal(true)} className="c-btn c-btn-outline" style={{ width: "100%" }}>
-                      Mag-order pa para ma-unlock ito →
+                      Order more to unlock this →
                     </button>
                   </div>
                 ))}
@@ -1184,8 +1184,8 @@ export default function Home() {
             )}
 
             {/* Videos */}
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0" }}>Videos para sa Inyo 🎬</h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Panoorin ito para malaman kung paano gamitin ang inyong products nang tama.</p>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0" }}>Videos for You 🎬</h2>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Watch these to learn how to use your products.</p>
             {videos.map((v, i) => (
               <div key={i} style={{ marginBottom: 28 }}>
                 <YouTubeEmbed url={v.url} title={v.title} />
@@ -1196,7 +1196,7 @@ export default function Home() {
 
             {/* Recipe Preview */}
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0" }}>Recipe Preview 🍲</h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>3 recipes mula sa aming libreng Recipe Book.</p>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>3 recipes from our free Recipe Book.</p>
             {DEFAULT_RECIPES.map((r, i) => {
               const recipePhotos = ["/images/recipe-sinigang.jpg", "/images/recipe-tinola.jpg", "/images/recipe-lugaw.jpg"];
               return (
@@ -1226,9 +1226,9 @@ export default function Home() {
               );
             })}
             <div style={{ background: G, borderRadius: 18, padding: "22px", textAlign: "center" as const }}>
-              <p style={{ fontSize: 16, color: GOLD, fontWeight: 700, margin: "0 0 12px 0" }}>📖 May 27 pang recipes sa buong Recipe Book!</p>
+              <p style={{ fontSize: 16, color: GOLD, fontWeight: 700, margin: "0 0 12px 0" }}>📖 27 more recipes in the full Recipe Book!</p>
               <Link href="/recipes" style={{ background: GOLD, color: G, borderRadius: 12, padding: "15px 24px", fontSize: 16, fontWeight: 700, textDecoration: "none", display: "block", boxSizing: "border-box" as const }}>
-                📖 Open ang Buong Recipe Book →
+                📖 Open Full Recipe Book →
               </Link>
             </div>
           </div>
@@ -1246,11 +1246,11 @@ export default function Home() {
               className="c-btn c-btn-outline"
               style={{ width: "100%", marginBottom: 32 }}
             >
-              Susunod na Tip →
+              Next Tip →
             </button>
 
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Sinasabi ng mga Customers 💬</h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Real stories mula sa mga katulad ninyo.</p>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Customer Stories 💬</h2>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Real stories from people like you.</p>
             {testimonials.map((t, i) => {
               const isFemale = i !== 1;
               const photoSrc = isFemale ? "/images/testimonial-female.jpg" : "/images/testimonial-male.jpg";
@@ -1287,7 +1287,7 @@ export default function Home() {
             })}
 
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0" }}>Mga Tanong ❓</h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 8px 0", lineHeight: 1.6 }}>I-tap ang tanong para makita ang sagot.</p>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 8px 0", lineHeight: 1.6 }}>Tap a question to see the answer.</p>
             <div style={{ background: WHITE, border: "1.5px solid #C5B99A", borderRadius: 18, padding: "8px 22px" }}>
               {faqs.map((faq, i) => <FAQItem key={i} q={faq.q} a={faq.a} />)}
             </div>
@@ -1297,8 +1297,8 @@ export default function Home() {
         {/* ═══ COACHES TAB ══════════════════════════════════════ */}
         {tab === "coaches" && (
           <div>
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Ang Aming mga Coach 👥</h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>May katanungan? Handa kaming tumulong sa inyo, Nanay at Tatay!</p>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Our Coaches 👥</h2>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>Need help? We're here for you!</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {coaches.map((c, i) => (
                 <div key={i} style={{ background: WHITE, border: "2px solid #C5B99A", borderRadius: 18, padding: "18px 20px" }}>
@@ -1317,17 +1317,17 @@ export default function Home() {
               ))}
             </div>
             <div style={{ marginTop: 20, background: "#FEF9E7", borderRadius: 16, padding: "18px 20px", border: `2px solid ${GOLD}`, textAlign: "center" as const }}>
-              <p style={{ fontSize: 17, color: AMBER, fontWeight: 700, margin: "0 0 6px 0" }}>💬 Huwag mag-atubili!</p>
-              <p style={{ fontSize: 16, color: MID, margin: 0, lineHeight: 1.6 }}>Lagi kaming nandito para sa inyo. Ang inyong kalusugan ang aming prayoridad. ❤️</p>
+              <p style={{ fontSize: 17, color: AMBER, fontWeight: 700, margin: "0 0 6px 0" }}>💬 Don't hesitate!</p>
+              <p style={{ fontSize: 16, color: MID, margin: 0, lineHeight: 1.6 }}>We're always here for you. Your health is our priority. ❤️</p>
             </div>
 
             {/* Footer */}
             <div style={{ marginTop: 40, paddingTop: 32, borderTop: `3px solid ${G}`, textAlign: "center" as const }}>
               <div style={{ display: "inline-block", background: G, color: GOLD, borderRadius: 14, padding: "10px 22px", fontSize: 18, fontWeight: 700, marginBottom: 12 }}>R&M EaseBrew</div>
               <p style={{ fontSize: 13, color: G, fontWeight: 700, margin: "0 0 5px 0", letterSpacing: 1, textTransform: "uppercase" as const }}>Everyday We Care</p>
-              <p style={{ fontSize: 15, color: MID, margin: "0 0 20px 0", lineHeight: 1.65 }}>Para sa mga Pilipinong naghahanap ng natural na lunas sa body pain at inflammation.</p>
+              <p style={{ fontSize: 15, color: MID, margin: "0 0 20px 0", lineHeight: 1.65 }}>Natural relief for body pain and inflammation.</p>
               <button onClick={() => setShowCoachModal(true)} className="c-btn c-btn-gold" style={{ width: "100%" }}>
-                🛒 Mag-order Ulit
+                🛒 Order Again
               </button>
               <p style={{ fontSize: 13, color: MID, marginTop: 24, lineHeight: 1.7 }}>
                 COD | Free Shipping | Nationwide Delivery<br />

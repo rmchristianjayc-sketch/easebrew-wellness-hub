@@ -8,7 +8,7 @@ import { getCoachLabel } from "@/lib/coachLabel";
 import type { AccessCode } from "@/lib/supabase";
 import {
   Check, ClipboardCopy, Download, MessageSquare, RefreshCw, Search, Ticket, Trash2, X, AlertTriangle,
-  User, Droplets, Activity, BarChart2,
+  User, Activity, BarChart2,
 } from "lucide-react";
 
 // ─── Customer Profile Panel ───────────────────────────────────────────────────
@@ -68,16 +68,6 @@ function CustomerProfilePanel({ codeStr, onClose }: { codeStr: string; onClose: 
             const pr = data.progress;
             const daysLeft = c.expires_at ? Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000) : null;
 
-            // Water stats
-            type WaterLog = { date: string; glasses: number };
-            const waterData  = (pr["water"]?.data as { logs?: WaterLog[] } | null)?.logs ?? [];
-            const last7water = Array.from({ length: 7 }, (_, i) => {
-              const d = new Date(); d.setDate(d.getDate() - i);
-              const ds = d.toISOString().split("T")[0];
-              return waterData.find((l: WaterLog) => l.date === ds)?.glasses ?? 0;
-            }).reverse();
-            const avgWater   = last7water.length ? Math.round(last7water.reduce((a: number, b: number) => a + b, 0) / last7water.length * 10) / 10 : null;
-
             // Tracker stats
             type CheckIn = { date: string; energy?: number; pain?: number; weight?: number };
             const trackerData = (pr["tracker"]?.data as CheckIn[] | null) ?? [];
@@ -103,26 +93,6 @@ function CustomerProfilePanel({ codeStr, onClose }: { codeStr: string; onClose: 
                   </div>
                 </div>
 
-                {/* Water tracker */}
-                <div style={{ background: "#f0f9ff", borderRadius: 14, padding: "14px 16px", border: "1.5px solid #bae6fd" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                    <Droplets size={16} color="#0ea5e9" strokeWidth={2} />
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#0369a1", fontFamily: "var(--admin-font)", textTransform: "uppercase", letterSpacing: 0.5 }}>Water (7 days)</span>
-                    {avgWater != null && <span style={{ fontSize: 12, color: "#0ea5e9", fontWeight: 700, marginLeft: "auto" }}>avg {avgWater} glasses/day</span>}
-                  </div>
-                  {avgWater == null ? (
-                    <p style={{ fontSize: 13, color: "#94a3b8", margin: 0 }}>Walang water data pa</p>
-                  ) : (
-                    <div style={{ display: "flex", gap: 4, alignItems: "flex-end", height: 48 }}>
-                      {last7water.map((g: number, i: number) => {
-                        const h = Math.max((g / 8) * 48, g > 0 ? 4 : 0);
-                        return (
-                          <div key={i} style={{ flex: 1, height: h, background: g >= 8 ? "#0ea5e9" : "#93c5fd", borderRadius: 4, alignSelf: "flex-end", transition: "height 0.4s" }} title={`${g} glasses`} />
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
 
                 {/* Tracker check-ins */}
                 <div style={{ background: "#f0fdf4", borderRadius: 14, padding: "14px 16px", border: "1.5px solid #86efac" }}>
@@ -132,7 +102,7 @@ function CustomerProfilePanel({ codeStr, onClose }: { codeStr: string; onClose: 
                     <span style={{ fontSize: 12, color: "#4ade80", fontWeight: 700, marginLeft: "auto" }}>{trackerData.length} total</span>
                   </div>
                   {recentLogs.length === 0 ? (
-                    <p style={{ fontSize: 13, color: "#94a3b8", margin: 0 }}>Walang tracker data pa</p>
+                    <p style={{ fontSize: 13, color: "#94a3b8", margin: 0 }}>No check-in data yet</p>
                   ) : (
                     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                       {recentLogs.map((log: CheckIn, i: number) => (
@@ -156,7 +126,7 @@ function CustomerProfilePanel({ codeStr, onClose }: { codeStr: string; onClose: 
                     </div>
                     {(() => {
                       const withWeight = (trackerData as CheckIn[]).filter(c => c.weight != null).sort((a, b) => a.date.localeCompare(b.date)).slice(-5);
-                      if (!withWeight.length) return <p style={{ fontSize: 13, color: "#94a3b8", margin: 0 }}>Walang weight logs pa</p>;
+                      if (!withWeight.length) return <p style={{ fontSize: 13, color: "#94a3b8", margin: 0 }}>No weight logs yet</p>;
                       return (
                         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                           {withWeight.map((l, i) => (
@@ -393,19 +363,22 @@ export default function CodesPage() {
   const isOwner     = role === "owner";
 
   function exportCSV() {
-    const headers = ["Code", "Customer Name", "Package (₱)", "Packs", "Validity (days)", "Status", "Used At", "Expires At", "Last Active", "Notes", "Created By"];
+    const fmtDate = (d: string) => d ? new Date(d).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" }) : "";
+    const esc = (v: string | number) => {
+      const s = String(v ?? "");
+      return s.includes(",") || s.includes('"') || s.includes("\n") ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const headers = ["Code", "Customer", "Package", "Packs", "Validity", "Status", "Used At", "Expires At", "Last Active", "Notes", "Created By"];
     const rows = codes.map(c => {
       let status = "Unused";
       if (c.is_used) status = c.expires_at && new Date(c.expires_at) > new Date() ? "Active" : "Expired";
       const la = (c as AccessCode & { last_active_at?: string | null }).last_active_at;
-      return [c.code, c.customer_name || "", c.tier || "", c.packs || "", c.validity_days || "", status,
-        c.used_at ? new Date(c.used_at).toLocaleDateString("en-PH") : "",
-        c.expires_at ? new Date(c.expires_at).toLocaleDateString("en-PH") : "",
-        la ? new Date(la).toLocaleDateString("en-PH") : "",
-        (c.notes || "").replace(/,/g, ";"), c.created_by || ""];
+      return [c.code, c.customer_name || "", c.tier ? `₱${Number(c.tier).toLocaleString()}` : "", c.packs || "", c.validity_days ? `${c.validity_days} days` : "", status,
+        fmtDate(c.used_at || ""), fmtDate(c.expires_at || ""), fmtDate(la || ""),
+        c.notes || "", c.created_by || ""].map(esc);
     });
-    const csv  = [headers, ...rows].map(r => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
+    const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement("a");
     a.href = url; a.download = `easebrew-customers-${new Date().toISOString().split("T")[0]}.csv`; a.click();

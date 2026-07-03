@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { BarChart3, KeyRound, LockKeyhole, ShieldCheck, UserRound } from "lucide-react";
+import { FileText, KeyRound, LockKeyhole, ShieldCheck, UserRound, Users } from "lucide-react";
 
 const DARK_GREEN = "#183b28";
 
@@ -65,46 +65,27 @@ export default function AdminLogin() {
         </div>
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(150deg, rgba(24,59,40,0.97) 0%, rgba(24,59,40,0.75) 100%)" }} />
 
-        {/* Logo */}
-        <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: 11 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 8, background: "#FED255", display: "grid", placeItems: "center", flexShrink: 0 }}>
+        {/* Brand center */}
+        <div />
+        <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+          <div style={{ width: 180, height: 100, borderRadius: 16, background: "#ffffff", display: "grid", placeItems: "center", marginBottom: 24, boxShadow: "0 8px 32px rgba(0,0,0,0.25)" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/rm-logo.png" alt="RM" style={{ width: 28, height: 28, objectFit: "contain" }} />
+            <img src="/rm-logo.png" alt="RM" style={{ width: 150, height: 80, objectFit: "contain" }} />
           </div>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.2px" }}>R&amp;M EaseBrew</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 1 }}>Wellness operations</div>
-          </div>
-        </div>
+          <h1 style={{ fontSize: 28, margin: "0 0 6px", fontWeight: 800, letterSpacing: "-0.3px" }}>R&amp;M EaseBrew</h1>
+          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, margin: "0 0 36px", letterSpacing: "0.5px" }}>Wellness Operations Dashboard</p>
 
-        {/* Headline */}
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 380 }}>
-          <div style={{
-            width: 52, height: 52, borderRadius: 12, marginBottom: 22,
-            background: "rgba(254,210,85,0.12)", border: "1.5px solid rgba(254,210,85,0.25)",
-            display: "grid", placeItems: "center",
-          }}>
-            <KeyRound size={26} color="#FED255" />
-          </div>
-          <h1 style={{ fontSize: 30, lineHeight: 1.25, margin: "0 0 14px", fontWeight: 800, letterSpacing: "-0.3px" }}>
-            Manage customer access with confidence.
-          </h1>
-          <p style={{ color: "rgba(255,255,255,0.62)", fontSize: 14, lineHeight: 1.75, margin: "0 0 28px" }}>
-            Generate codes, monitor active customers, and maintain wellness content from one secure workspace.
-          </p>
-
-          {/* Feature badges */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", gap: 28 }}>
             {[
-              { icon: ShieldCheck, label: "Role-based access control" },
-              { icon: BarChart3,   label: "Real-time analytics dashboard" },
-              { icon: KeyRound,    label: "Instant code generation" },
+              { icon: KeyRound, label: "Codes" },
+              { icon: Users,    label: "Customers" },
+              { icon: FileText, label: "Content" },
             ].map(({ icon: Icon, label }) => (
-              <div key={label} style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 7, background: "rgba(254,210,85,0.1)", display: "grid", placeItems: "center", flexShrink: 0 }}>
-                  <Icon size={14} color="#FED255" strokeWidth={2} />
+              <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: "rgba(254,210,85,0.12)", border: "1.5px solid rgba(254,210,85,0.2)", display: "grid", placeItems: "center" }}>
+                  <Icon size={20} color="#FED255" strokeWidth={2} />
                 </div>
-                <span style={{ fontSize: 13, color: "rgba(255,255,255,0.65)" }}>{label}</span>
+                <span style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: 600 }}>{label}</span>
               </div>
             ))}
           </div>
@@ -209,7 +190,7 @@ export default function AdminLogin() {
                 opacity: loading ? 0.7 : 1,
               }}
             >
-              {loading ? "Signing in..." : "Continue to workspace →"}
+              {loading ? "Signing in..." : "Continue to workspace"}
             </button>
           </div>
 

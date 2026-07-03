@@ -8,7 +8,7 @@ import { G, GOLD, WHITE, DARK, MID, AMBER } from "@/lib/colors";
 import { getDeviceId } from "@/lib/device";
 import { PRICE_CONFIG } from "@/lib/price-config";
 import { DEFAULT_PRODUCTS, getGiftsForTier } from "@/lib/products";
-import { Gift, KeyRound, Phone } from "lucide-react";
+import { Gift, KeyRound, Phone, HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard } from "lucide-react";
 
 type ErrorType = "invalid" | "expired" | "other_device" | "incomplete" | "server" | null;
 type View = "verify" | "gifts" | "coaches";
@@ -64,20 +64,40 @@ function getReturnPath() {
   return path?.startsWith("/") && !path.startsWith("//") ? path : "/";
 }
 
+const PRODUCT_ICONS: Record<number, { icon: typeof HeartPulse; bg: string }> = {
+  1: { icon: HeartPulse,       bg: "#E74C3C" },
+  2: { icon: UtensilsCrossed,  bg: "#27AE60" },
+  3: { icon: Dumbbell,         bg: "#2980B9" },
+  4: { icon: Crown,            bg: "#F39C12" },
+};
+
+const FREE_TOOLS = [
+  { name: "Blood Pressure Monitor", icon: Activity, bg: "#8E44AD" },
+  { name: "Medication Reminder",    icon: Pill,     bg: "#E67E22" },
+  { name: "Medical Card",           icon: IdCard,   bg: "#16A085" },
+];
+
 function buildPerks(content: Record<string, string>) {
+  const BASE = 399;
   return TIER_KEYS.map((tier) => {
     const cfg = PRICE_CONFIG[tier];
+    const perPack = Math.round(tier / cfg.packs);
+    const saved = cfg.packs * BASE - tier;
+    const pct = Math.round((saved / (cfg.packs * BASE)) * 100);
+    const unlocked = DEFAULT_PRODUCTS.filter(p => p.tier <= tier && p.tier > 0);
     return {
       tier,
       label: cfg.label,
       note: `${cfg.validityDays} araw na access sa Wellness Hub`,
-      gifts: getGiftsForTier(DEFAULT_PRODUCTS, tier).map((gift) => {
-        const match = DEFAULT_PRODUCTS.find((product) => gift.includes(product.name));
-        if (!match) return gift;
-        const name = content[`product_${match.id}_name`]?.trim() || match.name;
-        return `${match.icon} ${name}`;
-      }),
+      products: unlocked.map(p => ({
+        id: p.id,
+        name: content[`product_${p.id}_name`]?.trim() || p.name,
+      })),
       highlight: tier === 5996,
+      badge: cfg.packs >= 30 ? "👑 Premium Member" : cfg.packs >= 20 ? "⭐ VIP Member" : null,
+      perPack,
+      saved,
+      savePct: pct,
     };
   });
 }
@@ -320,16 +340,51 @@ export default function VerifyPage() {
                       }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                           <h3 style={{ fontSize: 22, margin: 0, fontWeight: 900, color: perk.highlight ? GOLD : DARK, fontFamily: "Georgia, serif" }}>{perk.label}</h3>
-                          {perk.highlight && <span style={{ background: GOLD, color: G, borderRadius: 999, padding: "5px 12px", fontSize: 13, fontWeight: 900 }}>⭐ BEST</span>}
+                          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                            {perk.badge && <span style={{ background: perk.badge.includes("👑") ? "linear-gradient(135deg, #FFD700, #FF8C00)" : "linear-gradient(135deg, #FFD700, #FFA500)", color: "#1a1a1a", borderRadius: 999, padding: "5px 12px", fontSize: 12, fontWeight: 900, whiteSpace: "nowrap" }}>{perk.badge}</span>}
+                            {perk.highlight && <span style={{ background: GOLD, color: G, borderRadius: 999, padding: "5px 12px", fontSize: 13, fontWeight: 900 }}>⭐ BEST</span>}
+                          </div>
                         </div>
-                        <p style={{ fontSize: 16, opacity: 0.78, margin: "0 0 12px", fontFamily: "Georgia, serif", lineHeight: 1.6 }}>{perk.note}</p>
-                        {perk.gifts.length > 0 ? (
-                          <ul style={{ margin: "0 0 16px", paddingLeft: 22, display: "grid", gap: 7 }}>
-                            {perk.gifts.map(gift => <li key={gift} style={{ fontSize: 17, lineHeight: 1.5, fontFamily: "Georgia, serif" }}>{gift}</li>)}
-                          </ul>
-                        ) : (
-                          <p style={{ color: perk.highlight ? "rgba(255,255,255,0.78)" : MID, fontSize: 17, margin: "0 0 16px", fontFamily: "Georgia, serif" }}>Basic hub access</p>
+                        <p style={{ fontSize: 16, opacity: 0.78, margin: "0 0 4px", fontFamily: "Georgia, serif", lineHeight: 1.6 }}>{perk.note}</p>
+                        {perk.saved > 0 && (
+                          <p style={{ fontSize: 14, margin: "0 0 12px", fontFamily: "Georgia, serif", color: perk.highlight ? "#90EE90" : "#2E8B57", fontWeight: 700 }}>
+                            ₱{perk.perPack}/pack · Save ₱{perk.saved.toLocaleString()} ({perk.savePct}% off)
+                          </p>
                         )}
+                        {perk.saved === 0 && <div style={{ marginBottom: 12 }} />}
+                        {/* Paid products unlocked */}
+                        {perk.products.length > 0 && (
+                          <div style={{ display: "grid", gap: 8, margin: "0 0 12px" }}>
+                            {perk.products.map(p => {
+                              const meta = PRODUCT_ICONS[p.id];
+                              if (!meta) return null;
+                              const Icon = meta.icon;
+                              return (
+                                <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                  <div style={{ width: 32, height: 32, borderRadius: 8, background: meta.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                    <Icon size={18} color="#fff" />
+                                  </div>
+                                  <span style={{ fontSize: 16, fontFamily: "Georgia, serif", lineHeight: 1.3 }}>{p.name}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                        {/* Free tools — included in every package */}
+                        <p style={{ fontSize: 13, fontWeight: 700, margin: perk.products.length > 0 ? "4px 0 6px" : "0 0 6px", opacity: 0.6, textTransform: "uppercase", letterSpacing: 0.5 }}>Free Health Tools</p>
+                        <div style={{ display: "grid", gap: 6, margin: "0 0 16px" }}>
+                          {FREE_TOOLS.map(tool => {
+                            const FIcon = tool.icon;
+                            return (
+                              <div key={tool.name} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                <div style={{ width: 28, height: 28, borderRadius: 7, background: tool.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, opacity: 0.85 }}>
+                                  <FIcon size={15} color="#fff" />
+                                </div>
+                                <span style={{ fontSize: 14, fontFamily: "Georgia, serif", lineHeight: 1.3, opacity: 0.85 }}>{tool.name}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
                         <button type="button" onClick={() => setView("coaches")} className="c-btn c-btn-gold">
                           📞 Mag-order sa Coach
                         </button>

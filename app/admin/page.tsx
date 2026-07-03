@@ -153,9 +153,6 @@ export default function AdminDashboard() {
           boxShadow: "0 8px 32px rgba(15,37,24,0.28)",
         }}>
           <div>
-            <div style={{ fontSize: 10, color: "#FED255", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase" as const, marginBottom: 6, fontFamily: "Inter, system-ui, sans-serif", opacity: 0.85 }}>
-              ☕ R&amp;M Digital Trading
-            </div>
             <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 800, margin: "0 0 4px", fontFamily: "Inter, system-ui, sans-serif", letterSpacing: "-0.3px" }}>
               Good day, {displayName} 👋
             </h1>
