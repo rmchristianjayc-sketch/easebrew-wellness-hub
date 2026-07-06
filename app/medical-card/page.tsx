@@ -38,7 +38,7 @@ const EMPTY_CARD: MedicalCard = {
   primaryDoctor: { name: "", phone: "", clinic: "" },
 };
 
-const BLOOD_TYPES = ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-", "Hindi Alam"];
+const BLOOD_TYPES = ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-", "Unknown"];
 
 function splitList(s: string): string[] {
   return s.split(",").map(x => x.trim()).filter(Boolean);
@@ -114,16 +114,16 @@ export default function MedicalCardPage() {
       {/* Header */}
       <div style={{ background: `linear-gradient(135deg, #0c4a6e 0%, #0ea5e9 100%)`, padding: "20px 24px 28px", color: "#fff" }}>
         <Link href="/" style={{ color: "rgba(255,255,255,0.85)", textDecoration: "none", display: "flex", alignItems: "center", gap: 6, fontSize: 17, fontWeight: 600, marginBottom: 18, fontFamily: "Georgia, serif" }}>
-          <ChevronLeft size={20} /> Bumalik sa Hub
+          <ChevronLeft size={20} /> Back to Hub
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(255,255,255,0.15)", border: "1.5px solid rgba(255,255,255,0.25)", display: "grid", placeItems: "center" }}>
             <IdCard size={28} color="#fff" strokeWidth={2} />
           </div>
           <div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>Libreng Tool</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>Free Tool</div>
             <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0, lineHeight: 1.2 }}>Medical Info Card</h1>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", margin: "4px 0 0", fontFamily: "Georgia, serif" }}>Ipakita sa doktor kapag emergency</p>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", margin: "4px 0 0", fontFamily: "Georgia, serif" }}>Show to your doctor in case of emergency</p>
           </div>
         </div>
       </div>
@@ -137,7 +137,7 @@ export default function MedicalCardPage() {
               border: `2px solid ${G}`, borderRadius: 12, padding: "10px", fontSize: 14, fontWeight: 700, cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
             }}>
-              <Eye size={16} /> Tignan
+              <Eye size={16} /> View
             </button>
             <button onClick={() => setMode("edit")} style={{
               flex: 1, background: mode === "edit" ? G : "#fff", color: mode === "edit" ? "#fff" : DARK,
@@ -157,7 +157,7 @@ export default function MedicalCardPage() {
               <h2 style={{ fontSize: 24, fontWeight: 900, color: DARK, margin: 0 }}>{card.fullName}</h2>
               {(card.dateOfBirth || card.bloodType) && (
                 <p style={{ fontSize: 14, color: MID, margin: "6px 0 0" }}>
-                  {card.dateOfBirth && `Kapanganakan: ${card.dateOfBirth}`}
+                  {card.dateOfBirth && `Date of Birth: ${card.dateOfBirth}`}
                   {card.dateOfBirth && card.bloodType && "  ·  "}
                   {card.bloodType && `Blood Type: `}
                   {card.bloodType && <strong style={{ color: "#dc2626" }}>{card.bloodType}</strong>}
@@ -199,7 +199,7 @@ export default function MedicalCardPage() {
             )}
 
             <div style={{ borderTop: "1.5px dashed #D8CDBA", marginTop: 16, paddingTop: 12, textAlign: "center" }}>
-              <p style={{ fontSize: 11, color: MID, margin: 0 }}>💡 I-screenshot mo ito para ma-share sa doktor kapag emergency</p>
+              <p style={{ fontSize: 11, color: MID, margin: 0 }}>💡 Screenshot this to share with your doctor in an emergency</p>
             </div>
           </div>
         )}
@@ -208,31 +208,31 @@ export default function MedicalCardPage() {
         {mode === "edit" && (
           <form onSubmit={handleSave} style={{ background: WHITE, borderRadius: 20, padding: "22px", border: "1.5px solid #D8CDBA" }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "0 0 6px" }}>Personal Info</h2>
-            <p style={{ fontSize: 13, color: MID, margin: "0 0 16px" }}>Ang pangalan ay required. Lahat ng iba ay optional.</p>
+            <p style={{ fontSize: 13, color: MID, margin: "0 0 16px" }}>Name is required. Everything else is optional.</p>
 
-            <Field label="Buong Pangalan *">
+            <Field label="Full Name *">
               <input type="text" required maxLength={80} value={card.fullName} onChange={e => setCard({ ...card, fullName: e.target.value })} style={inputStyle} />
             </Field>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              <Field label="Kapanganakan">
+              <Field label="Date of Birth">
                 <input type="date" value={card.dateOfBirth} onChange={e => setCard({ ...card, dateOfBirth: e.target.value })} style={inputStyle} />
               </Field>
               <Field label="Blood Type">
                 <select value={card.bloodType} onChange={e => setCard({ ...card, bloodType: e.target.value })} style={inputStyle}>
-                  <option value="">— Piliin —</option>
+                  <option value="">— Select —</option>
                   {BLOOD_TYPES.map(bt => <option key={bt} value={bt}>{bt}</option>)}
                 </select>
               </Field>
             </div>
 
             <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "20px 0 12px" }}>Medical History</h2>
-            <Field label="Allergies (paghiwalayin ng comma)">
+            <Field label="Allergies (separate with comma)">
               <input type="text" value={card.allergies} onChange={e => setCard({ ...card, allergies: e.target.value })} placeholder="hal. Penicillin, Peanuts, Seafood" style={inputStyle} maxLength={300} />
             </Field>
-            <Field label="Medical Conditions (paghiwalayin ng comma)">
+            <Field label="Medical Conditions (separate with comma)">
               <input type="text" value={card.conditions} onChange={e => setCard({ ...card, conditions: e.target.value })} placeholder="hal. Hypertension, Diabetes Type 2, Arthritis" style={inputStyle} maxLength={300} />
             </Field>
-            <Field label="Kasalukuyang Gamot (paghiwalayin ng comma)">
+            <Field label="Current Medications (separate with comma)">
               <input type="text" value={card.currentMedications} onChange={e => setCard({ ...card, currentMedications: e.target.value })} placeholder="hal. Losartan 50mg, Metformin 500mg, EaseBrew" style={inputStyle} maxLength={500} />
             </Field>
 
@@ -240,27 +240,27 @@ export default function MedicalCardPage() {
             {card.emergencyContacts.map((c, i) => (
               <div key={i} style={{ background: "#f9fafb", borderRadius: 12, padding: "14px", marginBottom: 10, border: "1.5px solid #e5e7eb" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
-                  <input type="text" placeholder="Pangalan" value={c.name} onChange={e => updateContact(i, "name", e.target.value)} style={inputStyle} maxLength={80} />
-                  <input type="text" placeholder="Relasyon (Asawa, Anak, etc.)" value={c.relationship} onChange={e => updateContact(i, "relationship", e.target.value)} style={inputStyle} maxLength={40} />
+                  <input type="text" placeholder="Name" value={c.name} onChange={e => updateContact(i, "name", e.target.value)} style={inputStyle} maxLength={80} />
+                  <input type="text" placeholder="Relation (Spouse, Child, etc.)" value={c.relationship} onChange={e => updateContact(i, "relationship", e.target.value)} style={inputStyle} maxLength={40} />
                 </div>
                 <input type="tel" placeholder="Phone Number" value={c.phone} onChange={e => updateContact(i, "phone", e.target.value)} style={inputStyle} maxLength={30} />
                 {card.emergencyContacts.length > 1 && (
                   <button type="button" onClick={() => removeContact(i)} style={{ background: "none", border: "none", color: "#991b1b", fontSize: 13, cursor: "pointer", marginTop: 8, fontWeight: 600 }}>
-                    Alisin
+                    Remove
                   </button>
                 )}
               </div>
             ))}
             <button type="button" onClick={addContact} style={{ background: "#f3f4f6", border: "none", color: DARK, borderRadius: 10, padding: "10px", fontSize: 14, fontWeight: 600, cursor: "pointer", width: "100%", marginBottom: 16 }}>
-              + Magdagdag pa ng contact
+              + Add another contact
             </button>
 
             <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "20px 0 12px" }}>Primary Doctor</h2>
-            <Field label="Pangalan ng Doktor">
+            <Field label="Doctor&apos;s Name">
               <input type="text" value={card.primaryDoctor.name} onChange={e => setCard({ ...card, primaryDoctor: { ...card.primaryDoctor, name: e.target.value } })} style={inputStyle} maxLength={80} />
             </Field>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              <Field label="Klinika / Ospital">
+              <Field label="Clinic / Hospital">
                 <input type="text" value={card.primaryDoctor.clinic} onChange={e => setCard({ ...card, primaryDoctor: { ...card.primaryDoctor, clinic: e.target.value } })} style={inputStyle} maxLength={80} />
               </Field>
               <Field label="Phone">
@@ -269,20 +269,20 @@ export default function MedicalCardPage() {
             </div>
 
             <button type="submit" style={{ marginTop: 20, width: "100%", background: G, color: "#fff", border: "none", borderRadius: 12, padding: "16px", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-              <Save size={18} /> I-save ang Info Card
+              <Save size={18} /> Save Info Card
             </button>
           </form>
         )}
 
         {saved && (
           <div style={{ background: "#dcfce7", color: "#166534", borderRadius: 12, padding: "12px 16px", marginTop: 16, fontSize: 14, fontWeight: 600, textAlign: "center" }}>
-            ✅ Na-save na! I-screenshot mo para dala-dala mo lagi.
+            ✅ Saved! Screenshot it so you always have it with you.
           </div>
         )}
 
         <div style={{ background: `${GOLD}22`, borderRadius: 12, padding: "14px 16px", marginTop: 16, border: `1.5px solid ${GOLD}` }}>
           <p style={{ fontSize: 13, color: DARK, margin: 0, lineHeight: 1.5 }}>
-            💡 <strong>Tip:</strong> I-screenshot ang &quot;Tignan&quot; view at i-save sa photos ng cellphone. Mabilis makikita ng doctor kapag na-hospital ka.
+            💡 <strong>Tip:</strong> Screenshot the &quot;View&quot; mode and save it to your phone photos. Your doctor can quickly see it in an emergency.
           </p>
         </div>
       </div>

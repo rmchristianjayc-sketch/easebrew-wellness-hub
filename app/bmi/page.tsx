@@ -23,28 +23,28 @@ type BmiCategory = {
 
 function getBmiCategory(bmi: number): BmiCategory {
   if (bmi < 18.5) return {
-    label: "Underweight (Payat)",
+    label: "Underweight",
     color: "#0284c7", bg: "#e0f2fe", border: "#7dd3fc",
     emoji: "⚠️",
-    advice: "Kailangan mo ng mas maraming sustansya. Kumain ng nutritious na pagkain at kumonsulta sa doktor. Ang EaseBrew ay makakatulong sa iyong digestion para mas masipsip ang nutrients.",
+    advice: "You need more nutrition. Eat nutritious food and consult your doctor. EaseBrew can help with digestion so your body absorbs more nutrients.",
   };
   if (bmi < 23) return {
     label: "Normal Weight (Ideal)",
     color: "#166534", bg: "#dcfce7", border: "#86efac",
     emoji: "✅",
-    advice: "Magaling! Normal ang iyong timbang para sa iyong taas. Ituloy ang healthy lifestyle at regular na pag-inom ng EaseBrew para mapanatili ito.",
+    advice: "Great! Your weight is normal for your height. Keep up the healthy lifestyle and regular EaseBrew intake to maintain it.",
   };
   if (bmi < 27.5) return {
-    label: "Overweight (Sobrang Timbang)",
+    label: "Overweight",
     color: "#92400e", bg: "#fef9e7", border: "#fcd34d",
     emoji: "⚠️",
-    advice: "Medyo mataas ang timbang. Subukan ang light exercise araw-araw at iwasan ang matamis na pagkain. Ang EaseBrew at regular na tubig ay nakakatulong sa metabolism.",
+    advice: "Weight is a bit high. Try light exercise daily and avoid sugary food. EaseBrew and regular water intake help with metabolism.",
   };
   return {
-    label: "Obese (Labis na Sobrang Timbang)",
+    label: "Obese",
     color: "#991b1b", bg: "#fef2f2", border: "#fca5a5",
     emoji: "❗",
-    advice: "Kumonsulta sa doktor para sa tamang plano. Magsimula ng light walking exercise at sundin ang anti-inflammation meal plan. Ang EaseBrew ay may natural na ingredients na nakakatulong sa joint pain at metabolism.",
+    advice: "Consult your doctor for a proper plan. Start with light walking and follow the anti-inflammation meal plan. EaseBrew has natural ingredients that help with joint pain and metabolism.",
   };
 }
 
@@ -84,7 +84,7 @@ export default function BmiPage() {
       {/* Header */}
       <div style={{ background: `linear-gradient(135deg, #3b1f6e 0%, #5b2d8e 100%)`, padding: "20px 24px 28px", color: "#fff" }}>
         <Link href="/" style={{ color: "rgba(255,255,255,0.8)", textDecoration: "none", display: "flex", alignItems: "center", gap: 6, fontSize: 17, fontWeight: 600, marginBottom: 18, fontFamily: "Georgia, serif" }}>
-          <ChevronLeft size={20} /> Bumalik sa Hub
+          <ChevronLeft size={20} /> Back to Hub
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(167,139,250,0.25)", border: "1.5px solid rgba(167,139,250,0.4)", display: "grid", placeItems: "center" }}>
@@ -101,32 +101,32 @@ export default function BmiPage() {
 
         {/* Input Card */}
         <div style={{ background: WHITE, borderRadius: 24, padding: "28px 24px", marginBottom: 24, boxShadow: "0 4px 20px rgba(0,0,0,0.08)", border: "2px solid #D8CDBA" }}>
-          <h2 className="c-heading" style={{ color: DARK, marginBottom: 24 }}>Ilagay ang inyong detalye</h2>
+          <h2 className="c-heading" style={{ color: DARK, marginBottom: 24 }}>Enter your details</h2>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             {/* Height */}
             <div>
-              <label className="c-label" style={{ display: "block", marginBottom: 8 }}>📏 Taas (cm)</label>
+              <label className="c-label" style={{ display: "block", marginBottom: 8 }}>📏 Height (cm)</label>
               <input
                 type="number"
                 value={heightCm}
                 onChange={e => { setHeightCm(e.target.value); setResult(null); }}
-                placeholder="Halimbawa: 158"
+                placeholder="Example: 158"
                 inputMode="decimal"
                 className="c-input"
                 style={{ width: "100%", boxSizing: "border-box" }}
               />
-              <p style={{ fontSize: 13, color: MID, marginTop: 5 }}>Tip: 5 talampakan = 152cm, 5&apos;4&quot; = 163cm, 5&apos;7&quot; = 170cm</p>
+              <p style={{ fontSize: 13, color: MID, marginTop: 5 }}>Tip: 5 feet = 152cm, 5&apos;4&quot; = 163cm, 5&apos;7&quot; = 170cm</p>
             </div>
 
             {/* Weight */}
             <div>
-              <label className="c-label" style={{ display: "block", marginBottom: 8 }}>⚖️ Timbang (kg)</label>
+              <label className="c-label" style={{ display: "block", marginBottom: 8 }}>⚖️ Weight (kg)</label>
               <input
                 type="number"
                 value={weightKg}
                 onChange={e => { setWeightKg(e.target.value); setResult(null); }}
-                placeholder="Halimbawa: 65"
+                placeholder="Example: 65"
                 inputMode="decimal"
                 className="c-input"
                 style={{ width: "100%", boxSizing: "border-box" }}
@@ -135,12 +135,12 @@ export default function BmiPage() {
 
             {/* Age (optional) */}
             <div>
-              <label className="c-label" style={{ display: "block", marginBottom: 8 }}>🎂 Edad (opsyonal)</label>
+              <label className="c-label" style={{ display: "block", marginBottom: 8 }}>🎂 Age (optional)</label>
               <input
                 type="number"
                 value={age}
                 onChange={e => setAge(e.target.value)}
-                placeholder="Halimbawa: 55"
+                placeholder="Example: 55"
                 inputMode="numeric"
                 className="c-input"
                 style={{ width: "100%", boxSizing: "border-box" }}
@@ -150,7 +150,7 @@ export default function BmiPage() {
 
           <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
             <button onClick={calculate} className="c-btn c-btn-green" style={{ flex: 1 }}>
-              Kalkulahin ang BMI
+              Calculate BMI
             </button>
             <button onClick={reset} style={{
               width: 62, height: 62, borderRadius: 16, border: "2px solid #D8CDBA",
@@ -179,7 +179,7 @@ export default function BmiPage() {
               </div>
               {age && (
                 <div style={{ fontSize: 14, color: MID, marginTop: 4 }}>
-                  Edad: {age} taong gulang
+                  Age: {age} years old
                 </div>
               )}
             </div>
@@ -198,9 +198,9 @@ export default function BmiPage() {
                 }} />
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: MID, fontWeight: 700 }}>
-                <span>Payat</span>
+                <span>Under</span>
                 <span>Normal</span>
-                <span>Sobra</span>
+                <span>Over</span>
                 <span>Obese</span>
               </div>
             </div>
@@ -215,13 +215,13 @@ export default function BmiPage() {
 
         {/* BMI Chart Reference */}
         <div style={{ background: WHITE, borderRadius: 20, padding: "20px 22px", marginBottom: 24, border: "1.5px solid #D8CDBA" }}>
-          <h2 className="c-heading" style={{ color: DARK, marginBottom: 16 }}>📊 BMI Reference (Para sa Mga Pilipino)</h2>
-          <p style={{ fontSize: 14, color: MID, margin: "0 0 14px" }}>Ang WHO ay may espesyal na BMI chart para sa mga Asian/Filipino.</p>
+          <h2 className="c-heading" style={{ color: DARK, marginBottom: 16 }}>📊 BMI Reference (Asian/Filipino)</h2>
+          <p style={{ fontSize: 14, color: MID, margin: "0 0 14px" }}>WHO has a special BMI chart for Asian/Filipino body types.</p>
           {[
-            { range: "Wala pang 18.5", label: "Underweight", color: "#0284c7", bg: "#e0f2fe" },
+            { range: "Below 18.5", label: "Underweight", color: "#0284c7", bg: "#e0f2fe" },
             { range: "18.5 – 22.9",   label: "Normal / Ideal ✅", color: "#166534", bg: "#dcfce7" },
             { range: "23.0 – 27.4",   label: "Overweight",  color: "#92400e", bg: "#fef9e7" },
-            { range: "27.5 pataas",   label: "Obese",       color: "#991b1b", bg: "#fef2f2" },
+            { range: "27.5 and above", label: "Obese",       color: "#991b1b", bg: "#fef2f2" },
           ].map((row, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 12, background: row.bg, marginBottom: 8 }}>
               <div style={{ width: 12, height: 12, borderRadius: "50%", background: row.color, flexShrink: 0 }} />
@@ -233,16 +233,16 @@ export default function BmiPage() {
 
         {/* CTA */}
         <div style={{ background: G, borderRadius: 18, padding: "20px", textAlign: "center" }}>
-          <p style={{ color: GOLD, fontWeight: 700, fontSize: 17, margin: "0 0 8px" }}>☕ I-complement ang inyong wellness!</p>
+          <p style={{ color: GOLD, fontWeight: 700, fontSize: 17, margin: "0 0 8px" }}>☕ Complement your wellness!</p>
           <p style={{ color: "rgba(255,255,255,0.85)", fontSize: 15, margin: "0 0 16px", lineHeight: 1.7 }}>
-            Ang EaseBrew ay tumutulong sa anti-inflammation, digestion, at joint health — mahalaga para sa healthy weight management.
+            EaseBrew helps with anti-inflammation, digestion, and joint health — important for healthy weight management.
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <Link href="/meal-plan" style={{ background: GOLD, color: G, borderRadius: 12, padding: "14px 24px", fontSize: 16, fontWeight: 700, textDecoration: "none", display: "block" }}>
-              🥗 Tingnan ang Meal Plan →
+              🥗 View Meal Plan →
             </Link>
             <Link href="/exercise" style={{ background: "rgba(255,255,255,0.15)", color: "#fff", borderRadius: 12, padding: "12px 24px", fontSize: 15, fontWeight: 600, textDecoration: "none", display: "block", border: "1.5px solid rgba(255,255,255,0.3)" }}>
-              💪 Tingnan ang Exercise Program →
+              💪 View Exercise Program →
             </Link>
           </div>
         </div>

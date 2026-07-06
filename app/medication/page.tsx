@@ -16,10 +16,10 @@ const WHITE = "#FFFFFB";
 type Schedule = "morning" | "noon" | "evening" | "bedtime";
 
 const SCHEDULE_META: Record<Schedule, { label: string; icon: string; color: string }> = {
-  morning: { label: "Umaga",   icon: "🌅", color: "#f59e0b" },
-  noon:    { label: "Tanghali", icon: "☀️", color: "#eab308" },
-  evening: { label: "Hapon",   icon: "🌇", color: "#dc2626" },
-  bedtime: { label: "Bago Matulog", icon: "🌙", color: "#4f46e5" },
+  morning: { label: "Morning",  icon: "🌅", color: "#f59e0b" },
+  noon:    { label: "Noon",     icon: "☀️", color: "#eab308" },
+  evening: { label: "Evening",  icon: "🌇", color: "#dc2626" },
+  bedtime: { label: "Bedtime",  icon: "🌙", color: "#4f46e5" },
 };
 
 type Medication = {
@@ -91,7 +91,7 @@ export default function MedicationPage() {
   }
 
   function handleDeleteMed(id: string) {
-    if (!confirm("Sigurado ka bang tatanggalin ang gamot na ito?")) return;
+    if (!confirm("Are you sure you want to remove this medication?")) return;
     const key = (schedule: Schedule) => `${id}|${schedule}`;
     const scheduleKeys = medications.find(m => m.id === id)?.schedules.map(key) ?? [];
     const cleanedLogs = logs.map(l => ({ ...l, taken: l.taken.filter(t => !scheduleKeys.includes(t)) }));
@@ -155,16 +155,16 @@ export default function MedicationPage() {
       {/* Header */}
       <div style={{ background: `linear-gradient(135deg, #312e81 0%, #4f46e5 100%)`, padding: "20px 24px 28px", color: "#fff" }}>
         <Link href="/" style={{ color: "rgba(255,255,255,0.85)", textDecoration: "none", display: "flex", alignItems: "center", gap: 6, fontSize: 17, fontWeight: 600, marginBottom: 18, fontFamily: "Georgia, serif" }}>
-          <ChevronLeft size={20} /> Bumalik sa Hub
+          <ChevronLeft size={20} /> Back to Hub
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(255,255,255,0.15)", border: "1.5px solid rgba(255,255,255,0.25)", display: "grid", placeItems: "center" }}>
             <Pill size={28} color="#fff" strokeWidth={2} />
           </div>
           <div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>Libreng Tool</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>Free Tool</div>
             <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0, lineHeight: 1.2 }}>Medication Log</h1>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", margin: "4px 0 0", fontFamily: "Georgia, serif" }}>Huwag makalimutan ang inyong maintenance</p>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", margin: "4px 0 0", fontFamily: "Georgia, serif" }}>Never miss your maintenance meds</p>
           </div>
         </div>
       </div>
@@ -174,14 +174,14 @@ export default function MedicationPage() {
         {activeMeds.length > 0 && (
           <div style={{ background: WHITE, borderRadius: 20, padding: "20px 22px", marginBottom: 20, border: "1.5px solid #D8CDBA" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 10 }}>
-              <p style={{ fontSize: 12, color: MID, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: 0 }}>Ngayong Araw</p>
+              <p style={{ fontSize: 12, color: MID, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: 0 }}>Today</p>
               <span style={{ fontSize: 13, color: DARK, fontWeight: 700 }}>{takenToday}/{totalSlotsToday}</span>
             </div>
             <div style={{ background: "#e5e7eb", borderRadius: 999, height: 12, overflow: "hidden", marginBottom: 8 }}>
               <div style={{ height: "100%", width: `${compliancePct}%`, background: `linear-gradient(90deg, ${G}, ${GOLD})`, borderRadius: 999, transition: "width 0.5s" }} />
             </div>
             <p style={{ fontSize: 14, color: compliancePct === 100 ? G : MID, fontWeight: 600, margin: 0 }}>
-              {compliancePct === 100 ? "🎉 Complete! Magaling!" : compliancePct >= 50 ? "Kalahati na — tuloy lang!" : "Simulan mo na sa unang gamot"}
+              {compliancePct === 100 ? "🎉 Complete! Great job!" : compliancePct >= 50 ? "Halfway there — keep going!" : "Start with your first medication"}
             </p>
           </div>
         )}
@@ -189,7 +189,7 @@ export default function MedicationPage() {
         {/* Today's checklist */}
         {activeMeds.length > 0 && (
           <div style={{ background: WHITE, borderRadius: 20, padding: "22px", marginBottom: 20, border: "1.5px solid #D8CDBA" }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "0 0 16px" }}>💊 Checklist Ngayon</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "0 0 16px" }}>💊 Today&apos;s Checklist</h2>
             {(["morning", "noon", "evening", "bedtime"] as Schedule[]).map(schedule => {
               const meds = activeMeds.filter(m => m.schedules.includes(schedule));
               if (meds.length === 0) return null;
@@ -237,7 +237,7 @@ export default function MedicationPage() {
         {/* Medication list & add form */}
         <div style={{ background: WHITE, borderRadius: 20, padding: "22px", marginBottom: 20, border: "1.5px solid #D8CDBA" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: 0 }}>Mga Gamot Ko</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: 0 }}>My Medications</h2>
             {!showForm && (
               <button onClick={() => setShowForm(true)} style={{ background: G, color: "#fff", border: "none", borderRadius: 10, padding: "8px 14px", fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
                 <Plus size={16} /> Add
@@ -248,11 +248,11 @@ export default function MedicationPage() {
           {showForm && (
             <form onSubmit={handleAddMed} style={{ background: "#f9fafb", borderRadius: 12, padding: "16px", marginBottom: 16, border: "1.5px solid #e5e7eb" }}>
               <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: 13, color: MID, fontWeight: 600, display: "block", marginBottom: 6 }}>Pangalan ng Gamot *</label>
+                <label style={{ fontSize: 13, color: MID, fontWeight: 600, display: "block", marginBottom: 6 }}>Medication Name *</label>
                 <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="hal. Losartan 50mg" required maxLength={80} style={inputStyle} autoFocus />
               </div>
               <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: 13, color: MID, fontWeight: 600, display: "block", marginBottom: 6 }}>Kailan iinom? (piliin lahat) *</label>
+                <label style={{ fontSize: 13, color: MID, fontWeight: 600, display: "block", marginBottom: 6 }}>When to take? (select all) *</label>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                   {(["morning", "noon", "evening", "bedtime"] as Schedule[]).map(s => {
                     const meta = SCHEDULE_META[s];
@@ -275,15 +275,15 @@ export default function MedicationPage() {
                 </div>
               </div>
               <div style={{ display: "flex", gap: 8 }}>
-                <button type="button" onClick={() => setShowForm(false)} style={{ flex: 1, background: "#f3f4f6", color: DARK, border: "none", borderRadius: 10, padding: "12px", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Kansel</button>
-                <button type="submit" style={{ flex: 2, background: G, color: "#fff", border: "none", borderRadius: 10, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>I-save</button>
+                <button type="button" onClick={() => setShowForm(false)} style={{ flex: 1, background: "#f3f4f6", color: DARK, border: "none", borderRadius: 10, padding: "12px", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
+                <button type="submit" style={{ flex: 2, background: G, color: "#fff", border: "none", borderRadius: 10, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>Save</button>
               </div>
             </form>
           )}
 
           {activeMeds.length === 0 && !showForm && (
             <div style={{ textAlign: "center", padding: "20px 0", color: MID }}>
-              <p style={{ fontSize: 16, margin: 0 }}>Wala pa gamot na naka-set. Add mo yung maintenance mo!</p>
+              <p style={{ fontSize: 16, margin: 0 }}>No medications set up yet. Add your maintenance meds!</p>
             </div>
           )}
 
@@ -334,14 +334,14 @@ export default function MedicationPage() {
 
         {saved && (
           <div style={{ background: "#dcfce7", color: "#166534", borderRadius: 12, padding: "12px 16px", marginTop: 16, fontSize: 14, fontWeight: 600, textAlign: "center" }}>
-            ✅ Na-save na!
+            ✅ Saved!
           </div>
         )}
 
         {/* Tip */}
         <div style={{ background: `${GOLD}22`, borderRadius: 12, padding: "14px 16px", marginTop: 16, border: `1.5px solid ${GOLD}` }}>
           <p style={{ fontSize: 13, color: DARK, margin: 0, lineHeight: 1.5 }}>
-            💡 <strong>Tip:</strong> I-set ang alarm sa cellphone para sa oras ng pag-inom. Kasama na sa checklist ang EaseBrew para consistent araw-araw.
+            💡 <strong>Tip:</strong> Set an alarm on your phone for medication time. EaseBrew is also in your checklist to keep you consistent every day.
           </p>
         </div>
       </div>

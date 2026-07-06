@@ -22,7 +22,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   // All other requests: network only (API calls, assets)
-  event.respondWith(fetch(event.request));
+  event.respondWith(fetch(event.request).catch(() => new Response('', { status: 503 })));
 });
 
 // ── Preference helpers (Cache API — localStorage not available in SW) ─────────
@@ -49,30 +49,30 @@ async function maybeShowReminder() {
 
   if (h >= 7 && h < 9 && !(await wasShown(`shown-${today}-am`))) {
     await markShown(`shown-${today}-am`);
-    await self.registration.showNotification('☕ EaseBrew — Umaga!', {
-      body: 'Inumin na ang EaseBrew mo para sa pinakamabilis na resulta!',
+    await self.registration.showNotification('☕ EaseBrew — Morning!', {
+      body: 'Drink your EaseBrew now for the best results!',
       icon: '/icons/icon-192.png',
       badge: '/icons/icon-192.png',
       tag: `eb-am-${today}`,
       renotify: false,
       data: { url: '/tracker', period: 'umaga' },
       actions: [
-        { action: 'log-done', title: '✓ Naiinom Na!' },
-        { action: 'snooze',   title: '⏰ Mamaya'      },
+        { action: 'log-done', title: '✓ Done!' },
+        { action: 'snooze',   title: '⏰ Later'      },
       ],
     });
   } else if (h >= 19 && h < 21 && !(await wasShown(`shown-${today}-pm`))) {
     await markShown(`shown-${today}-pm`);
-    await self.registration.showNotification('🌙 EaseBrew — Gabi!', {
-      body: 'Huwag kalimutang inumin ang EaseBrew bago matulog!',
+    await self.registration.showNotification('🌙 EaseBrew — Evening!', {
+      body: 'Don't forget to drink your EaseBrew before bed!',
       icon: '/icons/icon-192.png',
       badge: '/icons/icon-192.png',
       tag: `eb-pm-${today}`,
       renotify: false,
       data: { url: '/tracker', period: 'gabi' },
       actions: [
-        { action: 'log-done', title: '✓ Naiinom Na!' },
-        { action: 'snooze',   title: '⏰ Mamaya'      },
+        { action: 'log-done', title: '✓ Done!' },
+        { action: 'snooze',   title: '⏰ Later'      },
       ],
     });
   }
@@ -103,13 +103,13 @@ self.addEventListener('push', (event) => {
   const data = event.data?.json() ?? {};
   event.waitUntil(
     self.registration.showNotification(data.title || '☕ EaseBrew', {
-      body: data.body || 'May mensahe para sa inyo!',
+      body: data.body || 'You have a new message!',
       icon: '/icons/icon-192.png',
       badge: '/icons/icon-192.png',
       data: { url: data.url || '/', period: data.period },
       actions: [
-        { action: 'log-done', title: '✓ Naiinom Na!' },
-        { action: 'snooze',   title: '⏰ Mamaya'      },
+        { action: 'log-done', title: '✓ Done!' },
+        { action: 'snooze',   title: '⏰ Later'      },
       ],
     })
   );

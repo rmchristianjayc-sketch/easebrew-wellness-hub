@@ -168,8 +168,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error: rollbackError
-            ? 'May problema sa pag-activate. Ang inyong code ay naka-lock. Makipag-ugnayan sa inyong coach para tulungan kayo.'
-            : 'Hindi ma-activate ang code. Subukan ulit.',
+            ? 'There was a problem activating your code. Your code is locked. Please contact your coach for help.'
+            : 'Could not activate the code. Please try again.',
         },
         { status: 500 }
       );

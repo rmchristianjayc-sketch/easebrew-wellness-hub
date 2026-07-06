@@ -2,59 +2,21 @@
 import { useState, useEffect } from "react";
 import Sidebar from "@/app/admin/_components/Sidebar";
 import { useAdminGuard } from "@/lib/useAdminGuard";
+import { Sun, Lightbulb, BarChart3, Droplets, Tag, Heart, Moon, PenLine, type LucideIcon } from "lucide-react";
 
 const G = "#39613B", DARK = "#1B201A", MID = "#4E504F";
 
-const QUICK_MESSAGES = [
-  { label: "Daily Reminder",    icon: "☕", title: "EaseBrew Reminder ☕",        body: "Naiinom mo na ba ang EaseBrew mo ngayon? Stay consistent para sa best results!" },
-  { label: "Weekly Check-in",   icon: "💪", title: "Weekly Wellness Check-in 💪", body: "Kumusta ang pakiramdam mo ngayong linggo? Sana okay na ang joints mo!" },
-  { label: "Re-order Reminder", icon: "🛒", title: "Malapit na maubos! 🛒",        body: "Mukhang malapit na maubos ang EaseBrew mo. Mag-order na para walang gap sa wellness journey mo!" },
-  { label: "Promo Alert",       icon: "🎉", title: "Special Promo! 🎉",            body: "May espesyal na offer kami ngayon! Check mo ang aming latest deals sa EaseBrew." },
-  { label: "Milestone",         icon: "🏆", title: "30 Days Complete! 🏆",         body: "Congrats sa 30 days ng consistent EaseBrew! Ikwento mo sa amin ang iyong results!" },
+const QUICK_MESSAGES: { label: string; icon: LucideIcon; iconBg: string; title: string; body: string }[] = [
+  { label: "Morning Reminder",  icon: Sun,        iconBg: "#F59E0B", title: "Good Morning!",                 body: "Magandang umaga! Wag kalimutan ang EaseBrew mo — inumin 30 mins bago kumain para mas maganda ang effect. Tuloy-tuloy lang!" },
+  { label: "Wellness Tip",      icon: Lightbulb,  iconBg: "#8B5CF6", title: "Wellness Tip",                  body: "Alam mo ba? Ang turmeric at luya ay natural na anti-inflammatory. Idagdag mo sa mga pagkain mo kasama ng EaseBrew para mas maganda pa ang results!" },
+  { label: "Tracker Reminder",  icon: BarChart3,  iconBg: "#2563EB", title: "I-log ang Progress Mo!",        body: "Buksan ang Wellness Hub mo at i-update ang tracker — para makita mo kung gaano ka na ka-improve. Kahit ilang minuto lang!" },
+  { label: "Hydration",         icon: Droplets,   iconBg: "#06B6D4", title: "Uminom ng Tubig!",              body: "Mag-inom ng 8 glasses ng tubig araw-araw — nakakatulong ito laban sa joint pain at mas effective pa ang EaseBrew mo!" },
+  { label: "Promo",             icon: Tag,        iconBg: "#E74C3C", title: "May Promo!",                    body: "[I-edit ito — ilagay ang promo details, presyo, o bundle]. I-message ang coach mo para sa details!" },
+  { label: "Encouragement",     icon: Heart,      iconBg: "#EC4899", title: "Keep Going!",                   body: "Tuloy-tuloy lang sa EaseBrew at healthy lifestyle! Tandaan — consistency ang susi. Ang katawan mo, nagpapasalamat sayo!" },
+  { label: "Evening Reminder",  icon: Moon,       iconBg: "#6366F1", title: "Good Evening!",                 body: "Magandang gabi! Wag kalimutan ang pangalawang sachet ng EaseBrew mo bago matulog. Matulog ng 7-8 oras — dito nagre-repair ang katawan mo." },
+  { label: "Custom",            icon: PenLine,    iconBg: MID,       title: "",                              body: "" },
 ];
 
-const MESSENGER_TEMPLATES = [
-  {
-    label: "Umaga Check-in",
-    icon: "🌅",
-    text: "Magandang umaga po! ☀️ Huwag kalimutang uminom ng EaseBrew ngayong umaga bago kumain. Mahal namin kayo! — R&M EaseBrew",
-  },
-  {
-    label: "Gabi Reminder",
-    icon: "🌙",
-    text: "Magandang gabi po! 🌙 Bago po kayo matulog, inumin ang EaseBrew para sa pinaka-mabuting resulta. Stay consistent — kaya ninyo ito! — R&M EaseBrew",
-  },
-  {
-    label: "Progress Check",
-    icon: "📊",
-    text: "Kumusta na po ang pakiramdam ninyo? 😊 Sana bumababa na ang sakit! I-log po sa Pain Tracker para makita natin ang inyong progress. Ipagpatuloy lang! — R&M EaseBrew",
-  },
-  {
-    label: "Malapit Mag-expire",
-    icon: "⏰",
-    text: "Hello po! 👋 Malapit na po mag-expire ang inyong EaseBrew subscription. Para hindi mapuputol ang inyong wellness journey, mag-order na po kayo ng bagong package. Message lang po kayo sa inyong coach! — R&M EaseBrew",
-  },
-  {
-    label: "Payday Promo",
-    icon: "💰",
-    text: "Payday na po! 🎉 Ngayong payday, mag-stock up na ng EaseBrew para sa inyong pamilya. May espesyal na package kami para sa inyong budget. Message lang po para sa details! — R&M EaseBrew",
-  },
-  {
-    label: "Missed a Few Days",
-    icon: "💌",
-    text: "Kamusta na po kayo? 🙏 Medyo hindi kayo naka-log sa tracker recently. Huwag po kayong mag-alala — pwede pa kayong magsimulang muli ngayon! Consistent na tayo ulit. — R&M EaseBrew",
-  },
-  {
-    label: "7-Day Milestone",
-    icon: "🌟",
-    text: "WOW! 🌟 Isang linggo na kayong nag-iinom ng EaseBrew! Magaling! Patuloy lang — ang mga resulta ay darating sa mga susunod na linggo. Ipinagmamalaki namin kayo! — R&M EaseBrew",
-  },
-  {
-    label: "30-Day Congrats",
-    icon: "🏆",
-    text: "CONGRATS! 🏆 30 days na kayong consistent sa EaseBrew! Ang ganda ng inyong discipline! Ikwento ninyo sa amin ang inyong results — inspire tayo ng iba! — R&M EaseBrew",
-  },
-];
 
 
 export default function NotificationsPage() {
@@ -63,8 +25,6 @@ export default function NotificationsPage() {
   const [title, setTitle]   = useState("");
   const [body, setBody]     = useState("");
   const [selected, setSelected] = useState<number | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [messengerCopiedIdx, setMessengerCopiedIdx] = useState<number | null>(null);
 
   // App notification state
   const [current, setCurrent] = useState<{ title: string; message: string; active: boolean } | null>(null);
@@ -92,23 +52,6 @@ export default function NotificationsPage() {
     setTitle(msg.title);
     setBody(msg.body);
     setSelected(idx);
-    setCopied(false);
-  }
-
-  function handleCopyMessage() {
-    if (!title || !body) return;
-    navigator.clipboard.writeText(`${title}\n\n${body}`)
-      .then(() => { setCopied(true); setTimeout(() => setCopied(false), 3000); })
-      .catch(() => {
-        const ta = document.createElement("textarea");
-        ta.value = `${title}\n\n${body}`;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 3000);
-      });
   }
 
   async function handlePublish() {
@@ -129,9 +72,9 @@ export default function NotificationsPage() {
       });
       if (!res.ok) throw new Error(await res.text());
       setCurrent({ title, message: body, active: true });
-      setPublishMsg("✅ Na-publish na! Makikita na ng lahat ng customers.");
+      setPublishMsg("✅ Published! All customers can now see it.");
     } catch {
-      setPublishMsg("❌ May error. Subukan ulit.");
+      setPublishMsg("❌ Error occurred. Please try again.");
     }
     setPublishing(false);
   }
@@ -147,9 +90,9 @@ export default function NotificationsPage() {
       });
       if (!res.ok) throw new Error(await res.text());
       setCurrent(prev => prev ? { ...prev, active: false } : null);
-      setPublishMsg("🗑️ Na-clear na ang notification.");
+      setPublishMsg("🗑️ Notification cleared.");
     } catch {
-      setPublishMsg("❌ May error. Subukan ulit.");
+      setPublishMsg("❌ Error occurred. Please try again.");
     }
     setClearing(false);
   }
@@ -157,32 +100,34 @@ export default function NotificationsPage() {
   if (checking) return null;
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f7f5", fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
       <Sidebar active="/admin/notifications" role={role} username={username} />
 
-      <main style={{ flex: 1, minWidth: 0, marginLeft: 248, padding: "36px 40px", display: "flex", gap: 24 }}>
+      <main className="admin-main" style={{ flex: 1, minWidth: 0, display: "flex", gap: 24 }}>
 
         {/* ── Left: Quick Messages ── */}
         <div style={{ width: 300, flexShrink: 0 }}>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#1B201A", margin: 0, fontFamily: "Inter, system-ui, sans-serif" }}>Messages</h1>
-          <p style={{ fontSize: 13, color: "#4E504F", margin: "4px 0 20px", fontFamily: "Inter, system-ui, sans-serif" }}>Create and send messages to customers</p>
+          <h1 style={{ fontSize: 20, fontWeight: 800, color: "#1B201A", margin: 0, fontFamily: "var(--admin-font)" }}>Messages</h1>
+          <p style={{ fontSize: 13, color: "#6b7a70", margin: "4px 0 20px", fontFamily: "var(--admin-font)" }}>Create and send messages to customers</p>
 
-          <h2 style={{ fontSize: 14, fontWeight: 700, color: "#1B201A", margin: "0 0 12px", textTransform: "uppercase" as const, letterSpacing: "0.5px", fontFamily: "Inter, system-ui, sans-serif" }}>Quick Messages</h2>
+          <h2 style={{ fontSize: 13, fontWeight: 700, color: "#1B201A", margin: "0 0 12px", textTransform: "uppercase" as const, letterSpacing: "0.3px", fontFamily: "var(--admin-font)" }}>Quick Messages</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {QUICK_MESSAGES.map((msg, i) => {
               const isSel = selected === i;
               return (
                 <button key={i} onClick={() => applyQuick(msg, i)} style={{
-                  background: isSel ? "#39613B" : "white", border: `1.5px solid ${isSel ? "#39613B" : "#e0e0e0"}`,
-                  borderRadius: 10, padding: "11px 13px", textAlign: "left", cursor: "pointer",
+                  background: isSel ? "#39613B" : "white", border: `1.5px solid ${isSel ? "#39613B" : "#e8ece9"}`,
+                  borderRadius: 14, padding: "12px 14px", textAlign: "left", cursor: "pointer",
                   display: "flex", alignItems: "center", gap: 11,
-                  boxShadow: isSel ? "0 2px 8px rgba(57,97,59,0.18)" : "0 1px 3px rgba(0,0,0,0.05)",
-                  transition: "all 0.15s", fontFamily: "Inter, system-ui, sans-serif",
+                  boxShadow: isSel ? "0 4px 12px rgba(57,97,59,0.2)" : "0 1px 3px rgba(20,35,25,0.04)",
+                  transition: "all 0.15s", fontFamily: "var(--admin-font)",
                 }}>
-                  <span style={{ fontSize: 20, flexShrink: 0 }}>{msg.icon}</span>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: isSel ? "rgba(255,255,255,0.2)" : msg.iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <msg.icon size={17} color="#fff" strokeWidth={2.2} />
+                  </div>
                   <div>
-                    <div style={{ color: isSel ? "white" : "var(--ink)", fontWeight: 700, fontSize: 13 }}>{msg.label}</div>
-                    <div style={{ color: isSel ? "rgba(255,255,255,0.65)" : "var(--ink-mid)", fontSize: 11, marginTop: 2, lineHeight: 1.4 }}>{msg.title}</div>
+                    <div style={{ color: isSel ? "white" : DARK, fontWeight: 700, fontSize: 13 }}>{msg.label}</div>
+                    <div style={{ color: isSel ? "rgba(255,255,255,0.65)" : MID, fontSize: 11, marginTop: 2, lineHeight: 1.4 }}>{msg.title}</div>
                   </div>
                 </button>
               );
@@ -197,79 +142,42 @@ export default function NotificationsPage() {
             </div>
           )}
 
-          {/* ── Messenger / Viber Templates ── */}
-          <div style={{ marginTop: 24 }}>
-            <h2 style={{ fontSize: 14, fontWeight: 700, color: "#1B201A", margin: "0 0 6px", textTransform: "uppercase" as const, letterSpacing: "0.5px", fontFamily: "Inter, system-ui, sans-serif" }}>Messenger Templates</h2>
-            <p style={{ color: "#4E504F", fontSize: 11, margin: "0 0 10px", lineHeight: 1.5, fontFamily: "Inter, system-ui, sans-serif" }}>Copy at i-paste sa Messenger, Viber, o SMS</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {MESSENGER_TEMPLATES.map((t, i) => {
-                const isCopied = messengerCopiedIdx === i;
-                return (
-                  <button key={i}
-                    onClick={() => {
-                      navigator.clipboard.writeText(t.text).then(() => {
-                        setMessengerCopiedIdx(i);
-                        setTimeout(() => setMessengerCopiedIdx(null), 2500);
-                      }).catch(() => {});
-                    }}
-                    style={{
-                      background: isCopied ? "#e8f5e0" : "white",
-                      border: `1.5px solid ${isCopied ? G : "#e0e0e0"}`,
-                      borderRadius: 10, padding: "10px 12px", textAlign: "left", cursor: "pointer",
-                      display: "flex", alignItems: "center", gap: 10,
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.04)", transition: "all 0.15s",
-                    }}>
-                    <span style={{ fontSize: 18, flexShrink: 0 }}>{isCopied ? "✅" : t.icon}</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ color: isCopied ? G : DARK, fontWeight: "bold", fontSize: 12 }}>{isCopied ? "Copied!" : t.label}</div>
-                      {!isCopied && <div style={{ color: MID, fontSize: 10, marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.text.slice(0, 55)}…</div>}
-                    </div>
-                    <span style={{ fontSize: 10, color: isCopied ? G : "#ccc", flexShrink: 0 }}>📋</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
         </div>
 
         {/* ── Right: Compose + Publish ── */}
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 20 }}>
 
           {/* Compose */}
-          <div style={{ background: "#ffffff", borderRadius: 10, border: "1px solid #dde4df", boxShadow: "0 1px 3px rgba(20,35,25,0.05)", padding: "24px 28px" }}>
-            <h2 style={{ fontSize: 14, fontWeight: 700, color: "#1B201A", margin: "0 0 18px", textTransform: "uppercase" as const, letterSpacing: "0.5px", fontFamily: "Inter, system-ui, sans-serif" }}>Compose Message</h2>
+          <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e8ece9", boxShadow: "0 1px 3px rgba(20,35,25,0.04)", padding: "24px 28px" }}>
+            <h2 style={{ fontSize: 13, fontWeight: 700, color: "#1B201A", margin: "0 0 18px", textTransform: "uppercase" as const, letterSpacing: "0.3px", fontFamily: "var(--admin-font)" }}>Compose Message</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
-                <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "#1B201A", marginBottom: 5, fontFamily: "Inter, system-ui, sans-serif" }}>Title</label>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#1B201A", marginBottom: 5, fontFamily: "var(--admin-font)" }}>Title</label>
                 <input type="text" value={title}
-                  onChange={e => { setTitle(e.target.value); setCopied(false); setPublishMsg(""); }}
+                  onChange={e => { setTitle(e.target.value); setPublishMsg(""); }}
                   placeholder="e.g. Special announcement!"
-                  style={{ width: "100%", minHeight: 38, padding: "8px 12px", borderRadius: 7, border: "1px solid #ccd6cf", background: "#fff", fontFamily: "Inter, system-ui, sans-serif", fontSize: 13, color: "#1B201A", outline: "none", boxSizing: "border-box" as const }}
+                  style={{ width: "100%", minHeight: 40, padding: "9px 14px", borderRadius: 10, border: "1px solid #e8ece9", background: "#fff", fontFamily: "var(--admin-font)", fontSize: 13, color: "#1B201A", outline: "none", boxSizing: "border-box" as const }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: "#1B201A", marginBottom: 5, fontFamily: "Inter, system-ui, sans-serif" }}>Message</label>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#1B201A", marginBottom: 5, fontFamily: "var(--admin-font)" }}>Message</label>
                 <textarea value={body}
-                  onChange={e => { setBody(e.target.value); setCopied(false); setPublishMsg(""); }}
+                  onChange={e => { setBody(e.target.value); setPublishMsg(""); }}
                   placeholder="Type your message here..."
                   rows={4}
-                  style={{ width: "100%", minHeight: 38, padding: "8px 12px", borderRadius: 7, border: "1px solid #ccd6cf", background: "#fff", fontFamily: "Inter, system-ui, sans-serif", fontSize: 13, color: "#1B201A", outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const }}
+                  style={{ width: "100%", minHeight: 40, padding: "9px 14px", borderRadius: 10, border: "1px solid #e8ece9", background: "#fff", fontFamily: "var(--admin-font)", fontSize: 13, color: "#1B201A", outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const }}
                 />
               </div>
             </div>
 
             <div style={{ display: "flex", gap: 8, marginTop: 18, flexWrap: "wrap" }}>
               <button onClick={handlePublish} disabled={!title || !body || publishing}
-                style={{ display: "inline-flex", alignItems: "center", gap: 7, minHeight: 36, padding: "0 14px", borderRadius: 7, border: "none", background: "#39613B", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Inter, system-ui, sans-serif", opacity: (!title || !body || publishing) ? 0.5 : 1 }}>
+                style={{ display: "inline-flex", alignItems: "center", gap: 7, minHeight: 40, padding: "0 18px", borderRadius: 10, border: "none", background: "#39613B", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--admin-font)", opacity: (!title || !body || publishing) ? 0.5 : 1, transition: "opacity 0.15s" }}>
                 {publishing ? "Publishing..." : "Publish to App"}
               </button>
-              <button onClick={handleCopyMessage} disabled={!title || !body}
-                style={{ display: "inline-flex", alignItems: "center", gap: 7, minHeight: 36, padding: "0 14px", borderRadius: 7, border: "1px solid #dde4df", background: copied ? "#39613B" : "transparent", color: copied ? "#fff" : "#4E504F", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Inter, system-ui, sans-serif", opacity: (!title || !body) ? 0.5 : 1 }}>
-                {copied ? "Copied!" : "Copy (Messenger/Viber)"}
-              </button>
-              {current?.active && (
+{current?.active && (
                 <button onClick={handleClear} disabled={clearing}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 7, minHeight: 36, padding: "0 14px", borderRadius: 7, border: "none", background: "#ef4444", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Inter, system-ui, sans-serif" }}>
+                  style={{ display: "inline-flex", alignItems: "center", gap: 7, minHeight: 40, padding: "0 18px", borderRadius: 10, border: "none", background: "#dc2626", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--admin-font)" }}>
                   {clearing ? "Clearing..." : "Clear Notification"}
                 </button>
               )}
@@ -284,8 +192,8 @@ export default function NotificationsPage() {
 
           {/* Preview */}
           {(title || body) && (
-            <div style={{ background: "white", borderRadius: 14, padding: "24px 28px", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
-              <h3 style={{ color: DARK, fontSize: 13, fontWeight: "bold", margin: "0 0 14px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+            <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e8ece9", padding: "24px 28px", boxShadow: "0 1px 3px rgba(20,35,25,0.04)" }}>
+              <h3 style={{ color: DARK, fontSize: 13, fontWeight: 700, margin: "0 0 14px", textTransform: "uppercase", letterSpacing: "0.3px", fontFamily: "var(--admin-font)" }}>
                 📱 App Preview
               </h3>
               <div style={{ maxWidth: 420, background: DARK, borderRadius: 12, padding: "14px 16px", display: "flex", gap: 12, alignItems: "flex-start", border: `2px solid ${G}` }}>
@@ -296,25 +204,11 @@ export default function NotificationsPage() {
                 </div>
               </div>
               <p style={{ color: "#bbb", fontSize: 11, marginTop: 10 }}>
-                Ganito lalabas sa itaas ng customer hub kapag na-publish.
+                This is how it will appear at the top of the customer hub once published.
               </p>
             </div>
           )}
 
-          {/* Instructions */}
-          <div style={{ background: "#fef9e7", borderRadius: 12, padding: "18px 20px", border: "1px solid #FED25560" }}>
-            <p style={{ color: "#b45309", fontWeight: "bold", fontSize: 13, margin: "0 0 10px" }}>📋 Paano gamitin:</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              <div style={{ background: "white", borderRadius: 10, padding: "14px 16px", border: "1px solid #e0e0e0" }}>
-                <p style={{ color: DARK, fontWeight: "bold", fontSize: 13, margin: "0 0 6px" }}>📣 Publish to App</p>
-                <p style={{ color: MID, fontSize: 12, margin: 0, lineHeight: 1.6 }}>Lalabas sa banner ng customer app — makikita ng lahat ng customers agad.</p>
-              </div>
-              <div style={{ background: "white", borderRadius: 10, padding: "14px 16px", border: "1px solid #e0e0e0" }}>
-                <p style={{ color: DARK, fontWeight: "bold", fontSize: 13, margin: "0 0 6px" }}>📋 Copy (Messenger/Viber)</p>
-                <p style={{ color: MID, fontSize: 12, margin: 0, lineHeight: 1.6 }}>I-copy at i-paste sa personal na chat ng customer sa Messenger, Viber, o SMS.</p>
-              </div>
-            </div>
-          </div>
         </div>
       </main>
     </div>

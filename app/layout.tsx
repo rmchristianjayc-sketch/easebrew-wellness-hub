@@ -11,7 +11,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "R&M EaseBrew Wellness Hub",
-  description: "Ang iyong personal na wellness companion. Para sa mas malusog na katawan.",
+  description: "Your personal wellness companion. For a healthier body.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

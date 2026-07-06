@@ -11,24 +11,24 @@ import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib
 
 // ✅ 1.2 — Imported from single source of truth (no more duplicate definitions)
 import { Coach, DEFAULT_COACHES, buildCoaches } from "@/lib/coaches";
-import { Gift, Home as HomeIcon, Lightbulb, Phone, Users } from "lucide-react";
+import { Gift, Home as HomeIcon, Lightbulb, Phone, Users, HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard } from "lucide-react";
 
 // ============================================================
-// ⚙️ CONFIG — FALLBACK DEFAULTS (used kung walang value sa DB)
+// ⚙️ CONFIG — FALLBACK DEFAULTS (used when no value in DB)
 // ============================================================
 const DEFAULT_VIDEOS = [
-  { title: "Paano I-prepare ang Easebrew",        desc: "Ang tamang paraan para ma-maximize ang herbal benefits ng Easebrew.", url: "" },
-  { title: "Simple Exercises para sa Joint Pain",  desc: "Low-impact exercises na safe para sa matatanda at may arthritis.",     url: "" },
+  { title: "How to Prepare EaseBrew",              desc: "The right way to maximize the herbal benefits of EaseBrew.", url: "" },
+  { title: "Simple Exercises for Joint Pain",      desc: "Low-impact exercises that are safe for seniors and those with arthritis.",     url: "" },
 ];
 
 const DEFAULT_WELLNESS_TIPS = [
-  "Inumin ang Easebrew 30 mins bago kumain para sa best effect.",
-  "Uminom ng 8 glasses ng tubig araw-araw — ang dehydration ay nagpapalala ng joint pain.",
-  "Maglakad ng 15 mins pagkatapos kumain para sa mas magandang digestion.",
-  "Kumain ng isda (salmon o bangus) tatlong beses sa isang linggo para sa omega-3.",
-  "Ang turmeric at luya ay natural anti-inflammatory — dagdag sa ulam araw-araw.",
-  "Matulog ng 7-8 hours — dito nagri-repair ang joints at muscles ng katawan.",
-  "Ang malunggay ay superfood — dagdag sa sinigang, tinola, o lugaw.",
+  "Drink EaseBrew 30 mins before eating for the best effect.",
+  "Drink 8 glasses of water daily — dehydration makes joint pain worse.",
+  "Walk 15 mins after eating for better digestion.",
+  "Eat fish (salmon or bangus) 3x a week for omega-3.",
+  "Turmeric and ginger are natural anti-inflammatory — add them to your meals daily.",
+  "Sleep 7-8 hours — this is when your joints and muscles repair.",
+  "Malunggay is a superfood — add it to sinigang, tinola, or lugaw.",
 ];
 
 const DEFAULT_RECIPES = [
@@ -38,18 +38,18 @@ const DEFAULT_RECIPES = [
 ];
 
 const DEFAULT_FAQS = [
-  { q: "Kailan ko dapat inumin ang Easebrew?",                   a: "Umaga at gabi — 2 sachets bawat araw para sa pinakamabilis na resulta. Inumin 30 mins bago kumain para sa best effect." },
-  { q: "Pwede ba ang may ulcer?",                                a: "Oo, pero uminom pagkatapos kumain ng konti. Huwag inumin nang empty stomach." },
-  { q: "Kailan ko mararamdaman ang effect?",                     a: "Karamihan sa mga customers ay nakakaramdam ng change sa loob ng 7-14 days ng consistent na pag-inom. Para sa mas malalim na effect — 30-90 days." },
-  { q: "Ilang sachet bawat araw?",                               a: "2 sachets bawat araw — isa sa umaga at isa sa gabi. Ito ang recommended para sa pinakamabuting resulta." },
-  { q: "Paano ko ma-access ang aking libreng digital products?", a: "I-tap ang button sa bawat product card. Automatic na ma-a-access ang lahat ng products na kasama sa inyong order!" },
-  { q: "May side effects ba ang Easebrew?",                      a: "Ang Easebrew ay gawa sa natural na herbs. Walang known side effects para sa karamihan. Kung may allergy o maintenance medicine — kumonsulta muna sa doktor." },
+  { q: "When should I drink EaseBrew?",                   a: "Morning and evening — 2 sachets per day for best results. Drink 30 mins before meals for the best effect." },
+  { q: "Is it safe for people with ulcer?",               a: "Yes, but drink it after eating a little. Don't drink on an empty stomach." },
+  { q: "When will I feel the effect?",                    a: "Most customers feel a change within 7-14 days of consistent use. For deeper results — 30-90 days." },
+  { q: "How many sachets per day?",                       a: "2 sachets per day — one in the morning, one in the evening. This is the recommended dosage for the best results." },
+  { q: "How do I access my free digital products?",       a: "Tap the button on each product card. All products included in your order are automatically accessible!" },
+  { q: "Does EaseBrew have side effects?",                a: "EaseBrew is made from natural herbs. No known side effects for most people. If you have allergies or maintenance medicine — consult your doctor first." },
 ];
 
 const DEFAULT_TESTIMONIALS = [
-  { name: "Nena R.",   age: 58, location: "Quezon City", quote: "Pagkatapos ng 3 weeks, mas gaan na ang pakiramdam ng aking tuhod. Hindi ko na kailangang uminom ng gamot araw-araw.", stars: 5, painBefore: 8, painAfter: 3 },
-  { name: "Mang Tony", age: 64, location: "Cebu City",   quote: "Hindi ako naniniwala noong una pero subukan ko nga. Ngayon — hindi ko na naiisip ang umaga nang walang Easebrew.",    stars: 5, painBefore: 7, painAfter: 2 },
-  { name: "Ate Susan", age: 52, location: "Davao",       quote: "Ang libreng meal plan at recipe book — sobrang helpful! Alam ko na ngayon kung anong pagkain ang nagpapalala ng arthritis ko.", stars: 5, painBefore: 6, painAfter: 3 },
+  { name: "Nena R.",   age: 58, location: "Quezon City", quote: "After 3 weeks, my knee feels so much lighter. I don't need to take medicine every day anymore.", stars: 5, painBefore: 8, painAfter: 3 },
+  { name: "Mang Tony", age: 64, location: "Cebu City",   quote: "I didn't believe it at first but I tried it. Now — I can't imagine my morning without EaseBrew.",    stars: 5, painBefore: 7, painAfter: 2 },
+  { name: "Ate Susan", age: 52, location: "Davao",       quote: "The free meal plan and recipe book — super helpful! Now I know which foods make my arthritis worse.", stars: 5, painBefore: 6, painAfter: 3 },
 ];
 
 const REMINDERS = [
@@ -60,11 +60,18 @@ const REMINDERS = [
 ];
 
 const PROGRESS_GUIDE = [
-  { period: "Week 1–2", title: "Simula ng Pagbabago",          desc: "Mararamdaman mo ang unang effect — mas gaan ang pakiramdam sa umaga, mas okay ang energy.",        bg: "#E8F5E0", border: "#39613B", color: "#39613B" },
-  { period: "Week 3–4", title: "Makikita na ang Change",       desc: "Ang mga taong malapit sa iyo ay mag-no-notice. Mas magaan na ang galaw, mas baba na ang pain score.", bg: "#FEF9E7", border: "#C0863B", color: "#C0863B" },
-  { period: "Month 2",  title: "Tuloy-tuloy na Progress",      desc: "Ang anti-inflammation routine ay nagiging natural na habit. Hindi mo na kailangan ng reminder.",     bg: "#FFFBF0", border: "#FED255", color: "#8B6914" },
-  { period: "Month 3",  title: "Bagong Katawan, Bagong Buhay", desc: "50%+ reduction ng pain score. Mas aktibo, mas masaya, mas malusog. Ito ang Bagong Katawan.",          bg: "#F4F8F0", border: "#7DAE2F", color: "#39613B" },
+  { period: "Week 1–2", title: "The Beginning",               desc: "You'll feel the first effects — lighter mornings, better energy.",                                    bg: "#E8F5E0", border: "#39613B", color: "#39613B" },
+  { period: "Week 3–4", title: "Visible Change",              desc: "People around you will notice. Easier movement, lower pain score.",                                   bg: "#FEF9E7", border: "#C0863B", color: "#C0863B" },
+  { period: "Month 2",  title: "Steady Progress",             desc: "Your anti-inflammation routine becomes a natural habit. No more reminders needed.",                    bg: "#FFFBF0", border: "#FED255", color: "#8B6914" },
+  { period: "Month 3",  title: "New You, New Life",           desc: "50%+ pain score reduction. More active, happier, healthier. This is the New You.",                     bg: "#F4F8F0", border: "#7DAE2F", color: "#39613B" },
 ];
+
+const PRODUCT_ICONS: Record<number, { icon: typeof HeartPulse; bg: string }> = {
+  1: { icon: HeartPulse,       bg: "#E74C3C" },
+  2: { icon: UtensilsCrossed,  bg: "#27AE60" },
+  3: { icon: Dumbbell,         bg: "#2980B9" },
+  4: { icon: Crown,            bg: "#F39C12" },
+};
 
 function getTierLabel(tier: number): string {
   const map: Record<number, string> = {
@@ -163,12 +170,12 @@ function ExpiryBanner({ daysLeft, onReorder, onDismiss }: { daysLeft: number; on
         <p style={{ fontSize: 15, fontWeight: 700, color: urgent ? "#fca5a5" : "#FED255", margin: "0 0 2px" }}>
           {urgent ? `Only ${daysLeft} days left!` : `Expires in ${daysLeft} days!`}
         </p>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", margin: 0 }}>Mag-order na para hindi mapuputol ang wellness journey mo.</p>
+        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", margin: 0 }}>Order now so your wellness journey continues uninterrupted.</p>
       </div>
       <button onClick={onReorder} style={{ background: urgent ? "#ef4444" : "#f59e0b", color: "white", border: "none", borderRadius: 10, padding: "10px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer", flexShrink: 0 }}>
-        🛒 Mag-order
+        🛒 Order
       </button>
-      <button onClick={onDismiss} aria-label="Isara" style={{ background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 999, width: 28, height: 28, fontSize: 14, cursor: "pointer", color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
+      <button onClick={onDismiss} aria-label="Close" style={{ background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 999, width: 28, height: 28, fontSize: 14, cursor: "pointer", color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
     </div>
   );
 }
@@ -184,7 +191,7 @@ function NotificationBanner({ title, message, onDismiss }: { title: string; mess
         <p style={{ fontSize: 15, fontWeight: 700, color: "#FED255", margin: "0 0 2px" }}>{title}</p>
         <p style={{ fontSize: 14, color: "rgba(255,255,255,0.85)", margin: 0, lineHeight: 1.5 }}>{message}</p>
       </div>
-      <button onClick={onDismiss} aria-label="Isara" style={{ background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 999, width: 32, height: 32, fontSize: 16, cursor: "pointer", color: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
+      <button onClick={onDismiss} aria-label="Close" style={{ background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 999, width: 32, height: 32, fontSize: 16, cursor: "pointer", color: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
     </div>
   );
 }
@@ -196,7 +203,7 @@ function PromoBanner({ text, onDismiss }: { text: string; onDismiss: () => void 
   return (
     <div style={{ background: GOLD, borderBottom: `3px solid ${AMBER}`, padding: "14px 20px", display: "flex", alignItems: "center", gap: 12 }}>
       <p style={{ flex: 1, fontSize: 16, fontWeight: 700, color: DARK, margin: 0, lineHeight: 1.5 }}>{text}</p>
-      <button onClick={onDismiss} aria-label="Isara ang promo" style={{ background: "rgba(0,0,0,0.12)", border: "none", borderRadius: 999, width: 34, height: 34, fontSize: 18, cursor: "pointer", color: DARK, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
+      <button onClick={onDismiss} aria-label="Close promo" style={{ background: "rgba(0,0,0,0.12)", border: "none", borderRadius: 999, width: 34, height: 34, fontSize: 18, cursor: "pointer", color: DARK, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
     </div>
   );
 }
@@ -220,7 +227,7 @@ function CoachModal({ coaches, onClose, reorderMessage }: { coaches: Coach[]; on
               onClick={() => navigator.clipboard.writeText(reorderMessage).then(() => { setMsgCopied(true); setTimeout(() => setMsgCopied(false), 3000); })}
               style={{ background: msgCopied ? "#39613B" : "white", color: msgCopied ? "white" : "#39613B", border: "2px solid #39613B", borderRadius: 10, padding: "10px 18px", fontSize: 14, fontWeight: 700, cursor: "pointer", width: "100%" }}
             >
-              {msgCopied ? "✅ Nakopya na!" : "📋 I-copy ang Mensahe"}
+              {msgCopied ? "✅ Copied!" : "📋 Copy Message"}
             </button>
           </div>
         )}
@@ -252,8 +259,8 @@ function CoachModal({ coaches, onClose, reorderMessage }: { coaches: Coach[]; on
           ))}
         </div>
         <div style={{ margin: "20px 20px 0", background: "#FEF9E7", borderRadius: 14, padding: "14px 18px", border: `1.5px solid ${GOLD}`, textAlign: "center" as const }}>
-          <p style={{ fontSize: 15, color: AMBER, fontWeight: 700, margin: "0 0 4px 0" }}>💬 Huwag mag-atubili!</p>
-          <p style={{ fontSize: 14, color: MID, margin: 0, lineHeight: 1.6 }}>Lagi kaming nandito para sa inyo. I-tap ang 📞 para direktang tumawag!</p>
+          <p style={{ fontSize: 15, color: AMBER, fontWeight: 700, margin: "0 0 4px 0" }}>💬 Don't hesitate!</p>
+          <p style={{ fontSize: 14, color: MID, margin: 0, lineHeight: 1.6 }}>We're always here for you. Tap 📞 to call directly!</p>
         </div>
       </div>
     </div>
@@ -286,7 +293,7 @@ function YouTubeEmbed({ url, title }: { url: string; title: string }) {
     <div style={{ background: DARK, borderRadius: 18, aspectRatio: "16/9", display: "flex", alignItems: "center", justifyContent: "center", border: `2px solid ${G}` }}>
       <div style={{ textAlign: "center", color: "#fff" }}>
         <div style={{ fontSize: 60, marginBottom: 10, color: GOLD }}>▶</div>
-        <p style={{ fontSize: 13, opacity: 0.55, margin: 0 }}>I-paste ang YouTube link sa Admin → Content → Videos</p>
+        <p style={{ fontSize: 13, opacity: 0.55, margin: 0 }}>Paste the YouTube link in Admin → Content → Videos</p>
       </div>
     </div>
   );
@@ -369,14 +376,14 @@ function QuickCheckIn({ storageKey }: { storageKey: string }) {
     >
       <div style={{ fontSize: 36, marginBottom: 6 }}>{done ? "✅" : icon}</div>
       <div style={{ fontSize: 18, fontWeight: 700 }}>{label}</div>
-      <div style={{ fontSize: 16, opacity: 0.7, marginTop: 3 }}>{done ? "Nakinom na!" : "I-tap para i-log"}</div>
+      <div style={{ fontSize: 16, opacity: 0.7, marginTop: 3 }}>{done ? "Done!" : "Tap to log"}</div>
     </button>
   );
 
   return (
     <div style={{ background: both ? "#E8F5E0" : "white", border: `2px solid ${both ? G : "#D9D0C0"}`, borderRadius: 22, padding: "18px", marginBottom: 24 }}>
       <p style={{ fontSize: 17, fontWeight: 700, color: both ? G : MID, margin: "0 0 12px", textAlign: "center" as const }}>
-        {both ? "✅ Kumpleto na para ngayon!" : "☕ Naiinom mo na ngayon?"}
+        {both ? "✅ Done for today!" : "☕ Have you taken yours today?"}
       </p>
       <div style={{ display: "flex", gap: 12 }}>
         {btn("umaga", "☀️", "Morning", umaga)}
@@ -455,7 +462,7 @@ function InstallBanner() {
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span style={{ fontSize: 32 }}>📱</span>
           <div>
-            <p style={{ fontSize: 17, fontWeight: 700, color: DARK, margin: 0 }}>I-save sa iyong iPhone!</p>
+            <p style={{ fontSize: 17, fontWeight: 700, color: DARK, margin: 0 }}>Save to your iPhone!</p>
             <p style={{ fontSize: 13, color: MID, margin: 0 }}>For easy access anytime</p>
           </div>
         </div>
@@ -463,10 +470,10 @@ function InstallBanner() {
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 14 }}>
         {[
-          { step: "1", icon: "🌐", label: "Open sa", highlight: "Safari" },
-          { step: "2", icon: "⬆️", label: "I-tap ang", highlight: "Share button (⬆️) sa ibaba ng screen" },
+          { step: "1", icon: "🌐", label: "Open in", highlight: "Safari" },
+          { step: "2", icon: "⬆️", label: "Tap the", highlight: "Share button (⬆️) at the bottom" },
           { step: "3", icon: "➕", label: "Select", highlight: '"Add to Home Screen"' },
-          { step: "4", icon: "✅", label: "I-tap ang", highlight: '"Add" — done na!' },
+          { step: "4", icon: "✅", label: "Tap", highlight: '"Add" — done!' },
         ].map(s => (
           <div key={s.step} style={{ display: "flex", alignItems: "center", gap: 12, background: "#F4FAF0", borderRadius: 12, padding: "12px 14px", border: "1.5px solid #C5D9BC" }}>
             <div style={{ width: 28, height: 28, borderRadius: 999, background: G, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{s.step}</div>
@@ -512,7 +519,7 @@ function PackCountdownCard({ tier, packs, daysLeft, onReorder }: { tier: number;
         </div>
         {daysLeft <= 14 && (
           <button onClick={onReorder} style={{ background: "#39613B", color: "white", border: "none", borderRadius: 12, padding: "14px 18px", fontSize: 17, fontWeight: 700, cursor: "pointer" }}>
-            🛒 Mag-order
+            🛒 Order
           </button>
         )}
       </div>
@@ -537,10 +544,10 @@ function EngagementNudge({ days, onDismiss }: { days: number; onDismiss: () => v
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
         <Link href="/tracker" style={{ background: "#39613B", color: "white", textDecoration: "none", borderRadius: 10, padding: "11px 16px", fontSize: 14, fontWeight: 700, textAlign: "center" as const }}>
-          📝 I-log
+          📝 Log Now
         </Link>
         <button onClick={onDismiss} style={{ background: "transparent", border: "none", fontSize: 12, color: "#9E9E9E", cursor: "pointer", padding: "4px" }}>
-          Mamaya na
+          Later
         </button>
       </div>
     </div>
@@ -553,7 +560,7 @@ function EngagementNudge({ days, onDismiss }: { days: number; onDismiss: () => v
 function WeeklySummaryCard({ data, onDismiss }: { data: { avgPain: number; consistency: number; entries: number }; onDismiss: () => void }) {
   const isGood = data.consistency >= 70;
   const stats = [
-    { label: "Araw na naka-log", value: `${data.entries}/7`, icon: "📅" },
+    { label: "Days Logged", value: `${data.entries}/7`, icon: "📅" },
     { label: "Consistency",      value: `${data.consistency}%`, icon: "🎯" },
     { label: "Avg Pain",         value: `${data.avgPain}/10`, icon: "💊" },
   ];
@@ -563,7 +570,7 @@ function WeeklySummaryCard({ data, onDismiss }: { data: { avgPain: number; consi
         <div>
           <p style={{ fontSize: 15, fontWeight: 700, color: isGood ? "#39613B" : "#b45309", margin: "0 0 3px", textTransform: "uppercase" as const, letterSpacing: 1 }}>📊 Weekly Summary</p>
           <p style={{ fontSize: 16, fontWeight: 700, color: "#1B201A", margin: 0, lineHeight: 1.4 }}>
-            {isGood ? "Magaling! Consistent ka ngayong linggo! 🌟" : "Kaya mo pa! Subukang maabot ang 7/7 ngayon! 💪"}
+            {isGood ? "Great! You're consistent this week! 🌟" : "You can do it! Try to reach 7/7 this week! 💪"}
           </p>
         </div>
         <button onClick={onDismiss} style={{ background: "transparent", border: "none", fontSize: 20, cursor: "pointer", color: "#9E9E9E", padding: "0 0 0 10px", flexShrink: 0 }}>✕</button>
@@ -606,12 +613,12 @@ function DailyReminderCard({ enabled, onToggle }: { enabled: boolean; onToggle: 
         <span style={{ fontSize: 36 }}>🔔</span>
         <div>
           <p style={{ fontSize: 18, fontWeight: 700, color: "#1B201A", margin: 0 }}>Daily Reminder</p>
-          <p style={{ fontSize: 15, color: "#4E504F", margin: "3px 0 0 0", lineHeight: 1.5 }}>Mag-aalerto kami sa 7 AM at 7 PM para hindi ninyo malimutang uminom!</p>
+          <p style={{ fontSize: 15, color: "#4E504F", margin: "3px 0 0 0", lineHeight: 1.5 }}>We'll remind you at 7 AM and 7 PM so you never miss a drink!</p>
         </div>
       </div>
       {enabled ? (
         <button onClick={onToggle} style={{ width: "100%", background: "#39613B", color: "white", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-          ✅ Reminder ON — I-tap para i-off
+          ✅ Reminder ON — Tap to turn off
         </button>
       ) : (
         <button onClick={handleEnable} style={{ width: "100%", background: "#FED255", color: "#39613B", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
@@ -661,14 +668,14 @@ function OnboardingModal({ onClose }: { onClose: () => void }) {
             onClick={() => setStep(s => s + 1)}
             style={{ width: "100%", background: "#39613B", color: "white", border: "none", borderRadius: 16, padding: "20px", fontSize: 20, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif" }}
           >
-            Susunod →
+            Next →
           </button>
         ) : (
           <button
             onClick={onClose}
             style={{ width: "100%", background: "#39613B", color: "white", border: "none", borderRadius: 16, padding: "20px", fontSize: 20, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif" }}
           >
-            ✅ Sige, Magsimula Na!
+            ✅ Let's Get Started!
           </button>
         )}
       </div>
@@ -716,7 +723,7 @@ export default function Home() {
   const [products, setProducts]             = useState(DEFAULT_PRODUCTS);
   const [coaches, setCoaches]               = useState<Coach[]>(DEFAULT_COACHES);
   const [heroTitle, setHeroTitle]           = useState("Kamusta, Nanay at Tatay! 👋");
-  const [heroSubtitle, setHeroSubtitle]     = useState("Your daily companion para sa mas malusog na katawan.");
+  const [heroSubtitle, setHeroSubtitle]     = useState("Your daily companion for a healthier body.");
   const [wellnessTips, setWellnessTips]     = useState(DEFAULT_WELLNESS_TIPS);
   const [faqs, setFaqs]                     = useState(DEFAULT_FAQS);
   const [testimonials, setTestimonials]     = useState(DEFAULT_TESTIMONIALS);
@@ -850,11 +857,11 @@ export default function Home() {
     const today = new Date().toISOString().split("T")[0];
     if (h >= 7 && h < 9 && !localStorage.getItem(`eb_rem_am_${today}`)) {
       localStorage.setItem(`eb_rem_am_${today}`, "1");
-      new Notification("☕ EaseBrew Morning Reminder", { body: "Magandang umaga! Huwag kalimutang uminom ng EaseBrew 1st sachet ngayon!", icon: "/icon-192.png" });
+      new Notification("☕ EaseBrew Morning Reminder", { body: "Good morning! Don't forget to drink your 1st EaseBrew sachet today!", icon: "/icon-192.png" });
     }
     if (h >= 19 && h < 21 && !localStorage.getItem(`eb_rem_pm_${today}`)) {
       localStorage.setItem(`eb_rem_pm_${today}`, "1");
-      new Notification("🌙 EaseBrew Evening Reminder", { body: "Magandang gabi! Huwag kalimutang uminom ng EaseBrew 2nd sachet ngayon!", icon: "/icon-192.png" });
+      new Notification("🌙 EaseBrew Evening Reminder", { body: "Good evening! Don't forget to drink your 2nd EaseBrew sachet tonight!", icon: "/icon-192.png" });
     }
   }, []);
 
@@ -863,9 +870,9 @@ export default function Home() {
   function buildReorderMessage() {
     const pkgLabel = getTierLabel(customerTier);
     const expiryStr = session?.expires_at
-      ? new Date(session.expires_at).toLocaleDateString("fil-PH", { month: "long", day: "numeric", year: "numeric" })
+      ? new Date(session.expires_at).toLocaleDateString("en-PH", { month: "long", day: "numeric", year: "numeric" })
       : null;
-    return `Hi po! Gusto ko po mag-order ulit ng EaseBrew.\n\nPackage: ${pkgLabel}${expiryStr ? `\nExpires: ${expiryStr}` : ""}\n\nPwede po ba? Salamat po! 🙏`;
+    return `Hi po! I'd like to order EaseBrew again.\n\nPackage: ${pkgLabel}${expiryStr ? `\nExpires: ${expiryStr}` : ""}\n\nIs it available? Thank you po! 🙏`;
   }
 
   if (checking) return (
@@ -925,23 +932,23 @@ export default function Home() {
         )}
         <div style={{ padding: "16px 20px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
-            <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 12, padding: "5px 14px", fontSize: 14, fontWeight: 700, letterSpacing: 1 }}>☕ EVERYDAY WE CARE</div>
+            <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 12, padding: "5px 14px", fontSize: 14, fontWeight: 700, letterSpacing: 1 }}>R&amp;M EASEBREW</div>
             <p style={{ color: "rgba(255,255,255,0.9)", fontSize: 16, margin: "4px 0 0 0", fontWeight: 500 }}>
-              📦 {getTierLabel(customerTier)} — {unlockedProducts.length} {unlockedProducts.length === 1 ? "Gift" : "Gifts"} Unlocked
+              {getTierLabel(customerTier)} — {unlockedProducts.length} {unlockedProducts.length === 1 ? "Gift" : "Gifts"} Unlocked
             </p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <button
               onClick={() => setLargeFont(v => { const n = !v; localStorage.setItem("eb_large_font", n ? "1" : "0"); return n; })}
               style={{ background: largeFont ? GOLD : "rgba(255,255,255,0.2)", border: "none", borderRadius: 10, padding: "7px 12px", fontSize: 15, fontWeight: 700, color: largeFont ? G : "white", cursor: "pointer", lineHeight: 1 }}
-              aria-label="Palakihin ang text"
+              aria-label="Increase text size"
             >
               {largeFont ? "A−" : "A+"}
             </button>
             <span style={{ fontSize: 32 }}>☕</span>
           </div>
         </div>
-        <nav className="customer-home-nav" aria-label="Pangunahing menu" style={{ display: "flex", marginTop: 8 }}>
+        <nav className="customer-home-nav" aria-label="Main menu" style={{ display: "flex", marginTop: 8 }}>
           {tabBtn("home",    "Home",    HomeIcon)}
           {tabBtn("gifts",   "Gifts",   Gift)}
           {tabBtn("tips",    "Tips",    Lightbulb)}
@@ -971,7 +978,7 @@ export default function Home() {
               <div style={{ background: G, padding: "20px 24px 24px", position: "relative" }}>
                 <div style={{ position: "absolute", top: -30, right: -20, width: 100, height: 100, background: "rgba(125,174,47,0.18)", borderRadius: "50%" }} />
                 <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 999, padding: "5px 16px", fontSize: 14, fontWeight: 900, letterSpacing: 1.2, marginBottom: 10 }}>
-                  ☕ EVERYDAY WE CARE
+                  R&amp;M EASEBREW
                 </div>
                 <h1 style={{ fontSize: 26, fontWeight: 900, margin: "0 0 10px 0", lineHeight: 1.3, color: "#fff" }}>{heroTitle}</h1>
                 <p style={{ fontSize: 16, opacity: 0.9, lineHeight: 1.65, margin: 0, color: "#fff" }}>{heroSubtitle}</p>
@@ -1000,50 +1007,62 @@ export default function Home() {
             {/* ── Quick Access to Unlocked Tools ── */}
             {unlockedProducts.length > 0 && (
               <div style={{ marginBottom: 24 }}>
-                <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>Mabilis na Access 🚀</h2>
+                <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>Mabilis na Access</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {unlockedProducts.map(p => (
+                  {unlockedProducts.map(p => {
+                    const meta = PRODUCT_ICONS[p.id];
+                    const Icon = meta?.icon;
+                    return (
                     <Link key={p.id} href={p.appUrl} style={{
                       background: WHITE, border: `2px solid ${G}`, borderRadius: 18,
-                      padding: "20px 22px", textDecoration: "none",
-                      display: "flex", alignItems: "center", gap: 16, minHeight: 72,
+                      padding: "16px 20px", textDecoration: "none",
+                      display: "flex", alignItems: "center", gap: 14, minHeight: 64,
                       boxShadow: "0 2px 10px rgba(24,59,40,0.10)",
                     }}>
-                      <span style={{ fontSize: 36, flexShrink: 0 }}>{p.icon}</span>
+                      {meta && Icon ? (
+                        <div style={{ width: 44, height: 44, borderRadius: 12, background: meta.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: `0 2px 8px ${meta.bg}40` }}>
+                          <Icon size={22} color="#fff" strokeWidth={2.2} />
+                        </div>
+                      ) : (
+                        <span style={{ fontSize: 36, flexShrink: 0 }}>{p.icon}</span>
+                      )}
                       <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: 18, fontWeight: 700, color: G, margin: 0, lineHeight: 1.3 }}>{p.name}</p>
-                        <p style={{ fontSize: 16, color: MID, margin: "4px 0 0 0" }}>{p.appLabel}</p>
+                        <p style={{ fontSize: 17, fontWeight: 700, color: G, margin: 0, lineHeight: 1.3 }}>{p.name}</p>
+                        <p style={{ fontSize: 14, color: MID, margin: "3px 0 0 0" }}>Buksan</p>
                       </div>
                       <span style={{ fontSize: 24, color: G, flexShrink: 0, fontWeight: 700 }}>›</span>
                     </Link>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             {/* ── Free Wellness Tools ── */}
             <div style={{ marginBottom: 24 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>Free Health Tools 🛠️</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>Free Health Tools</h2>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                <Link href="/blood-pressure" style={{ background: "#fee2e2", border: "2px solid #fca5a5", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90 }}>
-                  <span style={{ fontSize: 32 }}>🩺</span>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: "#991b1b", margin: 0, textAlign: "center", lineHeight: 1.3 }}>Blood Pressure Log</p>
-                </Link>
-                <Link href="/medication" style={{ background: "#e0e7ff", border: "2px solid #a5b4fc", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90 }}>
-                  <span style={{ fontSize: 32 }}>💊</span>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: "#3730a3", margin: 0, textAlign: "center", lineHeight: 1.3 }}>Medication Log</p>
-                </Link>
-                <Link href="/medical-card" style={{ background: "#e0f2fe", border: "2px solid #7dd3fc", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90 }}>
-                  <span style={{ fontSize: 32 }}>📋</span>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: "#0369a1", margin: 0, textAlign: "center", lineHeight: 1.3 }}>Medical Info Card</p>
-                </Link>
-                <Link href="/bmi" style={{ background: "#f3e8ff", border: "2px solid #c4b5fd", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90 }}>
-                  <span style={{ fontSize: 32 }}>⚖️</span>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: "#7c3aed", margin: 0, textAlign: "center", lineHeight: 1.3 }}>BMI Calculator</p>
-                </Link>
-                <Link href="/report" style={{ background: "#fefce8", border: "2px solid #fcd34d", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90, gridColumn: "1 / -1" }}>
-                  <span style={{ fontSize: 32 }}>📊</span>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: "#92400e", margin: 0, textAlign: "center", lineHeight: 1.3 }}>Weekly Wellness Report</p>
+                {([
+                  { href: "/blood-pressure", icon: Activity, bg: "#8E44AD", label: "Blood Pressure Log" },
+                  { href: "/medication",     icon: Pill,     bg: "#E67E22", label: "Medication Log" },
+                  { href: "/medical-card",   icon: IdCard,   bg: "#16A085", label: "Medical Info Card" },
+                  { href: "/bmi",            icon: Dumbbell, bg: "#2980B9", label: "BMI Calculator" },
+                ] as const).map(tool => {
+                  const TIcon = tool.icon;
+                  return (
+                    <Link key={tool.href} href={tool.href} style={{ background: WHITE, border: "2px solid #D9D0C0", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90 }}>
+                      <div style={{ width: 44, height: 44, borderRadius: 12, background: tool.bg, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 2px 8px ${tool.bg}40` }}>
+                        <TIcon size={22} color="#fff" strokeWidth={2.2} />
+                      </div>
+                      <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0, textAlign: "center", lineHeight: 1.3 }}>{tool.label}</p>
+                    </Link>
+                  );
+                })}
+                <Link href="/report" style={{ background: WHITE, border: "2px solid #D9D0C0", borderRadius: 18, padding: "18px 16px", textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minHeight: 90, gridColumn: "1 / -1" }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: "#E74C3C", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(231,76,60,0.4)" }}>
+                    <HeartPulse size={22} color="#fff" strokeWidth={2.2} />
+                  </div>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0, textAlign: "center", lineHeight: 1.3 }}>Weekly Wellness Report</p>
                 </Link>
               </div>
             </div>
@@ -1108,9 +1127,9 @@ export default function Home() {
               <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 20, padding: "5px 16px", fontSize: 12, fontWeight: 700, marginBottom: 14, letterSpacing: 1 }}>✨ SPECIAL OFFER</div>
               <div style={{ fontSize: 48, marginBottom: 12 }}>🏆</div>
               <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 12px 0", lineHeight: 1.3 }}>Bagong Katawan 90-Day Program</h2>
-              <p style={{ fontSize: 16, opacity: 0.9, margin: "0 0 20px 0", lineHeight: 1.7 }}>Ang pinaka-complete na wellness program — 90-day master plan, full exercise program, weekly check-ins, at lahat ng digital products!</p>
+              <p style={{ fontSize: 16, opacity: 0.9, margin: "0 0 20px 0", lineHeight: 1.7 }}>The most complete wellness program — 90-day master plan, full exercise program, weekly check-ins, and all digital products!</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24, textAlign: "left" as const }}>
-                {["✅ 90-Day Master Plan na may daily schedule", "✅ 3 Phases ng progressive wellness program", "✅ Full exercise library para sa joint pain", "✅ Weekly milestone check-ins", "✅ Lahat ng digital products kasama na"].map((item, i) => (
+                {["✅ 90-Day Master Plan with daily schedule", "✅ 3 Phases of progressive wellness program", "✅ Full exercise library for joint pain", "✅ Weekly milestone check-ins", "✅ All digital products included"].map((item, i) => (
                   <p key={i} style={{ fontSize: 16, margin: 0 }}>{item}</p>
                 ))}
               </div>
@@ -1131,7 +1150,7 @@ export default function Home() {
         {tab === "gifts" && (
           <div>
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>Your Free Gifts 🎁</h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>Lahat ng gifts na ito ay <strong style={{ color: G }}>FREE</strong> — kasama na sa order mo!</p>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>All these gifts are <strong style={{ color: G }}>FREE</strong> — included with your order!</p>
 
             {unlockedProducts.length === 0 && (
               <div style={{ background: "#FEF9E7", border: `1.5px solid ${GOLD}`, borderRadius: 16, padding: "18px 20px", marginBottom: 16 }}>
@@ -1139,16 +1158,20 @@ export default function Home() {
               </div>
             )}
 
-            {unlockedProducts.map(p => (
+            {unlockedProducts.map(p => {
+              const meta = PRODUCT_ICONS[p.id];
+              const Icon = meta?.icon;
+              return (
               <div key={p.id} style={{ background: WHITE, border: `2.5px solid ${G}`, borderRadius: 20, marginBottom: 14, overflow: "hidden", boxShadow: "0 6px 20px rgba(24,59,40,0.12)" }}>
                 <div style={{ background: `linear-gradient(135deg, ${G} 0%, #2d6e40 100%)`, padding: "18px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
-                    <span style={{ background: GOLD, color: G, borderRadius: 999, padding: "4px 12px", fontSize: 12, fontWeight: 900 }}>🎁 FREE GIFT</span>
-                    <div style={{ fontSize: 48, marginTop: 8 }}>{p.icon}</div>
+                    <span style={{ background: GOLD, color: G, borderRadius: 999, padding: "4px 12px", fontSize: 12, fontWeight: 900 }}>FREE GIFT</span>
                   </div>
-                  <div style={{ width: 80, height: 80, borderRadius: 16, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 44 }}>
-                    {p.icon}
-                  </div>
+                  {meta && Icon && (
+                    <div style={{ width: 56, height: 56, borderRadius: 14, background: meta.bg, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 4px 12px ${meta.bg}60` }}>
+                      <Icon size={28} color="#fff" strokeWidth={2.2} />
+                    </div>
+                  )}
                 </div>
                 <div style={{ padding: "18px 20px" }}>
                   <h3 style={{ fontSize: 19, fontWeight: 900, color: G, margin: "0 0 8px 0" }}>{p.name}</h3>
@@ -1158,7 +1181,8 @@ export default function Home() {
                   </Link>
                 </div>
               </div>
-            ))}
+              );
+            })}
 
             {lockedProducts.length > 0 && (
               <>
@@ -1167,10 +1191,19 @@ export default function Home() {
                     🔒 Order more to unlock {lockedProducts.length} more free {lockedProducts.length === 1 ? "gift" : "gifts"}!
                   </p>
                 </div>
-                {lockedProducts.map(p => (
+                {lockedProducts.map(p => {
+                  const meta = PRODUCT_ICONS[p.id];
+                  const Icon = meta?.icon;
+                  return (
                   <div key={p.id} style={{ background: "#F5F0E8", border: "2px solid #C5B99A", borderRadius: 18, padding: "22px", marginBottom: 14, opacity: 0.85 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-                      <span style={{ fontSize: 40, filter: "grayscale(1)" }}>{p.icon}</span>
+                      {meta && Icon ? (
+                        <div style={{ width: 44, height: 44, borderRadius: 12, background: "#C5B99A", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <Icon size={22} color="#8A7D6A" strokeWidth={2.2} />
+                        </div>
+                      ) : (
+                        <span style={{ fontSize: 40, filter: "grayscale(1)" }}>{p.icon}</span>
+                      )}
                       <span style={{ background: "#E8E0D0", color: "#8A7D6A", borderRadius: 8, padding: "7px 14px", fontSize: 15, fontWeight: 700 }}>🔒 I-unlock sa {p.tierLabel}</span>
                     </div>
                     <h3 style={{ fontSize: 19, fontWeight: 700, color: "#8A7D6A", margin: "0 0 6px 0" }}>{p.name}</h3>
@@ -1179,7 +1212,8 @@ export default function Home() {
                       Order more to unlock this →
                     </button>
                   </div>
-                ))}
+                  );
+                })}
               </>
             )}
 
@@ -1286,7 +1320,7 @@ export default function Home() {
               );
             })}
 
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0" }}>Mga Tanong ❓</h2>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0" }}>Questions ❓</h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 8px 0", lineHeight: 1.6 }}>Tap a question to see the answer.</p>
             <div style={{ background: WHITE, border: "1.5px solid #C5B99A", borderRadius: 18, padding: "8px 22px" }}>
               {faqs.map((faq, i) => <FAQItem key={i} q={faq.q} a={faq.a} />)}
@@ -1342,7 +1376,7 @@ export default function Home() {
       {/* Floating coach button */}
       <button
         onClick={() => setShowCoachModal(true)}
-        aria-label="Tawagan ang Coach"
+        aria-label="Call Coach"
         style={{
           position: "fixed", bottom: 88, right: 14,
           width: 62, height: 62, borderRadius: "50%",

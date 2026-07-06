@@ -2,7 +2,10 @@
 import { useState, useEffect, useCallback } from "react";
 import Sidebar from "@/app/admin/_components/Sidebar";
 import { useAdminGuard } from "@/lib/useAdminGuard";
-import { PRICE_CONFIG } from "@/lib/price-config";
+import { HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard, Home, ShoppingBag, Users, Lightbulb, HelpCircle, MessageSquare, Film, Plus, Trash2, type LucideIcon } from "lucide-react";
+import Image from "next/image";
+import { DEFAULT_COACHES, parseCoachesFromContent } from "@/lib/coaches";
+import type { Coach } from "@/lib/coaches";
 
 const G    = "#39613B";
 const DARK = "#1B201A";
@@ -10,10 +13,6 @@ const MID  = "#4E504F";
 
 // keep legacy constants for inline field styles throughout the page
 const CONTENT_LABELS: Record<string, { label: string; group: string; multiline?: boolean; type?: "boolean" }> = {
-  // ── Promo ────────────────────────────────────────────────
-  promo_enabled: { label: "Show Promo Banner?", group: "📢 Promo Announcement", type: "boolean" },
-  promo_text:    { label: "Promo Message",              group: "📢 Promo Announcement", multiline: true },
-
   // ── Homepage ─────────────────────────────────────────────
   hero_title:    { label: "Hero Title", group: "🏠 Homepage" },
   hero_subtitle: { label: "Hero Subtitle",  group: "🏠 Homepage", multiline: true },
@@ -28,50 +27,8 @@ const CONTENT_LABELS: Record<string, { label: string; group: string; multiline?:
   product_4_name: { label: "Product 4 — Name (🏆 Complete Wellness Program)", group: "🛍️ Products & Gifts" },
   product_4_desc: { label: "Product 4 — Description",                     group: "🛍️ Products & Gifts", multiline: true },
 
-  // ── Coaches ──────────────────────────────────────────────
-  coach_1_name:     { label: "Coach 1 — Name",         group: "👥 Coach Management" },
-  coach_1_number:   { label: "Coach 1 — Phone Number",  group: "👥 Coach Management" },
-  coach_1_display:  { label: "Coach 1 — Display Number", group: "👥 Coach Management" },
-  coach_1_facebook: { label: "Coach 1 — Facebook Link", group: "👥 Coach Management" },
-  coach_1_photo:    { label: "Coach 1 — Photo URL",     group: "👥 Coach Management" },
-  coach_2_name:     { label: "Coach 2 — Name",          group: "👥 Coach Management" },
-  coach_2_number:   { label: "Coach 2 — Phone Number",  group: "👥 Coach Management" },
-  coach_2_display:  { label: "Coach 2 — Display Number", group: "👥 Coach Management" },
-  coach_2_facebook: { label: "Coach 2 — Facebook Link", group: "👥 Coach Management" },
-  coach_2_photo:    { label: "Coach 2 — Photo URL",     group: "👥 Coach Management" },
-  coach_3_name:     { label: "Coach 3 — Name",          group: "👥 Coach Management" },
-  coach_3_number:   { label: "Coach 3 — Phone Number",  group: "👥 Coach Management" },
-  coach_3_display:  { label: "Coach 3 — Display Number", group: "👥 Coach Management" },
-  coach_3_facebook: { label: "Coach 3 — Facebook Link", group: "👥 Coach Management" },
-  coach_3_photo:    { label: "Coach 3 — Photo URL",     group: "👥 Coach Management" },
-  coach_4_name:     { label: "Coach 4 — Name",          group: "👥 Coach Management" },
-  coach_4_number:   { label: "Coach 4 — Phone Number",  group: "👥 Coach Management" },
-  coach_4_display:  { label: "Coach 4 — Display Number", group: "👥 Coach Management" },
-  coach_4_facebook: { label: "Coach 4 — Facebook Link", group: "👥 Coach Management" },
-  coach_4_photo:    { label: "Coach 4 — Photo URL",     group: "👥 Coach Management" },
-  coach_5_name:     { label: "Coach 5 — Name",          group: "👥 Coach Management" },
-  coach_5_number:   { label: "Coach 5 — Phone Number",  group: "👥 Coach Management" },
-  coach_5_display:  { label: "Coach 5 — Display Number", group: "👥 Coach Management" },
-  coach_5_facebook: { label: "Coach 5 — Facebook Link", group: "👥 Coach Management" },
-  coach_5_photo:    { label: "Coach 5 — Photo URL",     group: "👥 Coach Management" },
-  coach_6_name:     { label: "Coach 6 — Name",          group: "👥 Coach Management" },
-  coach_6_number:   { label: "Coach 6 — Phone Number",  group: "👥 Coach Management" },
-  coach_6_display:  { label: "Coach 6 — Display Number", group: "👥 Coach Management" },
-  coach_6_facebook: { label: "Coach 6 — Facebook Link", group: "👥 Coach Management" },
-  coach_6_photo:    { label: "Coach 6 — Photo URL",     group: "👥 Coach Management" },
+  // ── Coaches — managed via custom UI, not individual keys ──
 
-  // ── Order Links ───────────────────────────────────────────
-  order_url_399:   { label: "Order Link — ₱399 (1 Pack)",      group: "🛒 Order Links" },
-  order_url_699:   { label: "Order Link — ₱699 (2 Packs)",     group: "🛒 Order Links" },
-  order_url_999:   { label: "Order Link — ₱999 (3 Packs)",     group: "🛒 Order Links" },
-  order_url_1499:  { label: "Order Link — ₱1,499 (5 Packs)",   group: "🛒 Order Links" },
-  order_url_2998:  { label: "Order Link — ₱2,998 (10 Packs)",  group: "🛒 Order Links" },
-  order_url_4497:  { label: "Order Link — ₱4,497 (15 Packs)",  group: "🛒 Order Links" },
-  order_url_5996:  { label: "Order Link — ₱5,996 (20 Packs)",  group: "🛒 Order Links" },
-  order_url_7499:  { label: "Order Link — ₱7,499 (25 Packs)",  group: "🛒 Order Links" },
-  order_url_8994:  { label: "Order Link — ₱8,994 (30 Packs)",  group: "🛒 Order Links" },
-  order_url_11992: { label: "Order Link — ₱11,992 (40 Packs)", group: "🛒 Order Links" },
-  order_url_14990: { label: "Order Link — ₱14,990 (50 Packs)", group: "🛒 Order Links" },
 
   // ── Wellness Tips ─────────────────────────────────────────
   daily_tip_1: { label: "Tip 1", group: "💡 Wellness Tips", multiline: true },
@@ -155,11 +112,17 @@ const VIDEO_DIVIDERS: Record<string, string> = {
   video_3_title: "🎬 Video 3",
 };
 
-const PRODUCTS_META = [
-  { n: 1, emoji: "📊", name: "Daily Health Tracker",       tier: "₱999+"  },
-  { n: 2, emoji: "🥗", name: "Meal Plan + Recipe Book",     tier: "₱1,499+" },
-  { n: 3, emoji: "💪", name: "Home Exercise Guide",        tier: "₱2,998+" },
-  { n: 4, emoji: "🏆", name: "Complete Wellness Program",  tier: "₱4,497+" },
+const PRODUCTS_META: { n: number; icon: LucideIcon; iconBg: string; name: string; desc: string; tier: string }[] = [
+  { n: 1, icon: HeartPulse,      iconBg: "#E74C3C", name: "Daily Health Tracker",       desc: "Track your pain levels, energy, and weight daily. Simple — just 1 minute per day.", tier: "₱999+"  },
+  { n: 2, icon: UtensilsCrossed, iconBg: "#27AE60", name: "Meal Plan + Recipe Book",     desc: "50-day Pinoy-friendly meal plan and 30 healthy recipes for joint pain, arthritis, and fatigue.", tier: "₱1,499+" },
+  { n: 3, icon: Dumbbell,        iconBg: "#2980B9", name: "Home Exercise Guide",        desc: "Gentle exercises you can do at home. For those with joint pain — no gym needed.", tier: "₱2,998+" },
+  { n: 4, icon: Crown,           iconBg: "#F39C12", name: "Complete Wellness Program",  desc: "Everything included: 90-day program, full exercise plan, meal guide, and weekly check-in. The complete package.", tier: "₱4,497+" },
+];
+
+const FREE_TOOLS_META: { icon: LucideIcon; iconBg: string; name: string; route: string }[] = [
+  { icon: Activity, iconBg: "#8E44AD", name: "Blood Pressure Monitor", route: "/blood-pressure" },
+  { icon: Pill,     iconBg: "#E67E22", name: "Medication Reminder",    route: "/medication" },
+  { icon: IdCard,   iconBg: "#16A085", name: "Medical Card",           route: "/medical-card" },
 ];
 
 type ContentState = Record<string, string>;
@@ -173,7 +136,7 @@ function ProductsSection({ editing, content, saved, setEditing, setContent, setS
 }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      {PRODUCTS_META.map(({ n, emoji, name, tier }) => {
+      {PRODUCTS_META.map(({ n, icon: Icon, iconBg, name, desc, tier }, idx) => {
         const nameKey = `product_${n}_name`;
         const descKey = `product_${n}_desc`;
         const nameVal = editing[nameKey] ?? "";
@@ -182,55 +145,96 @@ function ProductsSection({ editing, content, saved, setEditing, setContent, setS
         const descChanged = descVal !== (content[descKey] ?? "");
         const hasPending = nameChanged || descChanged;
         const allSaved = saved[nameKey] && saved[descKey];
+        const displayName = nameVal.trim() || name;
+        const displayDesc = descVal.trim() || desc;
         return (
-          <div key={n} style={{ background: "white", border: "1.5px solid #e8e8e8", borderRadius: 12, padding: 18 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 28 }}>{emoji}</span>
+          <div key={n} style={{ background: "white", border: "1.5px solid #e8e8e8", borderRadius: 14, overflow: "hidden" }}>
+            {/* Product header with colored accent */}
+            <div style={{ background: `${iconBg}10`, borderBottom: `2px solid ${iconBg}25`, padding: "16px 18px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: iconBg, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 2px 8px ${iconBg}40` }}>
+                  <Icon size={22} color="white" />
+                </div>
                 <div>
-                  <div style={{ fontWeight: "bold", fontSize: 14, color: DARK }}>{name}</div>
-                  <div style={{ fontSize: 11, color: MID }}>👥 {tier}</div>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: DARK }}>{displayName}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 3 }}>
+                    <span style={{ fontSize: 11, fontWeight: 600, background: `${iconBg}20`, color: iconBg, padding: "2px 8px", borderRadius: 99 }}>Tier {idx + 1}</span>
+                    <span style={{ fontSize: 11, color: MID }}>Unlocks at {tier}</span>
+                  </div>
                 </div>
               </div>
-              {hasPending && (
-                <button onClick={async () => {
-                  const updates = [{ key: nameKey, value: nameVal }, { key: descKey, value: descVal }];
-                  const res = await fetch("/api/admin/content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ updates }) });
-                  if (res.ok) {
-                    setContent(p => ({ ...p, [nameKey]: nameVal, [descKey]: descVal }));
-                    setSaved(p => ({ ...p, [nameKey]: true, [descKey]: true }));
-                    setTimeout(() => setSaved(p => ({ ...p, [nameKey]: false, [descKey]: false })), 2000);
-                  }
-                }} style={{ background: allSaved ? "#dcfce7" : G, color: allSaved ? G : "white", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: "bold", cursor: "pointer" }}>
-                  {allSaved ? "✅ Saved!" : "💾 Save"}
-                </button>
-              )}
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 12 }}>
-              <div>
-                <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 4 }}>
-                  Name {nameChanged && <span style={{ color: "#f59e0b" }}>●</span>}
-                </label>
-                <input type="text" value={nameVal}
-                  onChange={e => setEditing(p => ({ ...p, [nameKey]: e.target.value }))}
-                  placeholder={`e.g. ${name}`}
-                  style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${nameChanged ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, background: nameChanged ? "#fffbeb" : "white", color: DARK }}
-                />
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {hasPending && (
+                  <button onClick={async () => {
+                    const updates = [{ key: nameKey, value: nameVal }, { key: descKey, value: descVal }];
+                    const res = await fetch("/api/admin/content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ updates }) });
+                    if (res.ok) {
+                      setContent(p => ({ ...p, [nameKey]: nameVal, [descKey]: descVal }));
+                      setSaved(p => ({ ...p, [nameKey]: true, [descKey]: true }));
+                      setTimeout(() => setSaved(p => ({ ...p, [nameKey]: false, [descKey]: false })), 2000);
+                    }
+                  }} style={{ background: allSaved ? "#dcfce7" : G, color: allSaved ? G : "white", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                    {allSaved ? "✅ Saved!" : "Save"}
+                  </button>
+                )}
               </div>
-              <div>
-                <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 4 }}>
-                  Description {descChanged && <span style={{ color: "#f59e0b" }}>●</span>}
-                </label>
-                <textarea value={descVal}
-                  onChange={e => setEditing(p => ({ ...p, [descKey]: e.target.value }))}
-                  rows={2} placeholder="Describe this product..."
-                  style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${descChanged ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const, background: descChanged ? "#fffbeb" : "white", color: DARK }}
-                />
+            </div>
+
+            {/* Preview + Edit fields */}
+            <div style={{ padding: "14px 18px" }}>
+              {/* Live preview */}
+              <div style={{ background: "#f9fafb", borderRadius: 10, padding: "12px 14px", marginBottom: 14, border: "1px solid #f0f0f0" }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: MID, textTransform: "uppercase" as const, letterSpacing: 0.5, marginBottom: 6 }}>Customer preview</div>
+                <div style={{ fontSize: 13, color: DARK, lineHeight: 1.5 }}>{displayDesc}</div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 10, color: MID, fontWeight: 700, display: "block", marginBottom: 4, textTransform: "uppercase" as const, letterSpacing: 0.3 }}>
+                    Custom name {nameChanged && <span style={{ color: "#f59e0b" }}>●</span>}
+                  </label>
+                  <input type="text" value={nameVal}
+                    onChange={e => setEditing(p => ({ ...p, [nameKey]: e.target.value }))}
+                    placeholder={name}
+                    style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${nameChanged ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, background: nameChanged ? "#fffbeb" : "white", color: DARK }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: 10, color: MID, fontWeight: 700, display: "block", marginBottom: 4, textTransform: "uppercase" as const, letterSpacing: 0.3 }}>
+                    Custom description {descChanged && <span style={{ color: "#f59e0b" }}>●</span>}
+                  </label>
+                  <textarea value={descVal}
+                    onChange={e => setEditing(p => ({ ...p, [descKey]: e.target.value }))}
+                    rows={2} placeholder={desc}
+                    style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${descChanged ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const, background: descChanged ? "#fffbeb" : "white", color: DARK }}
+                  />
+                </div>
               </div>
             </div>
           </div>
         );
       })}
+
+      {/* Free Health Tools */}
+      <div style={{ borderTop: "2px solid #e8e8e8", paddingTop: 20, marginTop: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: MID, textTransform: "uppercase", letterSpacing: 0.5 }}>Free Health Tools</span>
+          <span style={{ fontSize: 10, fontWeight: 600, background: "#dcfce7", color: "#166534", padding: "2px 10px", borderRadius: 99 }}>Included in all packages</span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+          {FREE_TOOLS_META.map(({ icon: FIcon, iconBg, name, route }) => (
+            <div key={name} style={{ background: "white", border: "1.5px solid #e8e8e8", borderRadius: 12, padding: "16px", display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: `${iconBg}15`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <FIcon size={18} color={iconBg} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: 13, color: DARK }}>{name}</div>
+                <div style={{ fontSize: 11, color: MID }}>{route}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -243,7 +247,10 @@ export default function ContentPage() {
   const [saved, setSaved]             = useState<Record<string, boolean>>({});
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState("");
-  const [activeGroup, setActiveGroup] = useState("📢 Promo Announcement");
+  const [activeGroup, setActiveGroup] = useState("🏠 Homepage");
+  const [coaches, setCoaches]         = useState<Coach[]>([]);
+  const [coachesSaving, setCoachesSaving] = useState(false);
+  const [coachesSaved, setCoachesSaved]   = useState(false);
 
   const fetchContent = useCallback(async () => {
     setLoading(true);
@@ -253,6 +260,7 @@ export default function ContentPage() {
       if (!res.ok) { setError(data.error || "Failed to load content."); setLoading(false); return; }
       setContent(data.content ?? {});
       setEditing(data.content ?? {});
+      setCoaches(parseCoachesFromContent(data.content ?? {}));
     } catch {
       setError("Something went wrong.");
     }
@@ -326,21 +334,37 @@ export default function ContentPage() {
     setSaving(p => ({ ...p, ...notSavingMap }));
   }
 
-  async function clearCoach(n: number) {
-    const keys = [`coach_${n}_name`, `coach_${n}_number`, `coach_${n}_display`, `coach_${n}_facebook`, `coach_${n}_photo`];
-    const updates = keys.map(k => ({ key: k, value: "" }));
+  function updateCoach(idx: number, field: keyof Coach, value: string) {
+    setCoaches(prev => prev.map((c, i) => i === idx ? { ...c, [field]: value } : c));
+    setCoachesSaved(false);
+  }
+
+  function addCoach() {
+    setCoaches(prev => [...prev, { name: "", number: "", display: "", facebook: "", photo: "" }]);
+    setCoachesSaved(false);
+  }
+
+  function removeCoach(idx: number) {
+    setCoaches(prev => prev.filter((_, i) => i !== idx));
+    setCoachesSaved(false);
+  }
+
+  async function saveCoaches() {
+    const valid = coaches.filter(c => c.name.trim());
+    if (valid.length === 0) { setError("At least one coach is required."); return; }
+    setCoachesSaving(true);
     try {
       const res = await fetch("/api/admin/content", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ updates }),
+        body: JSON.stringify({ updates: [{ key: "coaches_data", value: JSON.stringify(valid) }] }),
       });
       if (res.ok) {
-        const cleared: Record<string, string> = {};
-        keys.forEach(k => { cleared[k] = ""; });
-        setEditing(p => ({ ...p, ...cleared }));
-        setContent(p => ({ ...p, ...cleared }));
-      }
-    } catch { /* silent */ }
+        setCoaches(valid);
+        setCoachesSaved(true);
+        setTimeout(() => setCoachesSaved(false), 2500);
+      } else { setError("Failed to save coaches."); }
+    } catch { setError("Something went wrong."); }
+    setCoachesSaving(false);
   }
 
   const groups: Record<string, string[]> = {};
@@ -348,29 +372,31 @@ export default function ContentPage() {
     if (!groups[meta.group]) groups[meta.group] = [];
     groups[meta.group].push(key);
   });
+  // Coach Management uses custom UI, not CONTENT_LABELS — ensure it appears in tabs
+  if (!groups["👥 Coach Management"]) groups["👥 Coach Management"] = [];
   const groupNames = Object.keys(groups);
 
   const pendingCount       = Object.entries(editing).filter(([k, v]) => v !== (content[k] ?? "")).length;
   const activeGroupPending = (groups[activeGroup] ?? []).filter(k => editing[k] !== (content[k] ?? "")).length;
 
   if (checking || loading) return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f7f5", fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
       <Sidebar active="/admin/content" username={username} />
-      <main style={{ flex: 1, marginLeft: 248, padding: "36px 40px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ color: MID }}>Loading content...</div>
+      <main className="admin-main" style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ color: MID, fontFamily: "var(--admin-font)", fontSize: 13 }}>Loading content...</div>
       </main>
     </div>
   );
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f7f5", fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
       <Sidebar active="/admin/content" username={username} />
 
-      <main style={{ flex: 1, minWidth: 0, marginLeft: 248, padding: "36px 40px", display: "flex", gap: 24 }}>
+      <main className="admin-main" style={{ flex: 1, minWidth: 0, display: "flex", gap: 24 }}>
         {/* ── Left: Group Tabs ── */}
         <div style={{ width: 200, flexShrink: 0 }}>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#1B201A", margin: 0, fontFamily: "Inter, system-ui, sans-serif" }}>Content</h1>
-          <p style={{ fontSize: 13, color: "#4E504F", margin: "4px 0 18px", fontFamily: "Inter, system-ui, sans-serif" }}>Edit app text &amp; links</p>
+          <h1 style={{ fontSize: 20, fontWeight: 800, color: "#1B201A", margin: 0, fontFamily: "var(--admin-font)" }}>Content</h1>
+          <p style={{ fontSize: 13, color: "#6b7a70", margin: "4px 0 18px", fontFamily: "var(--admin-font)" }}>Edit app text &amp; links</p>
 
           {pendingCount > 0 && (
             <div style={{ background: "#fef9c3", border: "1px solid #fde68a", borderRadius: 10, padding: "10px 14px", marginBottom: 16, fontSize: 12, color: "#b45309" }}>
@@ -379,26 +405,42 @@ export default function ContentPage() {
           )}
 
           <nav style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            {groupNames.map(g => {
-              const isActive   = activeGroup === g;
-              const hasPending = (groups[g] ?? []).some(k => editing[k] !== (content[k] ?? ""));
-              return (
-                <button key={g} onClick={() => setActiveGroup(g)} style={{
-                  background: isActive ? "#FED255" : "transparent",
-                  color: isActive ? "#183b28" : "var(--ink)",
-                  border: "none",
-                  borderRadius: 7, padding: "9px 12px", fontSize: 12.5,
-                  cursor: "pointer", textAlign: "left", fontWeight: isActive ? 700 : 400,
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                  fontFamily: "Inter, system-ui, sans-serif",
-                }}>
-                  <span>{g}</span>
-                  {hasPending && !isActive && (
-                    <span style={{ width: 7, height: 7, background: "#f59e0b", borderRadius: "50%", flexShrink: 0 }} />
-                  )}
-                </button>
-              );
-            })}
+            {(() => {
+              const GROUP_ICONS: Record<string, LucideIcon> = {
+                "🏠 Homepage": Home,
+                "🛍️ Products & Gifts": ShoppingBag,
+                "👥 Coach Management": Users,
+                "💡 Wellness Tips": Lightbulb,
+                "❓ FAQs": HelpCircle,
+                "💬 Testimonials": MessageSquare,
+                "🎬 Videos": Film,
+              };
+              return groupNames.map(g => {
+                const isActive   = activeGroup === g;
+                const hasPending = (groups[g] ?? []).some(k => editing[k] !== (content[k] ?? ""));
+                const IconComp   = GROUP_ICONS[g];
+                const cleanLabel = g.replace(/^[\p{Emoji}\p{Emoji_Component}️‍]+\s*/u, "");
+                return (
+                  <button key={g} onClick={() => setActiveGroup(g)} style={{
+                    background: isActive ? "#FED255" : "transparent",
+                    color: isActive ? "#183b28" : "var(--ink)",
+                    border: "none",
+                    borderRadius: 10, padding: "10px 14px", fontSize: 13,
+                    cursor: "pointer", textAlign: "left", fontWeight: isActive ? 700 : 400,
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    fontFamily: "var(--admin-font)",
+                  }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      {IconComp && <IconComp size={15} strokeWidth={2.2} />}
+                      {cleanLabel}
+                    </span>
+                    {hasPending && !isActive && (
+                      <span style={{ width: 7, height: 7, background: "#f59e0b", borderRadius: "50%", flexShrink: 0 }} />
+                    )}
+                  </button>
+                );
+              });
+            })()}
           </nav>
         </div>
 
@@ -411,350 +453,491 @@ export default function ContentPage() {
             </div>
           )}
 
-          <div style={{ background: "#ffffff", borderRadius: 10, border: "1px solid #dde4df", boxShadow: "0 1px 3px rgba(20,35,25,0.05)", padding: "22px 26px" }}>
+          <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e8ece9", boxShadow: "0 1px 3px rgba(20,35,25,0.04)", padding: "24px 28px" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-              <h2 style={{ fontSize: 14, fontWeight: 700, color: "#1B201A", margin: 0, textTransform: "uppercase" as const, letterSpacing: "0.5px", fontFamily: "Inter, system-ui, sans-serif" }}>{activeGroup}</h2>
+              <h2 style={{ fontSize: 13, fontWeight: 700, color: "#1B201A", margin: 0, textTransform: "uppercase" as const, letterSpacing: "0.3px", fontFamily: "var(--admin-font)" }}>{activeGroup.replace(/^[\p{Emoji}\p{Emoji_Component}️‍]+\s*/u, "")}</h2>
               {activeGroupPending > 0 && (
-                <button onClick={handleSaveAll} style={{ display: "inline-flex", alignItems: "center", gap: 6, minHeight: 30, padding: "0 10px", borderRadius: 6, border: "none", background: "#39613B", color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "Inter, system-ui, sans-serif" }}>
+                <button onClick={handleSaveAll} style={{ display: "inline-flex", alignItems: "center", gap: 6, minHeight: 40, padding: "0 18px", borderRadius: 10, border: "none", background: "#39613B", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--admin-font)" }}>
                   Save All ({activeGroupPending})
                 </button>
               )}
             </div>
 
-            {/* ── COACH MANAGEMENT — card grid ── */}
+            {/* ── COACH MANAGEMENT — dynamic list ── */}
             {activeGroup === "👥 Coach Management" ? (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                {[1,2,3,4,5,6].map(n => {
-                  const fields: { key: string; label: string }[] = [
-                    { key: `coach_${n}_name`,     label: "Name" },
-                    { key: `coach_${n}_number`,   label: "Phone (09xxxxxxxxx)" },
-                    { key: `coach_${n}_display`,  label: "Display (0917 xxx xxxx)" },
-                    { key: `coach_${n}_facebook`, label: "Facebook Link" },
-                    { key: `coach_${n}_photo`,    label: "Photo URL" },
-                  ];
-                  const hasAny = fields.some(f => (editing[f.key] ?? "").trim() !== "");
-                  const hasPending = fields.some(f => (editing[f.key] ?? "") !== (content[f.key] ?? ""));
-                  return (
-                    <div key={n} style={{ background: hasAny ? "#f9fdfb" : "#fafafa", border: `1.5px solid ${hasAny ? "#c3ddc5" : "#e8e8e8"}`, borderRadius: 12, padding: 16 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                        <span style={{ fontWeight: "bold", fontSize: 13, color: hasAny ? G : MID }}>
-                          👤 Coach {n} {!hasAny && <span style={{ fontWeight: "normal", color: "#bbb" }}>— Empty</span>}
-                        </span>
-                        <div style={{ display: "flex", gap: 6 }}>
-                          {hasPending && (
-                            <button onClick={async () => {
-                              const updates = fields.map(f => ({ key: f.key, value: editing[f.key] ?? "" }));
-                              const res = await fetch("/api/admin/content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ updates }) });
-                              if (res.ok) {
-                                const saved: Record<string, string> = {};
-                                updates.forEach(({ key, value }) => { saved[key] = value; });
-                                setContent(p => ({ ...p, ...saved }));
-                                const s: Record<string, boolean> = {};
-                                fields.forEach(f => { s[f.key] = true; });
-                                setSaved(p => ({ ...p, ...s }));
-                                setTimeout(() => setSaved(p => { const c = { ...p }; fields.forEach(f => { c[f.key] = false; }); return c; }), 2000);
-                              }
-                            }} style={{ background: G, color: "white", border: "none", borderRadius: 6, padding: "3px 10px", fontSize: 11, cursor: "pointer", fontWeight: "bold" }}>
-                              💾 Save
-                            </button>
-                          )}
-                          {hasAny && (
-                            <button onClick={() => clearCoach(n)} style={{ background: "none", border: "1px solid #fca5a5", borderRadius: 6, padding: "3px 10px", fontSize: 11, color: "#dc2626", cursor: "pointer" }}>
-                              🗑️ Clear
-                            </button>
+              <div>
+                <div style={{ background: "#f0fdf4", borderRadius: 10, padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: 13, color: "#166534", fontWeight: 600 }}>{coaches.length} coach{coaches.length !== 1 ? "es" : ""}</span>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button onClick={addCoach} style={{ display: "flex", alignItems: "center", gap: 5, background: G, color: "white", border: "none", borderRadius: 7, padding: "7px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                      <Plus size={13} /> Add Coach
+                    </button>
+                    <button onClick={saveCoaches} disabled={coachesSaving} style={{ background: coachesSaved ? "#16a34a" : "#1B201A", color: "white", border: "none", borderRadius: 7, padding: "7px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer", opacity: coachesSaving ? 0.5 : 1 }}>
+                      {coachesSaving ? "Saving..." : coachesSaved ? "Saved!" : "Save All Coaches"}
+                    </button>
+                  </div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  {coaches.map((coach, idx) => (
+                    <div key={idx} style={{ background: "#f9fdfb", border: "1.5px solid #c3ddc5", borderRadius: 12, padding: 16, position: "relative" as const }}>
+                      <div style={{ display: "flex", gap: 12, marginBottom: 14, alignItems: "center" }}>
+                        <div style={{ width: 44, height: 44, borderRadius: "50%", overflow: "hidden", flexShrink: 0, background: "#e8e8e8", border: `2px solid ${G}` }}>
+                          {coach.photo ? (
+                            <Image src={coach.photo} alt={coach.name || "Coach"} width={44} height={44} style={{ objectFit: "cover", width: 44, height: 44 }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                          ) : (
+                            <div style={{ width: "100%", height: "100%", display: "grid", placeItems: "center" }}><Users size={18} color="#999" /></div>
                           )}
                         </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 700, fontSize: 14, color: DARK }}>{coach.name || `Coach ${idx + 1}`}</div>
+                          {coach.display && <div style={{ fontSize: 12, color: MID, marginTop: 1 }}>{coach.display}</div>}
+                        </div>
+                        <button onClick={() => removeCoach(idx)} title="Remove coach" style={{ background: "none", border: "1px solid #fca5a5", borderRadius: 7, padding: "6px", cursor: "pointer", color: "#dc2626", flexShrink: 0 }}>
+                          <Trash2 size={14} />
+                        </button>
                       </div>
-                      {fields.map(({ key, label }) => {
-                        const val = editing[key] ?? "";
-                        const changed = val !== (content[key] ?? "");
-                        return (
-                          <div key={key} style={{ marginBottom: 8 }}>
-                            <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>
-                              {label}{changed && <span style={{ color: "#f59e0b", marginLeft: 4 }}>●</span>}
-                            </label>
-                            <input type="text" value={val}
-                              onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
-                              placeholder={label}
-                              style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: `1.5px solid ${changed ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, background: changed ? "#fffbeb" : "white", color: DARK }}
-                            />
-                          </div>
-                        );
-                      })}
+                      {([
+                        { field: "name" as const,     label: "Name",           placeholder: "e.g. Coach Maria" },
+                        { field: "number" as const,   label: "Phone",          placeholder: "09xxxxxxxxx" },
+                        { field: "display" as const,  label: "Display Number", placeholder: "0917 xxx xxxx" },
+                        { field: "facebook" as const, label: "Facebook",       placeholder: "https://facebook.com/..." },
+                        { field: "photo" as const,    label: "Photo URL",      placeholder: "/coaches/name.jpg" },
+                      ]).map(({ field, label, placeholder }) => (
+                        <div key={field} style={{ marginBottom: 6 }}>
+                          <label style={{ fontSize: 10, color: MID, fontWeight: 700, display: "block", marginBottom: 2, textTransform: "uppercase" as const, letterSpacing: 0.3 }}>
+                            {label}{field === "name" && <span style={{ color: "#ef4444", marginLeft: 2 }}>*</span>}
+                          </label>
+                          <input type="text" value={coach[field]}
+                            onChange={e => updateCoach(idx, field, e.target.value)}
+                            placeholder={placeholder}
+                            style={{ width: "100%", padding: "6px 10px", borderRadius: 7, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, background: "white", color: DARK }}
+                          />
+                        </div>
+                      ))}
                     </div>
-                  );
-                })}
-              </div>
-
-            /* ── ORDER LINKS — table with tier info + test button ── */
-            ) : activeGroup === "🛒 Order Links" ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <div style={{ background: "#f0f7f0", border: "1px solid #d4e8d4", borderRadius: 10, padding: "10px 14px", fontSize: 12, color: G }}>
-                  💡 Gamitin ang Shopee, Lazada, Facebook, o kahit anong checkout link. I-click ang <strong>🔗 Test</strong> para i-verify na gumagana ang link.
+                  ))}
                 </div>
-                {Object.entries(PRICE_CONFIG).map(([price, cfg]) => {
-                  const key = `order_url_${price}`;
-                  const val = editing[key] ?? "";
-                  const hasChange = val !== (content[key] ?? "");
-                  const isSaved = saved[key];
-                  return (
-                    <div key={key} style={{ display: "flex", alignItems: "center", gap: 12, background: "white", border: `1.5px solid ${hasChange ? "#f59e0b" : "#e8e8e8"}`, borderRadius: 10, padding: "12px 14px" }}>
-                      <div style={{ width: 170, flexShrink: 0 }}>
-                        <div style={{ fontWeight: "bold", fontSize: 13, color: DARK }}>₱{Number(price).toLocaleString()}</div>
-                        <div style={{ fontSize: 11, color: MID }}>{cfg.packs} pack{cfg.packs > 1 ? "s" : ""} · {cfg.validityDays} days</div>
-                      </div>
-                      <input type="text" value={val}
-                        onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
-                        placeholder="https://..."
-                        style={{ flex: 1, padding: "8px 12px", borderRadius: 8, border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", background: hasChange ? "#fffbeb" : "white", color: DARK }}
-                      />
-                      {val && (
-                        <a href={val} target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>
-                          <button type="button" style={{ background: "#f0f7f0", border: "1px solid #c3ddc5", borderRadius: 8, padding: "8px 12px", fontSize: 12, color: G, cursor: "pointer", whiteSpace: "nowrap" }}>
-                            🔗 Test
-                          </button>
-                        </a>
-                      )}
-                      <button onClick={() => handleSave(key)} disabled={!hasChange || saving[key]} style={{
-                        background: isSaved ? "#dcfce7" : hasChange ? G : "#f0f0f0",
-                        color: isSaved ? G : hasChange ? "white" : "#aaa",
-                        border: "none", borderRadius: 8, padding: "8px 14px",
-                        fontSize: 12, fontWeight: "bold",
-                        cursor: hasChange ? "pointer" : "not-allowed", whiteSpace: "nowrap",
-                      }}>
-                        {isSaved ? "✅" : saving[key] ? "..." : "Save"}
-                      </button>
-                    </div>
-                  );
-                })}
               </div>
 
             ) : activeGroup === "🛍️ Products & Gifts" ? (
               <ProductsSection editing={editing} content={content} saved={saved} setEditing={setEditing} setContent={setContent} setSaved={setSaved} />
 
-            /* ── WELLNESS TIPS — 2-col grid ── */
+            /* ── WELLNESS TIPS — numbered list with defaults ── */
             ) : activeGroup === "💡 Wellness Tips" ? (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                {[1,2,3,4,5,6,7,8].map(n => {
-                  const key = `daily_tip_${n}`;
-                  const val = editing[key] ?? "";
-                  const hasChange = val !== (content[key] ?? "");
-                  const isSaved2 = saved[key];
-                  return (
-                    <div key={n} style={{ background: "white", border: `1.5px solid ${hasChange ? "#f59e0b" : "#e8e8e8"}`, borderRadius: 12, padding: 16 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                        <span style={{ fontWeight: "bold", fontSize: 12, color: val ? G : MID }}>💡 Tip {n}</span>
-                        <button onClick={() => handleSave(key)} disabled={!hasChange} style={{
-                          background: isSaved2 ? "#dcfce7" : hasChange ? G : "#f0f0f0",
-                          color: isSaved2 ? G : hasChange ? "white" : "#aaa",
-                          border: "none", borderRadius: 6, padding: "4px 12px", fontSize: 11, fontWeight: "bold", cursor: hasChange ? "pointer" : "not-allowed",
-                        }}>{isSaved2 ? "✅" : "Save"}</button>
+              (() => {
+                const DEFAULT_TIPS = [
+                  "Drink EaseBrew 30 mins before eating for the best effect.",
+                  "Drink 8 glasses of water daily — dehydration makes joint pain worse.",
+                  "Walk 15 mins after eating for better digestion.",
+                  "Eat fish (salmon or bangus) 3x a week for omega-3.",
+                  "Turmeric and ginger are natural anti-inflammatory — add them to your meals daily.",
+                  "Sleep 7-8 hours — this is when your joints and muscles repair.",
+                  "Malunggay is a superfood — add it to sinigang, tinola, or lugaw.",
+                  "",
+                ];
+                const filledCount = [1,2,3,4,5,6,7,8].filter(n => (editing[`daily_tip_${n}`] ?? "").trim()).length;
+                return (
+                  <div>
+                    <div style={{ background: "#f0f7f0", border: "1px solid #d4e8d4", borderRadius: 10, padding: "12px 16px", marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ fontSize: 12, color: G }}>
+                        💡 These tips rotate daily on the customer hub. Leave blank to use defaults.
                       </div>
-                      <textarea value={val}
-                        onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
-                        rows={3} placeholder="Write a wellness tip..."
-                        style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const, background: hasChange ? "#fffbeb" : "white", color: DARK }}
-                      />
+                      <span style={{ fontSize: 12, fontWeight: 700, color: filledCount > 0 ? G : MID }}>
+                        {filledCount}/8 custom
+                      </span>
                     </div>
-                  );
-                })}
-              </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      {[1,2,3,4,5,6,7,8].map(n => {
+                        const key = `daily_tip_${n}`;
+                        const val = editing[key] ?? "";
+                        const hasChange = val !== (content[key] ?? "");
+                        const isSaved2 = saved[key];
+                        const defaultTip = DEFAULT_TIPS[n - 1] || "";
+                        const displayTip = val.trim() || defaultTip;
+                        const isCustom = val.trim() !== "";
+                        return (
+                          <div key={n} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "white", border: `1.5px solid ${hasChange ? "#f59e0b" : "#e8e8e8"}`, borderRadius: 12, padding: "14px 16px" }}>
+                            <div style={{ width: 32, height: 32, borderRadius: "50%", background: isCustom ? G : "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: isCustom ? "white" : MID }}>{n}</span>
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              {displayTip && !isCustom && (
+                                <div style={{ fontSize: 12, color: "#9ca3af", marginBottom: 6, lineHeight: 1.4, fontStyle: "italic" }}>
+                                  Default: {defaultTip}
+                                </div>
+                              )}
+                              <textarea value={val}
+                                onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                                rows={2} placeholder={defaultTip || "Write a wellness tip..."}
+                                style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const, background: hasChange ? "#fffbeb" : "white", color: DARK }}
+                              />
+                            </div>
+                            <button onClick={() => handleSave(key)} disabled={!hasChange} style={{
+                              background: isSaved2 ? "#dcfce7" : hasChange ? G : "#f0f0f0",
+                              color: isSaved2 ? G : hasChange ? "white" : "#aaa",
+                              border: "none", borderRadius: 6, padding: "6px 14px", fontSize: 11, fontWeight: 700, cursor: hasChange ? "pointer" : "not-allowed",
+                              flexShrink: 0, marginTop: 2,
+                            }}>{isSaved2 ? "✅" : "Save"}</button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()
 
             /* ── FAQs — card per Q&A pair ── */
             ) : activeGroup === "❓ FAQs" ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {[1,2,3,4,5,6,7].map(n => {
-                  const qKey = `faq_${n}_q`;
-                  const aKey = `faq_${n}_a`;
-                  const qVal = editing[qKey] ?? "";
-                  const aVal = editing[aKey] ?? "";
-                  const hasChange = qVal !== (content[qKey] ?? "") || aVal !== (content[aKey] ?? "");
-                  const hasContent2 = qVal.trim() || aVal.trim();
-                  const allSaved2 = saved[qKey] && saved[aKey];
-                  return (
-                    <div key={n} style={{ background: hasContent2 ? "#f9fdfb" : "white", border: `1.5px solid ${hasChange ? "#f59e0b" : "#e8e8e8"}`, borderRadius: 12, padding: 16 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                        <span style={{ fontWeight: "bold", fontSize: 13, color: hasContent2 ? G : MID }}>❓ FAQ {n} {!hasContent2 && <span style={{ fontWeight: "normal", color: "#bbb" }}>— Empty</span>}</span>
-                        {hasChange && (
-                          <button onClick={async () => {
-                            const updates = [{ key: qKey, value: qVal }, { key: aKey, value: aVal }];
-                            const res = await fetch("/api/admin/content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ updates }) });
-                            if (res.ok) {
-                              setContent(p => ({ ...p, [qKey]: qVal, [aKey]: aVal }));
-                              setSaved(p => ({ ...p, [qKey]: true, [aKey]: true }));
-                              setTimeout(() => setSaved(p => ({ ...p, [qKey]: false, [aKey]: false })), 2000);
-                            }
-                          }} style={{ background: allSaved2 ? "#dcfce7" : G, color: allSaved2 ? G : "white", border: "none", borderRadius: 6, padding: "4px 12px", fontSize: 11, fontWeight: "bold", cursor: "pointer" }}>
-                            {allSaved2 ? "✅ Saved!" : "💾 Save"}
-                          </button>
-                        )}
+              (() => {
+                const DEFAULT_FAQ_LIST = [
+                  { q: "When should I drink EaseBrew?", a: "Morning and evening — 2 sachets per day for best results. Drink 30 mins before meals for the best effect." },
+                  { q: "Is it safe for people with ulcer?", a: "Yes, but drink it after eating a little. Don't drink on an empty stomach." },
+                  { q: "When will I feel the effect?", a: "Most customers feel a change within 7-14 days of consistent use. For deeper results — 30-90 days." },
+                  { q: "How many sachets per day?", a: "2 sachets per day — one in the morning, one in the evening. This is the recommended dosage for the best results." },
+                  { q: "How do I access my free digital products?", a: "Tap the button on each product card. All products included in your order are automatically accessible!" },
+                  { q: "Does EaseBrew have side effects?", a: "EaseBrew is made from natural herbs. No known side effects for most people. If you have allergies or maintenance medicine — consult your doctor first." },
+                  { q: "", a: "" },
+                ];
+                const filledCount = [1,2,3,4,5,6,7].filter(n => (editing[`faq_${n}_q`] ?? "").trim() || (editing[`faq_${n}_a`] ?? "").trim()).length;
+                return (
+                  <div>
+                    <div style={{ background: "#fef9f0", border: "1px solid #f0dfc0", borderRadius: 10, padding: "12px 16px", marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ fontSize: 12, color: "#8B6914" }}>
+                        ❓ Customers see these on the main page. Leave blank to use defaults.
                       </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                        <div>
-                          <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>Question</label>
-                          <input type="text" value={qVal}
-                            onChange={e => setEditing(p => ({ ...p, [qKey]: e.target.value }))}
-                            placeholder="Write the question..."
-                            style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, color: DARK }}
-                          />
-                        </div>
-                        <div>
-                          <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>Answer</label>
-                          <textarea value={aVal}
-                            onChange={e => setEditing(p => ({ ...p, [aKey]: e.target.value }))}
-                            rows={2} placeholder="Write the answer..."
-                            style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const, color: DARK }}
-                          />
-                        </div>
-                      </div>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: filledCount > 0 ? G : MID }}>
+                        {filledCount}/7 custom
+                      </span>
                     </div>
-                  );
-                })}
-              </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      {[1,2,3,4,5,6,7].map(n => {
+                        const qKey = `faq_${n}_q`;
+                        const aKey = `faq_${n}_a`;
+                        const qVal = editing[qKey] ?? "";
+                        const aVal = editing[aKey] ?? "";
+                        const hasChange = qVal !== (content[qKey] ?? "") || aVal !== (content[aKey] ?? "");
+                        const isCustom = qVal.trim() || aVal.trim();
+                        const allSaved2 = saved[qKey] && saved[aKey];
+                        const def = DEFAULT_FAQ_LIST[n - 1] || { q: "", a: "" };
+                        return (
+                          <div key={n} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: "white", border: `1.5px solid ${hasChange ? "#f59e0b" : "#e8e8e8"}`, borderRadius: 12, padding: "14px 16px" }}>
+                            <div style={{ width: 32, height: 32, borderRadius: "50%", background: isCustom ? "#C0863B" : "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: isCustom ? "white" : MID }}>{n}</span>
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              {!isCustom && def.q && (
+                                <div style={{ fontSize: 11, color: "#9ca3af", marginBottom: 8, lineHeight: 1.4, fontStyle: "italic", background: "#fafafa", borderRadius: 6, padding: "6px 8px" }}>
+                                  <strong>Default Q:</strong> {def.q}<br/>
+                                  <strong>Default A:</strong> {def.a}
+                                </div>
+                              )}
+                              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                                <div>
+                                  <label style={{ fontSize: 10, color: MID, fontWeight: 700, display: "block", marginBottom: 2, textTransform: "uppercase" as const }}>Question</label>
+                                  <input type="text" value={qVal}
+                                    onChange={e => setEditing(p => ({ ...p, [qKey]: e.target.value }))}
+                                    placeholder={def.q || "Write the question..."}
+                                    style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, color: DARK, background: hasChange ? "#fffbeb" : "white" }}
+                                  />
+                                </div>
+                                <div>
+                                  <label style={{ fontSize: 10, color: MID, fontWeight: 700, display: "block", marginBottom: 2, textTransform: "uppercase" as const }}>Answer</label>
+                                  <textarea value={aVal}
+                                    onChange={e => setEditing(p => ({ ...p, [aKey]: e.target.value }))}
+                                    rows={2} placeholder={def.a || "Write the answer..."}
+                                    style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const, color: DARK, background: hasChange ? "#fffbeb" : "white" }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <button onClick={async () => {
+                              const updates = [{ key: qKey, value: qVal }, { key: aKey, value: aVal }];
+                              const res = await fetch("/api/admin/content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ updates }) });
+                              if (res.ok) {
+                                setContent(p => ({ ...p, [qKey]: qVal, [aKey]: aVal }));
+                                setSaved(p => ({ ...p, [qKey]: true, [aKey]: true }));
+                                setTimeout(() => setSaved(p => ({ ...p, [qKey]: false, [aKey]: false })), 2000);
+                              }
+                            }} disabled={!hasChange} style={{
+                              background: allSaved2 ? "#dcfce7" : hasChange ? G : "#f0f0f0",
+                              color: allSaved2 ? G : hasChange ? "white" : "#aaa",
+                              border: "none", borderRadius: 6, padding: "6px 14px", fontSize: 11, fontWeight: 700, cursor: hasChange ? "pointer" : "not-allowed",
+                              flexShrink: 0, marginTop: 2,
+                            }}>{allSaved2 ? "✅" : "Save"}</button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()
 
             /* ── TESTIMONIALS — card per person ── */
             ) : activeGroup === "💬 Testimonials" ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                {[1,2,3].map(n => {
-                  const fields = [
-                    { key: `testimonial_${n}_name`, label: "Name", placeholder: "e.g. Nena R." },
-                    { key: `testimonial_${n}_age`, label: "Age", placeholder: "e.g. 58" },
-                    { key: `testimonial_${n}_location`, label: "Location", placeholder: "e.g. Quezon City" },
-                    { key: `testimonial_${n}_pain_before`, label: "Pain Before (1-10)", placeholder: "e.g. 8" },
-                    { key: `testimonial_${n}_pain_after`, label: "Pain After (1-10)", placeholder: "e.g. 3" },
-                  ];
-                  const quoteKey = `testimonial_${n}_quote`;
-                  const allKeys = [...fields.map(f => f.key), quoteKey];
-                  const hasContent2 = allKeys.some(k => (editing[k] ?? "").trim());
-                  const hasChange = allKeys.some(k => (editing[k] ?? "") !== (content[k] ?? ""));
-                  const allSaved2 = allKeys.every(k => saved[k]);
-                  return (
-                    <div key={n} style={{ background: hasContent2 ? "#f9fdfb" : "white", border: `1.5px solid ${hasChange ? "#f59e0b" : "#e8e8e8"}`, borderRadius: 12, padding: 18 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                        <span style={{ fontWeight: "bold", fontSize: 13, color: hasContent2 ? G : MID }}>⭐ Testimonial {n} {!hasContent2 && <span style={{ fontWeight: "normal", color: "#bbb" }}>— Empty</span>}</span>
-                        {hasChange && (
-                          <button onClick={async () => {
-                            const updates = allKeys.map(k => ({ key: k, value: editing[k] ?? "" }));
-                            const res = await fetch("/api/admin/content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ updates }) });
-                            if (res.ok) {
-                              const s: Record<string, string> = {};
-                              allKeys.forEach(k => { s[k] = editing[k] ?? ""; });
-                              setContent(p => ({ ...p, ...s }));
-                              const sv: Record<string, boolean> = {};
-                              allKeys.forEach(k => { sv[k] = true; });
-                              setSaved(p => ({ ...p, ...sv }));
-                              setTimeout(() => setSaved(p => { const c = { ...p }; allKeys.forEach(k => { c[k] = false; }); return c; }), 2000);
-                            }
-                          }} style={{ background: allSaved2 ? "#dcfce7" : G, color: allSaved2 ? G : "white", border: "none", borderRadius: 6, padding: "5px 14px", fontSize: 11, fontWeight: "bold", cursor: "pointer" }}>
-                            {allSaved2 ? "✅ Saved!" : "💾 Save"}
-                          </button>
-                        )}
+              (() => {
+                const DEFAULT_TESTIMONIALS = [
+                  { name: "Nena R.", age: "58", location: "Quezon City", quote: "After 3 weeks, my knee feels so much lighter. I don't need to take medicine every day anymore.", painBefore: "8", painAfter: "3" },
+                  { name: "Mang Tony", age: "64", location: "Cebu City", quote: "I didn't believe it at first but I tried it. Now — I can't imagine my morning without EaseBrew.", painBefore: "7", painAfter: "2" },
+                  { name: "Ate Susan", age: "52", location: "Davao", quote: "The free meal plan and recipe book — super helpful! Now I know which foods make my arthritis worse.", painBefore: "6", painAfter: "3" },
+                ];
+                const filledCount = [1,2,3].filter(n => {
+                  const keys = [`testimonial_${n}_name`,`testimonial_${n}_quote`];
+                  return keys.some(k => (editing[k] ?? "").trim());
+                }).length;
+                return (
+                  <div>
+                    <div style={{ background: "#fef0f5", border: "1px solid #f0c0d0", borderRadius: 10, padding: "12px 16px", marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ fontSize: 12, color: "#9B2C5A" }}>
+                        💬 Real customer stories shown on the main page. Leave blank to use defaults.
                       </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 10 }}>
-                        {fields.slice(0, 3).map(({ key, label, placeholder }) => (
-                          <div key={key}>
-                            <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>{label}</label>
-                            <input type="text" value={editing[key] ?? ""}
-                              onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
-                              placeholder={placeholder}
-                              style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, color: DARK }}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                      <div style={{ marginBottom: 10 }}>
-                        <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>Quote</label>
-                        <textarea value={editing[quoteKey] ?? ""}
-                          onChange={e => setEditing(p => ({ ...p, [quoteKey]: e.target.value }))}
-                          rows={2} placeholder="Write the testimonial quote..."
-                          style={{ width: "100%", padding: "8px 10px", borderRadius: 7, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const, color: DARK }}
-                        />
-                      </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                        {fields.slice(3).map(({ key, label, placeholder }) => (
-                          <div key={key}>
-                            <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>{label}</label>
-                            <input type="text" value={editing[key] ?? ""}
-                              onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
-                              placeholder={placeholder}
-                              style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, color: DARK }}
-                            />
-                          </div>
-                        ))}
-                      </div>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: filledCount > 0 ? G : MID }}>
+                        {filledCount}/3 custom
+                      </span>
                     </div>
-                  );
-                })}
-              </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                      {[1,2,3].map(n => {
+                        const fields = [
+                          { key: `testimonial_${n}_name`, label: "Name", placeholder: "" },
+                          { key: `testimonial_${n}_age`, label: "Age", placeholder: "" },
+                          { key: `testimonial_${n}_location`, label: "Location", placeholder: "" },
+                          { key: `testimonial_${n}_pain_before`, label: "Pain Before (1-10)", placeholder: "" },
+                          { key: `testimonial_${n}_pain_after`, label: "Pain After (1-10)", placeholder: "" },
+                        ];
+                        const quoteKey = `testimonial_${n}_quote`;
+                        const allKeys = [...fields.map(f => f.key), quoteKey];
+                        const isCustom = allKeys.some(k => (editing[k] ?? "").trim());
+                        const hasChange = allKeys.some(k => (editing[k] ?? "") !== (content[k] ?? ""));
+                        const allSaved2 = allKeys.every(k => saved[k]);
+                        const def = DEFAULT_TESTIMONIALS[n - 1];
+                        const displayName = (editing[`testimonial_${n}_name`] ?? "").trim() || def.name;
+                        const displayAge = (editing[`testimonial_${n}_age`] ?? "").trim() || def.age;
+                        const displayLoc = (editing[`testimonial_${n}_location`] ?? "").trim() || def.location;
+                        const displayQuote = (editing[quoteKey] ?? "").trim() || def.quote;
+                        const displayBefore = (editing[`testimonial_${n}_pain_before`] ?? "").trim() || def.painBefore;
+                        const displayAfter = (editing[`testimonial_${n}_pain_after`] ?? "").trim() || def.painAfter;
+                        return (
+                          <div key={n} style={{ background: "white", border: `1.5px solid ${hasChange ? "#f59e0b" : "#e8e8e8"}`, borderRadius: 12, padding: "16px 18px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                <div style={{ width: 32, height: 32, borderRadius: "50%", background: isCustom ? "#9B2C5A" : "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                  <span style={{ fontSize: 13, fontWeight: 700, color: isCustom ? "white" : MID }}>{n}</span>
+                                </div>
+                                <span style={{ fontWeight: 700, fontSize: 13, color: DARK }}>{displayName}, {displayAge} — {displayLoc}</span>
+                              </div>
+                              <button onClick={async () => {
+                                const updates = allKeys.map(k => ({ key: k, value: editing[k] ?? "" }));
+                                const res = await fetch("/api/admin/content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ updates }) });
+                                if (res.ok) {
+                                  const s: Record<string, string> = {};
+                                  allKeys.forEach(k => { s[k] = editing[k] ?? ""; });
+                                  setContent(p => ({ ...p, ...s }));
+                                  const sv: Record<string, boolean> = {};
+                                  allKeys.forEach(k => { sv[k] = true; });
+                                  setSaved(p => ({ ...p, ...sv }));
+                                  setTimeout(() => setSaved(p => { const c = { ...p }; allKeys.forEach(k => { c[k] = false; }); return c; }), 2000);
+                                }
+                              }} disabled={!hasChange} style={{
+                                background: allSaved2 ? "#dcfce7" : hasChange ? G : "#f0f0f0",
+                                color: allSaved2 ? G : hasChange ? "white" : "#aaa",
+                                border: "none", borderRadius: 6, padding: "6px 14px", fontSize: 11, fontWeight: 700, cursor: hasChange ? "pointer" : "not-allowed",
+                              }}>{allSaved2 ? "✅" : "Save"}</button>
+                            </div>
+                            {/* Live preview card */}
+                            <div style={{ background: "#FFFDF5", border: "1px solid #f0e8d0", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+                              <div style={{ fontSize: 11, color: MID, marginBottom: 6, fontWeight: 600 }}>CUSTOMER PREVIEW</div>
+                              <div style={{ fontSize: 12, color: DARK, lineHeight: 1.5, fontStyle: "italic", marginBottom: 8 }}>
+                                &ldquo;{displayQuote}&rdquo;
+                              </div>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <span style={{ fontSize: 11, color: MID }}>— {displayName}, {displayAge}, {displayLoc}</span>
+                                <span style={{ fontSize: 11, fontWeight: 700 }}>
+                                  <span style={{ color: "#E74C3C" }}>{displayBefore}</span>
+                                  <span style={{ color: MID }}> → </span>
+                                  <span style={{ color: G }}>{displayAfter}</span>
+                                  <span style={{ color: MID }}> pain score</span>
+                                </span>
+                              </div>
+                            </div>
+                            {/* Edit fields */}
+                            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 2fr", gap: 8, marginBottom: 8 }}>
+                              {fields.slice(0, 3).map(({ key, label }) => {
+                                const defVal = key.includes("_name") ? def.name : key.includes("_age") ? def.age : def.location;
+                                return (
+                                  <div key={key}>
+                                    <label style={{ fontSize: 10, color: MID, fontWeight: 700, display: "block", marginBottom: 2, textTransform: "uppercase" as const }}>{label}</label>
+                                    <input type="text" value={editing[key] ?? ""}
+                                      onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                                      placeholder={defVal}
+                                      style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, color: DARK, background: hasChange ? "#fffbeb" : "white" }}
+                                    />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            <div style={{ marginBottom: 8 }}>
+                              <label style={{ fontSize: 10, color: MID, fontWeight: 700, display: "block", marginBottom: 2, textTransform: "uppercase" as const }}>Quote</label>
+                              <textarea value={editing[quoteKey] ?? ""}
+                                onChange={e => setEditing(p => ({ ...p, [quoteKey]: e.target.value }))}
+                                rows={2} placeholder={def.quote}
+                                style={{ width: "100%", padding: "8px 10px", borderRadius: 7, border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const, color: DARK, background: hasChange ? "#fffbeb" : "white" }}
+                              />
+                            </div>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                              {fields.slice(3).map(({ key, label }) => {
+                                const defVal = key.includes("_before") ? def.painBefore : def.painAfter;
+                                return (
+                                  <div key={key}>
+                                    <label style={{ fontSize: 10, color: MID, fontWeight: 700, display: "block", marginBottom: 2, textTransform: "uppercase" as const }}>{label}</label>
+                                    <input type="text" value={editing[key] ?? ""}
+                                      onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
+                                      placeholder={defVal}
+                                      style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, color: DARK, background: hasChange ? "#fffbeb" : "white" }}
+                                    />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()
 
             /* ── VIDEOS — card per video ── */
             ) : activeGroup === "🎬 Videos" ? (
-              <>
-                <div style={{ background: "#f0f7f0", border: "1px solid #d4e8d4", borderRadius: 10, padding: "12px 16px", marginBottom: 16, fontSize: 12, color: G, lineHeight: 1.6 }}>
-                  💡 <strong>How to use:</strong> Upload your video to YouTube (you can set it as &quot;Unlisted&quot; so it won&apos;t appear in public search), then copy-paste the full link here.
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                  {[1,2,3].map(n => {
-                    const titleKey = `video_${n}_title`;
-                    const descKey = `video_${n}_desc`;
-                    const urlKey = `video_${n}_url`;
-                    const allKeys = [titleKey, descKey, urlKey];
-                    const hasContent2 = allKeys.some(k => (editing[k] ?? "").trim());
-                    const hasChange = allKeys.some(k => (editing[k] ?? "") !== (content[k] ?? ""));
-                    const allSaved2 = allKeys.every(k => saved[k]);
-                    return (
-                      <div key={n} style={{ background: hasContent2 ? "#f9fdfb" : "white", border: `1.5px solid ${hasChange ? "#f59e0b" : "#e8e8e8"}`, borderRadius: 12, padding: 16 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                          <span style={{ fontWeight: "bold", fontSize: 13, color: hasContent2 ? G : MID }}>🎬 Video {n} {!hasContent2 && <span style={{ fontWeight: "normal", color: "#bbb" }}>— Empty</span>}</span>
-                          {hasChange && (
-                            <button onClick={async () => {
-                              const updates = allKeys.map(k => ({ key: k, value: editing[k] ?? "" }));
-                              const res = await fetch("/api/admin/content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ updates }) });
-                              if (res.ok) {
-                                const s: Record<string, string> = {};
-                                allKeys.forEach(k => { s[k] = editing[k] ?? ""; });
-                                setContent(p => ({ ...p, ...s }));
-                                const sv: Record<string, boolean> = {};
-                                allKeys.forEach(k => { sv[k] = true; });
-                                setSaved(p => ({ ...p, ...sv }));
-                                setTimeout(() => setSaved(p => { const c = { ...p }; allKeys.forEach(k => { c[k] = false; }); return c; }), 2000);
-                              }
-                            }} style={{ background: allSaved2 ? "#dcfce7" : G, color: allSaved2 ? G : "white", border: "none", borderRadius: 6, padding: "4px 12px", fontSize: 11, fontWeight: "bold", cursor: "pointer" }}>
-                              {allSaved2 ? "✅ Saved!" : "💾 Save"}
-                            </button>
-                          )}
-                        </div>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 10, marginBottom: 8 }}>
-                          <div>
-                            <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>Title</label>
-                            <input type="text" value={editing[titleKey] ?? ""}
-                              onChange={e => setEditing(p => ({ ...p, [titleKey]: e.target.value }))}
-                              placeholder="Video title..."
-                              style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, color: DARK }}
-                            />
-                          </div>
-                          <div>
-                            <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>YouTube Link</label>
-                            <input type="text" value={editing[urlKey] ?? ""}
-                              onChange={e => setEditing(p => ({ ...p, [urlKey]: e.target.value }))}
-                              placeholder="https://youtube.com/watch?v=..."
-                              style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, color: DARK }}
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label style={{ fontSize: 11, color: MID, fontWeight: "bold", display: "block", marginBottom: 3 }}>Description</label>
-                          <textarea value={editing[descKey] ?? ""}
-                            onChange={e => setEditing(p => ({ ...p, [descKey]: e.target.value }))}
-                            rows={2} placeholder="Maikling description..."
-                            style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, resize: "vertical" as const, color: DARK }}
-                          />
-                        </div>
+              (() => {
+                const DEFAULT_VIDEO_LIST = [
+                  { title: "How to Prepare EaseBrew", desc: "The right way to maximize the herbal benefits of EaseBrew.", url: "" },
+                  { title: "Simple Exercises for Joint Pain", desc: "Low-impact exercises that are safe for seniors and those with arthritis.", url: "" },
+                  { title: "", desc: "", url: "" },
+                ];
+                const filledCount = [1,2,3].filter(n => (editing[`video_${n}_url`] ?? "").trim()).length;
+                const extractId = (url: string) => {
+                  if (!url) return "";
+                  const patterns = [
+                    /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
+                    /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+                    /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+                    /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+                  ];
+                  for (const p of patterns) { const m = url.trim().match(p); if (m) return m[1]; }
+                  return "";
+                };
+                return (
+                  <div>
+                    <div style={{ background: "#eef0f7", border: "1px solid #c0c8e0", borderRadius: 10, padding: "12px 16px", marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ fontSize: 12, color: "#3B4A8B", lineHeight: 1.5 }}>
+                        🎬 Upload to YouTube (set as &quot;Unlisted&quot; if needed), then paste the link here.
                       </div>
-                    );
-                  })}
-                </div>
-              </>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: filledCount > 0 ? G : MID, whiteSpace: "nowrap" as const, marginLeft: 12 }}>
+                        {filledCount}/3 linked
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                      {[1,2,3].map(n => {
+                        const titleKey = `video_${n}_title`;
+                        const descKey = `video_${n}_desc`;
+                        const urlKey = `video_${n}_url`;
+                        const allKeys = [titleKey, descKey, urlKey];
+                        const hasChange = allKeys.some(k => (editing[k] ?? "") !== (content[k] ?? ""));
+                        const allSaved2 = allKeys.every(k => saved[k]);
+                        const def = DEFAULT_VIDEO_LIST[n - 1];
+                        const urlVal = (editing[urlKey] ?? "").trim();
+                        const videoId = extractId(urlVal);
+                        const displayTitle = (editing[titleKey] ?? "").trim() || def.title;
+                        const displayDesc = (editing[descKey] ?? "").trim() || def.desc;
+                        const hasUrl = !!urlVal;
+                        return (
+                          <div key={n} style={{ background: "white", border: `1.5px solid ${hasChange ? "#f59e0b" : "#e8e8e8"}`, borderRadius: 12, padding: "16px 18px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                <div style={{ width: 32, height: 32, borderRadius: "50%", background: hasUrl ? "#3B4A8B" : "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                  <span style={{ fontSize: 13, fontWeight: 700, color: hasUrl ? "white" : MID }}>{n}</span>
+                                </div>
+                                <span style={{ fontWeight: 700, fontSize: 13, color: DARK }}>{displayTitle || `Video ${n}`}</span>
+                                {!hasUrl && <span style={{ fontSize: 11, color: "#bbb" }}>— No link yet</span>}
+                              </div>
+                              <button onClick={async () => {
+                                const updates = allKeys.map(k => ({ key: k, value: editing[k] ?? "" }));
+                                const res = await fetch("/api/admin/content", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ updates }) });
+                                if (res.ok) {
+                                  const s: Record<string, string> = {};
+                                  allKeys.forEach(k => { s[k] = editing[k] ?? ""; });
+                                  setContent(p => ({ ...p, ...s }));
+                                  const sv: Record<string, boolean> = {};
+                                  allKeys.forEach(k => { sv[k] = true; });
+                                  setSaved(p => ({ ...p, ...sv }));
+                                  setTimeout(() => setSaved(p => { const c = { ...p }; allKeys.forEach(k => { c[k] = false; }); return c; }), 2000);
+                                }
+                              }} disabled={!hasChange} style={{
+                                background: allSaved2 ? "#dcfce7" : hasChange ? G : "#f0f0f0",
+                                color: allSaved2 ? G : hasChange ? "white" : "#aaa",
+                                border: "none", borderRadius: 6, padding: "6px 14px", fontSize: 11, fontWeight: 700, cursor: hasChange ? "pointer" : "not-allowed",
+                              }}>{allSaved2 ? "✅" : "Save"}</button>
+                            </div>
+                            {/* YouTube thumbnail preview */}
+                            {videoId ? (
+                              <div style={{ marginBottom: 12, borderRadius: 8, overflow: "hidden", border: "1px solid #e0e0e0", position: "relative" as const }}>
+                                <img
+                                  src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
+                                  alt="Video thumbnail"
+                                  style={{ width: "100%", height: 160, objectFit: "cover" as const, display: "block" }}
+                                />
+                                <div style={{ position: "absolute" as const, bottom: 8, left: 8, background: "rgba(0,0,0,0.7)", color: "white", padding: "3px 8px", borderRadius: 4, fontSize: 11 }}>
+                                  ▶ {displayTitle}
+                                </div>
+                              </div>
+                            ) : !hasUrl && def.title ? (
+                              <div style={{ marginBottom: 12, background: "#f8f9fb", border: "1px dashed #d0d5e0", borderRadius: 8, padding: "20px 16px", textAlign: "center" as const }}>
+                                <div style={{ fontSize: 24, marginBottom: 6 }}>▶</div>
+                                <div style={{ fontSize: 12, color: MID, fontStyle: "italic" }}>
+                                  Default: {def.title}
+                                </div>
+                                <div style={{ fontSize: 11, color: "#bbb", marginTop: 2 }}>{def.desc}</div>
+                                <div style={{ fontSize: 11, color: "#bbb", marginTop: 6 }}>Paste a YouTube link below to show this video</div>
+                              </div>
+                            ) : null}
+                            {/* Edit fields */}
+                            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                              <div>
+                                <label style={{ fontSize: 10, color: MID, fontWeight: 700, display: "block", marginBottom: 2, textTransform: "uppercase" as const }}>YouTube Link</label>
+                                <input type="text" value={editing[urlKey] ?? ""}
+                                  onChange={e => setEditing(p => ({ ...p, [urlKey]: e.target.value }))}
+                                  placeholder="https://youtube.com/watch?v=..."
+                                  style={{ width: "100%", padding: "8px 10px", borderRadius: 7, border: `1.5px solid ${hasChange ? "#f59e0b" : urlVal && !videoId ? "#E74C3C" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, color: DARK, background: hasChange ? "#fffbeb" : "white" }}
+                                />
+                                {urlVal && !videoId && (
+                                  <div style={{ fontSize: 10, color: "#E74C3C", marginTop: 2 }}>Invalid YouTube URL — use format: youtube.com/watch?v=... or youtu.be/...</div>
+                                )}
+                              </div>
+                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                                <div>
+                                  <label style={{ fontSize: 10, color: MID, fontWeight: 700, display: "block", marginBottom: 2, textTransform: "uppercase" as const }}>Title</label>
+                                  <input type="text" value={editing[titleKey] ?? ""}
+                                    onChange={e => setEditing(p => ({ ...p, [titleKey]: e.target.value }))}
+                                    placeholder={def.title || "Video title..."}
+                                    style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, color: DARK, background: hasChange ? "#fffbeb" : "white" }}
+                                  />
+                                </div>
+                                <div>
+                                  <label style={{ fontSize: 10, color: MID, fontWeight: 700, display: "block", marginBottom: 2, textTransform: "uppercase" as const }}>Description</label>
+                                  <input type="text" value={editing[descKey] ?? ""}
+                                    onChange={e => setEditing(p => ({ ...p, [descKey]: e.target.value }))}
+                                    placeholder={def.desc || "Short description..."}
+                                    style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`, fontSize: 12, outline: "none", boxSizing: "border-box" as const, color: DARK, background: hasChange ? "#fffbeb" : "white" }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()
 
             /* ── Default: Promo & Homepage (simple fields) ── */
             ) : (
@@ -769,7 +952,7 @@ export default function ContentPage() {
                     width: "100%", padding: "10px 13px", borderRadius: 8,
                     border: `1.5px solid ${hasChange ? "#f59e0b" : "#e0e0e0"}`,
                     fontSize: 13, outline: "none", boxSizing: "border-box",
-                    fontFamily: "Inter, system-ui, sans-serif", color: DARK,
+                    fontFamily: "var(--admin-font)", color: DARK,
                     background: hasChange ? "#fffbeb" : "white",
                     transition: "border-color 0.2s, background 0.2s",
                   };

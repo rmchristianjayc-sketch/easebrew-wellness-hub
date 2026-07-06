@@ -42,40 +42,40 @@ type ProgressShape = {
 };
 
 const PLAN = [
-  { day: 1, phase: 1, week: "Wk1", agahan: "Easebrew ☕ + Oatmeal + Saging", tanghalian: "Sinigang Salmon + Brown Rice", merienda: "Buko Juice + Banana", hapunan: "Tinola + Sayote + B.Rice", exercise: "Brisk Walk 15 min + Stretching 10 min", focus: "Consistency — Gawi pa lang ito" },
+  { day: 1, phase: 1, week: "Wk1", agahan: "Easebrew ☕ + Oatmeal + Saging", tanghalian: "Sinigang Salmon + Brown Rice", merienda: "Buko Juice + Banana", hapunan: "Tinola + Sayote + B.Rice", exercise: "Brisk Walk 15 min + Stretching 10 min", focus: "Consistency — Building the habit" },
   { day: 2, phase: 1, week: "Wk1", agahan: "Easebrew ☕ + Itlog + Kamatis", tanghalian: "Monggo + Malunggay + B.Rice", merienda: "Kamote + Ginger Tea", hapunan: "Pesang Isda + B.Rice", exercise: "Seated Leg Raises 3x10 + Wall Sit 30s", focus: "Hydration — 8 glasses goal" },
-  { day: 3, phase: 1, week: "Wk1", agahan: "Easebrew ☕ + Pandesal + PB", tanghalian: "Tinolang Manok + B.Rice", merienda: "Peanuts + Mansanas", hapunan: "Chicken Soup + B.Rice", exercise: "REST DAY — Light Stretching 10 min", focus: "Pain Awareness — Observe mo" },
-  { day: 4, phase: 1, week: "Wk1", agahan: "Easebrew ☕ + Lugaw + Boiled Egg", tanghalian: "Nilagang Baka (lean) + B.Rice", merienda: "Papaya Slices", hapunan: "Ginataang Gulay + B.Rice", exercise: "Chair Squats 3x10 + Arm Circles 2x20", focus: "Sleep Quality — Tulog ng 7-8 hrs" },
+  { day: 3, phase: 1, week: "Wk1", agahan: "Easebrew ☕ + Pandesal + PB", tanghalian: "Tinolang Manok + B.Rice", merienda: "Peanuts + Mansanas", hapunan: "Chicken Soup + B.Rice", exercise: "REST DAY — Light Stretching 10 min", focus: "Pain Awareness — Observe your body" },
+  { day: 4, phase: 1, week: "Wk1", agahan: "Easebrew ☕ + Lugaw + Boiled Egg", tanghalian: "Nilagang Baka (lean) + B.Rice", merienda: "Papaya Slices", hapunan: "Ginataang Gulay + B.Rice", exercise: "Chair Squats 3x10 + Arm Circles 2x20", focus: "Sleep Quality — Get 7-8 hrs of sleep" },
   { day: 5, phase: 1, week: "Wk1", agahan: "Easebrew ☕ + Champorado", tanghalian: "Paksiw na Bangus + B.Rice", merienda: "Mais + Tsaa", hapunan: "Nilaga + Labanos", exercise: "Brisk Walk 20 min", focus: "Nutrition Focus — Anti-inflammation" },
-  { day: 6, phase: 1, week: "Wk1", agahan: "Easebrew ☕ + Scrambled Egg + Kangkong", tanghalian: "Ginisang Ampalaya + Egg + B.Rice", merienda: "Boiled Saging na Saba", hapunan: "Steamed Fish + Ampalaya", exercise: "Heel Raises 3x15 + Shoulder Rolls", focus: "Mindset — Positive lang" },
-  { day: 7, phase: 1, week: "Wk1", agahan: "Easebrew ☕ + Arroz Caldo", tanghalian: "Pinakbet + Grilled Isda", merienda: "Cucumber + Kalamansi Water", hapunan: "Monggo + B.Rice", exercise: "REST DAY — Yoga Breathing 15 min", focus: "Rest & Recovery — Mahalaga ito" },
+  { day: 6, phase: 1, week: "Wk1", agahan: "Easebrew ☕ + Scrambled Egg + Kangkong", tanghalian: "Ginisang Ampalaya + Egg + B.Rice", merienda: "Boiled Saging na Saba", hapunan: "Steamed Fish + Ampalaya", exercise: "Heel Raises 3x15 + Shoulder Rolls", focus: "Mindset — Stay positive" },
+  { day: 7, phase: 1, week: "Wk1", agahan: "Easebrew ☕ + Arroz Caldo", tanghalian: "Pinakbet + Grilled Isda", merienda: "Cucumber + Kalamansi Water", hapunan: "Monggo + B.Rice", exercise: "REST DAY — Yoga Breathing 15 min", focus: "Rest & Recovery — This is important" },
   { day: 8, phase: 1, week: "Wk2", agahan: "Easebrew ☕ + Oatmeal + Saging", tanghalian: "Sinigang Salmon + Brown Rice", merienda: "Buko Juice + Banana", hapunan: "Tinola + Sayote + B.Rice", exercise: "Brisk Walk 15 min + Stretching 10 min", focus: "Building Momentum" },
   { day: 9, phase: 1, week: "Wk2", agahan: "Easebrew ☕ + Itlog + Kamatis", tanghalian: "Monggo + Malunggay + B.Rice", merienda: "Kamote + Ginger Tea", hapunan: "Pesang Isda + B.Rice", exercise: "Seated Leg Raises 3x10 + Wall Sit 30s", focus: "Noticing Progress" },
-  { day: 10, phase: 1, week: "Wk2", agahan: "Easebrew ☕ + Pandesal + PB", tanghalian: "Tinolang Manok + B.Rice", merienda: "Peanuts + Mansanas", hapunan: "Chicken Soup + B.Rice", exercise: "REST DAY — Light Stretching 10 min", focus: "Habit Stacking — Layer ang habits" },
+  { day: 10, phase: 1, week: "Wk2", agahan: "Easebrew ☕ + Pandesal + PB", tanghalian: "Tinolang Manok + B.Rice", merienda: "Peanuts + Mansanas", hapunan: "Chicken Soup + B.Rice", exercise: "REST DAY — Light Stretching 10 min", focus: "Habit Stacking — Layer your habits" },
   { day: 11, phase: 1, week: "Wk2", agahan: "Easebrew ☕ + Lugaw + Boiled Egg", tanghalian: "Nilagang Baka (lean) + B.Rice", merienda: "Papaya Slices", hapunan: "Ginataang Gulay + B.Rice", exercise: "Chair Squats 3x10 + Arm Circles 2x20", focus: "Energy Management" },
   { day: 12, phase: 1, week: "Wk2", agahan: "Easebrew ☕ + Champorado", tanghalian: "Paksiw na Bangus + B.Rice", merienda: "Mais + Tsaa", hapunan: "Nilaga + Labanos", exercise: "Brisk Walk 20 min", focus: "Joint Protection" },
   { day: 13, phase: 1, week: "Wk2", agahan: "Easebrew ☕ + Scrambled Egg + Kangkong", tanghalian: "Ginisang Ampalaya + Egg + B.Rice", merienda: "Boiled Saging na Saba", hapunan: "Steamed Fish + Ampalaya", exercise: "Heel Raises 3x15 + Shoulder Rolls", focus: "Breathing & Relaxation" },
-  { day: 14, phase: 1, week: "Wk2", agahan: "Easebrew ☕ + Arroz Caldo", tanghalian: "Pinakbet + Grilled Isda", merienda: "Cucumber + Kalamansi Water", hapunan: "Monggo + B.Rice", exercise: "REST DAY — Yoga Breathing 15 min", focus: "Gut Health — Sapat na gulay" },
+  { day: 14, phase: 1, week: "Wk2", agahan: "Easebrew ☕ + Arroz Caldo", tanghalian: "Pinakbet + Grilled Isda", merienda: "Cucumber + Kalamansi Water", hapunan: "Monggo + B.Rice", exercise: "REST DAY — Yoga Breathing 15 min", focus: "Gut Health — Eat enough vegetables" },
   { day: 15, phase: 1, week: "Wk3", agahan: "Easebrew ☕ + Oatmeal + Saging", tanghalian: "Sinigang Salmon + Brown Rice", merienda: "Buko Juice + Banana", hapunan: "Tinola + Sayote + B.Rice", exercise: "Brisk Walk 15 min + Stretching 10 min", focus: "Stress Reduction" },
   { day: 16, phase: 1, week: "Wk3", agahan: "Easebrew ☕ + Itlog + Kamatis", tanghalian: "Monggo + Malunggay + B.Rice", merienda: "Kamote + Ginger Tea", hapunan: "Pesang Isda + B.Rice", exercise: "Seated Leg Raises 3x10 + Wall Sit 30s", focus: "Strength Building" },
   { day: 17, phase: 1, week: "Wk3", agahan: "Easebrew ☕ + Pandesal + PB", tanghalian: "Tinolang Manok + B.Rice", merienda: "Peanuts + Mansanas", hapunan: "Chicken Soup + B.Rice", exercise: "REST DAY — Light Stretching 10 min", focus: "Endurance Improvement" },
   { day: 18, phase: 1, week: "Wk3", agahan: "Easebrew ☕ + Lugaw + Boiled Egg", tanghalian: "Nilagang Baka (lean) + B.Rice", merienda: "Papaya Slices", hapunan: "Ginataang Gulay + B.Rice", exercise: "Chair Squats 3x10 + Arm Circles 2x20", focus: "Balance & Coordination" },
   { day: 19, phase: 1, week: "Wk3", agahan: "Easebrew ☕ + Champorado", tanghalian: "Paksiw na Bangus + B.Rice", merienda: "Mais + Tsaa", hapunan: "Nilaga + Labanos", exercise: "Brisk Walk 20 min", focus: "Pain Management Mastery" },
   { day: 20, phase: 1, week: "Wk3", agahan: "Easebrew ☕ + Scrambled Egg + Kangkong", tanghalian: "Ginisang Ampalaya + Egg + B.Rice", merienda: "Boiled Saging na Saba", hapunan: "Steamed Fish + Ampalaya", exercise: "Heel Raises 3x15 + Shoulder Rolls", focus: "Full Lifestyle Integration" },
-  { day: 21, phase: 1, week: "Wk3", agahan: "Easebrew ☕ + Arroz Caldo", tanghalian: "Pinakbet + Grilled Isda", merienda: "Cucumber + Kalamansi Water", hapunan: "Monggo + B.Rice", exercise: "REST DAY — Yoga Breathing 15 min", focus: "Consistency — Gawi pa lang ito" },
+  { day: 21, phase: 1, week: "Wk3", agahan: "Easebrew ☕ + Arroz Caldo", tanghalian: "Pinakbet + Grilled Isda", merienda: "Cucumber + Kalamansi Water", hapunan: "Monggo + B.Rice", exercise: "REST DAY — Yoga Breathing 15 min", focus: "Consistency — Building the habit" },
   { day: 22, phase: 1, week: "Wk4", agahan: "Easebrew ☕ + Oatmeal + Saging", tanghalian: "Sinigang Salmon + Brown Rice", merienda: "Buko Juice + Banana", hapunan: "Tinola + Sayote + B.Rice", exercise: "Brisk Walk 15 min + Stretching 10 min", focus: "Hydration — 8 glasses goal" },
-  { day: 23, phase: 1, week: "Wk4", agahan: "Easebrew ☕ + Itlog + Kamatis", tanghalian: "Monggo + Malunggay + B.Rice", merienda: "Kamote + Ginger Tea", hapunan: "Pesang Isda + B.Rice", exercise: "Seated Leg Raises 3x10 + Wall Sit 30s", focus: "Pain Awareness — Observe mo" },
-  { day: 24, phase: 1, week: "Wk4", agahan: "Easebrew ☕ + Pandesal + PB", tanghalian: "Tinolang Manok + B.Rice", merienda: "Peanuts + Mansanas", hapunan: "Chicken Soup + B.Rice", exercise: "REST DAY — Light Stretching 10 min", focus: "Sleep Quality — Tulog ng 7-8 hrs" },
+  { day: 23, phase: 1, week: "Wk4", agahan: "Easebrew ☕ + Itlog + Kamatis", tanghalian: "Monggo + Malunggay + B.Rice", merienda: "Kamote + Ginger Tea", hapunan: "Pesang Isda + B.Rice", exercise: "Seated Leg Raises 3x10 + Wall Sit 30s", focus: "Pain Awareness — Observe your body" },
+  { day: 24, phase: 1, week: "Wk4", agahan: "Easebrew ☕ + Pandesal + PB", tanghalian: "Tinolang Manok + B.Rice", merienda: "Peanuts + Mansanas", hapunan: "Chicken Soup + B.Rice", exercise: "REST DAY — Light Stretching 10 min", focus: "Sleep Quality — Get 7-8 hrs of sleep" },
   { day: 25, phase: 1, week: "Wk4", agahan: "Easebrew ☕ + Lugaw + Boiled Egg", tanghalian: "Nilagang Baka (lean) + B.Rice", merienda: "Papaya Slices", hapunan: "Ginataang Gulay + B.Rice", exercise: "Chair Squats 3x10 + Arm Circles 2x20", focus: "Nutrition Focus — Anti-inflammation" },
-  { day: 26, phase: 1, week: "Wk4", agahan: "Easebrew ☕ + Champorado", tanghalian: "Paksiw na Bangus + B.Rice", merienda: "Mais + Tsaa", hapunan: "Nilaga + Labanos", exercise: "Brisk Walk 20 min", focus: "Mindset — Positive lang" },
-  { day: 27, phase: 1, week: "Wk4", agahan: "Easebrew ☕ + Scrambled Egg + Kangkong", tanghalian: "Ginisang Ampalaya + Egg + B.Rice", merienda: "Boiled Saging na Saba", hapunan: "Steamed Fish + Ampalaya", exercise: "Heel Raises 3x15 + Shoulder Rolls", focus: "Rest & Recovery — Mahalaga ito" },
+  { day: 26, phase: 1, week: "Wk4", agahan: "Easebrew ☕ + Champorado", tanghalian: "Paksiw na Bangus + B.Rice", merienda: "Mais + Tsaa", hapunan: "Nilaga + Labanos", exercise: "Brisk Walk 20 min", focus: "Mindset — Stay positive" },
+  { day: 27, phase: 1, week: "Wk4", agahan: "Easebrew ☕ + Scrambled Egg + Kangkong", tanghalian: "Ginisang Ampalaya + Egg + B.Rice", merienda: "Boiled Saging na Saba", hapunan: "Steamed Fish + Ampalaya", exercise: "Heel Raises 3x15 + Shoulder Rolls", focus: "Rest & Recovery — This is important" },
   { day: 28, phase: 1, week: "Wk4", agahan: "Easebrew ☕ + Arroz Caldo", tanghalian: "Pinakbet + Grilled Isda", merienda: "Cucumber + Kalamansi Water", hapunan: "Monggo + B.Rice", exercise: "REST DAY — Yoga Breathing 15 min", focus: "Building Momentum" },
   { day: 29, phase: 1, week: "Wk5", agahan: "Easebrew ☕ + Oatmeal + Saging", tanghalian: "Sinigang Salmon + Brown Rice", merienda: "Buko Juice + Banana", hapunan: "Tinola + Sayote + B.Rice", exercise: "Brisk Walk 15 min + Stretching 10 min", focus: "Noticing Progress" },
-  { day: 30, phase: 1, week: "Wk5", agahan: "Easebrew ☕ + Itlog + Kamatis", tanghalian: "Monggo + Malunggay + B.Rice", merienda: "Kamote + Ginger Tea", hapunan: "Pesang Isda + B.Rice", exercise: "Seated Leg Raises 3x10 + Wall Sit 30s", focus: "Habit Stacking — Layer ang habits" },
+  { day: 30, phase: 1, week: "Wk5", agahan: "Easebrew ☕ + Itlog + Kamatis", tanghalian: "Monggo + Malunggay + B.Rice", merienda: "Kamote + Ginger Tea", hapunan: "Pesang Isda + B.Rice", exercise: "Seated Leg Raises 3x10 + Wall Sit 30s", focus: "Habit Stacking — Layer your habits" },
   { day: 31, phase: 2, week: "Wk1", agahan: "Easebrew ☕ + Quinoa Bowl + Egg", tanghalian: "Sinigang Salmon + Brown Rice", merienda: "Buko Juice + Banana", hapunan: "Tinola + Sayote + B.Rice", exercise: "Brisk Walk 30 min + Core Exercises 15 min", focus: "Energy Management" },
   { day: 32, phase: 2, week: "Wk1", agahan: "Easebrew ☕ + Oatmeal + Mixed Fruits", tanghalian: "Monggo + Malunggay + B.Rice", merienda: "Kamote + Ginger Tea", hapunan: "Pesang Isda + B.Rice", exercise: "Bodyweight Squats 3x15 + Push-up Wall 3x10", focus: "Joint Protection" },
   { day: 33, phase: 2, week: "Wk1", agahan: "Easebrew ☕ + Pandesal + Kesong Puti", tanghalian: "Tinolang Manok + B.Rice", merienda: "Peanuts + Mansanas", hapunan: "Chicken Soup + B.Rice", exercise: "REST DAY — Stretching 15 min", focus: "Breathing & Relaxation" },
-  { day: 34, phase: 2, week: "Wk1", agahan: "Easebrew ☕ + Brown Rice + Itlog", tanghalian: "Nilagang Baka (lean) + B.Rice", merienda: "Papaya Slices", hapunan: "Ginataang Gulay + B.Rice", exercise: "Lunges 3x10 + Plank 30s + Walk 20 min", focus: "Gut Health — Sapat na gulay" },
+  { day: 34, phase: 2, week: "Wk1", agahan: "Easebrew ☕ + Brown Rice + Itlog", tanghalian: "Nilagang Baka (lean) + B.Rice", merienda: "Papaya Slices", hapunan: "Ginataang Gulay + B.Rice", exercise: "Lunges 3x10 + Plank 30s + Walk 20 min", focus: "Gut Health — Eat enough vegetables" },
   { day: 35, phase: 2, week: "Wk1", agahan: "Easebrew ☕ + Avocado Toast", tanghalian: "Paksiw na Bangus + B.Rice", merienda: "Mais + Tsaa", hapunan: "Nilaga + Labanos", exercise: "Brisk Walk 40 min + Arm Exercises", focus: "Stress Reduction" },
   { day: 36, phase: 2, week: "Wk1", agahan: "Easebrew ☕ + Lugaw + Chicken", tanghalian: "Ginisang Ampalaya + Egg + B.Rice", merienda: "Boiled Saging na Saba", hapunan: "Steamed Fish + Ampalaya", exercise: "Step-ups (Chair) 3x12 + Calf Raises 3x20", focus: "Strength Building" },
   { day: 37, phase: 2, week: "Wk1", agahan: "Easebrew ☕ + Champorado Dark Choco", tanghalian: "Pinakbet + Grilled Isda", merienda: "Cucumber + Kalamansi Water", hapunan: "Monggo + B.Rice", exercise: "REST DAY — Yoga 20 min", focus: "Endurance Improvement" },
@@ -85,9 +85,9 @@ const PLAN = [
   { day: 41, phase: 2, week: "Wk2", agahan: "Easebrew ☕ + Brown Rice + Itlog", tanghalian: "Nilagang Baka (lean) + B.Rice", merienda: "Papaya Slices", hapunan: "Ginataang Gulay + B.Rice", exercise: "Lunges 3x10 + Plank 30s + Walk 20 min", focus: "Consistency" },
   { day: 42, phase: 2, week: "Wk2", agahan: "Easebrew ☕ + Avocado Toast", tanghalian: "Paksiw na Bangus + B.Rice", merienda: "Mais + Tsaa", hapunan: "Nilaga + Labanos", exercise: "Brisk Walk 40 min + Arm Exercises", focus: "Hydration — 8 glasses goal" },
   { day: 43, phase: 2, week: "Wk2", agahan: "Easebrew ☕ + Lugaw + Chicken", tanghalian: "Ginisang Ampalaya + Egg + B.Rice", merienda: "Boiled Saging na Saba", hapunan: "Steamed Fish + Ampalaya", exercise: "Step-ups (Chair) 3x12 + Calf Raises 3x20", focus: "Pain Awareness" },
-  { day: 44, phase: 2, week: "Wk2", agahan: "Easebrew ☕ + Champorado Dark Choco", tanghalian: "Pinakbet + Grilled Isda", merienda: "Cucumber + Kalamansi Water", hapunan: "Monggo + B.Rice", exercise: "REST DAY — Yoga 20 min", focus: "Sleep Quality — Tulog ng 7-8 hrs" },
+  { day: 44, phase: 2, week: "Wk2", agahan: "Easebrew ☕ + Champorado Dark Choco", tanghalian: "Pinakbet + Grilled Isda", merienda: "Cucumber + Kalamansi Water", hapunan: "Monggo + B.Rice", exercise: "REST DAY — Yoga 20 min", focus: "Sleep Quality — Get 7-8 hrs of sleep" },
   { day: 45, phase: 2, week: "Wk3", agahan: "Easebrew ☕ + Quinoa Bowl + Egg", tanghalian: "Sinigang Salmon + Brown Rice", merienda: "Buko Juice + Banana", hapunan: "Tinola + Sayote + B.Rice", exercise: "Brisk Walk 30 min + Core Exercises 15 min", focus: "Nutrition Focus — Anti-inflammation" },
-  { day: 46, phase: 2, week: "Wk3", agahan: "Easebrew ☕ + Oatmeal + Mixed Fruits", tanghalian: "Monggo + Malunggay + B.Rice", merienda: "Kamote + Ginger Tea", hapunan: "Pesang Isda + B.Rice", exercise: "Bodyweight Squats 3x15 + Push-up Wall 3x10", focus: "Mindset — Positive lang" },
+  { day: 46, phase: 2, week: "Wk3", agahan: "Easebrew ☕ + Oatmeal + Mixed Fruits", tanghalian: "Monggo + Malunggay + B.Rice", merienda: "Kamote + Ginger Tea", hapunan: "Pesang Isda + B.Rice", exercise: "Bodyweight Squats 3x15 + Push-up Wall 3x10", focus: "Mindset — Stay positive" },
   { day: 47, phase: 2, week: "Wk3", agahan: "Easebrew ☕ + Pandesal + Kesong Puti", tanghalian: "Tinolang Manok + B.Rice", merienda: "Peanuts + Mansanas", hapunan: "Chicken Soup + B.Rice", exercise: "REST DAY — Stretching 15 min", focus: "Rest & Recovery" },
   { day: 48, phase: 2, week: "Wk3", agahan: "Easebrew ☕ + Brown Rice + Itlog", tanghalian: "Nilagang Baka (lean) + B.Rice", merienda: "Papaya Slices", hapunan: "Ginataang Gulay + B.Rice", exercise: "Lunges 3x10 + Plank 30s + Walk 20 min", focus: "Building Momentum" },
   { day: 49, phase: 2, week: "Wk3", agahan: "Easebrew ☕ + Avocado Toast", tanghalian: "Paksiw na Bangus + B.Rice", merienda: "Mais + Tsaa", hapunan: "Nilaga + Labanos", exercise: "Brisk Walk 40 min + Arm Exercises", focus: "Noticing Progress" },
@@ -107,7 +107,7 @@ const PLAN = [
   { day: 63, phase: 3, week: "Wk1", agahan: "Easebrew ☕ + Pandesal + Kesong Puti", tanghalian: "Tinolang Manok + B.Rice", merienda: "Peanuts + Mansanas", hapunan: "Chicken Soup + B.Rice", exercise: "REST DAY — Active Recovery Walk 20 min", focus: "Pain Awareness" },
   { day: 64, phase: 3, week: "Wk1", agahan: "Easebrew ☕ + Brown Rice + Itlog", tanghalian: "Nilagang Baka (lean) + B.Rice", merienda: "Papaya Slices", hapunan: "Ginataang Gulay + B.Rice", exercise: "Full Body Circuit 45 min", focus: "Sleep Quality" },
   { day: 65, phase: 3, week: "Wk1", agahan: "Easebrew ☕ + Avocado Toast", tanghalian: "Paksiw na Bangus + B.Rice", merienda: "Mais + Tsaa", hapunan: "Nilaga + Labanos", exercise: "Walk/Jog 45 min + Balance Exercises", focus: "Nutrition Focus" },
-  { day: 66, phase: 3, week: "Wk1", agahan: "Easebrew ☕ + Lugaw + Chicken", tanghalian: "Ginisang Ampalaya + Egg + B.Rice", merienda: "Boiled Saging na Saba", hapunan: "Steamed Fish + Ampalaya", exercise: "Strength + Flexibility 40 min", focus: "Mindset — Positive lang" },
+  { day: 66, phase: 3, week: "Wk1", agahan: "Easebrew ☕ + Lugaw + Chicken", tanghalian: "Ginisang Ampalaya + Egg + B.Rice", merienda: "Boiled Saging na Saba", hapunan: "Steamed Fish + Ampalaya", exercise: "Strength + Flexibility 40 min", focus: "Mindset — Stay positive" },
   { day: 67, phase: 3, week: "Wk1", agahan: "Easebrew ☕ + Champorado Dark Choco", tanghalian: "Pinakbet + Grilled Isda", merienda: "Cucumber + Kalamansi Water", hapunan: "Monggo + B.Rice", exercise: "REST DAY — Yoga + Meditation 25 min", focus: "Rest & Recovery" },
   { day: 68, phase: 3, week: "Wk2", agahan: "Easebrew ☕ + Quinoa Bowl + Egg", tanghalian: "Sinigang Salmon + Brown Rice", merienda: "Buko Juice + Banana", hapunan: "Tinola + Sayote + B.Rice", exercise: "Walk/Jog Interval 30 min + Core 20 min", focus: "Building Momentum" },
   { day: 69, phase: 3, week: "Wk2", agahan: "Easebrew ☕ + Oatmeal + Mixed Fruits", tanghalian: "Monggo + Malunggay + B.Rice", merienda: "Kamote + Ginger Tea", hapunan: "Pesang Isda + B.Rice", exercise: "Compound Exercises 40 min", focus: "Noticing Progress" },
@@ -127,7 +127,7 @@ const PLAN = [
   { day: 83, phase: 3, week: "Wk4", agahan: "Easebrew ☕ + Oatmeal + Mixed Fruits", tanghalian: "Monggo + Malunggay + B.Rice", merienda: "Kamote + Ginger Tea", hapunan: "Pesang Isda + B.Rice", exercise: "Compound Exercises 40 min", focus: "Pain Awareness" },
   { day: 84, phase: 3, week: "Wk4", agahan: "Easebrew ☕ + Pandesal + Kesong Puti", tanghalian: "Tinolang Manok + B.Rice", merienda: "Peanuts + Mansanas", hapunan: "Chicken Soup + B.Rice", exercise: "REST DAY — Active Recovery Walk 20 min", focus: "Sleep Quality" },
   { day: 85, phase: 3, week: "Wk4", agahan: "Easebrew ☕ + Brown Rice + Itlog", tanghalian: "Nilagang Baka (lean) + B.Rice", merienda: "Papaya Slices", hapunan: "Ginataang Gulay + B.Rice", exercise: "Full Body Circuit 45 min", focus: "Nutrition Focus" },
-  { day: 86, phase: 3, week: "Wk4", agahan: "Easebrew ☕ + Avocado Toast", tanghalian: "Paksiw na Bangus + B.Rice", merienda: "Mais + Tsaa", hapunan: "Nilaga + Labanos", exercise: "Walk/Jog 45 min + Balance Exercises", focus: "Mindset — Positive lang" },
+  { day: 86, phase: 3, week: "Wk4", agahan: "Easebrew ☕ + Avocado Toast", tanghalian: "Paksiw na Bangus + B.Rice", merienda: "Mais + Tsaa", hapunan: "Nilaga + Labanos", exercise: "Walk/Jog 45 min + Balance Exercises", focus: "Mindset — Stay positive" },
   { day: 87, phase: 3, week: "Wk4", agahan: "Easebrew ☕ + Lugaw + Chicken", tanghalian: "Ginisang Ampalaya + Egg + B.Rice", merienda: "Boiled Saging na Saba", hapunan: "Steamed Fish + Ampalaya", exercise: "Strength + Flexibility 40 min", focus: "Rest & Recovery" },
   { day: 88, phase: 3, week: "Wk4", agahan: "Easebrew ☕ + Champorado Dark Choco", tanghalian: "Pinakbet + Grilled Isda", merienda: "Cucumber + Kalamansi Water", hapunan: "Monggo + B.Rice", exercise: "REST DAY — Yoga + Meditation 25 min", focus: "Building Momentum" },
   { day: 89, phase: 3, week: "Wk5", agahan: "Easebrew ☕ + Quinoa Bowl + Egg", tanghalian: "Sinigang Salmon + Brown Rice", merienda: "Buko Juice + Banana", hapunan: "Tinola + Sayote + B.Rice", exercise: "Walk/Jog Interval 30 min + Core 20 min", focus: "Noticing Progress" },
@@ -307,7 +307,7 @@ export default function BagongKatawanPage() {
       {/* ── HEADER ── */}
       <div style={{ background: G, padding: "36px 24px 28px", color: "#fff" }}>
         <Link href="/" style={{ color: GOLD, fontSize: 18, fontWeight: 600, textDecoration: "none", display: "block", marginBottom: 16 }}>
-          ← Bumalik sa Hub
+          ← Back to Hub
         </Link>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
           <div style={{ flex: 1 }}>
@@ -317,8 +317,8 @@ export default function BagongKatawanPage() {
             <p style={{ fontSize: 17, opacity: 0.85, margin: 0 }}>Complete Wellness Program • 3 Phases</p>
           </div>
           <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 16, padding: "14px 18px", flexShrink: 0 }}>
-            <p style={{ fontSize: 13, margin: "0 0 2px 0", opacity: 0.8 }}>Ikaw ay nasa</p>
-            <p style={{ fontSize: 30, fontWeight: 700, margin: 0, color: GOLD }}>Araw {currentDay}</p>
+            <p style={{ fontSize: 13, margin: "0 0 2px 0", opacity: 0.8 }}>You are at</p>
+            <p style={{ fontSize: 30, fontWeight: 700, margin: 0, color: GOLD }}>Day {currentDay}</p>
             <p style={{ fontSize: 14, margin: "2px 0 0 0", opacity: 0.85 }}>ng 90</p>
           </div>
         </div>
@@ -326,7 +326,7 @@ export default function BagongKatawanPage() {
         {/* Sync status */}
         {(syncing || syncError) && (
           <p style={{ fontSize: 16, margin: "10px 0 0 0", opacity: 0.85, color: syncError ? "#FED255" : "rgba(255,255,255,0.85)" }}>
-            {syncing ? "💾 Sine-save ang progress..." : "⚠️ Hindi na-save online — naka-save sa device, susubukan ulit."}
+            {syncing ? "💾 Saving progress..." : "⚠️ Not saved online — saved on device, will try again."}
           </p>
         )}
 
@@ -378,7 +378,7 @@ export default function BagongKatawanPage() {
       {activeTab === 0 && (
         <div>
           <div style={{ padding: "20px 20px 0" }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>Piliin ang Phase</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>Select Phase</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {([1, 2, 3] as const).map(ph => {
                 const pc = PHASE_COLORS[ph];
@@ -434,7 +434,7 @@ export default function BagongKatawanPage() {
                         </div>
                         <div>
                           <p style={{ fontSize: 19, fontWeight: 700, color: DARK, margin: "0 0 4px 0" }}>
-                            Araw {d.day} {d.day === 90 ? "🏆" : ""}
+                            Day {d.day} {d.day === 90 ? "🏆" : ""}
                           </p>
                           <p style={{ fontSize: 16, color: MID, margin: 0 }}>
                             {pc.label} {d.week} · {isRest ? "💤 Rest Day" : "💪 Active Day"}
@@ -454,19 +454,19 @@ export default function BagongKatawanPage() {
                       <span style={{ background: pc.bg, color: pc.color, borderRadius: 20, padding: "6px 14px", fontSize: 16, fontWeight: 600, border: `1px solid ${pc.border}` }}>
                         🎯 {d.focus}
                       </span>
-                      {isDone && <span style={{ background: "#E8F5E0", color: G, borderRadius: 20, padding: "6px 12px", fontSize: 16, fontWeight: 700 }}>✅ Tapos na!</span>}
+                      {isDone && <span style={{ background: "#E8F5E0", color: G, borderRadius: 20, padding: "6px 12px", fontSize: 16, fontWeight: 700 }}>✅ Done!</span>}
                     </div>
                   </div>
 
                   {isExpanded && (
                     <div style={{ background: "#FFFFFB", border: `2px solid #C5B99A`, borderTop: "none", borderRadius: "0 0 18px 18px", padding: "20px" }}>
                       <div style={{ background: "#E8F5E0", borderRadius: 14, padding: "16px 18px", marginBottom: 14 }}>
-                        <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>🍽️ Pagkain Ngayon</p>
+                        <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 12px 0" }}>🍽️ Today's Meals</p>
                         {[
-                          { label: "☀️ Agahan", val: d.agahan },
-                          { label: "🌤 Tanghalian", val: d.tanghalian },
-                          { label: "🫖 Merienda", val: d.merienda },
-                          { label: "🌙 Hapunan", val: d.hapunan },
+                          { label: "☀️ Breakfast", val: d.agahan },
+                          { label: "🌤 Lunch", val: d.tanghalian },
+                          { label: "🫖 Snack", val: d.merienda },
+                          { label: "🌙 Dinner", val: d.hapunan },
                         ].map((item, i) => (
                           <div key={i} style={{ display: "flex", gap: 10, marginBottom: i < 3 ? 10 : 0, alignItems: "flex-start" }}>
                             <span style={{ fontSize: 16, color: AMBER, fontWeight: 700, minWidth: 100, flexShrink: 0 }}>{item.label}</span>
@@ -482,12 +482,12 @@ export default function BagongKatawanPage() {
 
                       <div style={{ background: "#FFFBF0", border: `2px solid ${GOLD}`, borderRadius: 14, padding: "14px 18px", marginBottom: 18 }}>
                         <p style={{ fontSize: 16, color: AMBER, margin: 0, lineHeight: 1.6 }}>
-                          ☕ <strong>Easebrew</strong> — uminom 30 minuto bago kumain
+                          ☕ <strong>Easebrew</strong> — drink 30 minutes before eating
                         </p>
                       </div>
 
                       <div style={{ background: CREAM, borderRadius: 14, padding: "16px 18px", marginBottom: 16 }}>
-                        <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>📊 I-Track ang Araw na Ito</p>
+                        <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>📊 Track This Day</p>
                         <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
                           {[
                             { key: "easebrew", label: "☕ Easebrew", val: track.easebrew },
@@ -507,7 +507,7 @@ export default function BagongKatawanPage() {
                         </div>
 
                         <div style={{ display: "flex", gap: 10, marginBottom: 14 }} onClick={e => e.stopPropagation()}>
-                          <Stepper label="💧 Tubig" sub="(glasses)" value={track.tubig} min={0} max={12}
+                          <Stepper label="💧 Water" sub="(glasses)" value={track.tubig} min={0} max={12}
                             onChange={(v) => saveTrack(d.day, { ...track, tubig: v })} />
                           <Stepper label="😣 Sakit" sub="(1-10)" value={track.painScore || 1} min={1} max={10}
                             onChange={(v) => saveTrack(d.day, { ...track, painScore: v })} />
@@ -516,9 +516,9 @@ export default function BagongKatawanPage() {
                         </div>
 
                         <div onClick={e => e.stopPropagation()}>
-                          <p style={{ fontSize: 16, fontWeight: 600, color: MID, margin: "0 0 8px 0" }}>📝 Mga Tala Mo</p>
+                          <p style={{ fontSize: 16, fontWeight: 600, color: MID, margin: "0 0 8px 0" }}>📝 Your Notes</p>
                           <textarea
-                            placeholder="Ano ang naramdaman mo ngayon?..."
+                            placeholder="How are you feeling today?..."
                             value={track.notes}
                             onChange={e => saveTrack(d.day, { ...track, notes: e.target.value })}
                             rows={3}
@@ -533,11 +533,11 @@ export default function BagongKatawanPage() {
                         color: "#fff", border: "none", borderRadius: 16, minHeight: 56,
                         fontSize: 20, fontWeight: 700, cursor: "pointer", letterSpacing: 0.5,
                       }}>
-                        {isDone ? "✗ I-undo" : d.day === 90 ? "🏆 90 Days Complete na!" : "✅ Tapos na ang Araw na Ito!"}
+                        {isDone ? "✗ Undo" : d.day === 90 ? "🏆 90 Days Complete!" : "✅ Done for Today!"}
                       </button>
                       {!isDone && (
                         <p style={{ textAlign: "center", fontSize: 16, color: MID, margin: "10px 0 0 0" }}>
-                          I-tap pagkatapos ma-complete ang araw
+                          Tap after completing the day
                         </p>
                       )}
                     </div>
@@ -554,9 +554,9 @@ export default function BagongKatawanPage() {
         <div style={{ padding: "20px 20px 0" }}>
           <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
             {[
-              { label: "Araw Tapos", val: completedDays.length, suffix: "/90", color: G },
+              { label: "Days Done", val: completedDays.length, suffix: "/90", color: G },
               { label: "Progress", val: progress + "%", suffix: "", color: AMBER },
-              { label: "Nalalabing Araw", val: 90 - completedDays.length, suffix: "", color: "#185FA5" },
+              { label: "Days Left", val: 90 - completedDays.length, suffix: "", color: "#185FA5" },
             ].map((stat, i) => (
               <div key={i} style={{ flex: 1, background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 16, padding: "18px 10px", textAlign: "center" }}>
                 <p style={{ fontSize: 28, fontWeight: 700, color: stat.color, margin: 0 }}>
@@ -588,10 +588,10 @@ export default function BagongKatawanPage() {
           </div>
 
           <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 18, padding: "20px", marginBottom: 20 }}>
-            <p style={{ fontSize: 18, fontWeight: 700, color: G, margin: "0 0 16px 0" }}>📏 Sukat Mo</p>
+            <p style={{ fontSize: 18, fontWeight: 700, color: G, margin: "0 0 16px 0" }}>📏 Your Measurements</p>
             {[
-              { key: "timbang", label: "⚖️ Timbang (kg)" },
-              { key: "waist", label: "📐 Baywang (cm)" },
+              { key: "timbang", label: "⚖️ Weight (kg)" },
+              { key: "waist", label: "📐 Waist (cm)" },
               { key: "pain", label: "🩺 Sakit Score (1-10)" },
             ].map(row => (
               <div key={row.key} style={{ marginBottom: 18 }}>
@@ -601,7 +601,7 @@ export default function BagongKatawanPage() {
                     const k = `${row.key}${cp}` as keyof Measurements;
                     return (
                       <div key={cp} style={{ flex: 1, textAlign: "center" }}>
-                        <p style={{ fontSize: 16, color: MID, margin: "0 0 6px 0", fontWeight: 600 }}>Araw {cp}</p>
+                        <p style={{ fontSize: 16, color: MID, margin: "0 0 6px 0", fontWeight: 600 }}>Day {cp}</p>
                         <input type="number" value={measurements[k]}
                           onChange={e => saveMeasurements({ ...measurements, [k]: e.target.value })}
                           placeholder="—"
@@ -621,11 +621,11 @@ export default function BagongKatawanPage() {
                 {completedDays.length >= 90 ? "🏆" : completedDays.length >= 60 ? "💪" : "🌱"}
               </p>
               <p style={{ fontSize: 20, fontWeight: 700, color: AMBER, margin: "0 0 8px 0", lineHeight: 1.4 }}>
-                {completedDays.length >= 90 ? "BAGONG KATAWAN NA! 90 DAYS COMPLETE!" :
-                  completedDays.length >= 60 ? "Phase 2 Done! Papalapit na ang finish line!" :
-                    "Phase 1 Complete! Nagtatayo ka na ng bagong katawan!"}
+                {completedDays.length >= 90 ? "NEW BODY ACHIEVED! 90 DAYS COMPLETE!" :
+                  completedDays.length >= 60 ? "Phase 2 Done! The finish line is near!" :
+                    "Phase 1 Complete! You're building a new body!"}
               </p>
-              <p style={{ fontSize: 16, color: MID, margin: 0 }}>{completedDays.length} araw ng pagsisikap. Kahanga-hanga ka. 🌿☕</p>
+              <p style={{ fontSize: 16, color: MID, margin: 0 }}>{completedDays.length} days of dedication. You're amazing. 🌿☕</p>
             </div>
           )}
         </div>
@@ -635,13 +635,13 @@ export default function BagongKatawanPage() {
       {activeTab === 2 && (
         <div style={{ padding: "20px 20px 0" }}>
           <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 18, padding: "20px", marginBottom: 16 }}>
-            <p style={{ fontSize: 18, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>☕ Tamang Pag-inom ng Easebrew</p>
+            <p style={{ fontSize: 18, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>☕ How to Drink Easebrew Properly</p>
             {[
-              { label: "Paghahanda", val: "1 sachet sa 150-180ml mainit na tubig. Huwag sobrang mainit." },
-              { label: "Pinakamainam", val: "Umaga (7-9AM) bago kumain. Phase 2-3: dagdag ng hapon (3-5PM)." },
-              { label: "Huwag Dagdag", val: "Puting asukal — gamitin ang muscovado o wala na lang." },
-              { label: "May Ulcer", val: "Uminom pagkatapos kumain ng konti. Huwag nang walang laman." },
-              { label: "Para sa Best", val: "Consistent na pag-inom. 21 araw para maging gawi. 90 araw — permanent." },
+              { label: "Preparation", val: "1 sachet in 150-180ml hot water. Don't make it too hot." },
+              { label: "Best Time", val: "Morning (7-9AM) before eating. Phase 2-3: add afternoon (3-5PM)." },
+              { label: "Avoid Adding", val: "White sugar — use muscovado or none at all." },
+              { label: "With Ulcer", val: "Drink after eating a little. Don't take on empty stomach." },
+              { label: "For Best Results", val: "Consistent drinking. 21 days to build a habit. 90 days — permanent." },
             ].map((item, i) => (
               <div key={i} style={{ display: "flex", gap: 12, marginBottom: i < 4 ? 12 : 0, alignItems: "flex-start", padding: "12px 14px", background: "#F6F2EA", borderRadius: 12 }}>
                 <span style={{ fontSize: 16, fontWeight: 700, color: AMBER, minWidth: 110, flexShrink: 0 }}>{item.label}</span>
@@ -651,13 +651,13 @@ export default function BagongKatawanPage() {
           </div>
 
           <div style={{ background: "#FEF2F2", border: "2px solid #ef4444", borderRadius: 18, padding: "20px", marginBottom: 16 }}>
-            <p style={{ fontSize: 18, fontWeight: 700, color: "#dc2626", margin: "0 0 14px 0" }}>🚨 Kapag Sobrang Sakit</p>
+            <p style={{ fontSize: 18, fontWeight: 700, color: "#dc2626", margin: "0 0 14px 0" }}>🚨 When Pain is Severe</p>
             {[
-              { icon: "🔥", tip: "Hot Compress — Para sa matigas na joints sa umaga. 15-20 minuto." },
-              { icon: "🧊", tip: "Cold Compress — Para sa namamaga at inflamed joints. 15-20 minuto." },
-              { icon: "☕", tip: "Easebrew + Pahinga — Uminom, humiga nang komportable." },
-              { icon: "🦵", tip: "I-elevate ang masakit na parte — Para sa tuhod/paa, i-raise itaas ng puso level." },
-              { icon: "🫁", tip: "Breathing — 5 counts inhale, 5 counts exhale. Nagpapababa ng sakit." },
+              { icon: "🔥", tip: "Hot Compress — For stiff joints in the morning. 15-20 minutes." },
+              { icon: "🧊", tip: "Cold Compress — For swollen and inflamed joints. 15-20 minutes." },
+              { icon: "☕", tip: "Easebrew + Rest — Drink, then lie down comfortably." },
+              { icon: "🦵", tip: "Elevate the painful area — For knees/feet, raise above heart level." },
+              { icon: "🫁", tip: "Breathing — 5 counts inhale, 5 counts exhale. Helps reduce pain." },
             ].map((item, i) => (
               <div key={i} style={{ display: "flex", gap: 12, marginBottom: i < 4 ? 10 : 0, alignItems: "flex-start", padding: "12px 14px", background: "#FFF5F5", borderRadius: 12 }}>
                 <span style={{ fontSize: 24, flexShrink: 0 }}>{item.icon}</span>
@@ -665,16 +665,16 @@ export default function BagongKatawanPage() {
               </div>
             ))}
             <p style={{ fontSize: 16, fontWeight: 700, color: "#dc2626", margin: "14px 0 0 0", padding: "12px 14px", background: "#FEE2E2", borderRadius: 12 }}>
-              ⚠️ Kung 8+ ang pain score at hindi bumababa kahit 24 oras — kumonsulta sa doktor.
+              ⚠️ If pain score is 8+ and not going down after 24 hours — consult your doctor.
             </p>
           </div>
 
           <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 18, padding: "20px", marginBottom: 16 }}>
             <p style={{ fontSize: 18, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>🥗 Anti-Inflammation Food Guide</p>
             {[
-              { bg: "#E8F5E0", titleColor: "#2E7D32", title: "🟢 KAININ — MARAMI", text: "Salmon, Bangus, Sardinas (Omega-3) • Malunggay, Ampalaya, Kangkong • Luya, Bawang, Sibuyas • Turmeric/Dilaw • Brown Rice at Oatmeal • Olive Oil / Coconut Oil • Berde at Dilaw na Prutas" },
-              { bg: "#FEF9E7", titleColor: AMBER, title: "🟡 KAININ — KONTI LANG", text: "Puting Bigas • Puting Tinapay • Asukal (muscovado na lang) • Pork at Beef (lean cuts) • Itlog (3-4 bawat linggo) • Dairy Products" },
-              { bg: "#FEF2F2", titleColor: "#dc2626", title: "🔴 IWASAN", text: "Instant Noodles • Canned Food na may preservatives • Softdrinks • Fastfood • Sobrang pritong pagkain • Alcohol • Margarine" },
+              { bg: "#E8F5E0", titleColor: "#2E7D32", title: "🟢 EAT — PLENTY", text: "Salmon, Bangus, Sardines (Omega-3) • Malunggay, Ampalaya, Kangkong • Ginger, Garlic, Onions • Turmeric • Brown Rice and Oatmeal • Olive Oil / Coconut Oil • Green and Yellow Fruits" },
+              { bg: "#FEF9E7", titleColor: AMBER, title: "🟡 EAT — IN MODERATION", text: "White Rice • White Bread • Sugar (use muscovado instead) • Pork and Beef (lean cuts) • Eggs (3-4 per week) • Dairy Products" },
+              { bg: "#FEF2F2", titleColor: "#dc2626", title: "🔴 AVOID", text: "Instant Noodles • Canned Food with preservatives • Softdrinks • Fastfood • Heavily fried food • Alcohol • Margarine" },
             ].map((sec, i) => (
               <div key={i} style={{ background: sec.bg, borderRadius: 14, padding: "14px 16px", marginBottom: i < 2 ? 12 : 0 }}>
                 <p style={{ fontSize: 16, fontWeight: 700, color: sec.titleColor, margin: "0 0 8px 0" }}>{sec.title}</p>
@@ -684,11 +684,11 @@ export default function BagongKatawanPage() {
           </div>
 
           <div style={{ background: "#FFFFFB", border: "2px solid #C5B99A", borderRadius: 18, padding: "20px", marginBottom: 16 }}>
-            <p style={{ fontSize: 18, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>🎯 Goals bawat Phase</p>
+            <p style={{ fontSize: 18, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>🎯 Goals per Phase</p>
             {[
-              { phase: "🌱 Phase 1 (Araw 1-30)", color: "#39613B", bg: "#E8F5E0", goals: ["Easebrew BAWAT umaga — walang skip", "Maglakad 15-20 minuto araw-araw", "Gulay sa bawat kain", "8 glasses ng tubig araw-araw", "Tulog 7-8 oras"] },
-              { phase: "💪 Phase 2 (Araw 31-60)", color: "#185FA5", bg: "#E6F1FB", goals: ["Easebrew 2x araw — umaga at hapon", "Exercise — dagdagan ng 10 minuto", "Pain Score: bumaba ng 2-3 points", "100% gulay sa bawat kain", "I-update ang sukat lingguhan"] },
-              { phase: "🏆 Phase 3 (Araw 61-90)", color: "#C0863B", bg: "#FEF0E0", goals: ["Pain Score: 50%+ pagbaba vs Araw 1", "Exercise — gawi na, natural na lang", "Anti-inflammation eating — instinct na", "Araw 90: complete assessment at sukat"] },
+              { phase: "🌱 Phase 1 (Day 1-30)", color: "#39613B", bg: "#E8F5E0", goals: ["EaseBrew EVERY morning — no skipping", "Walk 15-20 minutes daily", "Vegetables with every meal", "8 glasses of water daily", "Sleep 7-8 hours"] },
+              { phase: "💪 Phase 2 (Day 31-60)", color: "#185FA5", bg: "#E6F1FB", goals: ["EaseBrew 2x daily — morning and afternoon", "Exercise — add 10 more minutes", "Pain Score: down 2-3 points", "100% vegetables with every meal", "Update measurements weekly"] },
+              { phase: "🏆 Phase 3 (Day 61-90)", color: "#C0863B", bg: "#FEF0E0", goals: ["Pain Score: 50%+ down vs Day 1", "Exercise — it's now a habit", "Anti-inflammation eating — second nature", "Day 90: complete assessment and measurements"] },
             ].map((item, i) => (
               <div key={i} style={{ background: item.bg, borderRadius: 14, padding: "16px 18px", marginBottom: i < 2 ? 12 : 0 }}>
                 <p style={{ fontSize: 17, fontWeight: 700, color: item.color, margin: "0 0 10px 0" }}>{item.phase}</p>
@@ -712,7 +712,7 @@ export default function BagongKatawanPage() {
           background: G, color: "#fff", borderRadius: 14,
           padding: "16px 48px", fontSize: 18, fontWeight: 700, textDecoration: "none",
         }}>
-          🏠 Bumalik sa Hub
+          🏠 Back to Hub
         </Link>
       </div>
     </div>

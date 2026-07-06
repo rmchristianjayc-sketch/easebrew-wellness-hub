@@ -25,28 +25,28 @@ function getErrorType(errorMsg: string): ErrorType {
 
 const ERROR_COPY: Record<Exclude<ErrorType, null>, { title: string; message: string; color: string }> = {
   invalid: {
-    title: "❌ Hindi nahanap ang code",
-    message: "I-check kung tama ang 12 letters/numbers. Kung wala ka pang code, tawagan o i-message ang coach.",
+    title: "❌ Hindi nakita ang code",
+    message: "Tignan kung tama ang 12 letters/numbers. Kung wala ka pang code, tawagan o i-message ang coach mo.",
     color: "#dc2626",
   },
   expired: {
     title: "⏰ Expired na ang code",
-    message: "Tawagan ang coach para ma-renew ang access at makakuha ng bagong code.",
+    message: "I-contact ang coach mo para ma-renew ang access at makakuha ng bagong code.",
     color: AMBER,
   },
   other_device: {
     title: "📱 Ginamit na sa ibang phone",
-    message: "Para sa seguridad, isang phone lang ang bawat code. Makipag-ugnayan sa coach kung kailangan ng tulong.",
+    message: "Para sa security, isang phone lang ang pwede sa bawat code. I-contact ang coach mo kung kailangan mo ng tulong.",
     color: "#185FA5",
   },
   incomplete: {
-    title: "⚠️ Hindi pa kumpleto ang code",
+    title: "⚠️ Hindi kumpleto ang code",
     message: "Ilagay ang buong format: EASE-XXXX-XXXX.",
     color: AMBER,
   },
   server: {
-    title: "⚠️ May problema sa pag-verify",
-    message: "Subukan ulit. Kung paulit-ulit na nangyayari, makipag-ugnayan sa inyong coach.",
+    title: "⚠️ May problema sa verification",
+    message: "Subukan ulit. Kung paulit-ulit, i-contact ang coach mo.",
     color: AMBER,
   },
 };
@@ -88,7 +88,7 @@ function buildPerks(content: Record<string, string>) {
     return {
       tier,
       label: cfg.label,
-      note: `${cfg.validityDays} araw na access sa Wellness Hub`,
+      note: `${cfg.validityDays} days access to Wellness Hub`,
       products: unlocked.map(p => ({
         id: p.id,
         name: content[`product_${p.id}_name`]?.trim() || p.name,
@@ -115,13 +115,13 @@ function CoachCard({ coach }: { coach: Coach }) {
         />
         <div>
           <p style={{ fontSize: 22, fontWeight: 900, color: DARK, margin: 0, fontFamily: "Georgia, serif" }}>{coach.name}</p>
-          <p style={{ fontSize: 16, color: G, margin: "4px 0 0", fontWeight: 700, fontFamily: "Georgia, serif" }}>☕ EaseBrew Wellness Coach</p>
+          <p style={{ fontSize: 16, color: G, margin: "4px 0 0", fontWeight: 700, fontFamily: "Georgia, serif" }}>EaseBrew Wellness Coach</p>
           <p className="c-body" style={{ margin: "3px 0 0" }}>{coach.display}</p>
         </div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <a href={`tel:${coach.number}`} className="c-btn c-btn-green" style={{ textDecoration: "none" }}>
-          📞 Tumawag
+          📞 Call
         </a>
         <a href={coach.facebook} target="_blank" rel="noopener noreferrer" className="c-btn c-btn-fb" style={{ textDecoration: "none" }}>
           💬 Facebook
@@ -190,10 +190,10 @@ export default function VerifyPage() {
         <section style={{ width: "100%", maxWidth: 420, textAlign: "center" }}>
           <div style={{ fontSize: 88, marginBottom: 18, lineHeight: 1 }}>☕</div>
           <h1 className="c-heading" style={{ color: GOLD, margin: "0 0 18px" }}>
-            Bukas na ang inyong Hub!
+            Bukas na ang Hub mo!
           </h1>
           <p className="c-body" style={{ color: "rgba(255,255,255,0.88)", textAlign: "center" }}>
-            Sandali lang po. Ihahanda namin ang wellness guide ninyo.
+            Sandali lang. Ini-prepare na ang wellness guide mo.
           </p>
           <div style={{ marginTop: 36, display: "flex", justifyContent: "center", gap: 10 }}>
             {[0, 1, 2].map(i => (
@@ -230,19 +230,19 @@ export default function VerifyPage() {
               </div>
             )}
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(24,59,40,0.25) 0%, rgba(24,59,40,0.72) 100%)" }} />
-            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "18px 22px" }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: GOLD, color: G, borderRadius: 999, padding: "5px 16px", fontSize: 13, fontWeight: 900, letterSpacing: "0.5px", marginBottom: 10, fontFamily: "Georgia, serif" }}>
-                ☕ R&amp;M EaseBrew
-              </div>
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "22px 22px" }}>
+              <p style={{ fontSize: 14, color: GOLD, fontWeight: 800, margin: "0 0 6px", fontFamily: "Georgia, serif", letterSpacing: "0.5px", textShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>
+                R&amp;M EaseBrew Wellness Hub
+              </p>
               <h1 className="c-heading" style={{ color: "#fff", margin: 0, textShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
-                Buksan ang Wellness Hub
+                Buksan ang Wellness Hub Mo
               </h1>
             </div>
           </div>
 
           <div style={{ padding: "0 18px" }}>
             <p className="c-body" style={{ textAlign: "center", padding: "18px 0", margin: 0 }}>
-              Ilagay ang code na binigay ng inyong coach para buksan ang inyong personal na wellness guide.
+              Ilagay ang code mula sa coach mo para ma-access ang wellness guide mo.
             </p>
 
             {/* ── Verify View ── */}
@@ -256,7 +256,7 @@ export default function VerifyPage() {
                 </div>
 
                 <label htmlFor="access-code" className="c-label" style={{ fontSize: 22 }}>
-                  🔑 I-type ang inyong Access Code
+                  Ilagay ang Access Code
                 </label>
 
                 <input
@@ -287,7 +287,7 @@ export default function VerifyPage() {
                   }}
                 />
                 <p className="c-body" style={{ textAlign: "center", margin: "10px 0 0" }}>
-                  Halimbawa: <strong style={{ fontFamily: "monospace", letterSpacing: 3 }}>EASE-ABCD-1234</strong>
+                  Example: <strong style={{ fontFamily: "monospace", letterSpacing: 3 }}>EASE-ABCD-1234</strong>
                 </p>
 
                 {visibleError && (
@@ -300,23 +300,23 @@ export default function VerifyPage() {
                 <button type="button" onClick={handleVerify} disabled={loading || !isComplete}
                   className={`c-btn ${isComplete ? "c-btn-green" : ""}`}
                   style={{ marginTop: 20, opacity: isComplete ? 1 : 0.55, background: isComplete ? G : "#BFAF8F" }}>
-                  {loading ? "⏳ Sandali lang..." : "✅ Buksan ang Aking Hub"}
+                  {loading ? "⏳ Sandali lang..." : "Buksan ang Hub Ko"}
                 </button>
 
                 {/* Wala pang code */}
                 <div style={{ marginTop: 22, background: "#FEF9EE", border: `2px solid ${GOLD}`, borderRadius: 18, padding: "18px 20px" }}>
-                  <p className="c-label" style={{ margin: "0 0 8px" }}>🛒 Wala pang code?</p>
+                  <p className="c-label" style={{ margin: "0 0 8px" }}>Wala ka pang code?</p>
                   <p className="c-body" style={{ margin: "0 0 14px" }}>
-                    Mag-order ng EaseBrew, tapos makipag-ugnayan sa inyong coach para sa access code.
+                    Mag-order ng EaseBrew, tapos i-contact ang coach mo para makuha ang access code.
                   </p>
                   <button type="button" onClick={() => setView("coaches")} className="c-btn c-btn-outline">
-                    📞 Makipag-ugnayan sa Coach
+                    📞 I-contact ang Coach
                   </button>
                 </div>
 
                 {/* Trust badges */}
                 <div style={{ marginTop: 20, display: "flex", justifyContent: "center", gap: 20, flexWrap: "wrap" }}>
-                  {["🔒 Secure", "✅ Halal", "🌿 All Natural"].map(badge => (
+                  {["🔒 Secure", "✅ Halal", "🌿 100% Natural"].map(badge => (
                     <span key={badge} className="c-caption" style={{ fontWeight: 700 }}>{badge}</span>
                   ))}
                 </div>
@@ -326,8 +326,8 @@ export default function VerifyPage() {
             {/* ── Gifts View ── */}
             {view === "gifts" && (
               <section>
-                <h2 className="c-title" style={{ margin: "18px 0 8px" }}>🎁 Mga Packages at Free Gifts</h2>
-                <p className="c-body" style={{ margin: "0 0 18px" }}>Mas mataas na package, mas maraming wellness tools ang naka-unlock para sa inyo.</p>
+                <h2 className="c-title" style={{ margin: "18px 0 8px" }}>Packages &amp; Free Gifts</h2>
+                <p className="c-body" style={{ margin: "0 0 18px" }}>Mas mataas na package, mas maraming wellness tools para sayo.</p>
                 <div style={{ display: "grid", gap: 14, marginBottom: 20 }}>
                   {perks.map(perk => {
                     return (
@@ -386,7 +386,7 @@ export default function VerifyPage() {
                           })}
                         </div>
                         <button type="button" onClick={() => setView("coaches")} className="c-btn c-btn-gold">
-                          📞 Mag-order sa Coach
+                          📞 Order from Coach
                         </button>
                       </div>
                     );
@@ -398,8 +398,8 @@ export default function VerifyPage() {
             {/* ── Coaches View ── */}
             {view === "coaches" && (
               <section>
-                <h2 className="c-title" style={{ margin: "18px 0 8px" }}>📞 Kausapin ang Coach</h2>
-                <p className="c-body" style={{ margin: "0 0 18px" }}>Para sa order, code, renewal, o tulong sa paggamit ng hub. Lagi kaming nandito para sa inyo.</p>
+                <h2 className="c-title" style={{ margin: "18px 0 8px" }}>Kausapin ang Coach</h2>
+                <p className="c-body" style={{ margin: "0 0 18px" }}>Para sa orders, codes, renewal, o tulong sa hub. Lagi kaming nandito para sayo.</p>
                 {coaches.map(coach => <CoachCard key={coach.name} coach={coach} />)}
               </section>
             )}

@@ -7,15 +7,15 @@ import { useRouter } from "next/navigation";
 import { RefreshCw } from "lucide-react";
 
 const ACTION_LABELS: Record<string, { label: string; color: string }> = {
-  generate_code:     { label: "Gumawa ng code",  color: "#166534" },
-  deactivate_code:   { label: "Na-deactivate",   color: "#92400e" },
-  reactivate_code:   { label: "Na-reactivate",   color: "#1e40af" },
-  delete_code:       { label: "Na-delete",        color: "#991b1b" },
-  update_code_notes: { label: "Binago notes",     color: "#6b21a8" },
-  update_content:    { label: "Na-update content", color: "#155e75" },
-  delete_content:    { label: "Na-delete content", color: "#991b1b" },
-  admin_login:       { label: "Nag-login",        color: "#166534" },
-  admin_login_failed:{ label: "Bagsak login",     color: "#991b1b" },
+  generate_code:     { label: "Generated code",   color: "#166534" },
+  deactivate_code:   { label: "Deactivated",      color: "#92400e" },
+  reactivate_code:   { label: "Reactivated",      color: "#1e40af" },
+  delete_code:       { label: "Deleted",           color: "#991b1b" },
+  update_code_notes: { label: "Updated notes",    color: "#6b21a8" },
+  update_content:    { label: "Updated content",   color: "#155e75" },
+  delete_content:    { label: "Deleted content",   color: "#991b1b" },
+  admin_login:       { label: "Logged in",         color: "#166534" },
+  admin_login_failed:{ label: "Failed login",      color: "#991b1b" },
 };
 
 type AuditEntry = {
@@ -68,41 +68,41 @@ export default function AuditLogPage() {
   if (authLoading) return null;
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f7f5", fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="admin-shell" style={{ display: "flex", minHeight: "100vh" }}>
       <Sidebar active="/admin/audit-log" username={username} role={role} onLogout={handleLogout} />
 
-      <main style={{ flex: 1, minWidth: 0, marginLeft: 248, padding: "36px 40px" }}>
+      <main className="admin-main" style={{ flex: 1, minWidth: 0 }}>
         <div style={{ marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <div>
-            <h1 style={{ fontSize: 20, fontWeight: 700, color: "#1B201A", margin: 0, fontFamily: "Inter, system-ui, sans-serif" }}>Audit Log</h1>
-            <p style={{ fontSize: 13, color: "#4E504F", margin: "4px 0 0", fontFamily: "Inter, system-ui, sans-serif" }}>All admin and coach activity</p>
+            <h1 style={{ fontSize: 20, fontWeight: 800, color: "#1B201A", margin: 0, fontFamily: "var(--admin-font)" }}>Audit Log</h1>
+            <p style={{ fontSize: 13, color: "#6b7a70", margin: "4px 0 0", fontFamily: "var(--admin-font)" }}>All admin and coach activity</p>
           </div>
-          <button onClick={load} style={{ display: "inline-flex", alignItems: "center", gap: 6, minHeight: 36, padding: "0 14px", borderRadius: 7, border: "1px solid #dde4df", background: "transparent", color: "#4E504F", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Inter, system-ui, sans-serif" }}>
+          <button onClick={load} style={{ display: "inline-flex", alignItems: "center", gap: 6, minHeight: 40, padding: "0 18px", borderRadius: 10, border: "1px solid #e8ece9", background: "#fff", color: "#1B201A", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--admin-font)", boxShadow: "0 1px 3px rgba(20,35,25,0.04)" }}>
             <RefreshCw size={13} /> Refresh
           </button>
         </div>
 
         {fetchError && (
-          <div style={{ background: "#fff1f2", border: "1px solid #fecdd3", borderRadius: 8, padding: "12px 16px", marginBottom: 20, color: "#9f1239", fontSize: 13, fontFamily: "Inter, system-ui, sans-serif" }}>
-            Hindi ma-load ang audit log. I-refresh ang page.
+          <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12, padding: "14px 18px", marginBottom: 20, color: "#dc2626", fontSize: 13, fontFamily: "var(--admin-font)" }}>
+            Could not load audit log. Please refresh the page.
           </div>
         )}
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: "60px 0", color: "#4E504F", fontFamily: "Inter, system-ui, sans-serif", fontSize: 13 }}>
+          <div style={{ textAlign: "center", padding: "60px 0", color: "#a3b0a8", fontFamily: "var(--admin-font)", fontSize: 13 }}>
             Loading...
           </div>
         ) : entries.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "60px 0", color: "#4E504F", fontFamily: "Inter, system-ui, sans-serif", fontSize: 13 }}>
-            Wala pang naka-record na aktibidad.
+          <div style={{ textAlign: "center", padding: "60px 0", color: "#a3b0a8", fontFamily: "var(--admin-font)", fontSize: 13 }}>
+            No activity recorded yet.
           </div>
         ) : (
-          <div style={{ background: "#ffffff", border: "1px solid #dde4df", borderRadius: 10, boxShadow: "0 1px 3px rgba(20,35,25,0.05)", overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, fontFamily: "Inter, system-ui, sans-serif" }}>
+          <div style={{ background: "#fff", border: "1px solid #e8ece9", borderRadius: 16, boxShadow: "0 1px 3px rgba(20,35,25,0.04)", overflow: "hidden" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, fontFamily: "var(--admin-font)" }}>
               <thead>
-                <tr style={{ background: "#f9fafb" }}>
-                  {["Oras", "Admin", "Aksyon", "Code / Details"].map(h => (
-                    <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#4E504F", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #e8eeea", whiteSpace: "nowrap" }}>{h}</th>
+                <tr style={{ background: "#fafbfa" }}>
+                  {["Time", "Admin", "Action", "Code / Details"].map(h => (
+                    <th key={h} style={{ padding: "12px 18px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#6b7a70", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #f0f2f1", whiteSpace: "nowrap" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -118,19 +118,19 @@ export default function AuditLogPage() {
                   if (meta?.key)  detail = String(meta.key);
                   return (
                     <tr key={e.id}>
-                      <td style={{ padding: "10px 16px", whiteSpace: "nowrap", fontSize: 12, borderBottom: "1px solid #f0f2f0" }}>{formatDate(e.created_at)}</td>
-                      <td style={{ padding: "10px 16px", fontWeight: 600, fontSize: 13, borderBottom: "1px solid #f0f2f0" }}>{e.admin_username}</td>
-                      <td style={{ padding: "10px 16px", borderBottom: "1px solid #f0f2f0" }}>
+                      <td style={{ padding: "12px 18px", whiteSpace: "nowrap", fontSize: 12, borderBottom: "1px solid #f5f6f5" }}>{formatDate(e.created_at)}</td>
+                      <td style={{ padding: "12px 18px", fontWeight: 700, fontSize: 13, borderBottom: "1px solid #f5f6f5", color: "#1B201A" }}>{e.admin_username}</td>
+                      <td style={{ padding: "12px 18px", borderBottom: "1px solid #f5f6f5" }}>
                         <span style={{
-                          display: "inline-block", padding: "2px 9px", borderRadius: 99,
+                          display: "inline-block", padding: "4px 12px", borderRadius: 20,
                           fontSize: 11, fontWeight: 700,
                           background: badge.color + "18", color: badge.color, whiteSpace: "nowrap",
-                          fontFamily: "Inter, system-ui, sans-serif",
+                          fontFamily: "var(--admin-font)",
                         }}>
                           {badge.label}
                         </span>
                       </td>
-                      <td style={{ padding: "10px 16px", fontFamily: "monospace", fontSize: 12, borderBottom: "1px solid #f0f2f0" }}>{detail || "—"}</td>
+                      <td style={{ padding: "12px 18px", fontFamily: "monospace", fontSize: 12, borderBottom: "1px solid #f5f6f5" }}>{detail || "—"}</td>
                     </tr>
                   );
                 })}

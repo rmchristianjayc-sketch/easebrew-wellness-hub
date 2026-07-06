@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Sidebar from "@/app/admin/_components/Sidebar";
 import { useAdminGuard } from "@/lib/useAdminGuard";
 import { PRICE_CONFIG } from "@/lib/price-config";
-import { DEFAULT_COACHES, buildCoaches } from "@/lib/coaches";
+import { DEFAULT_COACHES, parseCoachesFromContent } from "@/lib/coaches";
 import { getCoachLabel } from "@/lib/coachLabel";
 import type { AccessCode } from "@/lib/supabase";
 import {
@@ -70,7 +70,10 @@ function CustomerProfilePanel({ codeStr, onClose }: { codeStr: string; onClose: 
 
             // Tracker stats
             type CheckIn = { date: string; energy?: number; pain?: number; weight?: number };
-            const trackerData = (pr["tracker"]?.data as CheckIn[] | null) ?? [];
+            const rawTracker = pr["tracker"]?.data;
+            const trackerData: CheckIn[] = Array.isArray(rawTracker) ? rawTracker
+              : Array.isArray(rawTracker?.entries) ? rawTracker.entries
+              : [];
             const recentLogs  = [...trackerData].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
 
             return (
@@ -165,8 +168,8 @@ function ConfirmDialog({ message, onConfirm, onCancel, danger = true }: {
       <div className="a-card" style={{ maxWidth: 380, width: "90%", padding: "26px 26px 22px" }}>
         <p style={{ fontSize: 14, color: "var(--ink)", margin: "0 0 20px", lineHeight: 1.6, fontFamily: "var(--admin-font)" }}>{message}</p>
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-          <button onClick={onCancel} className="a-btn a-btn-ghost">Huwag na</button>
-          <button onClick={onConfirm} className={`a-btn ${danger ? "a-btn-danger" : "a-btn-primary"}`}>Oo, ituloy</button>
+          <button onClick={onCancel} className="a-btn a-btn-ghost">Cancel</button>
+          <button onClick={onConfirm} className={`a-btn ${danger ? "a-btn-danger" : "a-btn-primary"}`}>Yes, proceed</button>
         </div>
       </div>
     </div>
@@ -210,8 +213,8 @@ export default function CodesPage() {
       const res  = await fetch(`/api/admin/codes?filter=${filter}&limit=200`);
       const data = await res.json();
       if (res.ok) setCodes(data.codes || []);
-      else setError("Hindi ma-load ang mga codes. I-refresh ang page.");
-    } catch { setError("Hindi ma-load ang mga codes. I-refresh ang page."); }
+      else setError("Could not load codes. Please refresh the page.");
+    } catch { setError("Could not load codes. Please refresh the page."); }
     setCodesLoading(false);
   }, [filter]);
 
@@ -220,19 +223,23 @@ export default function CodesPage() {
   useEffect(() => {
     fetch("/api/content").then(r => r.ok ? r.json() : null).then(data => {
       if (data?.content) {
-        const built = buildCoaches(data.content, DEFAULT_COACHES);
+        const built = parseCoachesFromContent(data.content);
         setDynamicCoaches(built.map(c => c.name).filter(Boolean));
       }
     }).catch(() => {});
   }, []);
 
-  // Pre-fill coach name from stored label
+  // Sync coach name from stored label (picker is in Sidebar, so keep polling)
   useEffect(() => {
-    if (role === "coach" && !coachName) {
-      const label = getCoachLabel();
-      if (label) setCoachName(label);
-    }
-  }, [role, coachName]);
+    if (role !== "coach") return;
+    const sync = () => {
+      const l = getCoachLabel();
+      if (l) setCoachName(prev => prev !== l ? l : prev);
+    };
+    sync();
+    const id = setInterval(sync, 500);
+    return () => clearInterval(id);
+  }, [role]);
 
   async function handleGenerate() {
     setError(""); setGeneratedCode(""); setGeneratedMessage("");
@@ -253,9 +260,10 @@ export default function CodesPage() {
       const packageLabel = PRICE_CONFIG[tier]?.label ?? `₱${tier.toLocaleString()} package`;
       setGeneratedCode(newCode);
       setGeneratedMessage(
-        `Hello po ${customerName.trim()},\n\nIto po ang inyong R&M EaseBrew Wellness Hub access code:\n\n${newCode}\n\nBuksan dito: ${window.location.origin}/verify\n\nPackage: ${packageLabel}\nKung may tanong po kayo, message lang po kayo sa inyong coach.`
+        `Hello po ${customerName.trim()},\n\nHere is your R&M EaseBrew Wellness Hub access code:\n\n${newCode}\n\nOpen here: ${window.location.origin}/verify\n\nPackage: ${packageLabel}\nIf you have questions, just message your coach.`
       );
-      setCustomerName(""); setNotes(""); setCoachName("");
+      setCustomerName(""); setNotes("");
+      if (role !== "coach") setCoachName("");
       fetchCodes();
     } catch { setError("Something went wrong."); }
     finally { setLoading(false); }
@@ -272,7 +280,7 @@ export default function CodesPage() {
     const daysLeft     = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
     const expiresDate  = new Date(c.expires_at).toLocaleDateString("en-PH", { month: "long", day: "numeric", year: "numeric" });
     const packageLabel = PRICE_CONFIG[c.tier]?.label ?? `₱${c.tier?.toLocaleString()} package`;
-    const msg = `Hello po ${c.customer_name || ""}!\n\nAng inyong EaseBrew ${packageLabel} ay mag-e-expire na po sa ${expiresDate} (${daysLeft} araw na lang).\n\nPara hindi mapuputol ang inyong wellness journey, mag-order na po kayo ng bagong package!\n\nKung may tanong po kayo, message lang po kayo sa inyong coach.\n\n— R&M EaseBrew Wellness Team`;
+    const msg = `Hello ${c.customer_name || ""}!\n\nYour EaseBrew ${packageLabel} will expire on ${expiresDate} (${daysLeft} days left).\n\nTo keep your wellness journey going, please order a new package!\n\nIf you have any questions, just message your coach.\n\n— R&M EaseBrew Wellness Team`;
     navigator.clipboard.writeText(msg).then(() => { setReorderCopiedId(c.id); setTimeout(() => setReorderCopiedId(null), 2500); }).catch(() => {});
   }
 
@@ -290,7 +298,7 @@ export default function CodesPage() {
 
   function handleDelete(id: string, code: string) {
     setConfirm({
-      message: `I-delete ang code ${code}? Hindi na ito mababalik.`, danger: true,
+      message: `Delete code ${code}? This cannot be undone.`, danger: true,
       onConfirm: async () => {
         setConfirm(null); setActionLoadingId(id);
         try {
@@ -305,7 +313,7 @@ export default function CodesPage() {
 
   function handleDeactivate(id: string, code: string) {
     setConfirm({
-      message: `I-deactivate ang code ${code}? Mawawala agad ang access ng customer.`, danger: true,
+      message: `Deactivate code ${code}? The customer will lose access immediately.`, danger: true,
       onConfirm: async () => {
         setConfirm(null); setActionLoadingId(id);
         try {
@@ -320,7 +328,7 @@ export default function CodesPage() {
 
   function handleReactivate(id: string, code: string) {
     setConfirm({
-      message: `I-reactivate ang code ${code}? Kailangan i-verify ulit ng customer.`, danger: false,
+      message: `Reactivate code ${code}? The customer will need to verify again.`, danger: false,
       onConfirm: async () => {
         setConfirm(null); setActionLoadingId(id);
         try {
@@ -339,7 +347,11 @@ export default function CodesPage() {
     return { label: "Active", cls: "a-badge a-badge-green" };
   }
 
-  const filtered = codes
+  const myCodes = role === "coach" && coachName
+    ? codes.filter(c => (c.notes || "").startsWith(`[${coachName}]`))
+    : codes;
+
+  const filtered = myCodes
     .filter(c =>
       search.trim() === "" ||
       (c.customer_name || "").toLowerCase().includes(search.toLowerCase()) ||
@@ -357,9 +369,9 @@ export default function CodesPage() {
       return riskScore(b as AccessCode & { last_active_at?: string | null }) - riskScore(a as AccessCode & { last_active_at?: string | null });
     });
 
-  const totalCodes  = codes.length;
-  const activeCodes = codes.filter(c => c.is_used && c.expires_at && new Date(c.expires_at) > now).length;
-  const unusedCodes = codes.filter(c => !c.is_used).length;
+  const totalCodes  = myCodes.length;
+  const activeCodes = myCodes.filter(c => c.is_used && c.expires_at && new Date(c.expires_at) > now).length;
+  const unusedCodes = myCodes.filter(c => !c.is_used).length;
   const isOwner     = role === "owner";
 
   function exportCSV() {
@@ -369,7 +381,7 @@ export default function CodesPage() {
       return s.includes(",") || s.includes('"') || s.includes("\n") ? `"${s.replace(/"/g, '""')}"` : s;
     };
     const headers = ["Code", "Customer", "Package", "Packs", "Validity", "Status", "Used At", "Expires At", "Last Active", "Notes", "Created By"];
-    const rows = codes.map(c => {
+    const rows = myCodes.map(c => {
       let status = "Unused";
       if (c.is_used) status = c.expires_at && new Date(c.expires_at) > new Date() ? "Active" : "Expired";
       const la = (c as AccessCode & { last_active_at?: string | null }).last_active_at;
@@ -386,7 +398,7 @@ export default function CodesPage() {
   }
 
   function copyAllExpiringMessages() {
-    const expiring = codes.filter(c => {
+    const expiring = myCodes.filter(c => {
       if (!c.is_used || !c.expires_at) return false;
       const d = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
       return d > 0 && d <= 7;
@@ -396,7 +408,7 @@ export default function CodesPage() {
       const daysLeft     = Math.ceil((new Date(c.expires_at!).getTime() - now.getTime()) / 86400000);
       const expiresDate  = new Date(c.expires_at!).toLocaleDateString("en-PH", { month: "long", day: "numeric", year: "numeric" });
       const packageLabel = PRICE_CONFIG[c.tier]?.label ?? `₱${c.tier?.toLocaleString()} package`;
-      return `Hello po ${c.customer_name || ""}!\n\nAng inyong EaseBrew ${packageLabel} ay mag-e-expire na po sa ${expiresDate} (${daysLeft} araw na lang).\n\nPara hindi mapuputol ang inyong wellness journey, mag-order na po kayo ng bagong package!\n\nKung may tanong po kayo, message lang po kayo sa inyong coach.\n\n— R&M EaseBrew Wellness Team`;
+      return `Hello ${c.customer_name || ""}!\n\nYour EaseBrew ${packageLabel} will expire on ${expiresDate} (${daysLeft} days left).\n\nTo keep your wellness journey going, please order a new package!\n\nIf you have any questions, just message your coach.\n\n— R&M EaseBrew Wellness Team`;
     });
     navigator.clipboard.writeText(msgs.join("\n\n---\n\n"))
       .then(() => { setBulkCopied(true); setTimeout(() => setBulkCopied(false), 3000); })
@@ -411,24 +423,25 @@ export default function CodesPage() {
 
       <Sidebar active="/admin/codes" role={role} username={username} />
 
-      <main className="admin-main" style={{ flex: 1, minWidth: 0, display: "flex", gap: 24, alignItems: "flex-start" }}>
+      <main className="admin-main" style={{ flex: 1, minWidth: 0, display: "flex", gap: isOwner ? 24 : 14, alignItems: "flex-start" }}>
 
         {/* ── Generate Form (coach only) ── */}
         {!isOwner && (
-          <div style={{ width: 320, flexShrink: 0 }}>
+          <div style={{ width: 260, flexShrink: 0 }}>
             <h1 className="a-page-title">Generate Code</h1>
             <p className="a-page-subtitle" style={{ marginBottom: 18 }}>Create access codes for customers</p>
 
             {/* Mini stat row */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 18 }}>
               {[
-                { label: "Total",  value: totalCodes,  accent: "#6366f1" },
-                { label: "Active", value: activeCodes, accent: "var(--green)" },
-                { label: "Unused", value: unusedCodes, accent: "#f59e0b" },
+                { label: "Total",  value: totalCodes,  bg: "#6366f1" },
+                { label: "Active", value: activeCodes, bg: "#39613B" },
+                { label: "Unused", value: unusedCodes, bg: "#d97706" },
               ].map(s => (
-                <div key={s.label} style={{ background: "white", borderRadius: 8, padding: "10px", textAlign: "center", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", borderTop: `2px solid ${s.accent}` }}>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)", fontFamily: "var(--admin-font)" }}>{s.value}</div>
-                  <div style={{ fontSize: 10, color: "var(--ink-mid)", fontWeight: 700, marginTop: 2, fontFamily: "var(--admin-font)", textTransform: "uppercase", letterSpacing: "0.5px" }}>{s.label}</div>
+                <div key={s.label} style={{ background: "white", borderRadius: 12, padding: "12px 10px", textAlign: "center", border: "1px solid #e8ece9", boxShadow: "0 1px 3px rgba(20,35,25,0.04)", position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", top: -10, right: -10, width: 40, height: 40, borderRadius: "50%", background: s.bg, opacity: 0.08 }} />
+                  <div style={{ fontSize: 22, fontWeight: 800, color: "#1B201A", fontFamily: "var(--admin-font)" }}>{s.value}</div>
+                  <div style={{ fontSize: 10, color: "#6b7a70", fontWeight: 700, marginTop: 3, fontFamily: "var(--admin-font)", textTransform: "uppercase", letterSpacing: "0.6px" }}>{s.label}</div>
                 </div>
               ))}
             </div>
@@ -452,10 +465,14 @@ export default function CodesPage() {
 
                 <div>
                   <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 5, fontFamily: "var(--admin-font)" }}>Coach <span style={{ color: "#ef4444" }}>*</span></label>
-                  <select className={`a-select${coachError ? " a-input-err" : ""}`} value={coachName} onChange={e => { setCoachName(e.target.value); if (e.target.value) setCoachError(false); }}>
-                    <option value="">— Select Coach —</option>
-                    {dynamicCoaches.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
+                  {role === "coach" ? (
+                    <div className="a-select" style={{ background: "#f5f7f5", color: "var(--ink)", cursor: "default", opacity: 0.85 }}>{coachName || "—"}</div>
+                  ) : (
+                    <select className={`a-select${coachError ? " a-input-err" : ""}`} value={coachName} onChange={e => { setCoachName(e.target.value); if (e.target.value) setCoachError(false); }}>
+                      <option value="">— Select Coach —</option>
+                      {dynamicCoaches.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  )}
                   {coachError && <p style={{ color: "#ef4444", fontSize: 11, margin: "3px 0 0", fontFamily: "var(--admin-font)" }}>Required</p>}
                 </div>
 
@@ -520,8 +537,8 @@ export default function CodesPage() {
           {/* Table header */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
             <div>
-              <h2 className="a-page-title">All Codes</h2>
-              <p className="a-page-subtitle">Showing {filtered.length} of {codes.length}</p>
+              <h2 className="a-page-title">{isOwner ? "All Codes" : "My Codes"}</h2>
+              <p className="a-page-subtitle">Showing {filtered.length} of {myCodes.length}</p>
             </div>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               <div style={{ display: "flex", gap: 6 }}>
@@ -542,7 +559,7 @@ export default function CodesPage() {
 
           {/* Expiring banner */}
           {(() => {
-            const n = codes.filter(c => {
+            const n = myCodes.filter(c => {
               if (!c.is_used || !c.expires_at) return false;
               const d = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
               return d > 0 && d <= 7;
@@ -551,10 +568,10 @@ export default function CodesPage() {
               <div style={{ background: "#fffbeb", border: "1.5px solid #f59e0b", borderRadius: 9, padding: "10px 14px", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
                 <span style={{ fontSize: 13, color: "#92400e", fontWeight: 600, display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--admin-font)" }}>
                   <AlertTriangle size={15} color="#b45309" />
-                  {n} customer{n > 1 ? "s" : ""} mag-e-expire sa loob ng 7 araw
+                  {n} customer{n > 1 ? "s" : ""} expiring within 7 days
                 </span>
                 <button onClick={copyAllExpiringMessages} className={`a-btn a-btn-sm ${bulkCopied ? "a-btn-ghost" : "a-btn-gold"}`} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  {bulkCopied ? <><Check size={13} /> Nakopya!</> : <><MessageSquare size={13} /> Copy All Messages</>}
+                  {bulkCopied ? <><Check size={13} /> Copied!</> : <><MessageSquare size={13} /> Copy All Messages</>}
                 </button>
               </div>
             ) : null;
@@ -580,7 +597,7 @@ export default function CodesPage() {
               <table className="a-table">
                 <thead>
                   <tr>
-                    {["Code", "Customer", "Package", "Coach / Notes", "Used At", "Expires", "Status", "Last Active", ""].map(h => <th key={h}>{h}</th>)}
+                    {(isOwner ? ["Code", "Customer", "Package", "Coach / Notes", "Used At", "Expires", "Status", "Last Active", ""] : ["Code", "Customer", "Package", "Notes", "Used At", "Expires", ""]).map(h => <th key={h}>{h}</th>)}
                   </tr>
                 </thead>
                 <tbody>
@@ -595,7 +612,11 @@ export default function CodesPage() {
                         <td style={{ fontWeight: 600 }}>{c.customer_name || "—"}</td>
                         <td style={{ whiteSpace: "nowrap", fontSize: 12 }}>₱{c.tier?.toLocaleString()} · {c.packs}pk · {c.validity_days}d</td>
                         <td style={{ maxWidth: 180 }}>
-                          {editingNotesId === c.id ? (
+                          {(() => {
+                            const displayNotes = !isOwner && coachName
+                              ? (c.notes || "").replace(new RegExp(`^\\[${coachName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\]\\s*`), "")
+                              : (c.notes || "");
+                            return editingNotesId === c.id ? (
                             <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
                               <input autoFocus value={editingNotesVal} onChange={e => setEditingNotesVal(e.target.value)}
                                 onKeyDown={e => { if (e.key === "Enter") saveNotes(c.id); if (e.key === "Escape") setEditingNotesId(null); }}
@@ -616,9 +637,10 @@ export default function CodesPage() {
                               onMouseEnter={e => (e.currentTarget as HTMLElement).style.border = "1px dashed #ccc"}
                               onMouseLeave={e => (e.currentTarget as HTMLElement).style.border = "1px solid transparent"}
                             >
-                              {c.notes || <span style={{ color: "#d0d5d2", fontStyle: "italic" }}>+ add note</span>}
+                              {displayNotes || <span style={{ color: "#d0d5d2", fontStyle: "italic" }}>+ add note</span>}
                             </div>
-                          )}
+                          );
+                          })()}
                         </td>
                         <td style={{ fontSize: 12, whiteSpace: "nowrap" }}>{c.used_at ? new Date(c.used_at).toLocaleDateString("en-PH") : "—"}</td>
                         <td style={{ fontSize: 12, whiteSpace: "nowrap" }}>
@@ -628,28 +650,33 @@ export default function CodesPage() {
                             </span>
                           ) : "—"}
                         </td>
-                        <td><span className={st.cls}>{st.label}</span></td>
+                        {isOwner && <td><span className={st.cls}>{st.label}</span></td>}
+                        {isOwner && (
                         <td style={{ whiteSpace: "nowrap" }}>
                           {(() => {
                             const la = (c as AccessCode & { last_active_at?: string | null }).last_active_at;
                             if (!la) return <span style={{ color: "#d0d5d2", fontSize: 12 }}>—</span>;
                             const days  = Math.floor((Date.now() - new Date(la).getTime()) / 86400000);
                             const color = days <= 3 ? "#15803d" : days <= 7 ? "#b45309" : "#dc2626";
-                            const label = days === 0 ? "Ngayon" : days === 1 ? "Kahapon" : `${days}d ago`;
+                            const label = days === 0 ? "Today" : days === 1 ? "Yesterday" : `${days}d ago`;
                             return <span style={{ fontSize: 12, fontWeight: 600, color }}>{label}</span>;
                           })()}
                         </td>
-                        <td>
-                          <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                        )}
+                        <td style={isOwner ? undefined : { padding: "8px 6px" }}>
+                          <div style={{ display: "flex", gap: isOwner ? 5 : 3, flexWrap: "wrap" }}>
                             <button onClick={() => setProfileCode(c.code)}
                               className="a-btn a-btn-sm a-btn-ghost"
+                              title="View profile"
                               style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                              <User size={11} /> Profile
+                              <User size={11} /> {isOwner && "Profile"}
                             </button>
                             <button onClick={() => copyListCode(c.code)}
                               className={`a-btn a-btn-sm ${isCopied ? "a-btn-primary" : "a-btn-ghost"}`}
+                              title="Copy code"
                               style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                              {isCopied ? <><Check size={11} /> Copied</> : <><ClipboardCopy size={11} /> Copy</>}
+                              {isCopied ? <Check size={11} /> : <ClipboardCopy size={11} />}
+                              {isOwner && (isCopied ? " Copied" : " Copy")}
                             </button>
                             {c.is_used && c.expires_at && (() => {
                               const d = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
@@ -657,15 +684,18 @@ export default function CodesPage() {
                             })() && (
                               <button onClick={() => copyReorderMessage(c)}
                                 className={`a-btn a-btn-sm ${reorderCopiedId === c.id ? "a-btn-primary" : "a-btn-gold"}`}
+                                title="Copy re-order message"
                                 style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                                {reorderCopiedId === c.id ? <><Check size={11} /> Copied</> : <><RefreshCw size={11} /> Re-order</>}
+                                {reorderCopiedId === c.id ? <Check size={11} /> : <RefreshCw size={11} />}
+                                {isOwner && (reorderCopiedId === c.id ? " Copied" : " Re-order")}
                               </button>
                             )}
                             {st.label === "Active" && (
                               <button onClick={() => handleDeactivate(c.id, c.code)} disabled={isActing}
                                 className="a-btn a-btn-sm a-btn-ghost"
+                                title="Deactivate code"
                                 style={{ color: "#b45309", borderColor: "#e6c070" }}>
-                                {isActing ? "..." : "Deactivate"}
+                                {isActing ? "..." : isOwner ? "Deactivate" : <X size={11} />}
                               </button>
                             )}
                             {isOwner && st.label === "Expired" && (

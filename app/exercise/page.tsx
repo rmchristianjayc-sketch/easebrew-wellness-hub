@@ -51,40 +51,40 @@ const EXERCISE_PROGRAM: Phase[] = [
     phase: 1, name: "Foundation & Mobility", weeks: "Week 1–2", color: "#39613B", bg: "#E8F5E0",
     days: [
       { day: 1, title: "Gentle Morning Activation", exercises: [
-        { name: "Neck Rolls", sets: 2, reps: "5 each direction", rest: "30s", instruction: "Dahan-dahang i-roll ang ulo sa circular motion. Huwag puwersahin.", modification: "Maaaring gawin habang nakaupo" },
-        { name: "Shoulder Circles", sets: 2, reps: "10 each direction", rest: "30s", instruction: "I-rotate ang mga balikat forward at backward ng dahan-dahan." },
-        { name: "Seated Hip Circles", sets: 2, reps: "8 each direction", rest: "30s", instruction: "Habang nakaupo, i-rotate ang balakang sa circular motion.", modification: "Hawakan ang upuan para sa balance" },
-        { name: "Ankle Pumps", sets: 2, reps: "15 each foot", rest: "20s", instruction: "I-flex at i-point ang paa ng paulit-ulit para mapabilis ang circulation." },
-        { name: "Seated Knee Extensions", sets: 2, reps: "10 each leg", rest: "30s", instruction: "Habang nakaupo, i-straighten ang binti at hawakan ng 3 segundo.", modification: "I-reduce ang range kung may pain" },
+        { name: "Neck Rolls", sets: 2, reps: "5 each direction", rest: "30s", instruction: "Slowly roll your head in a circular motion. Don't force it.", modification: "Can be done while seated" },
+        { name: "Shoulder Circles", sets: 2, reps: "10 each direction", rest: "30s", instruction: "Rotate your shoulders forward and backward slowly." },
+        { name: "Seated Hip Circles", sets: 2, reps: "8 each direction", rest: "30s", instruction: "While seated, rotate your hips in a circular motion.", modification: "Hold the chair for balance" },
+        { name: "Ankle Pumps", sets: 2, reps: "15 each foot", rest: "20s", instruction: "Flex and point your feet repeatedly to improve circulation." },
+        { name: "Seated Knee Extensions", sets: 2, reps: "10 each leg", rest: "30s", instruction: "While seated, straighten your leg and hold for 3 seconds.", modification: "Reduce the range if there's pain" },
       ]},
       { day: 2, title: "Rest & Light Walking", exercises: [
-        { name: "Easy Walking", duration: "10–15 mins", rest: "N/A", instruction: "Maglakad sa loob ng bahay o sa labas. Relax lang, hindi kailangan mabilis." },
-        { name: "Deep Breathing", sets: 1, reps: "10 breaths", rest: "N/A", instruction: "Huminga nang malalim sa loob ng 4 segundo, hawak 4 segundo, labas 4 segundo." },
+        { name: "Easy Walking", duration: "10–15 mins", rest: "N/A", instruction: "Walk around the house or outside. Keep it relaxed, no need to rush." },
+        { name: "Deep Breathing", sets: 1, reps: "10 breaths", rest: "N/A", instruction: "Breathe in deeply for 4 seconds, hold for 4 seconds, exhale for 4 seconds." },
       ]},
       { day: 3, title: "Upper Body Mobility", exercises: [
-        { name: "Wall Angels", sets: 2, reps: "8 reps", rest: "45s", instruction: "Tumayo sa harap ng pader. I-slide ang mga kamay pataas at pababa habang nakadikit sa pader.", modification: "Pwedeng gawin habang nakaupo" },
-        { name: "Chest Stretch", sets: 2, duration: "20 seconds", rest: "30s", instruction: "I-clasp ang mga kamay sa likod at i-open ang dibdib. Huminga nang malalim." },
-        { name: "Seated Rows (with towel)", sets: 2, reps: "12 reps", rest: "45s", instruction: "Gamitin ang tuwalya. I-hold ang dalawang dulo at i-pull papalapit sa katawan." },
-        { name: "Wrist Circles", sets: 2, reps: "10 each direction", rest: "20s", instruction: "I-rotate ang mga pulso sa circular motion. Para sa mga may carpal tunnel." },
+        { name: "Wall Angels", sets: 2, reps: "8 reps", rest: "45s", instruction: "Stand facing the wall. Slide your hands up and down while keeping them against the wall.", modification: "Can be done while seated" },
+        { name: "Chest Stretch", sets: 2, duration: "20 seconds", rest: "30s", instruction: "Clasp your hands behind your back and open your chest. Breathe deeply." },
+        { name: "Seated Rows (with towel)", sets: 2, reps: "12 reps", rest: "45s", instruction: "Use a towel. Hold both ends and pull toward your body." },
+        { name: "Wrist Circles", sets: 2, reps: "10 each direction", rest: "20s", instruction: "Rotate your wrists in a circular motion. Good for carpal tunnel." },
       ]},
       { day: 4, title: "Rest Day", exercises: [
-        { name: "Gentle Stretching", duration: "10 mins", rest: "N/A", instruction: "Mag-stretch ng buong katawan ng dahan-dahan. Walang puwersahan." },
-        { name: "Easebrew + Hydration", duration: "Throughout the day", rest: "N/A", instruction: "Siguraduhing uminom ng Easebrew at 8 glasses ng tubig ngayon." },
+        { name: "Gentle Stretching", duration: "10 mins", rest: "N/A", instruction: "Stretch your whole body slowly. Don't force it." },
+        { name: "Easebrew + Hydration", duration: "Throughout the day", rest: "N/A", instruction: "Make sure to drink Easebrew and 8 glasses of water today." },
       ]},
       { day: 5, title: "Lower Body Strength", exercises: [
-        { name: "Chair Squats", sets: 3, reps: "8–10 reps", rest: "60s", instruction: "Tumayo mula sa upuan at bumalik ng dahan-dahan. Hawakan ang armrests kung kailangan.", modification: "Gumamit ng matibay na upuan" },
-        { name: "Standing Calf Raises", sets: 2, reps: "12 reps", rest: "45s", instruction: "Tumayo at i-raise ang mga paa sa toes. Hawakan ang pader para sa balance.", modification: "Maaaring gawin habang nakaupo" },
-        { name: "Side Leg Raises", sets: 2, reps: "10 each leg", rest: "45s", instruction: "Tumayo at i-raise ang binti sa gilid ng dahan-dahan. Hawakan ang pader.", modification: "I-reduce ang height kung may hip pain" },
-        { name: "Seated Marching", sets: 2, duration: "30 seconds", rest: "30s", instruction: "Habang nakaupo, alternating i-lift ang mga tuhod parang nagmamartsa." },
+        { name: "Chair Squats", sets: 3, reps: "8–10 reps", rest: "60s", instruction: "Stand up from the chair and sit back down slowly. Hold armrests if needed.", modification: "Use a sturdy chair" },
+        { name: "Standing Calf Raises", sets: 2, reps: "12 reps", rest: "45s", instruction: "Stand and raise up onto your toes. Hold the wall for balance.", modification: "Can be done while seated" },
+        { name: "Side Leg Raises", sets: 2, reps: "10 each leg", rest: "45s", instruction: "Stand and raise your leg to the side slowly. Hold the wall.", modification: "Reduce the height if there's hip pain" },
+        { name: "Seated Marching", sets: 2, duration: "30 seconds", rest: "30s", instruction: "While seated, alternately lift your knees as if marching." },
       ]},
       { day: 6, title: "Full Body Flexibility", exercises: [
-        { name: "Cat-Cow Stretch", sets: 2, reps: "10 reps", rest: "30s", instruction: "Sa kamay at tuhod, alternating i-arch at i-round ang likod ng dahan-dahan.", modification: "Pwede ring gawin sa upuan" },
-        { name: "Child's Pose", sets: 2, duration: "30 seconds", rest: "20s", instruction: "Mula sa kamay at tuhod, i-sit back sa heels at i-stretch ang mga kamay pasulong.", modification: "Gumamit ng unan sa pagitan ng puwit at heels" },
-        { name: "Seated Spinal Twist", sets: 2, duration: "20s each side", rest: "20s", instruction: "Habang nakaupo, i-twist ang katawan sa kanan at kaliwa ng dahan-dahan." },
-        { name: "Lying Hip Flexor Stretch", sets: 2, duration: "25s each side", rest: "20s", instruction: "Humiga, i-hug ang isang tuhod sa dibdib at hawakan.", modification: "Gawin sa kama kung hindi makaya sa sahig" },
+        { name: "Cat-Cow Stretch", sets: 2, reps: "10 reps", rest: "30s", instruction: "On hands and knees, alternate between arching and rounding your back slowly.", modification: "Can also be done on a chair" },
+        { name: "Child's Pose", sets: 2, duration: "30 seconds", rest: "20s", instruction: "From hands and knees, sit back onto your heels and stretch your arms forward.", modification: "Place a pillow between your hips and heels" },
+        { name: "Seated Spinal Twist", sets: 2, duration: "20s each side", rest: "20s", instruction: "While seated, twist your body to the right and left slowly." },
+        { name: "Lying Hip Flexor Stretch", sets: 2, duration: "25s each side", rest: "20s", instruction: "Lie down and hug one knee to your chest.", modification: "Do it on the bed if the floor is too difficult" },
       ]},
       { day: 7, title: "Complete Rest", exercises: [
-        { name: "Full Rest Day", duration: "All day", rest: "N/A", instruction: "Pahinga ang katawan. Inumin ang Easebrew at matulog ng maaga." },
+        { name: "Full Rest Day", duration: "All day", rest: "N/A", instruction: "Rest your body. Drink EaseBrew and sleep early." },
       ]},
     ]
   },
@@ -92,40 +92,40 @@ const EXERCISE_PROGRAM: Phase[] = [
     phase: 2, name: "Strength Building", weeks: "Week 3–4", color: "#C0863B", bg: "#FEF9E7",
     days: [
       { day: 8, title: "Upper Body Strength", exercises: [
-        { name: "Wall Push-Ups", sets: 3, reps: "10–12 reps", rest: "60s", instruction: "Sa harap ng pader, i-push ang katawan papalayo at papabalik. Mas madali kaysa floor push-ups.", modification: "I-adjust ang distansya mula sa pader" },
-        { name: "Resistance Band Rows", sets: 3, reps: "12 reps", rest: "60s", instruction: "I-attach ang band sa pinto o hawakan ng matibay. I-pull papalapit sa katawan.", modification: "Gumamit ng tuwalya kung walang band" },
-        { name: "Bicep Curls (light weight)", sets: 2, reps: "12 reps", rest: "45s", instruction: "Gumamit ng light weight (water bottle o 1kg). I-curl ang mga kamay pataas.", modification: "Gawin habang nakaupo" },
-        { name: "Shoulder Press (seated)", sets: 2, reps: "10 reps", rest: "45s", instruction: "Hawakan ang light weights sa balikat level, i-press pataas ng dahan-dahan." },
+        { name: "Wall Push-Ups", sets: 3, reps: "10–12 reps", rest: "60s", instruction: "Face the wall and push your body away and back. Easier than floor push-ups.", modification: "Adjust the distance from the wall" },
+        { name: "Resistance Band Rows", sets: 3, reps: "12 reps", rest: "60s", instruction: "Attach the band to a door or hold it firmly. Pull toward your body.", modification: "Use a towel if no band is available" },
+        { name: "Bicep Curls (light weight)", sets: 2, reps: "12 reps", rest: "45s", instruction: "Use a light weight (water bottle or 1kg). Curl your hands upward.", modification: "Can be done while seated" },
+        { name: "Shoulder Press (seated)", sets: 2, reps: "10 reps", rest: "45s", instruction: "Hold light weights at shoulder level and press upward slowly." },
       ]},
       { day: 9, title: "Cardio Walk + Balance", exercises: [
-        { name: "Brisk Walking", duration: "20 mins", rest: "N/A", instruction: "Maglakad ng mas mabilis kaysa karaniwang lakad. Dapat nararamdaman ang heart rate na tumataas." },
-        { name: "Single Leg Stand", sets: 3, duration: "20s each leg", rest: "30s", instruction: "Tumayo sa isang paa. Hawakan ang pader kung kailangan.", modification: "Hawakan ang upuan para sa balance" },
-        { name: "Heel-to-Toe Walking", sets: 2, reps: "10 steps", rest: "30s", instruction: "Maglakad nang parang nasa tali — bawat hakbang, ang heel ay nakaabot sa toes ng nakaraang paa." },
+        { name: "Brisk Walking", duration: "20 mins", rest: "N/A", instruction: "Walk faster than usual. You should feel your heart rate increasing." },
+        { name: "Single Leg Stand", sets: 3, duration: "20s each leg", rest: "30s", instruction: "Stand on one foot. Hold the wall if needed.", modification: "Hold a chair for balance" },
+        { name: "Heel-to-Toe Walking", sets: 2, reps: "10 steps", rest: "30s", instruction: "Walk as if on a tightrope — each step, your heel touches the toes of your previous foot." },
       ]},
       { day: 10, title: "Lower Body Strength", exercises: [
-        { name: "Modified Squats", sets: 3, reps: "12 reps", rest: "60s", instruction: "Chair squats na ngayon ay mas mabagal — 3 segundo pababa, 3 segundo pagtayo.", modification: "Gumamit pa rin ng upuan kung kailangan" },
-        { name: "Step-Ups (low step)", sets: 2, reps: "8 each leg", rest: "60s", instruction: "Gumamit ng mababang step o libro. I-step up at i-step down ng dahan-dahan.", modification: "Hawakan ang handrail o pader" },
-        { name: "Glute Bridge", sets: 3, reps: "12 reps", rest: "45s", instruction: "Humiga, balutin ang tuhod, i-lift ang balakang pataas at hawakan ng 3 segundo.", modification: "I-reduce ang height kung may lower back pain" },
-        { name: "Seated Leg Press (wall)", sets: 2, reps: "10 each leg", rest: "45s", instruction: "Humiga malapit sa pader, i-place ang paa sa pader at i-push." },
+        { name: "Modified Squats", sets: 3, reps: "12 reps", rest: "60s", instruction: "Chair squats but slower — 3 seconds going down, 3 seconds standing up.", modification: "Still use a chair if needed" },
+        { name: "Step-Ups (low step)", sets: 2, reps: "8 each leg", rest: "60s", instruction: "Use a low step or book. Step up and step down slowly.", modification: "Hold the handrail or wall" },
+        { name: "Glute Bridge", sets: 3, reps: "12 reps", rest: "45s", instruction: "Lie down, bend your knees, lift your hips up and hold for 3 seconds.", modification: "Reduce the height if there's lower back pain" },
+        { name: "Seated Leg Press (wall)", sets: 2, reps: "10 each leg", rest: "45s", instruction: "Lie near a wall, place your feet on the wall and push." },
       ]},
       { day: 11, title: "Active Recovery", exercises: [
-        { name: "Swimming or Water Walking", duration: "20–30 mins", rest: "N/A", instruction: "Kung may access sa pool — ang tubig ay nagbibigay ng resistance nang walang joint impact.", modification: "Maglakad lang sa tubig kung hindi marunong lumangoy" },
-        { name: "Full Body Stretch", duration: "15 mins", rest: "N/A", instruction: "Mag-stretch ng lahat ng muscle groups. Hawakan ang bawat stretch ng 20–30 segundo." },
+        { name: "Swimming or Water Walking", duration: "20–30 mins", rest: "N/A", instruction: "If you have access to a pool — water provides resistance without joint impact.", modification: "Just walk in the water if you can't swim" },
+        { name: "Full Body Stretch", duration: "15 mins", rest: "N/A", instruction: "Stretch all muscle groups. Hold each stretch for 20–30 seconds." },
       ]},
       { day: 12, title: "Core & Stability", exercises: [
-        { name: "Seated Core Twist", sets: 3, reps: "12 each side", rest: "45s", instruction: "Habang nakaupo, i-hold ang light weight sa dibdib at i-twist ang upper body.", modification: "Gawin nang walang weight muna" },
-        { name: "Dead Bug (modified)", sets: 2, reps: "8 each side", rest: "60s", instruction: "Humiga, i-extend ang alternating arm at baba habang pinapanatiling flat ang likod.", modification: "I-extend lang ang binti, hindi ang kamay" },
-        { name: "Plank (wall or knees)", sets: 2, duration: "20–30 seconds", rest: "60s", instruction: "Wall plank muna — tumayo at i-lean sa pader, parang push-up na walang galaw.", modification: "Knee plank kung mas kaya na" },
-        { name: "Pelvic Tilts", sets: 2, reps: "15 reps", rest: "30s", instruction: "Humiga, i-flatten ang likod sa sahig at i-release. Para sa lower back pain." },
+        { name: "Seated Core Twist", sets: 3, reps: "12 each side", rest: "45s", instruction: "While seated, hold a light weight at your chest and twist your upper body.", modification: "Do it without weight first" },
+        { name: "Dead Bug (modified)", sets: 2, reps: "8 each side", rest: "60s", instruction: "Lie down, extend alternating arm and leg while keeping your back flat.", modification: "Extend only the leg, not the arm" },
+        { name: "Plank (wall or knees)", sets: 2, duration: "20–30 seconds", rest: "60s", instruction: "Start with wall plank — stand and lean against the wall, like a push-up without moving.", modification: "Knee plank if you're ready for more" },
+        { name: "Pelvic Tilts", sets: 2, reps: "15 reps", rest: "30s", instruction: "Lie down, flatten your back against the floor and release. Good for lower back pain." },
       ]},
       { day: 13, title: "Full Body Integration", exercises: [
-        { name: "Warm-Up Walk", duration: "5 mins", rest: "N/A", instruction: "Maglakad ng dahan-dahan para i-warm up ang katawan." },
-        { name: "Squat to Press", sets: 3, reps: "10 reps", rest: "60s", instruction: "I-combine ang squat at shoulder press. Pababa para sa squat, pataas para sa press." },
-        { name: "Lateral Band Walk", sets: 2, reps: "10 steps each way", rest: "45s", instruction: "Gumamit ng resistance band sa mga tuhod. I-step sa gilid ng paulit-ulit.", modification: "Gawin nang walang band muna" },
-        { name: "Cool-Down Stretch", duration: "10 mins", rest: "N/A", instruction: "Mag-stretch ng lahat ng major muscle groups. Mag-focus sa mga nag-trabaho ngayon." },
+        { name: "Warm-Up Walk", duration: "5 mins", rest: "N/A", instruction: "Walk slowly to warm up your body." },
+        { name: "Squat to Press", sets: 3, reps: "10 reps", rest: "60s", instruction: "Combine a squat and shoulder press. Go down for the squat, press up for the press." },
+        { name: "Lateral Band Walk", sets: 2, reps: "10 steps each way", rest: "45s", instruction: "Use a resistance band around your knees. Step sideways repeatedly.", modification: "Do it without a band first" },
+        { name: "Cool-Down Stretch", duration: "10 mins", rest: "N/A", instruction: "Stretch all major muscle groups. Focus on the ones you worked today." },
       ]},
       { day: 14, title: "Rest & Recovery", exercises: [
-        { name: "Rest Day", duration: "All day", rest: "N/A", instruction: "Pahinga ang katawan. Kung may masakit na parte — light stretching lang at pahinga." },
+        { name: "Rest Day", duration: "All day", rest: "N/A", instruction: "Rest your body. If something hurts — just do light stretching and rest." },
       ]},
     ]
   },
@@ -133,15 +133,15 @@ const EXERCISE_PROGRAM: Phase[] = [
     phase: 3, name: "Endurance & Maintenance", weeks: "Week 5–8 (and beyond)", color: "#2D4A8F", bg: "#F0F4FF",
     days: [
       { day: 15, title: "Progressive Cardio", exercises: [
-        { name: "Power Walking", duration: "25–30 mins", rest: "N/A", instruction: "Mas mabilis at mas matagal kaysa dati. I-maintain ang conversational pace." },
-        { name: "Stair Climbing (if available)", sets: 2, reps: "2 flights", rest: "2 mins", instruction: "Gamitin ang mga hagdan para sa natural na lower body workout.", modification: "Mag-hold ng handrail palagi" },
+        { name: "Power Walking", duration: "25–30 mins", rest: "N/A", instruction: "Faster and longer than before. Maintain a conversational pace." },
+        { name: "Stair Climbing (if available)", sets: 2, reps: "2 flights", rest: "2 mins", instruction: "Use stairs for a natural lower body workout.", modification: "Always hold the handrail" },
       ]},
       { day: 16, title: "Strength Maintenance", exercises: [
-        { name: "All Phase 2 exercises", duration: "30–40 mins", rest: "As needed", instruction: "Ulitin ang mga paboritong exercises mula sa Phase 2. Dagdagan ang reps o sets kung kaya na.", modification: "I-maintain ang current level kung may pain" },
+        { name: "All Phase 2 exercises", duration: "30–40 mins", rest: "As needed", instruction: "Repeat your favorite exercises from Phase 2. Increase reps or sets if you can.", modification: "Maintain current level if there's pain" },
       ]},
       { day: 17, title: "Flexibility & Yoga-Inspired", exercises: [
-        { name: "Sun Salutation (Modified)", sets: 3, reps: "5 rounds", rest: "60s", instruction: "Modified na sun salutation — standing lang, walang floor work kung hindi kaya.", modification: "Gawin ang lahat habang nakatayo" },
-        { name: "Yin-Style Hold Stretches", sets: 1, duration: "3–5 mins each", rest: "30s", instruction: "I-hold ang mga stretches nang mas matagal — 2–5 minuto bawat isa para sa deep tissue release." },
+        { name: "Sun Salutation (Modified)", sets: 3, reps: "5 rounds", rest: "60s", instruction: "Modified sun salutation — standing only, no floor work if you can't.", modification: "Do everything while standing" },
+        { name: "Yin-Style Hold Stretches", sets: 1, duration: "3–5 mins each", rest: "30s", instruction: "Hold stretches longer — 2–5 minutes each for deep tissue release." },
       ]},
     ]
   }
@@ -252,14 +252,14 @@ export default function ExercisePage() {
         <div style={{ padding: "18px 24px 28px", position: "relative" }}>
           <div style={{ position: "absolute", top: -20, right: 20, width: 120, height: 120, background: "rgba(254,210,85,0.08)", borderRadius: "50%" }} />
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 17, fontWeight: 600, marginBottom: 16 }}>
-            ← Bumalik sa Hub
+            ← Back to Hub
           </Link>
-          <p style={{ fontSize: 17, opacity: 0.9, margin: "0 0 20px 0", lineHeight: 1.6 }}>Safe, low-impact exercises para sa joint pain.<br />Walang gym equipment needed!</p>
+          <p style={{ fontSize: 17, opacity: 0.9, margin: "0 0 20px 0", lineHeight: 1.6 }}>Safe, low-impact exercises for joint pain.<br />No gym equipment needed!</p>
           <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: 12, height: 14, overflow: "hidden" }}>
             <div style={{ background: GOLD, height: "100%", width: `${progressPct}%`, transition: "width 0.4s ease", borderRadius: 12 }} />
           </div>
           <p style={{ fontSize: 16, opacity: 0.85, margin: "10px 0 0 0", fontWeight: 600 }}>
-            {completedDays.size} / {totalDays} araw na nakumpleto ({progressPct}%)
+            {completedDays.size} / {totalDays} days completed ({progressPct}%)
           </p>
         </div>
       </div>
@@ -275,7 +275,7 @@ export default function ExercisePage() {
 
       {/* ── PHASE SELECTOR ── */}
       <div style={{ padding: "28px 24px 0" }}>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color: G, marginBottom: 16 }}>Piliin ang Phase</h2>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: G, marginBottom: 16 }}>Select Phase</h2>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {EXERCISE_PROGRAM.map((ph) => {
             const c = PHASE_COLORS[ph.phase as keyof typeof PHASE_COLORS];
@@ -323,7 +323,7 @@ export default function ExercisePage() {
                       <p style={{ fontSize: 19, fontWeight: 700, color: DARK, margin: "0 0 4px 0", lineHeight: 1.3 }}>{day.title}</p>
                       <p style={{ fontSize: 16, color: MID, margin: 0 }}>
                         {day.exercises.length} {day.exercises.length === 1 ? "activity" : "exercises"}
-                        {isDone && <span style={{ color: c.color, fontWeight: 700, marginLeft: 8 }}>✓ Tapos na!</span>}
+                        {isDone && <span style={{ color: c.color, fontWeight: 700, marginLeft: 8 }}>✓ Done!</span>}
                       </p>
                     </div>
                   </div>
@@ -357,7 +357,7 @@ export default function ExercisePage() {
                                   <p style={{ fontSize: 16, color: AMBER, margin: 0, fontWeight: 600 }}>💡 Modification: {ex.modification}</p>
                                 </div>
                               )}
-                              {!exDone && <p style={{ fontSize: 16, color: MID, margin: "10px 0 0 0", opacity: 0.75 }}>I-tap para markahan bilang tapos ✓</p>}
+                              {!exDone && <p style={{ fontSize: 16, color: MID, margin: "10px 0 0 0", opacity: 0.75 }}>Tap to mark as done ✓</p>}
                             </div>
                           </div>
                         </div>
@@ -365,9 +365,9 @@ export default function ExercisePage() {
                     })}
                     <div style={{ padding: "20px 22px", background: "#FAFAF7" }}>
                       <button onClick={() => toggleDayComplete(day.day)} style={{ width: "100%", background: isDone ? "#F5F0E8" : G, color: isDone ? MID : "#fff", border: isDone ? `2px solid #C5B99A` : "none", borderRadius: 16, padding: "20px", fontSize: 20, fontWeight: 700, cursor: "pointer", letterSpacing: 0.5, lineHeight: 1.3, minHeight: 56 }}>
-                        {isDone ? "✓ Tapos na — I-undo" : "✅ Tapos na ang Araw na Ito!"}
+                        {isDone ? "✓ Done — Undo" : "✅ Done for Today!"}
                       </button>
-                      {!isDone && <p style={{ fontSize: 16, color: MID, textAlign: "center", margin: "10px 0 0 0", opacity: 0.8 }}>I-tap pagkatapos ng lahat ng exercises</p>}
+                      {!isDone && <p style={{ fontSize: 16, color: MID, textAlign: "center", margin: "10px 0 0 0", opacity: 0.8 }}>Tap after completing all exercises</p>}
                     </div>
                   </div>
                 )}
@@ -383,7 +383,7 @@ export default function ExercisePage() {
           <h3 style={{ fontSize: 21, fontWeight: 700, color: G, margin: "0 0 18px 0" }}>💡 Tips para sa Best Results</h3>
           {[
             { emoji: "☕", text: "Inumin ang Easebrew 30 mins bago mag-exercise para sa mas magaan na pakiramdam." },
-            { emoji: "🛑", text: "Huwag puwersahin — kung masakit, stop agad at mag-rest." },
+            { emoji: "🛑", text: "Don't force it — if it hurts, stop immediately and rest." },
             { emoji: "💧", text: "Uminom ng tubig bago, habang, at pagkatapos ng exercise." },
             { emoji: "📅", text: "Consistent lang — mas mabuti ang 15 mins araw-araw kaysa 1 oras minsan." },
           ].map((tip, i) => (
@@ -397,7 +397,7 @@ export default function ExercisePage() {
 
       <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 680, background: "#fff", borderTop: `2px solid ${CREAM}`, padding: "12px 20px 16px", zIndex: 100 }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: G, color: "#fff", borderRadius: 16, padding: "18px 22px", fontSize: 18, fontWeight: 700, textDecoration: "none", minHeight: 56 }}>
-          ← Bumalik sa Wellness Hub
+          ← Back to Wellness Hub
         </Link>
       </div>
     </div>

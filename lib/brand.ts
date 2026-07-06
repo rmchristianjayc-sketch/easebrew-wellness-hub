@@ -22,7 +22,7 @@ export const BRAND = {
 
   // Footer text
   footer: "R&M EaseBrew Wellness Hub",
-  tagline: "Para sa mas malusog na pamilya",
+  tagline: "For a healthier family",
 } as const;
 
 export type BrandColors = typeof BRAND.colors;

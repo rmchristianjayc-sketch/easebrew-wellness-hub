@@ -4,10 +4,11 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { clearAdminAuthCache } from "@/lib/useAdminGuard";
-import { DEFAULT_COACHES } from "@/lib/coaches";
+import { DEFAULT_COACHES, parseCoachesFromContent } from "@/lib/coaches";
+import type { Coach } from "@/lib/coaches";
 import { getCoachLabel, setCoachLabel, clearCoachLabel } from "@/lib/coachLabel";
 import {
-  BarChart3, Bell, ClipboardList, FileText, KeyRound,
+  BarChart3, Bell, FileText, KeyRound,
   LayoutDashboard, LogOut, ShieldCheck, User, Pencil,
 } from "lucide-react";
 
@@ -17,7 +18,6 @@ const OWNER_LINKS = [
   { href: "/admin/analytics",     icon: BarChart3,       label: "Analytics"    },
   { href: "/admin/content",       icon: FileText,        label: "Content"      },
   { href: "/admin/notifications", icon: Bell,            label: "Messages"     },
-  { href: "/admin/audit-log",     icon: ClipboardList,   label: "Audit Log"    },
 ];
 
 const COACH_LINKS = [
@@ -32,25 +32,22 @@ interface SidebarProps {
 }
 
 // ─── Coach Name Picker Modal ──────────────────────────────────────────────────
-function CoachNamePicker({ onSelect }: { onSelect: (name: string) => void }) {
-  const [custom, setCustom] = useState("");
-  const [showCustom, setShowCustom] = useState(false);
-
+function CoachNamePicker({ coaches, onSelect }: { coaches: Coach[]; onSelect: (name: string) => void }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 300, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.55)" }}>
       <div style={{ background: "#fff", borderRadius: 18, padding: "28px 24px", width: 340, maxWidth: "90vw", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
         <div style={{ textAlign: "center", marginBottom: 22 }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>👋</div>
           <h2 style={{ fontSize: 18, fontWeight: 800, color: "#1B201A", margin: "0 0 6px", fontFamily: "Inter, system-ui, sans-serif" }}>
-            Sino ka?
+            Who are you?
           </h2>
           <p style={{ fontSize: 13, color: "#6b7280", margin: 0, fontFamily: "Inter, system-ui, sans-serif" }}>
-            Piliin ang inyong pangalan para ma-track ang inyong codes.
+            Select your name to track your codes.
           </p>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
-          {DEFAULT_COACHES.map(coach => (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {coaches.map(coach => (
             <button
               key={coach.name}
               onClick={() => onSelect(coach.name)}
@@ -70,33 +67,6 @@ function CoachNamePicker({ onSelect }: { onSelect: (name: string) => void }) {
             </button>
           ))}
         </div>
-
-        {showCustom ? (
-          <div style={{ display: "flex", gap: 8 }}>
-            <input
-              autoFocus
-              value={custom}
-              onChange={e => setCustom(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter" && custom.trim()) onSelect(custom.trim()); }}
-              placeholder="Itype ang pangalan..."
-              style={{ flex: 1, padding: "10px 12px", borderRadius: 8, border: "1.5px solid #39613B", fontSize: 13, outline: "none", fontFamily: "Inter, system-ui, sans-serif" }}
-            />
-            <button
-              onClick={() => { if (custom.trim()) onSelect(custom.trim()); }}
-              disabled={!custom.trim()}
-              style={{ background: "#39613B", color: "#fff", border: "none", borderRadius: 8, padding: "0 16px", fontSize: 13, fontWeight: 700, cursor: "pointer", opacity: custom.trim() ? 1 : 0.5, fontFamily: "Inter, system-ui, sans-serif" }}
-            >
-              OK
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setShowCustom(true)}
-            style={{ width: "100%", background: "none", border: "1.5px dashed #d1d5db", borderRadius: 10, padding: "10px", fontSize: 13, color: "#6b7280", cursor: "pointer", fontFamily: "Inter, system-ui, sans-serif" }}
-          >
-            + Iba pa (custom name)
-          </button>
-        )}
       </div>
     </div>
   );
@@ -111,6 +81,7 @@ export default function Sidebar({ active, username, role = "owner", onLogout }: 
   const [coachLabel, setCoachLabelState] = useState<string | null>(null);
   const [showPicker, setShowPicker]      = useState(false);
   const [mounted, setMounted]            = useState(false);
+  const [dynamicCoaches, setDynamicCoaches] = useState<Coach[]>(DEFAULT_COACHES);
 
   useEffect(() => {
     setMounted(true);
@@ -122,6 +93,13 @@ export default function Sidebar({ active, username, role = "owner", onLogout }: 
         setShowPicker(true);
       }
     }
+  }, [isCoach]);
+
+  useEffect(() => {
+    if (!isCoach) return;
+    fetch("/api/content").then(r => r.ok ? r.json() : null).then(data => {
+      if (data?.content) setDynamicCoaches(parseCoachesFromContent(data.content));
+    }).catch(() => {});
   }, [isCoach]);
 
   function handleSelect(name: string) {
@@ -144,7 +122,7 @@ export default function Sidebar({ active, username, role = "owner", onLogout }: 
 
   return (
     <>
-      {showPicker && <CoachNamePicker onSelect={handleSelect} />}
+      {showPicker && <CoachNamePicker coaches={dynamicCoaches} onSelect={handleSelect} />}
 
       <aside
         style={{
@@ -242,7 +220,7 @@ export default function Sidebar({ active, username, role = "owner", onLogout }: 
             {isCoach && mounted && (
               <button
                 onClick={() => setShowPicker(true)}
-                title="Baguhin ang pangalan"
+                title="Change name"
                 style={{ background: "none", border: "none", padding: 4, cursor: "pointer", color: "rgba(255,255,255,0.35)", flexShrink: 0 }}
               >
                 <Pencil size={12} />

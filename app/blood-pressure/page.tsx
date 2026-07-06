@@ -36,7 +36,7 @@ function categorize(sys: number, dia: number): BpCategory {
       label: "⚠️ Hypertensive Crisis",
       color: "#7f1d1d",
       bg: "#fee2e2",
-      advice: "Sobrang taas ng BP. Pumunta agad sa doktor o ospital!",
+      advice: "BP is dangerously high. Go to the doctor or hospital immediately!",
     };
   }
   if (sys >= 140 || dia >= 90) {
@@ -44,7 +44,7 @@ function categorize(sys: number, dia: number): BpCategory {
       label: "🔴 Stage 2 Hypertension",
       color: "#991b1b",
       bg: "#fef2f2",
-      advice: "Mataas ang BP. Kumonsulta sa doktor at i-monitor araw-araw.",
+      advice: "BP is high. Consult your doctor and monitor daily.",
     };
   }
   if (sys >= 130 || dia >= 80) {
@@ -52,7 +52,7 @@ function categorize(sys: number, dia: number): BpCategory {
       label: "🟠 Stage 1 Hypertension",
       color: "#9a3412",
       bg: "#fff7ed",
-      advice: "Nagsisimulang tumaas. Bawasan ang asin, mag-exercise, i-manage ang stress.",
+      advice: "Starting to rise. Reduce salt, exercise regularly, and manage stress.",
     };
   }
   if (sys >= 120) {
@@ -60,14 +60,14 @@ function categorize(sys: number, dia: number): BpCategory {
       label: "🟡 Elevated",
       color: "#854d0e",
       bg: "#fef9c3",
-      advice: "Slightly elevated. Panatilihing healthy ang lifestyle.",
+      advice: "Slightly elevated. Keep up a healthy lifestyle.",
     };
   }
   return {
     label: "🟢 Normal",
     color: "#166534",
     bg: "#dcfce7",
-    advice: "Normal ang BP. Panatilihing gawi ang healthy lifestyle!",
+    advice: "BP is normal. Keep up the healthy lifestyle!",
   };
 }
 
@@ -81,7 +81,7 @@ function nowDateTime() {
 }
 
 function formatDateLabel(dateStr: string) {
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("fil-PH", {
+  return new Date(dateStr + "T00:00:00").toLocaleDateString("en-PH", {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -144,7 +144,7 @@ export default function BloodPressurePage() {
   }
 
   function handleDelete(id: string) {
-    if (!confirm("Sigurado ka bang tatanggalin ang reading na ito?")) return;
+    if (!confirm("Are you sure you want to delete this reading?")) return;
     persist(entries.filter(e => e.id !== id));
   }
 
@@ -178,14 +178,14 @@ export default function BloodPressurePage() {
       {/* Header */}
       <div style={{ background: `linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%)`, padding: "20px 24px 28px", color: "#fff" }}>
         <Link href="/" style={{ color: "rgba(255,255,255,0.85)", textDecoration: "none", display: "flex", alignItems: "center", gap: 6, fontSize: 17, fontWeight: 600, marginBottom: 18, fontFamily: "Georgia, serif" }}>
-          <ChevronLeft size={20} /> Bumalik sa Hub
+          <ChevronLeft size={20} /> Back to Hub
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(255,255,255,0.15)", border: "1.5px solid rgba(255,255,255,0.25)", display: "grid", placeItems: "center" }}>
             <Heart size={28} color="#fff" strokeWidth={2} fill="#fca5a5" />
           </div>
           <div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>Libreng Tool</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>Free Tool</div>
             <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0, lineHeight: 1.2 }}>Blood Pressure Log</h1>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", margin: "4px 0 0", fontFamily: "Georgia, serif" }}>I-track ang BP para sa mas magandang kalusugan</p>
           </div>
@@ -228,22 +228,22 @@ export default function BloodPressurePage() {
               marginBottom: 20,
             }}
           >
-            <Plus size={20} /> Magdagdag ng Reading
+            <Plus size={20} /> Add Reading
           </button>
         )}
 
         {/* Form */}
         {showForm && (
           <form onSubmit={handleSubmit} style={{ background: WHITE, borderRadius: 20, padding: "22px", marginBottom: 20, border: "1.5px solid #D8CDBA" }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "0 0 16px" }}>Bagong Reading</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "0 0 16px" }}>New Reading</h2>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
               <div>
-                <label style={{ fontSize: 13, color: MID, fontWeight: 600, display: "block", marginBottom: 6 }}>Petsa</label>
+                <label style={{ fontSize: 13, color: MID, fontWeight: 600, display: "block", marginBottom: 6 }}>Date</label>
                 <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required style={inputStyle} />
               </div>
               <div>
-                <label style={{ fontSize: 13, color: MID, fontWeight: 600, display: "block", marginBottom: 6 }}>Oras</label>
+                <label style={{ fontSize: 13, color: MID, fontWeight: 600, display: "block", marginBottom: 6 }}>Time</label>
                 <input type="time" value={form.time} onChange={e => setForm({ ...form, time: e.target.value })} required style={inputStyle} />
               </div>
             </div>
@@ -266,7 +266,7 @@ export default function BloodPressurePage() {
 
             <div style={{ marginBottom: 16 }}>
               <label style={{ fontSize: 13, color: MID, fontWeight: 600, display: "block", marginBottom: 6 }}>Notes (optional)</label>
-              <input type="text" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="e.g. Bago mag-almusal" maxLength={200} style={inputStyle} />
+              <input type="text" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="e.g. Before breakfast" maxLength={200} style={inputStyle} />
             </div>
 
             <div style={{ display: "flex", gap: 10 }}>
@@ -274,7 +274,7 @@ export default function BloodPressurePage() {
                 Kansel
               </button>
               <button type="submit" style={{ flex: 2, background: G, color: "#fff", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-                I-save
+                Save
               </button>
             </div>
           </form>
@@ -282,17 +282,17 @@ export default function BloodPressurePage() {
 
         {saved && (
           <div style={{ background: "#dcfce7", color: "#166534", borderRadius: 12, padding: "12px 16px", marginBottom: 16, fontSize: 14, fontWeight: 600, textAlign: "center" }}>
-            ✅ Na-save na!
+            ✅ Saved!
           </div>
         )}
 
         {/* Recent readings */}
         <div style={{ background: WHITE, borderRadius: 20, padding: "22px", border: "1.5px solid #D8CDBA" }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "0 0 16px" }}>📋 Mga Reading</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "0 0 16px" }}>📋 Readings</h2>
 
           {entries.length === 0 ? (
             <div style={{ textAlign: "center", padding: "20px 0", color: MID }}>
-              <p style={{ fontSize: 16, margin: 0 }}>Wala pang reading. Idagdag ang unang mo!</p>
+              <p style={{ fontSize: 16, margin: 0 }}>No readings yet. Add your first one!</p>
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -331,7 +331,7 @@ export default function BloodPressurePage() {
         {/* Educational note */}
         <div style={{ background: `${GOLD}22`, borderRadius: 12, padding: "14px 16px", marginTop: 16, border: `1.5px solid ${GOLD}` }}>
           <p style={{ fontSize: 13, color: DARK, margin: 0, lineHeight: 1.5 }}>
-            💡 <strong>Tip:</strong> I-measure ang BP nang naka-upo, relaxed, at hindi kaka-inom ng kape. Best time: umaga bago mag-almusal.
+            💡 <strong>Tip:</strong> Measure your BP while sitting down and relaxed, not right after drinking coffee. Best time: morning before breakfast.
           </p>
         </div>
       </div>

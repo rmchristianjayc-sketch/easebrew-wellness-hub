@@ -34,3 +34,14 @@ export type Coach = {
       };
     });
   }
+
+  // Parse coaches from content — prefers JSON format, falls back to legacy keys
+  export function parseCoachesFromContent(content: Record<string, string>): Coach[] {
+    if (content.coaches_data) {
+      try {
+        const parsed = JSON.parse(content.coaches_data);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch { /* fall through */ }
+    }
+    return buildCoaches(content, DEFAULT_COACHES);
+  }

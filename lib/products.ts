@@ -35,25 +35,25 @@ export type Product = {
   export const DEFAULT_PRODUCTS: Product[] = [
     {
       id: 1, icon: "📊", name: "Daily Health Tracker",
-      desc: "Track your pain levels, energy, at weight daily. Simple lang — 1 minute per day.",
+      desc: "Track your pain levels, energy, and weight daily. Simple — just 1 minute per day.",
       tier: 999, tierLabel: "3 Packs (₱999)",
       appUrl: "/tracker", appLabel: "📊 Open Tracker",
     },
     {
       id: 2, icon: "🥗", name: "Meal Plan + Recipe Book",
-      desc: "50-day Pinoy-friendly meal plan at 30 healthy recipes para sa joint pain, rayuma, at pagod.",
+      desc: "50-day Pinoy-friendly meal plan and 30 healthy recipes for joint pain, arthritis, and fatigue.",
       tier: 1499, tierLabel: "5 Packs (₱1,499)",
       appUrl: "/meal-plan", appLabel: "🥗 Open Meal Plan",
     },
     {
       id: 3, icon: "💪", name: "Home Exercise Guide",
-      desc: "Gentle exercises na pwede gawin sa bahay. Para sa may joint pain — no gym needed.",
+      desc: "Gentle exercises you can do at home. For those with joint pain — no gym needed.",
       tier: 2998, tierLabel: "10 Packs (₱2,998)",
       appUrl: "/exercise", appLabel: "💪 Open Exercises",
     },
     {
       id: 4, icon: "🏆", name: "Complete Wellness Program",
-      desc: "Lahat kasama: 90-day program, full exercise plan, meal guide, at weekly check-in. The complete package.",
+      desc: "Everything included: 90-day program, full exercise plan, meal guide, and weekly check-in. The complete package.",
       tier: 4497, tierLabel: "15 Packs (₱4,497)",
       appUrl: "/bagong-katawan", appLabel: "🏆 Open Program",
     },

@@ -10,17 +10,6 @@ export const PUBLIC_CONTENT_KEYS = [
   'product_2_name', 'product_2_desc',
   'product_3_name', 'product_3_desc',
   'product_4_name', 'product_4_desc',
-  'order_url_399',
-  'order_url_699',
-  'order_url_999',
-  'order_url_1499',
-  'order_url_2998',
-  'order_url_4497',
-  'order_url_5996',
-  'order_url_7499',
-  'order_url_8994',
-  'order_url_11992',
-  'order_url_14990',
   'coach_1_name', 'coach_1_number', 'coach_1_display', 'coach_1_facebook', 'coach_1_photo',
   'coach_2_name', 'coach_2_number', 'coach_2_display', 'coach_2_facebook', 'coach_2_photo',
   'coach_3_name', 'coach_3_number', 'coach_3_display', 'coach_3_facebook', 'coach_3_photo',
@@ -45,12 +34,12 @@ export const PUBLIC_CONTENT_KEYS = [
   'video_1_title', 'video_1_desc', 'video_1_url',
   'video_2_title', 'video_2_desc', 'video_2_url',
   'video_3_title', 'video_3_desc', 'video_3_url',
+  'coaches_data',
 ] as const;
 
 export const PUBLIC_CONTENT_KEY_SET = new Set<string>(PUBLIC_CONTENT_KEYS);
 
 const HTTP_URL_KEYS = [
-  /^order_url_\d+$/,
   /^coach_\d+_facebook$/,
   /^video_\d+_url$/,
 ];
