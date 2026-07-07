@@ -29,33 +29,33 @@ export type Product = {
     tier: number;        // minimum tier kailangan para ma-unlock
     tierLabel: string;   // display label, e.g. "3 Packs (₱999)"
     appUrl: string;       // route papunta sa actual tool
-    appLabel: string;     // button label, e.g. "📊 Open ang Tracker"
+    appLabel: string;
   };
   
   export const DEFAULT_PRODUCTS: Product[] = [
     {
-      id: 1, icon: "📊", name: "Daily Health Tracker",
-      desc: "Track your pain levels, energy, and weight daily. Simple — just 1 minute per day.",
+      id: 1, icon: "tracker", name: "Daily Health Tracker",
+      desc: "I-track ang pain levels, energy, at weight mo araw-araw. Simple lang — 1 minute bawat araw.",
       tier: 999, tierLabel: "3 Packs (₱999)",
-      appUrl: "/tracker", appLabel: "📊 Open Tracker",
+      appUrl: "/tracker", appLabel: "Buksan ang Tracker",
     },
     {
-      id: 2, icon: "🥗", name: "Meal Plan + Recipe Book",
-      desc: "50-day Pinoy-friendly meal plan and 30 healthy recipes for joint pain, arthritis, and fatigue.",
+      id: 2, icon: "meal", name: "Meal Plan + Recipe Book",
+      desc: "50-day Pinoy-friendly meal plan at 30 healthy recipes para sa joint pain, arthritis, at fatigue.",
       tier: 1499, tierLabel: "5 Packs (₱1,499)",
-      appUrl: "/meal-plan", appLabel: "🥗 Open Meal Plan",
+      appUrl: "/meal-plan", appLabel: "Buksan ang Meal Plan",
     },
     {
-      id: 3, icon: "💪", name: "Home Exercise Guide",
-      desc: "Gentle exercises you can do at home. For those with joint pain — no gym needed.",
+      id: 3, icon: "exercise", name: "Home Exercise Guide",
+      desc: "Gentle exercises na pwede mong gawin sa bahay. Para sa may joint pain — hindi kailangan ng gym.",
       tier: 2998, tierLabel: "10 Packs (₱2,998)",
-      appUrl: "/exercise", appLabel: "💪 Open Exercises",
+      appUrl: "/exercise", appLabel: "Buksan ang Exercises",
     },
     {
-      id: 4, icon: "🏆", name: "Complete Wellness Program",
-      desc: "Everything included: 90-day program, full exercise plan, meal guide, and weekly check-in. The complete package.",
+      id: 4, icon: "program", name: "Complete Wellness Program",
+      desc: "Lahat kasama: 90-day program, full exercise plan, meal guide, at weekly check-in. Ang complete package.",
       tier: 4497, tierLabel: "15 Packs (₱4,497)",
-      appUrl: "/bagong-katawan", appLabel: "🏆 Open Program",
+      appUrl: "/bagong-katawan", appLabel: "Buksan ang Program",
     },
   ];
   

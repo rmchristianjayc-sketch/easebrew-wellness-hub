@@ -8,7 +8,7 @@ import { G, GOLD, WHITE, DARK, MID, AMBER } from "@/lib/colors";
 import { getDeviceId } from "@/lib/device";
 import { PRICE_CONFIG } from "@/lib/price-config";
 import { DEFAULT_PRODUCTS, getGiftsForTier } from "@/lib/products";
-import { Gift, KeyRound, Phone, HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard } from "lucide-react";
+import { Gift, KeyRound, Phone, HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard, Timer, Smartphone, AlertTriangle, AlertCircle, Coffee, MessageCircle, Lock, CircleCheck, Leaf, ShoppingCart, X as XIcon } from "lucide-react";
 
 type ErrorType = "invalid" | "expired" | "other_device" | "incomplete" | "server" | null;
 type View = "verify" | "gifts" | "coaches";
@@ -25,27 +25,27 @@ function getErrorType(errorMsg: string): ErrorType {
 
 const ERROR_COPY: Record<Exclude<ErrorType, null>, { title: string; message: string; color: string }> = {
   invalid: {
-    title: "❌ Hindi nakita ang code",
+    title: "Hindi nakita ang code",
     message: "Tignan kung tama ang 12 letters/numbers. Kung wala ka pang code, tawagan o i-message ang coach mo.",
     color: "#dc2626",
   },
   expired: {
-    title: "⏰ Expired na ang code",
+    title: "Expired na ang code",
     message: "I-contact ang coach mo para ma-renew ang access at makakuha ng bagong code.",
     color: AMBER,
   },
   other_device: {
-    title: "📱 Ginamit na sa ibang phone",
+    title: "Ginamit na sa ibang phone",
     message: "Para sa security, isang phone lang ang pwede sa bawat code. I-contact ang coach mo kung kailangan mo ng tulong.",
     color: "#185FA5",
   },
   incomplete: {
-    title: "⚠️ Hindi kumpleto ang code",
+    title: "Hindi kumpleto ang code",
     message: "Ilagay ang buong format: EASE-XXXX-XXXX.",
     color: AMBER,
   },
   server: {
-    title: "⚠️ May problema sa verification",
+    title: "May problema sa verification",
     message: "Subukan ulit. Kung paulit-ulit, i-contact ang coach mo.",
     color: AMBER,
   },
@@ -121,10 +121,10 @@ function CoachCard({ coach }: { coach: Coach }) {
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <a href={`tel:${coach.number}`} className="c-btn c-btn-green" style={{ textDecoration: "none" }}>
-          📞 Call
+          <Phone size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Call
         </a>
         <a href={coach.facebook} target="_blank" rel="noopener noreferrer" className="c-btn c-btn-fb" style={{ textDecoration: "none" }}>
-          💬 Facebook
+          <MessageCircle size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Facebook
         </a>
       </div>
     </div>
@@ -188,7 +188,7 @@ export default function VerifyPage() {
     return (
       <main className="customer-shell" style={{ background: G, display: "grid", placeItems: "center", padding: 24 }}>
         <section style={{ width: "100%", maxWidth: 420, textAlign: "center" }}>
-          <div style={{ fontSize: 88, marginBottom: 18, lineHeight: 1 }}>☕</div>
+          <div style={{ width: 88, height: 88, borderRadius: 22, background: "rgba(254,210,85,0.2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px" }}><Coffee size={48} color={GOLD} /></div>
           <h1 className="c-heading" style={{ color: GOLD, margin: "0 0 18px" }}>
             Bukas na ang Hub mo!
           </h1>
@@ -225,7 +225,7 @@ export default function VerifyPage() {
               />
             ) : (
               <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                <div style={{ fontSize: 64 }}>☕</div>
+                <div><Coffee size={64} color={GOLD} /></div>
                 <div style={{ color: GOLD, fontWeight: 900, fontSize: 24, letterSpacing: 1, fontFamily: "Georgia, serif" }}>EaseBrew</div>
               </div>
             )}
@@ -310,14 +310,18 @@ export default function VerifyPage() {
                     Mag-order ng EaseBrew, tapos i-contact ang coach mo para makuha ang access code.
                   </p>
                   <button type="button" onClick={() => setView("coaches")} className="c-btn c-btn-outline">
-                    📞 I-contact ang Coach
+                    <Phone size={16} style={{ display: "inline", verticalAlign: "middle" }} /> I-contact ang Coach
                   </button>
                 </div>
 
                 {/* Trust badges */}
                 <div style={{ marginTop: 20, display: "flex", justifyContent: "center", gap: 20, flexWrap: "wrap" }}>
-                  {["🔒 Secure", "✅ Halal", "🌿 100% Natural"].map(badge => (
-                    <span key={badge} className="c-caption" style={{ fontWeight: 700 }}>{badge}</span>
+                  {[
+                    { icon: <Lock size={14} />, label: "Secure" },
+                    { icon: <CircleCheck size={14} />, label: "Halal" },
+                    { icon: <Leaf size={14} />, label: "100% Natural" },
+                  ].map(badge => (
+                    <span key={badge.label} className="c-caption" style={{ fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>{badge.icon} {badge.label}</span>
                   ))}
                 </div>
               </section>
@@ -386,7 +390,7 @@ export default function VerifyPage() {
                           })}
                         </div>
                         <button type="button" onClick={() => setView("coaches")} className="c-btn c-btn-gold">
-                          📞 Order from Coach
+                          <Phone size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Order from Coach
                         </button>
                       </div>
                     );

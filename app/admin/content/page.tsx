@@ -676,9 +676,9 @@ export default function ContentPage() {
             ) : activeGroup === "💬 Testimonials" ? (
               (() => {
                 const DEFAULT_TESTIMONIALS = [
-                  { name: "Nena R.", age: "58", location: "Quezon City", quote: "After 3 weeks, my knee feels so much lighter. I don't need to take medicine every day anymore.", painBefore: "8", painAfter: "3" },
-                  { name: "Mang Tony", age: "64", location: "Cebu City", quote: "I didn't believe it at first but I tried it. Now — I can't imagine my morning without EaseBrew.", painBefore: "7", painAfter: "2" },
-                  { name: "Ate Susan", age: "52", location: "Davao", quote: "The free meal plan and recipe book — super helpful! Now I know which foods make my arthritis worse.", painBefore: "6", painAfter: "3" },
+                  { name: "Nena R.", age: "58", location: "Quezon City", quote: "Pagkatapos ng 3 weeks, mas magaan na ang tuhod ko. Hindi ko na kailangan uminom ng gamot araw-araw.", painBefore: "8", painAfter: "3" },
+                  { name: "Mang Tony", age: "64", location: "Cebu City", quote: "Hindi ako naniniwala noong una pero sinubukan ko. Ngayon — hindi ko na maimagine ang umaga ko na walang EaseBrew.", painBefore: "7", painAfter: "2" },
+                  { name: "Ate Susan", age: "52", location: "Davao", quote: "Yung libreng meal plan at recipe book — super helpful! Ngayon alam ko na kung anong pagkain ang nagpapalala ng arthritis ko.", painBefore: "6", painAfter: "3" },
                 ];
                 const filledCount = [1,2,3].filter(n => {
                   const keys = [`testimonial_${n}_name`,`testimonial_${n}_quote`];
