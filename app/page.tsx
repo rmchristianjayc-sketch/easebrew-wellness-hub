@@ -1129,7 +1129,7 @@ export default function Home() {
               <div style={{ position: "absolute", top: -30, right: -30, width: 140, height: 140, background: "rgba(254,210,85,0.12)", borderRadius: "50%" }} />
               <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: GOLD, color: G, borderRadius: 20, padding: "5px 16px", fontSize: 12, fontWeight: 700, marginBottom: 14, letterSpacing: 1 }}><Sparkles size={14} /> ESPESYAL NA OFFER</div>
               <div style={{ width: 64, height: 64, borderRadius: 16, background: "#F39C12", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px", boxShadow: "0 4px 16px rgba(243,156,18,0.5)" }}><Trophy size={32} color="#fff" /></div>
-              <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 12px 0", lineHeight: 1.3 }}>Bagong Katawan 90-Day Program</h2>
+              <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 12px 0", lineHeight: 1.3 }}>Complete Wellness Program</h2>
               <p style={{ fontSize: 16, opacity: 0.9, margin: "0 0 20px 0", lineHeight: 1.7 }}>Ang pinaka-complete na wellness program — 90-day master plan, full exercise program, weekly check-ins, at lahat ng digital products!</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24, textAlign: "left" as const }}>
                 {["90-Day Master Plan na may daily schedule", "3 Phases ng progressive wellness program", "Full exercise library para sa joint pain", "Weekly milestone check-ins", "Lahat ng digital products kasama"].map((item, i) => (
@@ -1137,12 +1137,15 @@ export default function Home() {
                 ))}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <Link href="/bagong-katawan" style={{ background: GOLD, color: G, borderRadius: 14, padding: "18px 28px", fontSize: 18, fontWeight: 700, width: "100%", textAlign: "center" as const, textDecoration: "none", display: "block", boxSizing: "border-box" as const }}>
-                  <Trophy size={18} style={{ display: "inline", verticalAlign: "middle" }} /> I-start ang 90-Day Program →
-                </Link>
-                <button onClick={() => setShowCoachModal(true)} className="c-btn c-btn-outline" style={{ width: "100%", color: "#fff", borderColor: "rgba(255,255,255,0.4)", background: "rgba(255,255,255,0.15)" }}>
-                  <ShoppingCart size={16} style={{ display: "inline", verticalAlign: "middle" }} /> I-order ang 90-Day Program
-                </button>
+                {customerTier >= 4497 ? (
+                  <Link href="/bagong-katawan" style={{ background: GOLD, color: G, borderRadius: 14, padding: "18px 28px", fontSize: 18, fontWeight: 700, width: "100%", textAlign: "center" as const, textDecoration: "none", display: "block", boxSizing: "border-box" as const }}>
+                    <Trophy size={18} style={{ display: "inline", verticalAlign: "middle" }} /> I-start ang Complete Wellness Program →
+                  </Link>
+                ) : (
+                  <button onClick={() => setShowCoachModal(true)} style={{ background: GOLD, color: G, border: "none", borderRadius: 14, padding: "18px 28px", fontSize: 18, fontWeight: 700, width: "100%", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                    <ShoppingCart size={18} /> I-order ang Complete Wellness Program
+                  </button>
+                )}
               </div>
               <p style={{ fontSize: 13, opacity: 0.7, margin: "14px 0 0 0" }}>COD available • Libre ang shipping • Nationwide</p>
             </div>

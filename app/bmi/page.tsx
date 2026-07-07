@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
-import { ChevronLeft, Scale, RefreshCcw } from "lucide-react";
+import { ChevronLeft, Scale, RefreshCcw, AlertTriangle, CircleCheck, AlertCircle, Lightbulb, Ruler, Weight, Cake, UtensilsCrossed, Dumbbell } from "lucide-react";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";
@@ -18,33 +18,33 @@ type BmiCategory = {
   bg: string;
   border: string;
   advice: string;
-  emoji: string;
+  Icon: typeof AlertTriangle;
 };
 
 function getBmiCategory(bmi: number): BmiCategory {
   if (bmi < 18.5) return {
     label: "Underweight",
     color: "#0284c7", bg: "#e0f2fe", border: "#7dd3fc",
-    emoji: "⚠️",
-    advice: "You need more nutrition. Eat nutritious food and consult your doctor. EaseBrew can help with digestion so your body absorbs more nutrients.",
+    Icon: AlertTriangle,
+    advice: "Kailangan mo ng mas maraming sustansya. Kumain ng masusustansyang pagkain at magpakonsulta sa doctor. Ang EaseBrew ay tumutulong sa digestion para mas maraming nutrients ang ma-absorb ng katawan.",
   };
   if (bmi < 23) return {
-    label: "Normal Weight (Ideal)",
+    label: "Normal (Ideal)",
     color: "#166534", bg: "#dcfce7", border: "#86efac",
-    emoji: "✅",
-    advice: "Great! Your weight is normal for your height. Keep up the healthy lifestyle and regular EaseBrew intake to maintain it.",
+    Icon: CircleCheck,
+    advice: "Maganda! Normal ang timbang mo para sa height mo. Ituloy ang malusog na pamumuhay at regular na pag-inom ng EaseBrew.",
   };
   if (bmi < 27.5) return {
     label: "Overweight",
     color: "#92400e", bg: "#fef9e7", border: "#fcd34d",
-    emoji: "⚠️",
-    advice: "Weight is a bit high. Try light exercise daily and avoid sugary food. EaseBrew and regular water intake help with metabolism.",
+    Icon: AlertTriangle,
+    advice: "Medyo mataas ang timbang. Subukan ang light exercise araw-araw at iwasan ang matamis. Ang EaseBrew at regular na pag-inom ng tubig ay tumutulong sa metabolism.",
   };
   return {
     label: "Obese",
     color: "#991b1b", bg: "#fef2f2", border: "#fca5a5",
-    emoji: "❗",
-    advice: "Consult your doctor for a proper plan. Start with light walking and follow the anti-inflammation meal plan. EaseBrew has natural ingredients that help with joint pain and metabolism.",
+    Icon: AlertCircle,
+    advice: "Magpakonsulta sa doctor para sa tamang plano. Magsimula sa light walking at sundin ang anti-inflammation meal plan. Ang EaseBrew ay may natural ingredients na tumutulong sa joint pain at metabolism.",
   };
 }
 
@@ -72,7 +72,7 @@ export default function BmiPage() {
 
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <p className="c-body" style={{ color: G, fontWeight: 600 }}>☕ Loading...</p>
+      <p className="c-body" style={{ color: G, fontWeight: 600 }}>Loading...</p>
     </div>
   );
 
@@ -84,14 +84,14 @@ export default function BmiPage() {
       {/* Header */}
       <div style={{ background: `linear-gradient(135deg, #3b1f6e 0%, #5b2d8e 100%)`, padding: "20px 24px 28px", color: "#fff" }}>
         <Link href="/" style={{ color: "rgba(255,255,255,0.8)", textDecoration: "none", display: "flex", alignItems: "center", gap: 6, fontSize: 17, fontWeight: 600, marginBottom: 18, fontFamily: "Georgia, serif" }}>
-          <ChevronLeft size={20} /> Back to Hub
+          <ChevronLeft size={20} /> Bumalik sa Hub
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(167,139,250,0.25)", border: "1.5px solid rgba(167,139,250,0.4)", display: "grid", placeItems: "center" }}>
             <Scale size={28} color="#c4b5fd" strokeWidth={2} />
           </div>
           <div>
-            <div style={{ fontSize: 11, color: "rgba(196,181,253,0.8)", fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>Health Tool</div>
+            <div style={{ fontSize: 11, color: "rgba(196,181,253,0.8)", fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>Libreng Tool</div>
             <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, lineHeight: 1.2 }}>BMI Calculator</h1>
           </div>
         </div>
@@ -101,12 +101,12 @@ export default function BmiPage() {
 
         {/* Input Card */}
         <div style={{ background: WHITE, borderRadius: 24, padding: "28px 24px", marginBottom: 24, boxShadow: "0 4px 20px rgba(0,0,0,0.08)", border: "2px solid #D8CDBA" }}>
-          <h2 className="c-heading" style={{ color: DARK, marginBottom: 24 }}>Enter your details</h2>
+          <h2 className="c-heading" style={{ color: DARK, marginBottom: 24 }}>Ilagay ang iyong detalye</h2>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             {/* Height */}
             <div>
-              <label className="c-label" style={{ display: "block", marginBottom: 8 }}>📏 Height (cm)</label>
+              <label className="c-label" style={{ display: "block", marginBottom: 8, alignItems: "center", gap: 6 }}><Ruler size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Taas (cm)</label>
               <input
                 type="number"
                 value={heightCm}
@@ -116,12 +116,12 @@ export default function BmiPage() {
                 className="c-input"
                 style={{ width: "100%", boxSizing: "border-box" }}
               />
-              <p style={{ fontSize: 13, color: MID, marginTop: 5 }}>Tip: 5 feet = 152cm, 5&apos;4&quot; = 163cm, 5&apos;7&quot; = 170cm</p>
+              <p style={{ fontSize: 13, color: MID, marginTop: 5 }}>Gabay: 5 feet = 152cm, 5&apos;4&quot; = 163cm, 5&apos;7&quot; = 170cm</p>
             </div>
 
             {/* Weight */}
             <div>
-              <label className="c-label" style={{ display: "block", marginBottom: 8 }}>⚖️ Weight (kg)</label>
+              <label className="c-label" style={{ display: "block", marginBottom: 8 }}><Weight size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Timbang (kg)</label>
               <input
                 type="number"
                 value={weightKg}
@@ -135,7 +135,7 @@ export default function BmiPage() {
 
             {/* Age (optional) */}
             <div>
-              <label className="c-label" style={{ display: "block", marginBottom: 8 }}>🎂 Age (optional)</label>
+              <label className="c-label" style={{ display: "block", marginBottom: 8 }}><Cake size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Edad (opsyonal)</label>
               <input
                 type="number"
                 value={age}
@@ -150,7 +150,7 @@ export default function BmiPage() {
 
           <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
             <button onClick={calculate} className="c-btn c-btn-green" style={{ flex: 1 }}>
-              Calculate BMI
+              Kalkulahin ang BMI
             </button>
             <button onClick={reset} style={{
               width: 62, height: 62, borderRadius: 16, border: "2px solid #D8CDBA",
@@ -170,7 +170,7 @@ export default function BmiPage() {
             boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
           }}>
             <div style={{ textAlign: "center", marginBottom: 24 }}>
-              <div style={{ fontSize: 48, marginBottom: 8 }}>{result.category.emoji}</div>
+              <div style={{ width: 56, height: 56, borderRadius: 16, background: result.category.color, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px" }}><result.category.Icon size={28} color="#fff" /></div>
               <div style={{ fontSize: 72, fontWeight: 900, color: result.category.color, lineHeight: 1, marginBottom: 6 }}>
                 {result.bmi}
               </div>
@@ -179,7 +179,7 @@ export default function BmiPage() {
               </div>
               {age && (
                 <div style={{ fontSize: 14, color: MID, marginTop: 4 }}>
-                  Age: {age} years old
+                  Edad: {age} taong gulang
                 </div>
               )}
             </div>
@@ -207,7 +207,7 @@ export default function BmiPage() {
 
             <div style={{ background: "rgba(255,255,255,0.65)", borderRadius: 14, padding: "16px 18px" }}>
               <p style={{ fontSize: 16, color: DARK, margin: 0, lineHeight: 1.75 }}>
-                💡 {result.category.advice}
+                <Lightbulb size={16} style={{ display: "inline", verticalAlign: "middle", flexShrink: 0 }} /> {result.category.advice}
               </p>
             </div>
           </div>
@@ -215,13 +215,13 @@ export default function BmiPage() {
 
         {/* BMI Chart Reference */}
         <div style={{ background: WHITE, borderRadius: 20, padding: "20px 22px", marginBottom: 24, border: "1.5px solid #D8CDBA" }}>
-          <h2 className="c-heading" style={{ color: DARK, marginBottom: 16 }}>📊 BMI Reference (Asian/Filipino)</h2>
-          <p style={{ fontSize: 14, color: MID, margin: "0 0 14px" }}>WHO has a special BMI chart for Asian/Filipino body types.</p>
+          <h2 className="c-heading" style={{ color: DARK, marginBottom: 16 }}>BMI Reference (Asian/Filipino)</h2>
+          <p style={{ fontSize: 14, color: MID, margin: "0 0 14px" }}>May espesyal na BMI chart ang WHO para sa Asian/Filipino body types.</p>
           {[
             { range: "Below 18.5", label: "Underweight", color: "#0284c7", bg: "#e0f2fe" },
-            { range: "18.5 – 22.9",   label: "Normal / Ideal ✅", color: "#166534", bg: "#dcfce7" },
+            { range: "18.5 – 22.9",   label: "Normal / Ideal", color: "#166534", bg: "#dcfce7" },
             { range: "23.0 – 27.4",   label: "Overweight",  color: "#92400e", bg: "#fef9e7" },
-            { range: "27.5 and above", label: "Obese",       color: "#991b1b", bg: "#fef2f2" },
+            { range: "27.5 pataas", label: "Obese",       color: "#991b1b", bg: "#fef2f2" },
           ].map((row, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 12, background: row.bg, marginBottom: 8 }}>
               <div style={{ width: 12, height: 12, borderRadius: "50%", background: row.color, flexShrink: 0 }} />
@@ -233,16 +233,16 @@ export default function BmiPage() {
 
         {/* CTA */}
         <div style={{ background: G, borderRadius: 18, padding: "20px", textAlign: "center" }}>
-          <p style={{ color: GOLD, fontWeight: 700, fontSize: 17, margin: "0 0 8px" }}>☕ Complement your wellness!</p>
+          <p style={{ color: GOLD, fontWeight: 700, fontSize: 17, margin: "0 0 8px" }}>Dagdag sa wellness mo!</p>
           <p style={{ color: "rgba(255,255,255,0.85)", fontSize: 15, margin: "0 0 16px", lineHeight: 1.7 }}>
-            EaseBrew helps with anti-inflammation, digestion, and joint health — important for healthy weight management.
+            Ang EaseBrew ay tumutulong sa anti-inflammation, digestion, at joint health — mahalaga para sa malusog na timbang.
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <Link href="/meal-plan" style={{ background: GOLD, color: G, borderRadius: 12, padding: "14px 24px", fontSize: 16, fontWeight: 700, textDecoration: "none", display: "block" }}>
-              🥗 View Meal Plan →
+            <Link href="/meal-plan" style={{ background: GOLD, color: G, borderRadius: 12, padding: "14px 24px", fontSize: 16, fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <UtensilsCrossed size={18} /> Tingnan ang Meal Plan →
             </Link>
-            <Link href="/exercise" style={{ background: "rgba(255,255,255,0.15)", color: "#fff", borderRadius: 12, padding: "12px 24px", fontSize: 15, fontWeight: 600, textDecoration: "none", display: "block", border: "1.5px solid rgba(255,255,255,0.3)" }}>
-              💪 View Exercise Program →
+            <Link href="/exercise" style={{ background: "rgba(255,255,255,0.15)", color: "#fff", borderRadius: 12, padding: "12px 24px", fontSize: 15, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, border: "1.5px solid rgba(255,255,255,0.3)" }}>
+              <Dumbbell size={18} /> Tingnan ang Exercises →
             </Link>
           </div>
         </div>

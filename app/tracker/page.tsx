@@ -16,6 +16,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
+import { ChevronLeft, Home, BarChart3, CalendarDays, PenLine, Save, CircleCheck, Smile, Meh, Frown, Angry, Laugh, SmilePlus, Coffee, Sun, Moon, MapPin, Mic, CircleDot, Flame, TrendingDown, TrendingUp, Minus, Trophy, Medal, Star, Zap, ClipboardList, Send } from "lucide-react";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";
@@ -26,16 +27,16 @@ const MID   = "#4E504F";
 const WHITE = "#FFFFFB";
 
 const PAIN_LEVELS = [
-  { score: 1, emoji: "😊", label: "None",     color: "#22c55e" },
-  { score: 3, emoji: "🙂", label: "Mild",     color: "#84cc16" },
-  { score: 5, emoji: "😐", label: "Moderate", color: "#eab308" },
-  { score: 7, emoji: "😣", label: "Severe",   color: "#f97316" },
-  { score: 9, emoji: "😭", label: "Extreme",  color: "#ef4444" },
+  { score: 1, Icon: Smile,  label: "Wala",          color: "#22c55e" },
+  { score: 3, Icon: SmilePlus, label: "Konti lang", color: "#84cc16" },
+  { score: 5, Icon: Meh,    label: "Katamtaman",    color: "#eab308" },
+  { score: 7, Icon: Frown,  label: "Masakit",       color: "#f97316" },
+  { score: 9, Icon: Angry,  label: "Sobrang sakit",  color: "#ef4444" },
 ];
 
 const PAIN_LOCATIONS = [
-  "Knee", "Back", "Shoulder", "Hand",
-  "Foot", "Neck", "Hip",      "Head",
+  "Tuhod", "Likod", "Balikat", "Kamay",
+  "Paa",   "Leeg",  "Balakang", "Ulo",
 ];
 
 type DayEntry = {
@@ -59,19 +60,19 @@ const emptyEntry = (): DayEntry => ({
 });
 
 const MOOD_OPTIONS = [
-  { val: 1, emoji: "😢", label: "Sad"        },
-  { val: 2, emoji: "😕", label: "Not OK"     },
-  { val: 3, emoji: "😐", label: "OK"         },
-  { val: 4, emoji: "🙂", label: "Happy"      },
-  { val: 5, emoji: "😄", label: "Very Happy" },
+  { val: 1, Icon: Frown,    label: "Malungkot",     color: "#ef4444" },
+  { val: 2, Icon: Meh,      label: "Hindi OK",      color: "#f97316" },
+  { val: 3, Icon: Smile,    label: "OK lang",       color: "#eab308" },
+  { val: 4, Icon: Laugh,    label: "Masaya",        color: "#22c55e" },
+  { val: 5, Icon: SmilePlus, label: "Sobrang saya", color: "#16a34a" },
 ];
 
-const MILESTONES: Record<number, { emoji: string; title: string; message: string }> = {
-  7:  { emoji: "🌟", title: "1 Week Done!",         message: "Great start! Keep going — the fastest results come in the next few weeks!" },
-  14: { emoji: "💪", title: "2 Weeks!",             message: "Incredible! You should be feeling the change. Your joints are thanking you every day!" },
-  30: { emoji: "🏅", title: "1 Month Complete!",    message: "WOW! 30 days of consistency! Share your results with your family. We're proud of you!" },
-  60: { emoji: "🔥", title: "2 Months!",            message: "Amazing! 60 days in! You're an inspiration to everyone around you. Keep it up!" },
-  90: { emoji: "🏆", title: "90 Days — NEW YOU!",   message: "CONGRATS! You've reached the highest milestone! New body, new life! We're celebrating your success!" },
+const MILESTONES: Record<number, { Icon: typeof Star; title: string; message: string }> = {
+  7:  { Icon: Star,   title: "1 Linggo Na!",           message: "Magandang simula! Ituloy lang — ang pinakamabilis na resulta ay sa mga susunod na linggo!" },
+  14: { Icon: Zap,    title: "2 Linggo Na!",            message: "Napakagaling! Dapat nararamdaman mo na ang pagbabago. Nagpapasalamat ang mga kasukasuan mo!" },
+  30: { Icon: Medal,  title: "1 Buwan Kumpleto!",       message: "WOW! 30 araw ng consistency! I-share ang resulta sa pamilya mo. Proud kami sa iyo!" },
+  60: { Icon: Flame,  title: "2 Buwan Na!",             message: "Amazing! 60 araw na! Ikaw ang inspirasyon ng mga tao sa paligid mo. Ituloy lang!" },
+  90: { Icon: Trophy, title: "90 Araw — BAGONG IKAW!",  message: "CONGRATS! Naabot mo na ang pinakamataas na milestone! Bagong katawan, bagong buhay! Selebrasyon!" },
 };
 
 function getPainColor(score: number) {
@@ -82,12 +83,9 @@ function getPainColor(score: number) {
   return "#ef4444";
 }
 
-function getPainEmoji(score: number) {
-  if (score <= 2) return "😊";
-  if (score <= 4) return "🙂";
-  if (score <= 6) return "😐";
-  if (score <= 8) return "😣";
-  return "😭";
+function PainIcon({ score }: { score: number }) {
+  const Icon = score <= 2 ? Smile : score <= 4 ? SmilePlus : score <= 6 ? Meh : score <= 8 ? Frown : Angry;
+  return <Icon size={24} color={getPainColor(score)} />;
 }
 
 function calcStreak(entries: DayEntry[]): number {
@@ -142,14 +140,14 @@ function MilestoneModal({ days, onClose }: { days: number; onClose: () => void }
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.88)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
       <div style={{ background: "white", borderRadius: 28, padding: "44px 32px", maxWidth: 360, width: "100%", textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.4)" }}>
-        <div style={{ fontSize: 80, marginBottom: 16, lineHeight: 1 }}>{m.emoji}</div>
-        <h2 style={{ fontSize: 26, fontWeight: 700, color: "#1B201A", margin: "0 0 14px", lineHeight: 1.3 }}>Day {days}! {m.title}</h2>
+        <div style={{ width: 72, height: 72, borderRadius: 20, background: GOLD, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><m.Icon size={40} color={G} strokeWidth={2.5} /></div>
+        <h2 style={{ fontSize: 26, fontWeight: 700, color: "#1B201A", margin: "0 0 14px", lineHeight: 1.3 }}>Araw {days}! {m.title}</h2>
         <p style={{ fontSize: 17, color: "#4E504F", margin: "0 0 28px", lineHeight: 1.7 }}>{m.message}</p>
         <button
           onClick={onClose}
           style={{ width: "100%", background: "#39613B", color: "white", border: "none", borderRadius: 16, padding: "20px", fontSize: 20, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif" }}
         >
-          Thanks! Keep Going! 💪
+          Salamat! Ituloy lang!
         </button>
       </div>
     </div>
@@ -221,7 +219,7 @@ function VoiceButton({ onResult }: { onResult: (text: string) => void }) {
         display: "flex", alignItems: "center", gap: 8, flexShrink: 0, minHeight: 48,
       }}
     >
-      {listening ? "🔴 Nakinikinig..." : "🎤 Magsalita"}
+      {listening ? <><CircleDot size={18} /> Nakinikinig...</> : <><Mic size={18} /> Magsalita</>}
     </button>
   );
 }
@@ -247,9 +245,9 @@ function PainChart({ entries }: { entries: DayEntry[] }) {
   return (
     <div style={{ background: "#FFFFFB", borderRadius: 16, padding: "20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <h3 style={{ fontSize: 18, fontWeight: 700, color: "#39613B", margin: 0 }}>📈 Pain Trend</h3>
-        <span style={{ fontSize: 14, fontWeight: 700, color: lineColor }}>
-          {trend < 0 ? `▼ ${Math.abs(trend)} — Going down! 🎉` : trend === 0 ? "→ Stable" : `▲ ${trend} — Going up`}
+        <h3 style={{ fontSize: 18, fontWeight: 700, color: "#39613B", margin: 0, display: "flex", alignItems: "center", gap: 8 }}><BarChart3 size={20} /> Takbo ng Sakit</h3>
+        <span style={{ fontSize: 14, fontWeight: 700, color: lineColor, display: "flex", alignItems: "center", gap: 4 }}>
+          {trend < 0 ? <><TrendingDown size={16} /> {Math.abs(trend)} — Bumababa!</> : trend === 0 ? <><Minus size={16} /> Pareho lang</> : <><TrendingUp size={16} /> {trend} — Tumataas</>}
         </span>
       </div>
       <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto" }}>
@@ -272,7 +270,7 @@ function PainChart({ entries }: { entries: DayEntry[] }) {
       </svg>
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
         <span style={{ fontSize: 16, color: "#4E504F" }}>Simula: <strong style={{ color: "#1B201A" }}>{first}/10</strong></span>
-        <span style={{ fontSize: 16, color: "#4E504F" }}>Today: <strong style={{ color: lineColor }}>{last}/10</strong></span>
+        <span style={{ fontSize: 16, color: "#4E504F" }}>Ngayon: <strong style={{ color: lineColor }}>{last}/10</strong></span>
       </div>
     </div>
   );
@@ -341,7 +339,7 @@ export default function TrackerPage() {
 
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <p style={{ color: G, fontSize: 22, fontWeight: 700 }}>☕ Loading...</p>
+      <p style={{ color: G, fontSize: 22, fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}><Coffee size={22} /> Loading...</p>
     </div>
   );
 
@@ -379,20 +377,20 @@ export default function TrackerPage() {
     const firstPain = entries[0].painScore;
     const latestPain = entries[entries.length - 1].painScore;
     const recentNotes = entries.slice(-3).filter(e => e.notes).map(e => `• ${e.notes}`);
-    const trend = latestPain < firstPain ? "✅ Pain is going down!" : latestPain === firstPain ? "➡️ Same as before" : "⚠️ Went up a little";
-    const today = new Date().toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" });
+    const trend = latestPain < firstPain ? "Bumababa ang sakit!" : latestPain === firstPain ? "Pareho lang" : "Tumaas ng konti";
+    const todayDate = new Date().toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" });
     return [
-      `📊 EaseBrew Progress Report`,
-      `Date: ${today}`,
+      `EaseBrew Progress Report`,
+      `Petsa: ${todayDate}`,
       ``,
-      `Total days logged: ${totalDays}`,
-      `🔥 Streak: ${calcStreak(entries)} consecutive days`,
-      `Average pain score: ${avgPain}/10`,
-      `Consistency (2x/day): ${consistRate}%`,
-      `Pain trend: ${firstPain} → ${latestPain} ${trend}`,
-      recentNotes.length > 0 ? `\nRecent notes:\n${recentNotes.join("\n")}` : ``,
+      `Kabuuang araw na-log: ${totalDays}`,
+      `Streak: ${calcStreak(entries)} sunod-sunod na araw`,
+      `Average na sakit: ${avgPain}/10`,
+      `Consistency (2x/araw): ${consistRate}%`,
+      `Takbo ng sakit: ${firstPain} → ${latestPain} ${trend}`,
+      recentNotes.length > 0 ? `\nMga notes kamakailan:\n${recentNotes.join("\n")}` : ``,
       ``,
-      `— From EaseBrew Wellness Hub`,
+      `— Mula sa EaseBrew Wellness Hub`,
     ].filter(l => l !== undefined).join("\n");
   }
 
@@ -422,23 +420,23 @@ export default function TrackerPage() {
 
       {/* ── HEADER ── */}
       <div style={{ background: G, padding: "24px 24px 0", color: WHITE }}>
-        <Link href="/" style={{ color: GOLD, fontSize: 16, textDecoration: "none", display: "flex", alignItems: "center", minHeight: 44, marginBottom: 14, fontWeight: 600 }}>
-          ← Back to Hub
+        <Link href="/" style={{ color: GOLD, fontSize: 16, textDecoration: "none", display: "flex", alignItems: "center", gap: 6, minHeight: 44, marginBottom: 14, fontWeight: 600 }}>
+          <ChevronLeft size={20} /> Bumalik sa Hub
         </Link>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>📊 Pain Tracker</h1>
-            <p style={{ fontSize: 16, opacity: 0.8, margin: "4px 0 0 0" }}>Track your progress every day</p>
+            <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><BarChart3 size={24} /> Pain Tracker</h1>
+            <p style={{ fontSize: 16, opacity: 0.8, margin: "4px 0 0 0" }}>I-track ang progress mo araw-araw</p>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 14, padding: "10px 16px" }}>
-              <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: GOLD }}>Day {totalDays}</p>
+              <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: GOLD }}>Araw {totalDays}</p>
               <p style={{ fontSize: 14, margin: 0, opacity: 0.8 }}>logged na</p>
             </div>
             {calcStreak(entries) > 0 && (
               <div style={{ textAlign: "center", background: "rgba(255,200,0,0.2)", borderRadius: 14, padding: "10px 16px" }}>
-                <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: GOLD }}>🔥{calcStreak(entries)}</p>
-                <p style={{ fontSize: 14, margin: 0, opacity: 0.8 }}>day streak!</p>
+                <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: GOLD, display: "flex", alignItems: "center", gap: 4 }}><Flame size={22} />{calcStreak(entries)}</p>
+                <p style={{ fontSize: 14, margin: 0, opacity: 0.8 }}>sunod-sunod!</p>
               </div>
             )}
           </div>
@@ -447,8 +445,8 @@ export default function TrackerPage() {
         {/* Quick stats */}
         <div style={{ display: "flex", gap: 10, marginBottom: 0 }}>
           {[
-            { label: "Avg Pain",  value: avgPain     },
-            { label: "2x/day",    value: `${consistRate}%` },
+            { label: "Avg Sakit", value: avgPain     },
+            { label: "2x/araw",   value: `${consistRate}%` },
             { label: "Araw",      value: `${totalDays}`    },
           ].map((s, i) => (
             <div key={i} style={{ flex: 1, background: "rgba(255,255,255,0.12)", borderRadius: 12, padding: "10px 14px", textAlign: "center" as const }}>
@@ -468,7 +466,7 @@ export default function TrackerPage() {
               borderBottom: view === t ? `4px solid ${GOLD}` : "4px solid transparent",
               minHeight: 56,
             }}>
-              {t === "today" ? "📝 Today" : "📅 History"}
+              {t === "today" ? <><PenLine size={18} /> Ngayon</> : <><CalendarDays size={18} /> History</>}
             </button>
           ))}
         </div>
@@ -480,27 +478,27 @@ export default function TrackerPage() {
 
               {prefilledFromYesterday && (
                 <div style={{ background: "#EEF4FF", border: "1px solid #93C5FD", borderRadius: 12, padding: "14px 18px", marginBottom: 16, fontSize: 17, color: "#1D4ED8", display: "flex", alignItems: "center", gap: 10, fontWeight: 600 }}>
-                  <span style={{ fontSize: 22 }}>⚡</span> Na-pre-fill mula sa kahapon — i-bago kung kailangan.
+                  <Zap size={20} /> Na-pre-fill mula sa kahapon — i-bago kung kailangan.
                 </div>
               )}
 
           <p style={{ fontSize: 16, color: MID, margin: "0 0 24px 0", textAlign: "center", fontWeight: 600 }}>
-            📅 {todayStr}
+            <CalendarDays size={16} style={{ display: "inline", verticalAlign: "middle" }} /> {todayStr}
           </p>
 
           {/* ── EASEBREW 2x CHECK ── */}
           <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
               <div style={{ width: 34, height: 34, borderRadius: "50%", background: G, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, flexShrink: 0 }}>1</div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0 }}>☕ EaseBrew Today</h2>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><Coffee size={20} /> EaseBrew Ngayon</h2>
             </div>
             <p style={{ fontSize: 18, color: MID, margin: "0 0 18px 0" }}>Na-inom mo na ba ang EaseBrew mo?</p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
-                { key: "easebrewUmaga" as const, icon: "🌅", label: "Morning",     sub: "1st sachet of the day",   activeColor: G },
-                { key: "easebrewGabi"  as const, icon: "🌙", label: "Evening",     sub: "2nd sachet of the day",   activeColor: G },
-              ].map(({ key, icon, label, sub, activeColor }) => (
+                { key: "easebrewUmaga" as const, Icon: Sun,  label: "Umaga",      sub: "1st sachet ng araw",   activeColor: G },
+                { key: "easebrewGabi"  as const, Icon: Moon, label: "Gabi",        sub: "2nd sachet ng araw",   activeColor: G },
+              ].map(({ key, Icon, label, sub, activeColor }) => (
                 <button
                   key={key}
                   onClick={() => setToday(e => ({ ...e, [key]: !e[key] }))}
@@ -512,26 +510,28 @@ export default function TrackerPage() {
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                    <span style={{ fontSize: 34 }}>{icon}</span>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: today[key] ? "rgba(255,255,255,0.2)" : "#E8F5E0", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <Icon size={24} color={today[key] ? WHITE : G} />
+                    </div>
                     <div style={{ textAlign: "left" as const }}>
                       <p style={{ fontSize: 19, fontWeight: 700, color: today[key] ? WHITE : DARK, margin: 0 }}>{label}</p>
                       <p style={{ fontSize: 16, color: today[key] ? "rgba(255,255,255,0.8)" : MID, margin: 0 }}>{sub}</p>
                     </div>
                   </div>
-                  <span style={{ fontSize: 36 }}>{today[key] ? "✅" : "⬜"}</span>
+                  {today[key] ? <CircleCheck size={28} color={WHITE} /> : <div style={{ width: 28, height: 28, borderRadius: 8, border: "2px solid #D9D0C0" }} />}
                 </button>
               ))}
             </div>
 
             {today.easebrewUmaga && today.easebrewGabi && (
               <div style={{ marginTop: 14, background: "#E8F5E0", borderRadius: 12, padding: "14px 16px", textAlign: "center" as const }}>
-                <p style={{ fontSize: 17, color: G, fontWeight: 700, margin: 0 }}>🎉 Great! 2x done today! Keep it up!</p>
+                <p style={{ fontSize: 17, color: G, fontWeight: 700, margin: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}><CircleCheck size={20} /> Magaling! 2x na ngayong araw! Ituloy lang!</p>
               </div>
             )}
             {(today.easebrewUmaga || today.easebrewGabi) && !(today.easebrewUmaga && today.easebrewGabi) && (
               <div style={{ marginTop: 14, background: "#FEF9E7", borderRadius: 12, padding: "14px 16px", textAlign: "center" as const }}>
                 <p style={{ fontSize: 16, color: AMBER, fontWeight: 600, margin: 0 }}>
-                  💪 One more to go! Don&apos;t forget to drink {today.easebrewUmaga ? "this evening" : "this morning"}!
+                  <Zap size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Isa pa! Huwag kalimutang uminom {today.easebrewUmaga ? "mamayang gabi" : "mamayang umaga"}!
                 </p>
               </div>
             )}
@@ -541,9 +541,9 @@ export default function TrackerPage() {
           <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
               <div style={{ width: 34, height: 34, borderRadius: "50%", background: G, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, flexShrink: 0 }}>2</div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0 }}>😣 How much pain today?</h2>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0 }}>Gaano kasakit ngayon?</h2>
             </div>
-            <p style={{ fontSize: 18, color: MID, margin: "0 0 18px 0" }}>Pick the one closest to how you feel</p>
+            <p style={{ fontSize: 18, color: MID, margin: "0 0 18px 0" }}>Piliin ang pinakamalapit sa nararamdaman mo</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {PAIN_LEVELS.map(p => (
                 <button
@@ -557,12 +557,12 @@ export default function TrackerPage() {
                     cursor: "pointer", transition: "all 0.15s", minHeight: 64,
                   }}
                 >
-                  <span style={{ fontSize: 36, flexShrink: 0 }}>{p.emoji}</span>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: today.painScore === p.score ? "rgba(255,255,255,0.2)" : p.color + "18", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><p.Icon size={26} color={today.painScore === p.score ? WHITE : p.color} /></div>
                   <span style={{ fontSize: 20, fontWeight: 700, color: today.painScore === p.score ? WHITE : DARK }}>
                     {p.label}
                   </span>
                   {today.painScore === p.score && (
-                    <span style={{ marginLeft: "auto", fontSize: 26 }}>✅</span>
+                    <span style={{ marginLeft: "auto" }}><CircleCheck size={24} color={WHITE} /></span>
                   )}
                 </button>
               ))}
@@ -573,9 +573,9 @@ export default function TrackerPage() {
           <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
               <div style={{ width: 34, height: 34, borderRadius: "50%", background: G, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, flexShrink: 0 }}>3</div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0 }}>📍 Where does it hurt?</h2>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><MapPin size={20} /> Saan masakit?</h2>
             </div>
-            <p style={{ fontSize: 18, color: MID, margin: "0 0 16px 0" }}>You can pick multiple — tap all that hurt</p>
+            <p style={{ fontSize: 18, color: MID, margin: "0 0 16px 0" }}>Pwede marami — i-tap lahat ng masakit</p>
             <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 10 }}>
               {PAIN_LOCATIONS.map(loc => {
                 const selected = today.painLocations.includes(loc);
@@ -601,14 +601,14 @@ export default function TrackerPage() {
                       transition: "all 0.15s",
                     }}
                   >
-                    {selected ? "✅ " : ""}{loc}
+                    {selected && <CircleCheck size={16} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />}{loc}
                   </button>
                 );
               })}
             </div>
             {today.painLocations.length === 0 && (
-              <p style={{ fontSize: 16, color: "#aaa", margin: "12px 0 0", textAlign: "center" as const }}>
-                No pain today? Great! 🎉
+              <p style={{ fontSize: 16, color: "#aaa", margin: "12px 0 0", textAlign: "center" as const, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                Walang sakit ngayon? Magaling! <CircleCheck size={16} color="#22c55e" />
               </p>
             )}
           </div>
@@ -617,9 +617,9 @@ export default function TrackerPage() {
           <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
               <div style={{ width: 34, height: 34, borderRadius: "50%", background: G, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, flexShrink: 0 }}>4</div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0 }}>😊 Paano ang mood mo?</h2>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><Smile size={20} /> Paano ang mood mo?</h2>
             </div>
-            <p style={{ fontSize: 18, color: MID, margin: "0 0 16px 0" }}>Tap the one that matches your mood today</p>
+            <p style={{ fontSize: 18, color: MID, margin: "0 0 16px 0" }}>I-tap ang pinakamalapit sa pakiramdam mo ngayon</p>
             <div style={{ display: "flex", gap: 8 }}>
               {MOOD_OPTIONS.map(m => (
                 <button
@@ -634,7 +634,7 @@ export default function TrackerPage() {
                     minHeight: 80,
                   }}
                 >
-                  <span style={{ fontSize: 28 }}>{m.emoji}</span>
+                  <m.Icon size={28} color={today.mood === m.val ? G : m.color} />
                   <span style={{ fontSize: 16, color: today.mood === m.val ? G : MID, fontWeight: 600, textAlign: "center" as const, lineHeight: 1.2 }}>
                     {m.label}
                   </span>
@@ -647,16 +647,16 @@ export default function TrackerPage() {
           <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 20, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
               <div style={{ width: 34, height: 34, borderRadius: "50%", background: G, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, flexShrink: 0 }}>5</div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0 }}>✍️ How are you feeling?</h2>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><PenLine size={20} /> Ano ang nararamdaman mo?</h2>
             </div>
-            <p style={{ fontSize: 18, color: MID, margin: "0 0 14px 0" }}>Optional — but writing it down can help</p>
+            <p style={{ fontSize: 18, color: MID, margin: "0 0 14px 0" }}>Opsyonal — pero makakatulong kung isusulat mo</p>
             <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
               <VoiceButton onResult={(text) => setToday(p => ({ ...p, notes: p.notes ? p.notes + " " + text : text }))} />
             </div>
             <textarea
               value={today.notes}
               onChange={e => setToday(p => ({ ...p, notes: e.target.value }))}
-              placeholder="Example: My knee feels lighter today. Slept well last night."
+              placeholder="Halimbawa: Mas magaan ang tuhod ko ngayon. Nakatulog nang maayos."
               rows={5}
               style={{ width: "100%", padding: "16px", borderRadius: 14, border: `2px solid #D9D0C0`, fontSize: 18, resize: "none", outline: "none", background: "#FAFAF8", color: DARK, fontFamily: "inherit", boxSizing: "border-box" as const, lineHeight: 1.7 }}
             />
@@ -674,11 +674,11 @@ export default function TrackerPage() {
               boxShadow: "0 4px 16px rgba(57,97,59,0.3)", minHeight: 68,
             }}
           >
-            {saved ? "✅ Saved! Great job!" : "💾 Save My Record"}
+            {saved ? <><CircleCheck size={22} /> Na-save na! Magaling!</> : <><Save size={22} /> I-save ang Record</>}
           </button>
 
           <p style={{ textAlign: "center", fontSize: 16, color: MID, marginTop: 14, lineHeight: 1.6 }}>
-            Do this every day to see your progress! 💪
+            Gawin ito araw-araw para makita ang progress mo!
           </p>
         </div>
       )}
@@ -686,19 +686,19 @@ export default function TrackerPage() {
       {/* ═══ HISTORY TAB ═══ */}
       {view === "history" && (
         <div style={{ padding: "24px 20px" }}>
-          <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 6px 0" }}>📅 Inyong Record</h2>
-          <p style={{ fontSize: 16, color: MID, margin: "0 0 20px 0" }}>See your daily progress</p>
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 6px 0", display: "flex", alignItems: "center", gap: 8 }}><CalendarDays size={22} /> Inyong Record</h2>
+          <p style={{ fontSize: 16, color: MID, margin: "0 0 20px 0" }}>Tingnan ang daily progress mo</p>
 
           {entries.length === 0 ? (
             <div style={{ textAlign: "center", padding: "48px 20px", background: WHITE, borderRadius: 20 }}>
-              <p style={{ fontSize: 56, marginBottom: 12 }}>📋</p>
-              <p style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>No records yet</p>
-              <p style={{ fontSize: 17, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>Tap &quot;Today&quot; to start your first entry!</p>
+              <div style={{ width: 56, height: 56, borderRadius: 16, background: "#E8F5E0", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}><ClipboardList size={28} color={G} /></div>
+              <p style={{ fontSize: 20, fontWeight: 700, color: G, margin: "0 0 8px 0" }}>Wala pang record</p>
+              <p style={{ fontSize: 17, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>I-tap ang &quot;Ngayon&quot; para magsimula!</p>
               <button
                 onClick={() => setView("today")}
-                style={{ background: G, color: WHITE, border: "none", borderRadius: 14, padding: "18px 32px", fontSize: 18, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif", minHeight: 56 }}
+                style={{ background: G, color: WHITE, border: "none", borderRadius: 14, padding: "18px 32px", fontSize: 18, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif", minHeight: 56, display: "flex", alignItems: "center", gap: 8, margin: "0 auto" }}
               >
-                📝 Start Logging →
+                <PenLine size={18} /> Magsimula →
               </button>
             </div>
           ) : (
@@ -706,9 +706,9 @@ export default function TrackerPage() {
               {/* Summary card */}
               <div style={{ background: G, borderRadius: 20, padding: "22px 20px", marginBottom: 20, display: "flex", gap: 12 }}>
                 {[
-                  { label: "Araw",     value: `${totalDays}` },
-                  { label: "Avg Pain", value: avgPain        },
-                  { label: "2x/day",   value: `${consistRate}%` },
+                  { label: "Araw",      value: `${totalDays}` },
+                  { label: "Avg Sakit", value: avgPain        },
+                  { label: "2x/araw",   value: `${consistRate}%` },
                 ].map((s, i) => (
                   <div key={i} style={{ flex: 1, textAlign: "center" as const }}>
                     <p style={{ fontSize: 28, fontWeight: 700, color: GOLD, margin: 0 }}>{s.value}</p>
@@ -730,7 +730,7 @@ export default function TrackerPage() {
                   boxShadow: "0 4px 16px rgba(57,97,59,0.3)", minHeight: 60,
                 }}
               >
-                {summaryCopied ? "✅ Copied! Paste it in Coach's chat" : "📋 Share Progress with Coach"}
+                {summaryCopied ? <><CircleCheck size={18} /> Na-copy na! I-paste sa chat ng Coach</> : <><Send size={18} /> I-share ang Progress sa Coach</>}
               </button>
 
               <PainChart entries={entries} />
@@ -746,7 +746,7 @@ export default function TrackerPage() {
                       {new Date(entry.date + "T00:00:00").toLocaleDateString("en-PH", { weekday: "short", month: "short", day: "numeric" })}
                     </p>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: 24 }}>{getPainEmoji(entry.painScore)}</span>
+                      <PainIcon score={entry.painScore} />
                       <span style={{
                         background: getPainColor(entry.painScore), color: WHITE,
                         borderRadius: 10, padding: "4px 12px", fontSize: 16, fontWeight: 700,
@@ -757,15 +757,15 @@ export default function TrackerPage() {
                   </div>
 
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: entry.notes ? 10 : 0 }}>
-                    <span style={{ fontSize: 16, background: entry.easebrewUmaga ? "#E8F5E0" : "#F5F0E8", color: entry.easebrewUmaga ? G : "#aaa", borderRadius: 8, padding: "5px 12px", fontWeight: 600 }}>
-                      {entry.easebrewUmaga ? "☕✅" : "☕❌"} AM
+                    <span style={{ fontSize: 16, background: entry.easebrewUmaga ? "#E8F5E0" : "#F5F0E8", color: entry.easebrewUmaga ? G : "#aaa", borderRadius: 8, padding: "5px 12px", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                      <Coffee size={14} />{entry.easebrewUmaga ? <CircleCheck size={14} /> : <Minus size={14} />} AM
                     </span>
-                    <span style={{ fontSize: 16, background: entry.easebrewGabi ? "#E8F5E0" : "#F5F0E8", color: entry.easebrewGabi ? G : "#aaa", borderRadius: 8, padding: "5px 12px", fontWeight: 600 }}>
-                      {entry.easebrewGabi ? "☕✅" : "☕❌"} PM
+                    <span style={{ fontSize: 16, background: entry.easebrewGabi ? "#E8F5E0" : "#F5F0E8", color: entry.easebrewGabi ? G : "#aaa", borderRadius: 8, padding: "5px 12px", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                      <Coffee size={14} />{entry.easebrewGabi ? <CircleCheck size={14} /> : <Minus size={14} />} PM
                     </span>
                     {(entry.painLocations?.length > 0) && entry.painLocations.map(loc => (
-                      <span key={loc} style={{ fontSize: 16, background: "#F0EDE6", color: MID, borderRadius: 8, padding: "5px 12px" }}>
-                        📍 {loc}
+                      <span key={loc} style={{ fontSize: 16, background: "#F0EDE6", color: MID, borderRadius: 8, padding: "5px 12px", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                        <MapPin size={14} /> {loc}
                       </span>
                     ))}
                   </div>
@@ -797,7 +797,7 @@ export default function TrackerPage() {
           fontSize: 18, fontWeight: 700,
           textDecoration: "none", fontFamily: "Georgia, serif",
         }}>
-          🏠 Back to Hub
+          <Home size={20} /> Bumalik sa Hub
         </Link>
       </div>
     </div>

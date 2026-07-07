@@ -48,7 +48,7 @@ export default function WeeklyReportPage() {
 
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <p style={{ color: G, fontWeight: 600, fontFamily: "Georgia, serif", fontSize: 18 }}>☕ Loading...</p>
+      <p style={{ color: G, fontWeight: 600, fontFamily: "Georgia, serif", fontSize: 18 }}>Loading...</p>
     </div>
   );
 
@@ -70,10 +70,10 @@ export default function WeeklyReportPage() {
   const painScore    = avgPain != null ? Math.round(((10 - avgPain) / 10) * 30) : 0;
   const totalScore   = trackerScore + energyScore + painScore;
 
-  const scoreLabel = totalScore >= 80 ? { text: "Excellent! 🏆", color: G, bg: "#dcfce7" }
-    : totalScore >= 60 ? { text: "Great job! ✅", color: "#1d4ed8", bg: "#eff6ff" }
-    : totalScore >= 40 ? { text: "Keep going! 💪", color: "#92400e", bg: "#fef9e7" }
-    : { text: "Needs improvement ⚠️", color: "#991b1b", bg: "#fef2f2" };
+  const scoreLabel = totalScore >= 80 ? { text: "Napakagaling!", color: G, bg: "#dcfce7" }
+    : totalScore >= 60 ? { text: "Magaling!", color: "#1d4ed8", bg: "#eff6ff" }
+    : totalScore >= 40 ? { text: "Ituloy lang!", color: "#92400e", bg: "#fef9e7" }
+    : { text: "Kailangan pa ng improvement", color: "#991b1b", bg: "#fef2f2" };
 
   const weekStart = formatDate(weekDates[0]);
   const weekEnd   = formatDate(weekDates[6]);
@@ -84,14 +84,14 @@ export default function WeeklyReportPage() {
       {/* Header */}
       <div style={{ background: `linear-gradient(135deg, #1B201A 0%, #39613B 100%)`, padding: "20px 24px 28px", color: "#fff" }}>
         <Link href="/" style={{ color: "rgba(255,255,255,0.8)", textDecoration: "none", display: "flex", alignItems: "center", gap: 6, fontSize: 17, fontWeight: 600, marginBottom: 18, fontFamily: "Georgia, serif" }}>
-          <ChevronLeft size={20} /> Back to Hub
+          <ChevronLeft size={20} /> Bumalik sa Hub
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(254,210,85,0.2)", border: "1.5px solid rgba(254,210,85,0.35)", display: "grid", placeItems: "center" }}>
             <FileText size={28} color={GOLD} strokeWidth={2} />
           </div>
           <div>
-            <div style={{ fontSize: 11, color: "rgba(254,210,85,0.8)", fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>Weekly Summary</div>
+            <div style={{ fontSize: 11, color: "rgba(254,210,85,0.8)", fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>Lingguhang Buod</div>
             <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0, lineHeight: 1.2 }}>Wellness Report</h1>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", margin: "4px 0 0", fontFamily: "Georgia, serif" }}>{weekStart} – {weekEnd}</p>
           </div>
@@ -102,9 +102,9 @@ export default function WeeklyReportPage() {
 
         {/* Overall Score */}
         <div style={{ background: scoreLabel.bg, border: `2.5px solid ${scoreLabel.color}33`, borderRadius: 24, padding: "24px", marginBottom: 24, textAlign: "center" }}>
-          <p style={{ fontSize: 13, color: scoreLabel.color, fontWeight: 700, margin: "0 0 6px", textTransform: "uppercase", letterSpacing: 1 }}>Overall Wellness Score</p>
+          <p style={{ fontSize: 13, color: scoreLabel.color, fontWeight: 700, margin: "0 0 6px", textTransform: "uppercase", letterSpacing: 1 }}>Kabuuang Wellness Score</p>
           <div style={{ fontSize: 80, fontWeight: 900, color: scoreLabel.color, lineHeight: 1, margin: "0 0 6px" }}>{totalScore}</div>
-          <div style={{ fontSize: 11, color: MID, marginBottom: 14 }}>out of 100 points</div>
+          <div style={{ fontSize: 11, color: MID, marginBottom: 14 }}>sa 100 puntos</div>
           <div style={{ background: "#e5e7eb", borderRadius: 999, height: 12, overflow: "hidden", marginBottom: 10 }}>
             <div style={{ height: "100%", width: `${totalScore}%`, background: `linear-gradient(90deg, ${scoreLabel.color}99, ${scoreLabel.color})`, borderRadius: 999, transition: "width 0.8s ease" }} />
           </div>
@@ -113,11 +113,11 @@ export default function WeeklyReportPage() {
 
         {/* Score breakdown */}
         <div style={{ background: WHITE, borderRadius: 20, padding: "22px", marginBottom: 20, border: "1.5px solid #D8CDBA" }}>
-          <h2 className="c-heading" style={{ color: DARK, marginBottom: 18 }}>📊 Score Breakdown</h2>
+          <h2 className="c-heading" style={{ color: DARK, marginBottom: 18 }}>Detalye ng Score</h2>
           {[
-            { label: "Daily Check-ins (40pts)", score: trackerScore, max: 40, color: G, detail: `${checkedDays}/7 days logged` },
-            { label: "Energy Level (30pts)", score: energyScore, max: 30, color: "#f59e0b", detail: avgEnergy != null ? `Avg: ${avgEnergy}/10` : "No data" },
-            { label: "Pain Level (30pts)", score: painScore, max: 30, color: "#ef4444", detail: avgPain != null ? `Avg pain: ${avgPain}/10 (lower = better)` : "No data" },
+            { label: "Daily Check-ins (40pts)", score: trackerScore, max: 40, color: G, detail: `${checkedDays}/7 araw na-log` },
+            { label: "Energy Level (30pts)", score: energyScore, max: 30, color: "#f59e0b", detail: avgEnergy != null ? `Average: ${avgEnergy}/10` : "Walang data" },
+            { label: "Pain Level (30pts)", score: painScore, max: 30, color: "#ef4444", detail: avgPain != null ? `Average na sakit: ${avgPain}/10 (mas mababa = mas maganda)` : "Walang data" },
           ].map((item, i) => (
             <div key={i} style={{ marginBottom: 16 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
@@ -134,12 +134,12 @@ export default function WeeklyReportPage() {
         <div style={{ background: WHITE, borderRadius: 20, padding: "22px", marginBottom: 20, border: "1.5px solid #D8CDBA" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
             <Activity size={22} color={G} strokeWidth={2} />
-            <h2 className="c-heading" style={{ color: DARK, margin: 0 }}>Daily Check-ins</h2>
+            <h2 className="c-heading" style={{ color: DARK, margin: 0 }}>Mga Daily Check-in</h2>
           </div>
           {checkedDays === 0 ? (
             <div style={{ textAlign: "center", padding: "20px 0", color: MID }}>
-              <p style={{ fontSize: 16, margin: "0 0 8px" }}>No check-ins this week</p>
-              <Link href="/tracker" style={{ color: G, fontWeight: 700, fontSize: 15 }}>Log in Daily Tracker →</Link>
+              <p style={{ fontSize: 16, margin: "0 0 8px" }}>Walang check-in ngayong linggo</p>
+              <Link href="/tracker" style={{ color: G, fontWeight: 700, fontSize: 15 }}>Pumunta sa Daily Tracker →</Link>
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -147,7 +147,7 @@ export default function WeeklyReportPage() {
                 const ci = weekCheckIns[i];
                 return (
                   <div key={d} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 12, background: ci ? "#f0fdf4" : "#f9fafb", border: `1.5px solid ${ci ? "#86efac" : "#e5e7eb"}` }}>
-                    <span style={{ fontSize: 16, minWidth: 20 }}>{ci ? "✅" : "○"}</span>
+                    <span style={{ fontSize: 16, minWidth: 20, display: "flex", alignItems: "center", justifyContent: "center" }}>{ci ? <Activity size={16} color={G} /> : "○"}</span>
                     <div style={{ flex: 1 }}>
                       <p style={{ fontSize: 13, fontWeight: 600, color: ci ? DARK : MID, margin: 0 }}>{formatDate(d)}</p>
                       {ci && (
@@ -167,13 +167,13 @@ export default function WeeklyReportPage() {
 
         {/* Personalized advice */}
         <div style={{ background: G, borderRadius: 20, padding: "22px", marginBottom: 20 }}>
-          <p style={{ color: GOLD, fontWeight: 700, fontSize: 17, margin: "0 0 12px" }}>☕ Personalized Tips for You</p>
+          <p style={{ color: GOLD, fontWeight: 700, fontSize: 17, margin: "0 0 12px" }}>Mga Tip para sa Iyo</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {avgPain != null && avgPain >= 6 && (
               <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 14px", display: "flex", gap: 10 }}>
                 <Heart size={18} color="#fca5a5" strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }} />
                 <p style={{ color: "rgba(255,255,255,0.9)", fontSize: 14, margin: 0, lineHeight: 1.65 }}>
-                  Pain level is high this week. Make sure to drink EaseBrew 2x daily consistently and rest when needed.
+                  Mataas ang pain level ngayong linggo. Siguraduhing uminom ng EaseBrew 2x araw-araw at magpahinga kung kailangan.
                 </p>
               </div>
             )}
@@ -181,7 +181,7 @@ export default function WeeklyReportPage() {
               <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 14px", display: "flex", gap: 10 }}>
                 <Activity size={18} color="#86efac" strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }} />
                 <p style={{ color: "rgba(255,255,255,0.9)", fontSize: 14, margin: 0, lineHeight: 1.65 }}>
-                  Try logging in the Daily Tracker every day. Just 1 minute — it helps a lot to track your progress.
+                  Subukang mag-log sa Daily Tracker araw-araw. 1 minuto lang — malaking tulong para ma-track ang progress mo.
                 </p>
               </div>
             )}
@@ -189,7 +189,7 @@ export default function WeeklyReportPage() {
               <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 14px", display: "flex", gap: 10 }}>
                 <Scale size={18} color="#fcd34d" strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }} />
                 <p style={{ color: "rgba(255,255,255,0.9)", fontSize: 14, margin: 0, lineHeight: 1.65 }}>
-                  Energy seems low this week. Make sure to drink EaseBrew every morning and eat a nutritious breakfast.
+                  Mukhang mababa ang energy ngayong linggo. Uminom ng EaseBrew tuwing umaga at kumain ng masustansyang almusal.
                 </p>
               </div>
             )}
@@ -197,7 +197,7 @@ export default function WeeklyReportPage() {
               <div style={{ background: "rgba(254,210,85,0.15)", borderRadius: 12, padding: "12px 14px", display: "flex", gap: 10 }}>
                 <Apple size={18} color={GOLD} strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }} />
                 <p style={{ color: "rgba(255,255,255,0.9)", fontSize: 14, margin: 0, lineHeight: 1.65 }}>
-                  Excellent performance this week! Keep the momentum going. Consistency is the key to long-term wellness.
+                  Napakagaling ngayong linggo! Ituloy lang. Ang consistency ang susi sa pangmatagalang wellness.
                 </p>
               </div>
             )}
@@ -207,7 +207,7 @@ export default function WeeklyReportPage() {
         {/* CTA */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <Link href="/tracker" className="c-btn c-btn-green" style={{ textAlign: "center" as const, textDecoration: "none", display: "block" }}>
-            📋 Log in Daily Tracker
+            Pumunta sa Daily Tracker
           </Link>
         </div>
       </div>
