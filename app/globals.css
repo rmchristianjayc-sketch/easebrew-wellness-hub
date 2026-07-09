@@ -50,16 +50,16 @@ body {
   --ink:          #1B201A;
   --ink-mid:      #4E504F;
 
-  /* Customer tokens — senior-friendly */
-  --c-font-sm:      16px;
-  --c-font-base:    18px;
-  --c-font-lg:      20px;
-  --c-font-xl:      24px;
-  --c-font-2xl:     28px;
-  --c-font-heading: 32px;
+  /* Customer tokens — senior-friendly (bumped for readability) */
+  --c-font-sm:      17px;
+  --c-font-base:    19px;
+  --c-font-lg:      22px;
+  --c-font-xl:      26px;
+  --c-font-2xl:     30px;
+  --c-font-heading: 34px;
   --c-radius:       20px;
   --c-radius-lg:    28px;
-  --c-btn-h:        62px;
+  --c-btn-h:        64px;
   --c-pad:          20px;
   --c-card-pad:     24px;
   --customer-font-scale: 1;
@@ -268,12 +268,59 @@ html[data-customer-text="large"] body:not(:has(.admin-shell)) input {
   body:not(:has(.admin-shell)) button,
   body:not(:has(.admin-shell)) a,
   body:not(:has(.admin-shell)) input,
-  body:not(:has(.admin-shell)) select { min-height: 52px; }
+  body:not(:has(.admin-shell)) select { min-height: 56px; }
 
   body:not(:has(.admin-shell)) input,
   body:not(:has(.admin-shell)) select,
   body:not(:has(.admin-shell)) textarea { border-width: 2px !important; }
 }
+
+/* ── SAVE / CONFIRM TOAST ─────────────────────────────────────────── */
+.c-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 100px;
+  transform: translateX(-50%);
+  background: var(--green);
+  color: #fff;
+  padding: 18px 28px;
+  border-radius: 999px;
+  font-size: 20px;
+  font-weight: 700;
+  font-family: Georgia, serif;
+  box-shadow: 0 8px 32px rgba(24,59,40,0.35);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: c-toast-in 0.25s ease-out;
+}
+@keyframes c-toast-in {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* ── PRINT (medical card wallet-friendly) ─────────────────────────── */
+@media print {
+  body { background: #fff !important; }
+  .c-back-bar,
+  .customer-home-nav,
+  .c-no-print,
+  header,
+  nav { display: none !important; }
+  .c-print-only { display: block !important; }
+  .customer-shell {
+    max-width: 100% !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+  .c-card {
+    border: 1.5px solid #000 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+}
+.c-print-only { display: none; }
 
 /* ── ADMIN SHELL ──────────────────────────────────────────────────── */
 .admin-shell {

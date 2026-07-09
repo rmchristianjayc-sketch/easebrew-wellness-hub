@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
-import { IdCard, ChevronLeft, Save, Eye, Pencil, AlertTriangle, Stethoscope, Pill, Phone, Smartphone, UserRound, CircleCheck, Lightbulb } from "lucide-react";
+import { IdCard, ChevronLeft, Save, Eye, Pencil, AlertTriangle, Stethoscope, Pill, Phone, Smartphone, UserRound, CircleCheck, Lightbulb, Printer } from "lucide-react";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";
@@ -131,7 +131,7 @@ export default function MedicalCardPage() {
       <div style={{ padding: "24px 20px" }}>
         {/* Mode toggle */}
         {card.fullName.trim() && (
-          <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+          <div className="c-no-print" style={{ display: "flex", gap: 8, marginBottom: 20 }}>
             <button onClick={() => setMode("view")} style={{
               flex: 1, background: mode === "view" ? G : "#fff", color: mode === "view" ? "#fff" : DARK,
               border: `2px solid ${G}`, borderRadius: 12, padding: "10px", fontSize: 14, fontWeight: 700, cursor: "pointer",
@@ -146,6 +146,15 @@ export default function MedicalCardPage() {
             }}>
               <Pencil size={16} /> I-edit
             </button>
+            {mode === "view" && (
+              <button onClick={() => window.print()} style={{
+                flex: 1, background: GOLD, color: G,
+                border: `2px solid ${G}`, borderRadius: 12, padding: "10px", fontSize: 14, fontWeight: 700, cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              }}>
+                <Printer size={16} /> I-print
+              </button>
+            )}
           </div>
         )}
 

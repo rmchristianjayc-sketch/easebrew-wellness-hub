@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
-import { Heart, ChevronLeft, Plus, Trash2, CircleCheck, Lightbulb, ClipboardList } from "lucide-react";
+import { Heart, ChevronLeft, Plus, Trash2, CircleCheck, Lightbulb, ClipboardList, TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";
@@ -150,10 +150,18 @@ export default function BloodPressurePage() {
 
   // Weekly average — compute cutoff on mount so Date.now() is not called during render
   const [cutoff7d, setCutoff7d] = useState<number>(0);
-  useEffect(() => { setCutoff7d(Date.now() - 7 * 86400000); }, []);
+  const [cutoff14d, setCutoff14d] = useState<number>(0);
+  useEffect(() => {
+    setCutoff7d(Date.now() - 7 * 86400000);
+    setCutoff14d(Date.now() - 14 * 86400000);
+  }, []);
   const last7Days = entries.filter(e => {
     const d = new Date(e.date + "T00:00:00").getTime();
     return d >= cutoff7d;
+  });
+  const prev7Days = entries.filter(e => {
+    const d = new Date(e.date + "T00:00:00").getTime();
+    return d >= cutoff14d && d < cutoff7d;
   });
   const weekAvgSys = last7Days.length
     ? Math.round(last7Days.reduce((s, e) => s + e.systolic, 0) / last7Days.length)
@@ -161,9 +169,18 @@ export default function BloodPressurePage() {
   const weekAvgDia = last7Days.length
     ? Math.round(last7Days.reduce((s, e) => s + e.diastolic, 0) / last7Days.length)
     : null;
+  const prevAvgSys = prev7Days.length
+    ? Math.round(prev7Days.reduce((s, e) => s + e.systolic, 0) / prev7Days.length)
+    : null;
   const weekCategory = weekAvgSys != null && weekAvgDia != null
     ? categorize(weekAvgSys, weekAvgDia)
     : null;
+  const trend: "up" | "down" | "flat" | null =
+    weekAvgSys != null && prevAvgSys != null
+      ? weekAvgSys - prevAvgSys >= 3 ? "up"
+      : prevAvgSys - weekAvgSys >= 3 ? "down"
+      : "flat"
+      : null;
 
   if (checking) {
     return (
@@ -197,9 +214,30 @@ export default function BloodPressurePage() {
         {weekCategory && weekAvgSys != null && weekAvgDia != null && (
           <div style={{ background: weekCategory.bg, borderRadius: 20, padding: "20px 22px", marginBottom: 20, border: `2.5px solid ${weekCategory.color}33` }}>
             <p style={{ fontSize: 12, color: weekCategory.color, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: "0 0 8px" }}>7-Day Average</p>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
               <span style={{ fontSize: 44, fontWeight: 900, color: weekCategory.color, lineHeight: 1 }}>{weekAvgSys}/{weekAvgDia}</span>
               <span style={{ fontSize: 15, color: MID, fontWeight: 600 }}>mmHg</span>
+              {trend && (
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    marginLeft: 6,
+                    padding: "4px 10px",
+                    borderRadius: 999,
+                    background: trend === "up" ? "#fee2e2" : trend === "down" ? "#dcfce7" : "#f3f4f6",
+                    color: trend === "up" ? "#991b1b" : trend === "down" ? "#166534" : "#4b5563",
+                    fontSize: 13,
+                    fontWeight: 700,
+                  }}
+                  aria-label={trend === "up" ? "Tumataas" : trend === "down" ? "Bumababa" : "Pareho"}
+                >
+                  {trend === "up" && <><TrendingUp size={14} /> Tumataas</>}
+                  {trend === "down" && <><TrendingDown size={14} /> Bumababa</>}
+                  {trend === "flat" && <><Minus size={14} /> Pareho</>}
+                </span>
+              )}
             </div>
             <p style={{ fontSize: 15, color: weekCategory.color, fontWeight: 700, margin: "0 0 6px" }}>{weekCategory.label}</p>
             <p style={{ fontSize: 14, color: DARK, margin: 0, lineHeight: 1.55 }}>{weekCategory.advice}</p>
