@@ -330,13 +330,20 @@ export default function MealPlanPage() {
           <h3 style={{ fontSize: 19, fontWeight: 700, margin: "0 0 14px 0", color: GOLD, display: "flex", alignItems: "center", gap: 8 }}><Lightbulb size={20} /> Mga Paalala Araw-araw</h3>
           {[
             "EaseBrew — 2 sachet bawat araw (Umaga at Gabi)",
-            "8 baso ng tubig — mahalaga para sa joints",
-            "15-min lakad pagkatapos kumain — tumutulong sa digestion",
-            "Brown rice (3/4 cup luto) — mas healthy kaysa white rice",
-            "Laging may luya at bawang — natural anti-inflammatory",
+            "8 baso ng tubig — mahalaga sa katawan",
+            "15-min lakad pagkatapos kumain — mabuti sa digestion",
+            "Brown rice (3/4 cup luto) — mas maraming fiber kaysa white rice",
+            "Luya at bawang — naka-tradition sa Pinoy cooking",
           ].map((tip, i) => (
             <p key={i} style={{ fontSize: 16, margin: "0 0 10px 0", opacity: 0.95, lineHeight: 1.5 }}>{tip}</p>
           ))}
+        </div>
+
+        {/* Medical disclaimer */}
+        <div style={{ marginTop: 14, padding: "12px 14px", background: "#f3f4f6", borderRadius: 10, border: "1px solid #d1d5db" }}>
+          <p style={{ fontSize: 12, color: "#4E504F", margin: 0, lineHeight: 1.5 }}>
+            <strong>Paalala:</strong> Ang meal plan na ito ay general guide lang. Kung may diabetes, kidney condition, allergies, o iba pang health issue, magpakonsulta muna sa doctor o nutritionist bago sundin.
+          </p>
         </div>
       </div>
 

@@ -173,7 +173,7 @@ export default function WeeklyReportPage() {
               <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 14px", display: "flex", gap: 10 }}>
                 <Heart size={18} color="#fca5a5" strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }} />
                 <p style={{ color: "rgba(255,255,255,0.9)", fontSize: 14, margin: 0, lineHeight: 1.65 }}>
-                  Mataas ang pain level ngayong linggo. Siguraduhing uminom ng EaseBrew 2x araw-araw at magpahinga kung kailangan.
+                  Mataas ang average pain level ngayong linggo. Magpakonsulta sa doctor mo para masuri ang dahilan. Ituloy ang daily tracking para makita ang pattern.
                 </p>
               </div>
             )}
@@ -189,7 +189,7 @@ export default function WeeklyReportPage() {
               <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 14px", display: "flex", gap: 10 }}>
                 <Scale size={18} color="#fcd34d" strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }} />
                 <p style={{ color: "rgba(255,255,255,0.9)", fontSize: 14, margin: 0, lineHeight: 1.65 }}>
-                  Mukhang mababa ang energy ngayong linggo. Uminom ng EaseBrew tuwing umaga at kumain ng masustansyang almusal.
+                  Mababa ang average energy ngayong linggo. Siguraduhing sapat ang tulog (7-8 oras), masustansyang almusal, at regular na exercise. Kung tuloy-tuloy, magpakonsulta sa doctor.
                 </p>
               </div>
             )}

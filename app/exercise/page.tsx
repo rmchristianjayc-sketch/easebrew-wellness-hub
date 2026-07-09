@@ -255,7 +255,7 @@ export default function ExercisePage() {
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 17, fontWeight: 600, marginBottom: 16 }}>
             <ChevronLeft size={20} /> Bumalik sa Hub
           </Link>
-          <p style={{ fontSize: 17, opacity: 0.9, margin: "0 0 20px 0", lineHeight: 1.6 }}>Ligtas at magaan na exercises para sa joint pain.<br />Walang gym equipment na kailangan!</p>
+          <p style={{ fontSize: 17, opacity: 0.9, margin: "0 0 20px 0", lineHeight: 1.6 }}>Ligtas at magaan na exercises para sa seniors.<br />Walang gym equipment na kailangan!</p>
           <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: 12, height: 14, overflow: "hidden" }}>
             <div style={{ background: GOLD, height: "100%", width: `${progressPct}%`, transition: "width 0.4s ease", borderRadius: 12 }} />
           </div>
@@ -270,7 +270,7 @@ export default function ExercisePage() {
         <div style={{ width: 40, height: 40, borderRadius: 10, background: G, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Coffee size={22} color={GOLD} /></div>
         <div>
           <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: 0 }}>Inumin ang Easebrew bago mag-exercise!</p>
-          <p style={{ fontSize: 16, color: AMBER, margin: 0 }}>30 minuto bago simulan — para mas magaan ang katawan</p>
+          <p style={{ fontSize: 16, color: AMBER, margin: 0 }}>30 minuto bago simulan — bahagi ng daily routine mo</p>
         </div>
       </div>
 
@@ -393,6 +393,13 @@ export default function ExercisePage() {
               <p style={{ fontSize: 17, color: DARK, margin: 0, lineHeight: 1.6 }}>{tip.text}</p>
             </div>
           ))}
+        </div>
+
+        {/* Medical disclaimer */}
+        <div style={{ marginTop: 14, padding: "12px 14px", background: "#f3f4f6", borderRadius: 10, border: "1px solid #d1d5db" }}>
+          <p style={{ fontSize: 12, color: "#4E504F", margin: 0, lineHeight: 1.5 }}>
+            <strong>Paalala:</strong> Bago simulan ang exercise program, magpakonsulta muna sa doctor kung may heart condition, joint injury, arthritis, o iba pang health issue. Tigilan agad ang exercise kung may sakit ng dibdib, hirap huminga, o pagkahilo.
+          </p>
         </div>
       </div>
 

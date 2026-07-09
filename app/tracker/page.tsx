@@ -567,6 +567,13 @@ export default function TrackerPage() {
                 </button>
               ))}
             </div>
+            {today.painScore >= 7 && (
+              <div style={{ marginTop: 14, background: "#fef2f2", border: "2px solid #fca5a5", borderRadius: 12, padding: "14px 16px" }}>
+                <p style={{ fontSize: 15, color: "#991b1b", margin: 0, fontWeight: 600, lineHeight: 1.55 }}>
+                  <strong>⚠ Paalala:</strong> Kung matagal na o lumalala ang sakit, magpakonsulta sa doctor. Kung may hirap huminga, pananakit ng dibdib, o pamamanhid, tumawag agad ng emergency.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* ── PAIN LOCATION ── */}

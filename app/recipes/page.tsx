@@ -49,7 +49,7 @@ const RECIPES: Recipe[] = [
   {
     id: 1, name: "Sinigang na Salmon", category: "Soup / Sabaw", benefit: "Omega-3 Anti-Inflammation",
     servings: "4", prepTime: "15 mins", cookTime: "30 mins", calories: "320 kcal", difficulty: "Easy", stars: 5,
-    description: "Sinigang na salmon is one of the most anti-inflammatory dishes in the Philippines. Salmon is full of omega-3 fatty acids that help reduce inflammation in the joints.",
+    description: "Sinigang na salmon is a hearty Filipino favorite. Salmon is rich in omega-3 fatty acids, a nutrient commonly associated with heart and joint wellness.",
     easebrewTip: "Drink Easebrew Herbal Coffee 30 minutes before eating to boost the effect of salmon's anti-inflammatory ingredients.",
     ingredients: [
       { qty: "400g", unit: "", ingredient: "Salmon fillet", notes: "cut into 4 pieces" },
@@ -213,8 +213,8 @@ const RECIPES: Recipe[] = [
   {
     id: 7, name: "Arroz Caldo with Ginger & Bawang", category: "Lugaw / Porridge", benefit: "Anti-Inflammation + Gut Warmth",
     servings: "4", prepTime: "10 mins", cookTime: "40 mins", calories: "310 kcal", difficulty: "Easy", stars: 5,
-    description: "Arroz caldo isn't just comfort food — it's a therapeutic dish. Ginger is one of the most powerful natural anti-inflammatories available in the Philippines.",
-    easebrewTip: "BEST PAIRING: Easebrew Herbal Coffee with arroz caldo in the morning — double anti-inflammatory effect!",
+    description: "Arroz caldo is a beloved Filipino comfort dish. Ginger is a traditional Pinoy ingredient often used for its warming and wellness-supporting properties.",
+    easebrewTip: "BEST PAIRING: Easebrew Herbal Coffee with arroz caldo — perfect Filipino morning routine.",
     ingredients: [
       { qty: "1 cup (200g)", unit: "", ingredient: "Sticky rice or regular rice", notes: "washed" },
       { qty: "400g", unit: "", ingredient: "Chicken (bone-in)", notes: "cut into small pieces" },
@@ -240,7 +240,7 @@ const RECIPES: Recipe[] = [
     id: 8, name: "Paksiw na Bangus", category: "Fish Dish", benefit: "Omega-3 + Low-Fat Cooking",
     servings: "4", prepTime: "10 mins", cookTime: "25 mins", calories: "260 kcal", difficulty: "Easy", stars: 4,
     description: "Paksiw is one of the healthiest ways to cook fish — no excess oil. Bangus is rich in omega-3 fatty acids and protein for muscle repair.",
-    easebrewTip: "Drink Easebrew Herbal Coffee alongside or after paksiw for the best anti-inflammation benefit of the day.",
+    easebrewTip: "Enjoy Easebrew Herbal Coffee alongside or after paksiw — perfect Pinoy pairing.",
     ingredients: [
       { qty: "600g", unit: "", ingredient: "Bangus (milkfish)", notes: "cut into 4 pieces" },
       { qty: "1 cup", unit: "", ingredient: "Suka (cane vinegar)", notes: "or white vinegar" },
@@ -291,7 +291,7 @@ const RECIPES: Recipe[] = [
     id: 10, name: "Ginger-Turmeric Lugaw", category: "Lugaw / Porridge", benefit: "MAXIMUM Anti-Inflammation",
     servings: "4", prepTime: "10 mins", cookTime: "35 mins", calories: "270 kcal", difficulty: "Easy", stars: 5,
     description: "This is the most anti-inflammatory lugaw recipe in this book. Turmeric contains curcumin — one of the most powerful anti-inflammatory compounds in the world.",
-    easebrewTip: "ULTIMATE ANTI-INFLAMMATION MORNING: Easebrew Herbal Coffee + Ginger-Turmeric Lugaw = the strongest anti-inflammatory breakfast!",
+    easebrewTip: "COMFORTING MORNING: Easebrew Herbal Coffee + Ginger-Turmeric Lugaw — warming and satisfying breakfast.",
     ingredients: [
       { qty: "1 cup (200g)", unit: "", ingredient: "Rice (sticky or regular)", notes: "washed" },
       { qty: "2 inch", unit: "", ingredient: "Luya (ginger)", notes: "sliced thin" },
@@ -529,7 +529,7 @@ const RECIPES: Recipe[] = [
     id: 20, name: "Monggo Soup with Ampalaya", category: "Soup / Sabaw", benefit: "Double Anti-Inflammation Power",
     servings: "4", prepTime: "10 mins", cookTime: "45 mins", calories: "240 kcal", difficulty: "Easy", stars: 5,
     description: "Combines two super anti-inflammatory ingredients — monggo and ampalaya. The ultimate anti-inflammation soup.",
-    easebrewTip: "Easebrew Herbal Coffee + Monggo with Ampalaya is the ultimate anti-inflammation meal combination for those with arthritis and joint pain.",
+    easebrewTip: "Easebrew Herbal Coffee + Monggo with Ampalaya — a hearty, nutrient-rich Filipino meal combination.",
     ingredients: [
       { qty: "1 cup (200g)", unit: "", ingredient: "Monggo (mung beans)", notes: "soaked for 2 hours" },
       { qty: "1 medium", unit: "", ingredient: "Ampalaya", notes: "sliced thin, soaked in salt" },
@@ -554,7 +554,7 @@ const RECIPES: Recipe[] = [
     id: 21, name: "Salmon sa Kamatis at Luya", category: "Fish Dish", benefit: "Omega-3 + Lycopene Boost",
     servings: "4", prepTime: "10 mins", cookTime: "20 mins", calories: "330 kcal", difficulty: "Easy", stars: 5,
     description: "Lycopene in kamatis boosts the anti-inflammatory effect of salmon's omega-3.",
-    easebrewTip: "Easebrew Herbal Coffee after this salmon-kamatis dish for a maximum anti-inflammation combo.",
+    easebrewTip: "Enjoy Easebrew Herbal Coffee after this salmon-kamatis dish — a satisfying Pinoy pairing.",
     ingredients: [
       { qty: "400g", unit: "", ingredient: "Salmon fillet", notes: "cut into 4" },
       { qty: "3 medium", unit: "", ingredient: "Kamatis", notes: "chopped" },
@@ -768,7 +768,7 @@ const RECIPES: Recipe[] = [
     id: 30, name: "Anti-Inflammation Power Bowl", category: "Power Bowl", benefit: "COMPLETE Anti-Inflammation Meal",
     servings: "4", prepTime: "20 mins", cookTime: "30 mins", calories: "420 kcal", difficulty: "Medium", stars: 5,
     description: "Combines the best anti-inflammatory ingredients — brown rice, salmon, malunggay, turmeric, and ginger. The most complete anti-inflammatory meal.",
-    easebrewTip: "CELEBRATION MEAL: Easebrew Herbal Coffee + Anti-Inflammation Power Bowl = the most anti-inflammatory meal combo in the entire recipe book!",
+    easebrewTip: "CELEBRATION MEAL: Easebrew Herbal Coffee + Anti-Inflammation Power Bowl — a nourishing feast to celebrate your progress!",
     ingredients: [
       { qty: "1.5 cups", unit: "", ingredient: "Brown rice (cooked)", notes: "3/4 cup per person" },
       { qty: "300g", unit: "", ingredient: "Salmon fillet", notes: "grilled or baked" },

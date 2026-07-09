@@ -685,8 +685,8 @@ export default function BagongKatawanPage() {
             <p style={{ fontSize: 18, fontWeight: 700, color: G, margin: "0 0 14px 0", display: "flex", alignItems: "center", gap: 8 }}><Target size={18} /> Mga Goals bawat Phase</p>
             {[
               { phase: "Phase 1 (Day 1-30)", color: "#39613B", bg: "#E8F5E0", goals: ["EaseBrew TUWING umaga — walang skip", "Lakad 15-20 minuto araw-araw", "Gulay sa bawat kain", "8 baso ng tubig araw-araw", "Tulog 7-8 oras"] },
-              { phase: "Phase 2 (Day 31-60)", color: "#185FA5", bg: "#E6F1FB", goals: ["EaseBrew 2x araw-araw — umaga at hapon", "Exercise — dagdagan ng 10 minuto pa", "Pain Score: bumaba ng 2-3 puntos", "100% gulay sa bawat kain", "I-update ang sukat linggo-linggo"] },
-              { phase: "Phase 3 (Day 61-90)", color: "#C0863B", bg: "#FEF0E0", goals: ["Pain Score: 50%+ bumaba vs Day 1", "Exercise — habit na ito ngayon", "Anti-inflammation na pagkain — natural na", "Day 90: kumpleto na ang assessment at sukat"] },
+              { phase: "Phase 2 (Day 31-60)", color: "#185FA5", bg: "#E6F1FB", goals: ["EaseBrew 2x araw-araw — umaga at hapon", "Exercise — dagdagan ng 10 minuto pa", "I-track ang Pain Score araw-araw", "100% gulay sa bawat kain", "I-update ang sukat linggo-linggo"] },
+              { phase: "Phase 3 (Day 61-90)", color: "#C0863B", bg: "#FEF0E0", goals: ["I-review ang Pain Score trend vs Day 1", "Exercise — habit na ito ngayon", "Anti-inflammation na pagkain — natural na", "Day 90: kumpleto na ang assessment at sukat"] },
             ].map((item, i) => (
               <div key={i} style={{ background: item.bg, borderRadius: 14, padding: "16px 18px", marginBottom: i < 2 ? 12 : 0 }}>
                 <p style={{ fontSize: 17, fontWeight: 700, color: item.color, margin: "0 0 10px 0" }}>{item.phase}</p>
