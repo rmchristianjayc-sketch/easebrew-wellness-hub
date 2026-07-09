@@ -35,6 +35,7 @@ export const PUBLIC_CONTENT_KEYS = [
   'video_2_title', 'video_2_desc', 'video_2_url',
   'video_3_title', 'video_3_desc', 'video_3_url',
   'coaches_data',
+  'exercise_videos',
 ] as const;
 
 export const PUBLIC_CONTENT_KEY_SET = new Set<string>(PUBLIC_CONTENT_KEYS);
@@ -70,12 +71,30 @@ export function validateContentUpdate(key: string, value: string) {
     return 'Unknown content key.';
   }
 
-  if (value.length > 10000) {
+  const maxLength = key === 'exercise_videos' ? 100000 : 10000;
+  if (value.length > maxLength) {
     return 'Content value is too long.';
   }
 
   const trimmed = value.trim();
   if (!trimmed) return null;
+
+  if (key === 'exercise_videos') {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+        return 'exercise_videos must be a JSON object.';
+      }
+      for (const [k, v] of Object.entries(parsed)) {
+        if (typeof k !== 'string' || k.length > 100) return 'exercise_videos keys must be short strings.';
+        if (typeof v !== 'string' || v.length > 500) return 'exercise_videos values must be short URLs.';
+        if (v && !isHttpUrl(v)) return 'exercise_videos URLs must be http or https.';
+      }
+      return null;
+    } catch {
+      return 'exercise_videos must be valid JSON.';
+    }
+  }
 
   if (HTTP_URL_KEYS.some((pattern) => pattern.test(key)) && !isHttpUrl(trimmed)) {
     return 'URL fields must use http or https URLs.';

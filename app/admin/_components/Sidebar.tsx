@@ -9,7 +9,7 @@ import type { Coach } from "@/lib/coaches";
 import { getCoachLabel, setCoachLabel, clearCoachLabel } from "@/lib/coachLabel";
 import {
   BarChart3, Bell, FileText, KeyRound,
-  LayoutDashboard, LogOut, ShieldCheck, User, Pencil,
+  LayoutDashboard, LogOut, ShieldCheck, User, Pencil, Dumbbell,
 } from "lucide-react";
 
 const OWNER_LINKS = [
@@ -17,6 +17,7 @@ const OWNER_LINKS = [
   { href: "/admin/codes",         icon: KeyRound,        label: "Access Codes" },
   { href: "/admin/analytics",     icon: BarChart3,       label: "Analytics"    },
   { href: "/admin/content",       icon: FileText,        label: "Content"      },
+  { href: "/admin/exercises",     icon: Dumbbell,        label: "Exercise Videos" },
   { href: "/admin/notifications", icon: Bell,            label: "Messages"     },
 ];
 
