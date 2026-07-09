@@ -36,7 +36,7 @@ function categorize(sys: number, dia: number): BpCategory {
       label: "Hypertensive Crisis",
       color: "#7f1d1d",
       bg: "#fee2e2",
-      advice: "Delikado ang BP mo. Pumunta agad sa doctor o hospital!",
+      advice: "EMERGENCY: Napakataas ng BP mo. Tumawag agad ng 911 o pumunta sa pinakamalapit na ospital. Huwag maghintay — pwedeng may stroke o heart attack.",
     };
   }
   if (sys >= 140 || dia >= 90) {
@@ -44,7 +44,7 @@ function categorize(sys: number, dia: number): BpCategory {
       label: "Stage 2 Hypertension",
       color: "#991b1b",
       bg: "#fef2f2",
-      advice: "Mataas ang BP mo. Magpakonsulta sa doctor at i-monitor araw-araw.",
+      advice: "Mataas ang BP mo. Magpakonsulta sa doctor sa loob ng ilang araw. I-monitor araw-araw at i-record.",
     };
   }
   if (sys >= 130 || dia >= 80) {
@@ -52,15 +52,15 @@ function categorize(sys: number, dia: number): BpCategory {
       label: "Stage 1 Hypertension",
       color: "#9a3412",
       bg: "#fff7ed",
-      advice: "Medyo tumataas na. Bawasan ang asin, mag-exercise, at iwasan ang stress.",
+      advice: "Medyo tumataas na. Konsultahin ang doctor mo. Bawasan ang asin (< 1500mg/araw), mag-exercise 30 min/araw, at iwasan ang stress.",
     };
   }
   if (sys >= 120) {
     return {
-      label: "Medyo Mataas",
+      label: "Elevated",
       color: "#854d0e",
       bg: "#fef9c3",
-      advice: "Konting taas lang. Ituloy ang healthy lifestyle.",
+      advice: "Konting taas — early warning. Ituloy ang healthy lifestyle at obserbahan ang BP mo weekly.",
     };
   }
   return {
@@ -370,6 +370,13 @@ export default function BloodPressurePage() {
         <div style={{ background: `${GOLD}22`, borderRadius: 12, padding: "14px 16px", marginTop: 16, border: `1.5px solid ${GOLD}` }}>
           <p style={{ fontSize: 13, color: DARK, margin: 0, lineHeight: 1.5 }}>
             <Lightbulb size={14} style={{ display: "inline", verticalAlign: "middle" }} /> <strong>Tip:</strong> Sukatin ang BP habang nakaupo at relaxed, hindi pagkatapos uminom ng kape. Pinakamabuting oras: umaga bago mag-almusal.
+          </p>
+        </div>
+
+        {/* Medical disclaimer */}
+        <div style={{ marginTop: 14, padding: "12px 14px", background: "#f3f4f6", borderRadius: 10, border: "1px solid #d1d5db" }}>
+          <p style={{ fontSize: 12, color: MID, margin: 0, lineHeight: 1.5 }}>
+            <strong>Paalala:</strong> Ang tool na ito ay para sa self-monitoring lang, hindi kapalit ng medical advice. Palaging magpakonsulta sa doctor para sa diagnosis at treatment.
           </p>
         </div>
       </div>

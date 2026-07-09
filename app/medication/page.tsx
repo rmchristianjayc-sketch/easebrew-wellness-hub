@@ -341,7 +341,14 @@ export default function MedicationPage() {
         {/* Tip */}
         <div style={{ background: `${GOLD}22`, borderRadius: 12, padding: "14px 16px", marginTop: 16, border: `1.5px solid ${GOLD}` }}>
           <p style={{ fontSize: 13, color: DARK, margin: 0, lineHeight: 1.5 }}>
-            <Lightbulb size={14} style={{ display: "inline", verticalAlign: "middle" }} /> <strong>Tip:</strong> Mag-set ng alarm sa phone para sa oras ng gamot. Ang EaseBrew ay kasama rin sa checklist mo para consistent ka araw-araw.
+            <Lightbulb size={14} style={{ display: "inline", verticalAlign: "middle" }} /> <strong>Tip:</strong> Mag-set ng alarm sa phone para sa oras ng gamot. Sundin ang instructions ng doctor sa dosage at oras.
+          </p>
+        </div>
+
+        {/* Medical disclaimer */}
+        <div style={{ marginTop: 14, padding: "12px 14px", background: "#f3f4f6", borderRadius: 10, border: "1px solid #d1d5db" }}>
+          <p style={{ fontSize: 12, color: "#4E504F", margin: 0, lineHeight: 1.5 }}>
+            <strong>Paalala:</strong> Ang tool na ito ay para sa reminder lang. Huwag baguhin, itigil, o dagdagan ang gamot na wala pang pahintulot ng doctor mo.
           </p>
         </div>
       </div>

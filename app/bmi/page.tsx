@@ -26,25 +26,25 @@ function getBmiCategory(bmi: number): BmiCategory {
     label: "Underweight",
     color: "#0284c7", bg: "#e0f2fe", border: "#7dd3fc",
     Icon: AlertTriangle,
-    advice: "Kailangan mo ng mas maraming sustansya. Kumain ng masusustansyang pagkain at magpakonsulta sa doctor. Ang EaseBrew ay tumutulong sa digestion para mas maraming nutrients ang ma-absorb ng katawan.",
+    advice: "Mababa ang timbang mo para sa taas mo. Magpakonsulta sa doctor para malaman ang dahilan. Kumain ng balanced meals at siguraduhin ang tamang sustansya araw-araw.",
   };
   if (bmi < 23) return {
     label: "Normal (Ideal)",
     color: "#166534", bg: "#dcfce7", border: "#86efac",
     Icon: CircleCheck,
-    advice: "Maganda! Normal ang timbang mo para sa height mo. Ituloy ang malusog na pamumuhay at regular na pag-inom ng EaseBrew.",
+    advice: "Maganda! Normal ang timbang mo para sa taas mo. Ituloy ang malusog na pamumuhay — balanced diet, regular exercise, at sapat na tubig araw-araw.",
   };
   if (bmi < 27.5) return {
     label: "Overweight",
     color: "#92400e", bg: "#fef9e7", border: "#fcd34d",
     Icon: AlertTriangle,
-    advice: "Medyo mataas ang timbang. Subukan ang light exercise araw-araw at iwasan ang matamis. Ang EaseBrew at regular na pag-inom ng tubig ay tumutulong sa metabolism.",
+    advice: "Medyo mataas ang timbang. Simulan sa 30 minuto ng light exercise araw-araw (paglakad, stretching), bawasan ang matamis at maalat na pagkain, at magpakonsulta sa doctor kung may health condition ka.",
   };
   return {
     label: "Obese",
     color: "#991b1b", bg: "#fef2f2", border: "#fca5a5",
     Icon: AlertCircle,
-    advice: "Magpakonsulta sa doctor para sa tamang plano. Magsimula sa light walking at sundin ang anti-inflammation meal plan. Ang EaseBrew ay may natural ingredients na tumutulong sa joint pain at metabolism.",
+    advice: "Mahalaga ang konsultasyon sa doctor para sa personalized na plano. Simulan sa mabagal na paglakad (10-15 min araw-araw), pumili ng balanced meals, at iwasan ang sobrang matamis. Regular check-up ay recommended.",
   };
 }
 
@@ -235,7 +235,7 @@ export default function BmiPage() {
         <div style={{ background: G, borderRadius: 18, padding: "20px", textAlign: "center" }}>
           <p style={{ color: GOLD, fontWeight: 700, fontSize: 17, margin: "0 0 8px" }}>Dagdag sa wellness mo!</p>
           <p style={{ color: "rgba(255,255,255,0.85)", fontSize: 15, margin: "0 0 16px", lineHeight: 1.7 }}>
-            Ang EaseBrew ay tumutulong sa anti-inflammation, digestion, at joint health — mahalaga para sa malusog na timbang.
+            Sundin ang meal plan at exercise para sa malusog na timbang. Ang EaseBrew ay bahagi ng iyong daily wellness routine.
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <Link href="/meal-plan" style={{ background: GOLD, color: G, borderRadius: 12, padding: "14px 24px", fontSize: 16, fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
@@ -245,6 +245,13 @@ export default function BmiPage() {
               <Dumbbell size={18} /> Tingnan ang Exercises →
             </Link>
           </div>
+        </div>
+
+        {/* Medical disclaimer */}
+        <div style={{ marginTop: 14, padding: "12px 14px", background: "#f3f4f6", borderRadius: 10, border: "1px solid #d1d5db" }}>
+          <p style={{ fontSize: 12, color: "#4E504F", margin: 0, lineHeight: 1.5 }}>
+            <strong>Paalala:</strong> Ang BMI ay estimate lang at hindi kasama ang muscle mass, bone density, o body composition. Para sa accurate na health assessment, magpakonsulta sa doctor.
+          </p>
         </div>
       </div>
     </div>

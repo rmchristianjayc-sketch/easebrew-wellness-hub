@@ -291,7 +291,14 @@ export default function MedicalCardPage() {
 
         <div style={{ background: `${GOLD}22`, borderRadius: 12, padding: "14px 16px", marginTop: 16, border: `1.5px solid ${GOLD}` }}>
           <p style={{ fontSize: 13, color: DARK, margin: 0, lineHeight: 1.5 }}>
-            <Lightbulb size={14} style={{ display: "inline", verticalAlign: "middle" }} /> <strong>Tip:</strong> I-screenshot ang &quot;Tingnan&quot; mode at i-save sa phone photos. Mabilis itong makikita ng doctor kung may emergency.
+            <Lightbulb size={14} style={{ display: "inline", verticalAlign: "middle" }} /> <strong>Tip:</strong> I-screenshot ang &quot;Tingnan&quot; mode at i-save sa phone photos, o i-print at ilagay sa wallet. Mabilis itong makikita ng doctor kung may emergency.
+          </p>
+        </div>
+
+        {/* Medical disclaimer */}
+        <div className="c-no-print" style={{ marginTop: 14, padding: "12px 14px", background: "#f3f4f6", borderRadius: 10, border: "1px solid #d1d5db" }}>
+          <p style={{ fontSize: 12, color: MID, margin: 0, lineHeight: 1.5 }}>
+            <strong>Paalala:</strong> Siguraduhing tama at up-to-date ang lahat ng impormasyon dito. Ang tool na ito ay para sa reference lang ng medical staff — hindi opisyal na medical record.
           </p>
         </div>
       </div>
