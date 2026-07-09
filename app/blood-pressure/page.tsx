@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
-import { Heart, ChevronLeft, Plus, Trash2, CircleCheck, Lightbulb, ClipboardList, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Heart, ChevronLeft, Plus, Trash2, CircleCheck, Lightbulb, ClipboardList, TrendingUp, TrendingDown, Minus, Printer } from "lucide-react";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";
@@ -143,9 +143,24 @@ export default function BloodPressurePage() {
     setForm({ date, time, systolic: "", diastolic: "", pulse: "", notes: "" });
   }
 
+  const [undoState, setUndoState] = useState<{ entry: BpEntry; timerId: number } | null>(null);
   function handleDelete(id: string) {
-    if (!confirm("Sigurado ka bang gusto mong burahin ito?")) return;
-    persist(entries.filter(e => e.id !== id));
+    const target = entries.find(e => e.id === id);
+    if (!target) return;
+    const next = entries.filter(e => e.id !== id);
+    persist(next);
+    if (undoState) {
+      clearTimeout(undoState.timerId);
+    }
+    const timerId = window.setTimeout(() => setUndoState(null), 5000);
+    setUndoState({ entry: target, timerId });
+  }
+  function handleUndoDelete() {
+    if (!undoState) return;
+    clearTimeout(undoState.timerId);
+    const next = [...entries, undoState.entry].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+    persist(next);
+    setUndoState(null);
   }
 
   // Weekly average — compute cutoff on mount so Date.now() is not called during render
@@ -247,8 +262,19 @@ export default function BloodPressurePage() {
 
         {/* Add reading button */}
         {!showForm && (
+          <>
+          {entries.length > 0 && (
+            <button
+              onClick={() => window.print()}
+              className="c-no-print"
+              style={{ width: "100%", background: GOLD, color: G, border: `2px solid ${G}`, borderRadius: 14, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 12 }}
+            >
+              <Printer size={18} /> I-print para sa Doctor
+            </button>
+          )}
           <button
             onClick={() => setShowForm(true)}
+            className="c-no-print"
             style={{
               width: "100%",
               background: G,
@@ -268,6 +294,7 @@ export default function BloodPressurePage() {
           >
             <Plus size={20} /> Magdagdag ng Reading
           </button>
+          </>
         )}
 
         {/* Form */}
@@ -288,12 +315,14 @@ export default function BloodPressurePage() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
               <div>
-                <label style={{ fontSize: 13, color: MID, fontWeight: 600, display: "block", marginBottom: 6 }}>Systolic (taas) *</label>
-                <input type="number" inputMode="numeric" min={60} max={260} value={form.systolic} onChange={e => setForm({ ...form, systolic: e.target.value })} placeholder="e.g. 120" required style={inputStyle} />
+                <label style={{ fontSize: 14, color: MID, fontWeight: 700, display: "block", marginBottom: 4 }}>Systolic *</label>
+                <p style={{ fontSize: 12, color: MID, margin: "0 0 6px", lineHeight: 1.35 }}>Ang <strong>malaking number</strong> sa taas ng BP monitor</p>
+                <input type="number" inputMode="numeric" min={60} max={260} value={form.systolic} onChange={e => setForm({ ...form, systolic: e.target.value })} placeholder="hal. 120" required style={inputStyle} />
               </div>
               <div>
-                <label style={{ fontSize: 13, color: MID, fontWeight: 600, display: "block", marginBottom: 6 }}>Diastolic (baba) *</label>
-                <input type="number" inputMode="numeric" min={40} max={200} value={form.diastolic} onChange={e => setForm({ ...form, diastolic: e.target.value })} placeholder="e.g. 80" required style={inputStyle} />
+                <label style={{ fontSize: 14, color: MID, fontWeight: 700, display: "block", marginBottom: 4 }}>Diastolic *</label>
+                <p style={{ fontSize: 12, color: MID, margin: "0 0 6px", lineHeight: 1.35 }}>Ang <strong>maliit na number</strong> sa baba ng BP monitor</p>
+                <input type="number" inputMode="numeric" min={40} max={200} value={form.diastolic} onChange={e => setForm({ ...form, diastolic: e.target.value })} placeholder="hal. 80" required style={inputStyle} />
               </div>
             </div>
 
@@ -319,8 +348,17 @@ export default function BloodPressurePage() {
         )}
 
         {saved && (
-          <div style={{ background: "#dcfce7", color: "#166534", borderRadius: 12, padding: "12px 16px", marginBottom: 16, fontSize: 14, fontWeight: 600, textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-            <CircleCheck size={16} /> Na-save na!
+          <div className="c-toast c-no-print">
+            <CircleCheck size={22} /> Naka-save na!
+          </div>
+        )}
+
+        {undoState && (
+          <div className="c-toast c-no-print" style={{ background: "#1B201A" }}>
+            <span>Na-delete. Gusto mo bang ibalik?</span>
+            <button onClick={handleUndoDelete} style={{ background: GOLD, color: G, border: "none", padding: "8px 16px", borderRadius: 999, fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif" }}>
+              I-undo
+            </button>
           </div>
         )}
 

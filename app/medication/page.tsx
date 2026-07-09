@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
-import { Pill, ChevronLeft, Plus, Trash2, Check, Sun, CloudSun, Sunset, Moon, CircleCheck, Lightbulb, BarChart3 } from "lucide-react";
+import { Pill, ChevronLeft, Plus, Trash2, Check, Sun, CloudSun, Sunset, Moon, CircleCheck, Lightbulb, BarChart3, Printer } from "lucide-react";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";
@@ -90,12 +90,23 @@ export default function MedicationPage() {
     setShowForm(false);
   }
 
+  const [undoState, setUndoState] = useState<{ med: Medication; timerId: number } | null>(null);
   function handleDeleteMed(id: string) {
-    if (!confirm("Sigurado ka bang gusto mong tanggalin ang gamot na ito?")) return;
+    const target = medications.find(m => m.id === id);
+    if (!target) return;
     const key = (schedule: Schedule) => `${id}|${schedule}`;
-    const scheduleKeys = medications.find(m => m.id === id)?.schedules.map(key) ?? [];
+    const scheduleKeys = target.schedules.map(key);
     const cleanedLogs = logs.map(l => ({ ...l, taken: l.taken.filter(t => !scheduleKeys.includes(t)) }));
     persist(medications.filter(m => m.id !== id), cleanedLogs);
+    if (undoState) clearTimeout(undoState.timerId);
+    const timerId = window.setTimeout(() => setUndoState(null), 5000);
+    setUndoState({ med: target, timerId });
+  }
+  function handleUndoDeleteMed() {
+    if (!undoState) return;
+    clearTimeout(undoState.timerId);
+    persist([...medications, undoState.med], logs);
+    setUndoState(null);
   }
 
   function toggleTaken(medId: string, schedule: Schedule) {
@@ -236,13 +247,20 @@ export default function MedicationPage() {
 
         {/* Medication list & add form */}
         <div style={{ background: WHITE, borderRadius: 20, padding: "22px", marginBottom: 20, border: "1.5px solid #D8CDBA" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: 0 }}>Mga Gamot Ko</h2>
-            {!showForm && (
-              <button onClick={() => setShowForm(true)} style={{ background: G, color: "#fff", border: "none", borderRadius: 10, padding: "8px 14px", fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
-                <Plus size={16} /> Dagdag
-              </button>
-            )}
+            <div className="c-no-print" style={{ display: "flex", gap: 8 }}>
+              {medications.length > 0 && (
+                <button onClick={() => window.print()} style={{ background: GOLD, color: G, border: `2px solid ${G}`, borderRadius: 10, padding: "8px 14px", fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                  <Printer size={16} /> Print
+                </button>
+              )}
+              {!showForm && (
+                <button onClick={() => setShowForm(true)} style={{ background: G, color: "#fff", border: "none", borderRadius: 10, padding: "8px 14px", fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                  <Plus size={16} /> Dagdag
+                </button>
+              )}
+            </div>
           </div>
 
           {showForm && (
@@ -333,8 +351,17 @@ export default function MedicationPage() {
         )}
 
         {saved && (
-          <div style={{ background: "#dcfce7", color: "#166534", borderRadius: 12, padding: "12px 16px", marginTop: 16, fontSize: 14, fontWeight: 600, textAlign: "center" }}>
-            <CircleCheck size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Na-save na!
+          <div className="c-toast c-no-print">
+            <CircleCheck size={22} /> Naka-save na!
+          </div>
+        )}
+
+        {undoState && (
+          <div className="c-toast c-no-print" style={{ background: "#1B201A" }}>
+            <span>Na-delete. Gusto mo bang ibalik?</span>
+            <button onClick={handleUndoDeleteMed} style={{ background: GOLD, color: G, border: "none", padding: "8px 16px", borderRadius: 999, fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif" }}>
+              I-undo
+            </button>
           </div>
         )}
 

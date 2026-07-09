@@ -188,9 +188,14 @@ export default function MedicalCardPage() {
               <div style={{ marginBottom: 16 }}>
                 <p style={{ fontSize: 12, color: G, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: "0 0 8px", display: "flex", alignItems: "center", gap: 6 }}><Phone size={14} /> Emergency Contacts</p>
                 {card.emergencyContacts.filter(c => c.name.trim()).map((c, i) => (
-                  <div key={i} style={{ background: "#f0fdf4", borderRadius: 10, padding: "10px 12px", marginBottom: 6, border: "1.5px solid #86efac" }}>
-                    <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0 }}>{c.name} {c.relationship && <span style={{ fontSize: 13, color: MID, fontWeight: 500 }}>({c.relationship})</span>}</p>
-                    {c.phone && <p style={{ fontSize: 14, color: G, margin: "2px 0 0", fontWeight: 600 }}><Smartphone size={13} style={{ display: "inline", verticalAlign: "middle" }} /> {c.phone}</p>}
+                  <div key={i} style={{ background: "#f0fdf4", borderRadius: 10, padding: "12px 14px", marginBottom: 6, border: "1.5px solid #86efac" }}>
+                    <p style={{ fontSize: 16, fontWeight: 700, color: DARK, margin: 0 }}>{c.name} {c.relationship && <span style={{ fontSize: 14, color: MID, fontWeight: 500 }}>({c.relationship})</span>}</p>
+                    {c.phone && (
+                      <a href={`tel:${c.phone.replace(/[^0-9+]/g, "")}`} className="c-no-print" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 8, background: G, color: "#fff", padding: "10px 14px", borderRadius: 10, textDecoration: "none", fontSize: 16, fontWeight: 700, minHeight: 48 }}>
+                        <Phone size={18} /> Tumawag: {c.phone}
+                      </a>
+                    )}
+                    {c.phone && <p className="c-print-only" style={{ fontSize: 14, color: G, margin: "4px 0 0", fontWeight: 600 }}>Phone: {c.phone}</p>}
                   </div>
                 ))}
               </div>
@@ -199,10 +204,15 @@ export default function MedicalCardPage() {
             {(card.primaryDoctor.name || card.primaryDoctor.phone) && (
               <div style={{ marginBottom: 8 }}>
                 <p style={{ fontSize: 12, color: "#0ea5e9", fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: "0 0 8px", display: "flex", alignItems: "center", gap: 6 }}><UserRound size={14} /> Primary Doctor</p>
-                <div style={{ background: "#f0f9ff", borderRadius: 10, padding: "10px 12px", border: "1.5px solid #7dd3fc" }}>
-                  {card.primaryDoctor.name && <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0 }}>{card.primaryDoctor.name}</p>}
-                  {card.primaryDoctor.clinic && <p style={{ fontSize: 13, color: MID, margin: "2px 0 0" }}>{card.primaryDoctor.clinic}</p>}
-                  {card.primaryDoctor.phone && <p style={{ fontSize: 14, color: "#0284c7", margin: "2px 0 0", fontWeight: 600 }}><Smartphone size={13} style={{ display: "inline", verticalAlign: "middle" }} /> {card.primaryDoctor.phone}</p>}
+                <div style={{ background: "#f0f9ff", borderRadius: 10, padding: "12px 14px", border: "1.5px solid #7dd3fc" }}>
+                  {card.primaryDoctor.name && <p style={{ fontSize: 16, fontWeight: 700, color: DARK, margin: 0 }}>{card.primaryDoctor.name}</p>}
+                  {card.primaryDoctor.clinic && <p style={{ fontSize: 14, color: MID, margin: "2px 0 0" }}>{card.primaryDoctor.clinic}</p>}
+                  {card.primaryDoctor.phone && (
+                    <a href={`tel:${card.primaryDoctor.phone.replace(/[^0-9+]/g, "")}`} className="c-no-print" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 8, background: "#0284c7", color: "#fff", padding: "10px 14px", borderRadius: 10, textDecoration: "none", fontSize: 16, fontWeight: 700, minHeight: 48 }}>
+                      <Phone size={18} /> Tumawag sa Doctor
+                    </a>
+                  )}
+                  {card.primaryDoctor.phone && <p className="c-print-only" style={{ fontSize: 14, color: "#0284c7", margin: "4px 0 0", fontWeight: 600 }}>Phone: {card.primaryDoctor.phone}</p>}
                 </div>
               </div>
             )}

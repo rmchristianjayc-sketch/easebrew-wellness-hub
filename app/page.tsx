@@ -721,6 +721,14 @@ export default function Home() {
   const [promoEnabled, setPromoEnabled]     = useState(false);
   const [promoDismissed, setPromoDismissed] = useState(false);
   const [largeFont, setLargeFont] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setLargeFont(localStorage.getItem("eb_large_font") === "1");
+  }, []);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("eb_large_font", largeFont ? "1" : "0");
+  }, [largeFont]);
   const [reminderOn, setReminderOn] = useState(false);
   const [expiryDismissed, setExpiryDismissed] = useState(false);
   const [daysSinceLog, setDaysSinceLog]     = useState<number | null>(null);
@@ -944,9 +952,18 @@ export default function Home() {
               {getTierLabel(customerTier)}
             </p>
           </div>
-          <div style={{ background: "rgba(254,210,85,0.15)", border: "1.5px solid rgba(254,210,85,0.4)", borderRadius: 14, padding: "8px 14px", textAlign: "center" as const }}>
-            <p style={{ color: GOLD, fontSize: 20, fontWeight: 900, margin: 0, lineHeight: 1 }}>{unlockedProducts.length}</p>
-            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 11, margin: "2px 0 0 0", fontWeight: 600 }}>Regalo</p>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <button
+              onClick={() => setLargeFont(v => !v)}
+              aria-label={largeFont ? "Gawing maliit ang text" : "Palakihin ang text"}
+              style={{ background: largeFont ? GOLD : "rgba(254,210,85,0.15)", border: "1.5px solid rgba(254,210,85,0.4)", borderRadius: 12, padding: "8px 12px", cursor: "pointer", color: largeFont ? G : GOLD, fontWeight: 900, fontSize: 16, display: "flex", alignItems: "center", gap: 4, fontFamily: "Georgia, serif" }}
+            >
+              <span style={{ fontSize: 13 }}>A</span><span style={{ fontSize: 18 }}>A</span>
+            </button>
+            <div style={{ background: "rgba(254,210,85,0.15)", border: "1.5px solid rgba(254,210,85,0.4)", borderRadius: 14, padding: "8px 14px", textAlign: "center" as const }}>
+              <p style={{ color: GOLD, fontSize: 20, fontWeight: 900, margin: 0, lineHeight: 1 }}>{unlockedProducts.length}</p>
+              <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 11, margin: "2px 0 0 0", fontWeight: 600 }}>Regalo</p>
+            </div>
           </div>
         </div>
         <nav className="customer-home-nav" aria-label="Main menu" style={{ display: "flex", marginTop: 8 }}>
