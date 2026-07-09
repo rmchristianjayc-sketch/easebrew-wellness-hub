@@ -49,8 +49,8 @@ async function maybeShowReminder() {
 
   if (h >= 7 && h < 9 && !(await wasShown(`shown-${today}-am`))) {
     await markShown(`shown-${today}-am`);
-    await self.registration.showNotification('☕ EaseBrew — Morning!', {
-      body: 'Drink your EaseBrew now for the best results!',
+    await self.registration.showNotification('EaseBrew — Umaga!', {
+      body: 'Inumin mo na ang EaseBrew mo para sa pinakamagandang resulta!',
       icon: '/icons/icon-192.png',
       badge: '/icons/icon-192.png',
       tag: `eb-am-${today}`,
@@ -63,8 +63,8 @@ async function maybeShowReminder() {
     });
   } else if (h >= 19 && h < 21 && !(await wasShown(`shown-${today}-pm`))) {
     await markShown(`shown-${today}-pm`);
-    await self.registration.showNotification('🌙 EaseBrew — Evening!', {
-      body: 'Don't forget to drink your EaseBrew before bed!',
+    await self.registration.showNotification('EaseBrew — Gabi!', {
+      body: 'Huwag kalimutang uminom ng EaseBrew bago matulog!',
       icon: '/icons/icon-192.png',
       badge: '/icons/icon-192.png',
       tag: `eb-pm-${today}`,

@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
       .limit(limit);
 
     if (error) {
-      return NextResponse.json({ error: 'Failed to fetch audit log.', detail: error.message, code: error.code }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to fetch audit log.' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, entries: data ?? [] });

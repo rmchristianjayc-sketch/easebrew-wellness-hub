@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
-import { ChevronLeft, ChevronUp, ChevronDown, Dumbbell, Sprout, Zap, Trophy, Coffee, Lightbulb, Droplets, OctagonX, CalendarDays, CircleCheck, Moon as MoonIcon, Clock } from "lucide-react";
+import { ChevronLeft, ChevronUp, ChevronDown, Dumbbell, Sprout, Trophy, Coffee, Lightbulb, Droplets, OctagonX, CalendarDays, CircleCheck, Moon as MoonIcon } from "lucide-react";
 
 const G = "#39613B";
 const GOLD = "#FED255";

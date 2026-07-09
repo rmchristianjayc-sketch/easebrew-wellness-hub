@@ -71,9 +71,15 @@ export async function PATCH(req: NextRequest) {
       const notes = typeof body.notes === 'string' ? body.notes.slice(0, 500) : '';
       let query = supabaseAdmin.from('access_codes').update({ notes }).eq('id', id);
       if (admin.role === 'coach') query = query.eq('created_by', admin.username);
-      const { error } = await query;
+      const { data, error } = await query.select('id').maybeSingle();
       if (error) return NextResponse.json({ error: 'Failed to update notes.' }, { status: 500 });
-      writeAuditLog({ admin_username: admin.username, action: 'update_code_notes', target_id: id });
+      if (!data) {
+        return NextResponse.json(
+          { error: 'Code not found or not allowed for this account.' },
+          { status: 404 }
+        );
+      }
+      await writeAuditLog({ admin_username: admin.username, action: 'update_code_notes', target_id: id });
       return NextResponse.json({ success: true });
     }
 
@@ -100,7 +106,7 @@ export async function PATCH(req: NextRequest) {
           { status: 404 }
         );
       }
-      writeAuditLog({ admin_username: admin.username, action: 'deactivate_code', target_id: id, target_code: (data as { code?: string }).code });
+      await writeAuditLog({ admin_username: admin.username, action: 'deactivate_code', target_id: id, target_code: (data as { code?: string }).code });
     }
 
     if (action === 'reactivate') {
@@ -114,7 +120,7 @@ export async function PATCH(req: NextRequest) {
       if (!data) {
         return NextResponse.json({ error: 'Code not found.' }, { status: 404 });
       }
-      writeAuditLog({ admin_username: admin.username, action: 'reactivate_code', target_id: id, target_code: (data as { code?: string }).code });
+      await writeAuditLog({ admin_username: admin.username, action: 'reactivate_code', target_id: id, target_code: (data as { code?: string }).code });
     }
 
     return NextResponse.json({ success: true });
@@ -185,7 +191,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to delete code.' }, { status: 500 });
     }
 
-    writeAuditLog({ admin_username: admin.username, action: 'delete_code', target_id: id, target_code: codeRow.code });
+    await writeAuditLog({ admin_username: admin.username, action: 'delete_code', target_id: id, target_code: codeRow.code });
     return NextResponse.json({ success: true });
 
   } catch {

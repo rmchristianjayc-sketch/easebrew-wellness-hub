@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
-import { Heart, ChevronLeft, Plus, Trash2, AlertTriangle, CircleCheck, Lightbulb, ClipboardList } from "lucide-react";
+import { Heart, ChevronLeft, Plus, Trash2, CircleCheck, Lightbulb, ClipboardList } from "lucide-react";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";

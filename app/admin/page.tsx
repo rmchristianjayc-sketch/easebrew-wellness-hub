@@ -8,7 +8,7 @@ import { getCoachLabel } from "@/lib/coachLabel";
 import type { AccessCode } from "@/lib/supabase";
 import {
   Users, TrendingUp, Clock,
-  AlertTriangle, ChevronRight, Package, ArrowUpRight,
+  AlertTriangle, Package, ArrowUpRight,
   CalendarDays,
 } from "lucide-react";
 

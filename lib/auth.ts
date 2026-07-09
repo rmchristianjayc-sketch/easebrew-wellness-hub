@@ -104,6 +104,7 @@ export async function verifyToken(req: NextRequest): Promise<AdminPayload | null
 
   try {
     const { payload } = await verifySignedToken(token);
+    if (payload.kind !== 'admin') return null;
     return isValidAdminPayload(payload) ? await getActiveAdminPayload(payload) : null;
   } catch {
     return null;
@@ -111,7 +112,7 @@ export async function verifyToken(req: NextRequest): Promise<AdminPayload | null
 }
 
 export async function createAdminToken(payload: AdminPayload) {
-  return new SignJWT(payload)
+  return new SignJWT({ ...payload, kind: 'admin' })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('24h')

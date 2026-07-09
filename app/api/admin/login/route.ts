@@ -6,6 +6,8 @@ import { writeAuditLog } from '@/lib/audit';
 
 const MAX_ATTEMPTS = 8;
 const WINDOW_MINUTES = 15;
+// Precomputed dummy hash (bcrypt cost 10) so timing is constant when username doesn't exist.
+const DUMMY_HASH = '$2a$10$CwTycUXWue0Thq9StjUM0uJ8UjZQtG2gLh8H9Xn5eZbXeZbXeZbXe';
 
 type AdminRole = 'owner' | 'coach';
 type LoginAdminUser = {
@@ -102,13 +104,13 @@ export async function POST(req: NextRequest) {
     await recordAttempt(rateLimitKey);
 
     const adminUser = await findAdminUser(normalizedUsername);
-    const isValidPassword =
-      adminUser?.is_active === true
-        ? await compare(password, adminUser.password_hash)
-        : false;
+    // Always run bcrypt.compare to prevent username enumeration via timing.
+    const hashToCheck = adminUser?.is_active === true ? adminUser.password_hash : DUMMY_HASH;
+    const passwordMatches = await compare(password, hashToCheck);
+    const isValidPassword = passwordMatches && adminUser?.is_active === true;
 
     if (!adminUser || !isValidPassword) {
-      writeAuditLog({ admin_username: normalizedUsername, action: 'admin_login_failed' });
+      await writeAuditLog({ admin_username: normalizedUsername, action: 'admin_login_failed' });
       return NextResponse.json(
         { error: 'Invalid username or password.' },
         { status: 401 }
@@ -116,7 +118,7 @@ export async function POST(req: NextRequest) {
     }
 
     await clearAttempts(rateLimitKey);
-    writeAuditLog({ admin_username: adminUser.username, action: 'admin_login' });
+    await writeAuditLog({ admin_username: adminUser.username, action: 'admin_login' });
     const response = NextResponse.json({
       success: true,
       role: adminUser.role,

@@ -9,8 +9,35 @@ function normalizeCode(value: unknown) {
   return `${stripped.slice(0, 4)}-${stripped.slice(4, 8)}-${stripped.slice(8)}`;
 }
 
+const DEVICE_ID_RE = /^dev_[0-9a-f]{32}$/;
 function isValidDeviceId(value: unknown): value is string {
-  return typeof value === 'string' && value.length >= 8 && value.length <= 128;
+  return typeof value === 'string' && DEVICE_ID_RE.test(value);
+}
+
+const VERIFY_MAX_ATTEMPTS = 10;
+const VERIFY_WINDOW_MINUTES = 15;
+
+function getVerifyIp(req: NextRequest) {
+  const forwardedFor = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
+  return forwardedFor || req.headers.get('x-real-ip') || 'unknown';
+}
+
+async function isVerifyRateLimited(ip: string, deviceId: string) {
+  const windowStart = new Date(Date.now() - VERIFY_WINDOW_MINUTES * 60 * 1000).toISOString();
+  const identifier = `${ip}:${deviceId}`;
+  const { count, error } = await supabaseAdmin
+    .from('admin_login_attempts')
+    .select('id', { count: 'exact', head: true })
+    .eq('identifier', `verify:${identifier}`)
+    .gt('attempted_at', windowStart);
+  if (error) return false;
+  return (count ?? 0) >= VERIFY_MAX_ATTEMPTS;
+}
+
+async function recordVerifyAttempt(ip: string, deviceId: string) {
+  await supabaseAdmin
+    .from('admin_login_attempts')
+    .insert({ identifier: `verify:${ip}:${deviceId}` });
 }
 
 export async function POST(req: NextRequest) {
@@ -25,6 +52,15 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    const ip = getVerifyIp(req);
+    if (await isVerifyRateLimited(ip, deviceId)) {
+      return NextResponse.json(
+        { error: 'Too many attempts. Please try again later.' },
+        { status: 429 }
+      );
+    }
+    await recordVerifyAttempt(ip, deviceId);
 
     const { data: accessCode, error: fetchError } = await supabaseAdmin
       .from('access_codes')

@@ -7,8 +7,8 @@ import { buildCoaches, DEFAULT_COACHES, type Coach } from "@/lib/coaches";
 import { G, GOLD, WHITE, DARK, MID, AMBER } from "@/lib/colors";
 import { getDeviceId } from "@/lib/device";
 import { PRICE_CONFIG } from "@/lib/price-config";
-import { DEFAULT_PRODUCTS, getGiftsForTier } from "@/lib/products";
-import { Gift, KeyRound, Phone, HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard, Timer, Smartphone, AlertTriangle, AlertCircle, Coffee, MessageCircle, Lock, CircleCheck, Leaf, ShoppingCart, X as XIcon } from "lucide-react";
+import { DEFAULT_PRODUCTS } from "@/lib/products";
+import { Gift, KeyRound, Phone, HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard, Coffee, MessageCircle, Lock, CircleCheck, Leaf } from "lucide-react";
 
 type ErrorType = "invalid" | "expired" | "other_device" | "incomplete" | "server" | null;
 type View = "verify" | "gifts" | "coaches";
@@ -72,9 +72,9 @@ const PRODUCT_ICONS: Record<number, { icon: typeof HeartPulse; bg: string }> = {
 };
 
 const FREE_TOOLS = [
-  { name: "Blood Pressure Monitor", icon: Activity, bg: "#8E44AD" },
-  { name: "Medication Reminder",    icon: Pill,     bg: "#E67E22" },
-  { name: "Medical Card",           icon: IdCard,   bg: "#16A085" },
+  { name: "Blood Pressure Log",    icon: Activity, bg: "#8E44AD" },
+  { name: "Gamot Log",             icon: Pill,     bg: "#E67E22" },
+  { name: "Medical Info Card",     icon: IdCard,   bg: "#16A085" },
 ];
 
 function buildPerks(content: Record<string, string>) {
@@ -88,13 +88,21 @@ function buildPerks(content: Record<string, string>) {
     return {
       tier,
       label: cfg.label,
-      note: `${cfg.validityDays} days access to Wellness Hub`,
-      products: unlocked.map(p => ({
-        id: p.id,
-        name: content[`product_${p.id}_name`]?.trim() || p.name,
-      })),
+      note: `${cfg.validityDays} araw na access sa Wellness Hub`,
+      products: unlocked.map(p => {
+        const tagalogNames: Record<number, string> = {
+          1: "Daily Health Tracker",
+          2: "Meal Plan + Recipe Book",
+          3: "Home Exercise Guide",
+          4: "Complete Wellness Program",
+        };
+        return {
+          id: p.id,
+          name: content[`product_${p.id}_name`]?.trim() || tagalogNames[p.id] || p.name,
+        };
+      }),
       highlight: tier === 5996,
-      badge: cfg.packs >= 30 ? "👑 Premium Member" : cfg.packs >= 20 ? "⭐ VIP Member" : null,
+      badge: cfg.packs >= 30 ? "Premium Member" : cfg.packs >= 20 ? "VIP Member" : null,
       perPack,
       saved,
       savePct: pct,
@@ -115,7 +123,7 @@ function CoachCard({ coach }: { coach: Coach }) {
         />
         <div>
           <p style={{ fontSize: 22, fontWeight: 900, color: DARK, margin: 0, fontFamily: "Georgia, serif" }}>{coach.name}</p>
-          <p style={{ fontSize: 16, color: G, margin: "4px 0 0", fontWeight: 700, fontFamily: "Georgia, serif" }}>EaseBrew Wellness Coach</p>
+          <p style={{ fontSize: 16, color: G, margin: "4px 0 0", fontWeight: 700, fontFamily: "Georgia, serif" }}>EaseBrew Wellness Guide</p>
           <p className="c-body" style={{ margin: "3px 0 0" }}>{coach.display}</p>
         </div>
       </div>
@@ -240,7 +248,7 @@ export default function VerifyPage() {
             </div>
           </div>
 
-          <div style={{ padding: "0 18px" }}>
+          <div style={{ padding: "0 18px", paddingBottom: 90 }}>
             <p className="c-body" style={{ textAlign: "center", padding: "18px 0", margin: 0 }}>
               Ilagay ang code mula sa coach mo para ma-access ang wellness guide mo.
             </p>
@@ -271,12 +279,12 @@ export default function VerifyPage() {
                   autoCapitalize="characters"
                   autoComplete="one-time-code"
                   style={{
-                    width: "100%", minHeight: 86, padding: "18px 16px",
+                    width: "100%", minHeight: 64, padding: "14px 8px",
                     borderRadius: 20,
                     border: `3px solid ${isComplete ? G : errorType ? "#dc2626" : "#D8CDBA"}`,
                     background: isComplete ? "#F0F8F0" : WHITE,
-                    color: G, fontFamily: "monospace", fontSize: 34, fontWeight: 900,
-                    letterSpacing: 6, textAlign: "center", outline: "none",
+                    color: G, fontFamily: "monospace", fontSize: "clamp(18px, 5.5vw, 26px)", fontWeight: 900,
+                    letterSpacing: "clamp(1px, 0.8vw, 4px)", textAlign: "center", outline: "none",
                     boxSizing: "border-box",
                     transition: "border-color 0.2s, box-shadow 0.2s",
                     boxShadow: isComplete
@@ -300,7 +308,7 @@ export default function VerifyPage() {
                 <button type="button" onClick={handleVerify} disabled={loading || !isComplete}
                   className={`c-btn ${isComplete ? "c-btn-green" : ""}`}
                   style={{ marginTop: 20, opacity: isComplete ? 1 : 0.55, background: isComplete ? G : "#BFAF8F" }}>
-                  {loading ? "⏳ Sandali lang..." : "Buksan ang Hub Ko"}
+                  {loading ? "Sandali lang..." : "Buksan ang Hub Ko"}
                 </button>
 
                 {/* Wala pang code */}
@@ -330,7 +338,7 @@ export default function VerifyPage() {
             {/* ── Gifts View ── */}
             {view === "gifts" && (
               <section>
-                <h2 className="c-title" style={{ margin: "18px 0 8px" }}>Packages &amp; Free Gifts</h2>
+                <h2 className="c-title" style={{ margin: "18px 0 8px" }}>Mga Package at Libreng Regalo</h2>
                 <p className="c-body" style={{ margin: "0 0 18px" }}>Mas mataas na package, mas maraming wellness tools para sayo.</p>
                 <div style={{ display: "grid", gap: 14, marginBottom: 20 }}>
                   {perks.map(perk => {
@@ -345,8 +353,8 @@ export default function VerifyPage() {
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                           <h3 style={{ fontSize: 22, margin: 0, fontWeight: 900, color: perk.highlight ? GOLD : DARK, fontFamily: "Georgia, serif" }}>{perk.label}</h3>
                           <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                            {perk.badge && <span style={{ background: perk.badge.includes("👑") ? "linear-gradient(135deg, #FFD700, #FF8C00)" : "linear-gradient(135deg, #FFD700, #FFA500)", color: "#1a1a1a", borderRadius: 999, padding: "5px 12px", fontSize: 12, fontWeight: 900, whiteSpace: "nowrap" }}>{perk.badge}</span>}
-                            {perk.highlight && <span style={{ background: GOLD, color: G, borderRadius: 999, padding: "5px 12px", fontSize: 13, fontWeight: 900 }}>⭐ BEST</span>}
+                            {perk.badge && <span style={{ background: "linear-gradient(135deg, #FFD700, #FF8C00)", color: "#1a1a1a", borderRadius: 999, padding: "5px 12px", fontSize: 12, fontWeight: 900, whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 4 }}><Crown size={12} /> {perk.badge}</span>}
+                            {perk.highlight && <span style={{ background: GOLD, color: G, borderRadius: 999, padding: "5px 12px", fontSize: 13, fontWeight: 900, display: "inline-flex", alignItems: "center", gap: 4 }}><Crown size={13} /> BEST</span>}
                           </div>
                         </div>
                         <p style={{ fontSize: 16, opacity: 0.78, margin: "0 0 4px", fontFamily: "Georgia, serif", lineHeight: 1.6 }}>{perk.note}</p>
@@ -375,7 +383,7 @@ export default function VerifyPage() {
                           </div>
                         )}
                         {/* Free tools — included in every package */}
-                        <p style={{ fontSize: 13, fontWeight: 700, margin: perk.products.length > 0 ? "4px 0 6px" : "0 0 6px", opacity: 0.6, textTransform: "uppercase", letterSpacing: 0.5 }}>Free Health Tools</p>
+                        <p style={{ fontSize: 13, fontWeight: 700, margin: perk.products.length > 0 ? "4px 0 6px" : "0 0 6px", opacity: 0.6, textTransform: "uppercase", letterSpacing: 0.5 }}>Libreng Health Tools</p>
                         <div style={{ display: "grid", gap: 6, margin: "0 0 16px" }}>
                           {FREE_TOOLS.map(tool => {
                             const FIcon = tool.icon;
@@ -390,7 +398,7 @@ export default function VerifyPage() {
                           })}
                         </div>
                         <button type="button" onClick={() => setView("coaches")} className="c-btn c-btn-gold">
-                          <Phone size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Order from Coach
+                          <Phone size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Mag-order sa Coach
                         </button>
                       </div>
                     );
@@ -429,7 +437,7 @@ export default function VerifyPage() {
               minHeight: 60, border: 0, borderRadius: 12,
               background: active ? "rgba(254,210,85,0.15)" : "transparent",
               color: active ? GOLD : "rgba(255,255,255,0.72)",
-              fontFamily: "Georgia, serif", fontSize: 14, fontWeight: 700, cursor: "pointer",
+              fontFamily: "Georgia, serif", fontSize: "clamp(11px, 3.5vw, 14px)", fontWeight: 700, cursor: "pointer",
               display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
             }}>
               <Icon size={22} strokeWidth={active ? 2.5 : 1.8} />

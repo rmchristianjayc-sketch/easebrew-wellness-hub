@@ -174,9 +174,9 @@ function ExpiryBanner({ daysLeft, onReorder, onDismiss }: { daysLeft: number; on
       <span style={{ flexShrink: 0 }}>{urgent ? <AlertCircle size={22} color="#fca5a5" /> : <Timer size={22} color="#f59e0b" />}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontSize: 15, fontWeight: 700, color: urgent ? "#fca5a5" : "#FED255", margin: "0 0 2px" }}>
-          {urgent ? `Only ${daysLeft} days left!` : `Expires in ${daysLeft} days!`}
+          {urgent ? `${daysLeft} araw na lang!` : `Mag-e-expire sa ${daysLeft} araw!`}
         </p>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", margin: 0 }}>Order now so your wellness journey continues uninterrupted.</p>
+        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", margin: 0 }}>Mag-order na para tuloy-tuloy ang wellness journey mo.</p>
       </div>
       <button onClick={onReorder} style={{ background: urgent ? "#ef4444" : "#f59e0b", color: "white", border: "none", borderRadius: 10, padding: "10px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer", flexShrink: 0 }}>
         <ShoppingCart size={14} style={{ display: "inline", verticalAlign: "middle" }} /> Order
@@ -233,15 +233,15 @@ function CoachModal({ coaches, onClose, reorderMessage }: { coaches: Coach[]; on
               onClick={() => navigator.clipboard.writeText(reorderMessage).then(() => { setMsgCopied(true); setTimeout(() => setMsgCopied(false), 3000); })}
               style={{ background: msgCopied ? "#39613B" : "white", color: msgCopied ? "white" : "#39613B", border: "2px solid #39613B", borderRadius: 10, padding: "10px 18px", fontSize: 14, fontWeight: 700, cursor: "pointer", width: "100%" }}
             >
-              {msgCopied ? <><CircleCheck size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Copied!</> : <><Copy size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Copy Message</>}
+              {msgCopied ? <><CircleCheck size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Na-copy na!</> : <><Copy size={16} style={{ display: "inline", verticalAlign: "middle" }} /> I-copy ang Mensahe</>}
             </button>
           </div>
         )}
         <div style={{ padding: "12px 24px 20px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 4px 0", display: "flex", alignItems: "center", gap: 8 }}><Users size={22} /> Choose Your Coach</h2>
-              <p style={{ fontSize: 15, color: MID, margin: 0 }}>{reorderMessage ? "Copy the message above, then send to your coach!" : "Call or message to order"}</p>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 4px 0", display: "flex", alignItems: "center", gap: 8 }}><Users size={22} /> Pumili ng Coach</h2>
+              <p style={{ fontSize: 15, color: MID, margin: 0 }}>{reorderMessage ? "I-copy ang mensahe sa taas, tapos i-send sa coach mo!" : "Tumawag o mag-message para mag-order"}</p>
             </div>
             <button onClick={onClose} style={{ background: "#F0EDE6", border: "none", borderRadius: 999, width: 40, height: 40, cursor: "pointer", color: MID, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><X size={20} /></button>
           </div>
@@ -253,7 +253,7 @@ function CoachModal({ coaches, onClose, reorderMessage }: { coaches: Coach[]; on
                 <Image src={c.photo} alt={c.name} width={52} height={52} style={{ width: 52, height: 52, borderRadius: 14, objectFit: "cover", border: `2px solid ${G}`, flexShrink: 0 }} />
                 <div>
                   <p style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: 0 }}>{c.name}</p>
-                  <p style={{ fontSize: 13, color: G, margin: "2px 0 0 0", fontWeight: 600 }}>R&M EaseBrew Wellness Coach</p>
+                  <p style={{ fontSize: 13, color: G, margin: "2px 0 0 0", fontWeight: 600 }}>EaseBrew Wellness Guide</p>
                 </div>
               </div>
               <div style={{ display: "flex", gap: 10 }}>
@@ -265,8 +265,8 @@ function CoachModal({ coaches, onClose, reorderMessage }: { coaches: Coach[]; on
           ))}
         </div>
         <div style={{ margin: "20px 20px 0", background: "#FEF9E7", borderRadius: 14, padding: "14px 18px", border: `1.5px solid ${GOLD}`, textAlign: "center" as const }}>
-          <p style={{ fontSize: 15, color: AMBER, fontWeight: 700, margin: "0 0 4px 0", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><MessageCircle size={16} /> Don&apos;t hesitate!</p>
-          <p style={{ fontSize: 14, color: MID, margin: 0, lineHeight: 1.6 }}>We&apos;re always here for you. Tap <Phone size={13} style={{ display: "inline", verticalAlign: "middle" }} /> to call directly!</p>
+          <p style={{ fontSize: 15, color: AMBER, fontWeight: 700, margin: "0 0 4px 0", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><MessageCircle size={16} /> Huwag mag-atubili!</p>
+          <p style={{ fontSize: 14, color: MID, margin: 0, lineHeight: 1.6 }}>Lagi kaming nandito para sa iyo. I-tap ang <Phone size={13} style={{ display: "inline", verticalAlign: "middle" }} /> para tumawag!</p>
         </div>
       </div>
     </div>
@@ -277,7 +277,7 @@ function CoachModal({ coaches, onClose, reorderMessage }: { coaches: Coach[]; on
 // COMPONENTS
 // ============================================================
 function StarRating({ count }: { count: number }) {
-  return <div style={{ display: "flex", gap: 2 }}>{[...Array(count)].map((_, i) => <span key={i} style={{ color: GOLD, fontSize: 20 }}>★</span>)}</div>;
+  return <div style={{ display: "flex", gap: 2 }}>{[...Array(count)].map((_, i) => <Star key={i} size={18} color={GOLD} fill={GOLD} />)}</div>;
 }
 
 function FAQItem({ q, a }: { q: string; a: string }) {
@@ -567,14 +567,14 @@ function WeeklySummaryCard({ data, onDismiss }: { data: { avgPain: number; consi
   const isGood = data.consistency >= 70;
   const stats = [
     { label: "Araw na Na-log", value: `${data.entries}/7`, Icon: Calendar },
-    { label: "Consistency",      value: `${data.consistency}%`, Icon: Target },
-    { label: "Ave. Pain",        value: `${data.avgPain}/10`, Icon: Pill },
+    { label: "Tuloy-tuloy",     value: `${data.consistency}%`, Icon: Target },
+    { label: "Ave. Sakit",       value: `${data.avgPain}/10`, Icon: Pill },
   ];
   return (
     <div style={{ background: isGood ? "#E8F5E0" : "#FEF9E7", border: `2px solid ${isGood ? "#39613B" : "#FED255"}`, borderRadius: 18, padding: "20px", marginBottom: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
         <div>
-          <p style={{ fontSize: 15, fontWeight: 700, color: isGood ? "#39613B" : "#b45309", margin: "0 0 3px", textTransform: "uppercase" as const, letterSpacing: 1, display: "flex", alignItems: "center", gap: 6 }}><BarChart3 size={16} /> Weekly Summary</p>
+          <p style={{ fontSize: 15, fontWeight: 700, color: isGood ? "#39613B" : "#b45309", margin: "0 0 3px", textTransform: "uppercase" as const, letterSpacing: 1, display: "flex", alignItems: "center", gap: 6 }}><BarChart3 size={16} /> Buod ng Linggo</p>
           <p style={{ fontSize: 16, fontWeight: 700, color: "#1B201A", margin: 0, lineHeight: 1.4, display: "flex", alignItems: "center", gap: 6 }}>
             {isGood ? <>Magaling! Consistent ka ngayong linggo! <Star size={16} color="#F39C12" /></> : <>Kaya mo yan! Subukan mong maabot ang 7/7 ngayong linggo! <Dumbbell size={16} color="#b45309" /></>}
           </p>
@@ -607,7 +607,7 @@ function DailyReminderCard({ enabled, onToggle }: { enabled: boolean; onToggle: 
     setPerm(p);
     if (p === "granted") {
       onToggle();
-      new Notification("EaseBrew Reminder", { body: "Your daily reminder is set! We'll alert you morning (7–9 AM) and evening (7–9 PM).", icon: "/icon-192.png" });
+      new Notification("EaseBrew Paalala", { body: "Na-set na ang paalala mo! Mag-aalerto kami sa umaga (7–9 AM) at gabi (7–9 PM).", icon: "/icon-192.png" });
     }
   }
 
@@ -618,17 +618,17 @@ function DailyReminderCard({ enabled, onToggle }: { enabled: boolean; onToggle: 
       <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 12 }}>
         <span><Bell size={36} color="#C0863B" /></span>
         <div>
-          <p style={{ fontSize: 18, fontWeight: 700, color: "#1B201A", margin: 0 }}>Daily Reminder</p>
+          <p style={{ fontSize: 18, fontWeight: 700, color: "#1B201A", margin: 0 }}>Paalala Araw-araw</p>
           <p style={{ fontSize: 15, color: "#4E504F", margin: "3px 0 0 0", lineHeight: 1.5 }}>I-remind ka namin tuwing 7 AM at 7 PM para hindi ka makalimot uminom!</p>
         </div>
       </div>
       {enabled ? (
         <button onClick={onToggle} style={{ width: "100%", background: "#39613B", color: "white", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-          <CircleCheck size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Reminder ON — I-tap para i-off
+          <CircleCheck size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Paalala ON — I-tap para i-off
         </button>
       ) : (
         <button onClick={handleEnable} style={{ width: "100%", background: "#FED255", color: "#39613B", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-          <Bell size={16} style={{ display: "inline", verticalAlign: "middle" }} /> I-on ang Daily Reminder
+          <Bell size={16} style={{ display: "inline", verticalAlign: "middle" }} /> I-on ang Paalala
         </button>
       )}
     </div>
@@ -864,11 +864,11 @@ export default function Home() {
     const today = new Date().toISOString().split("T")[0];
     if (h >= 7 && h < 9 && !localStorage.getItem(`eb_rem_am_${today}`)) {
       localStorage.setItem(`eb_rem_am_${today}`, "1");
-      new Notification("EaseBrew Morning Reminder", { body: "Good morning! Don't forget to drink your 1st EaseBrew sachet today!", icon: "/icon-192.png" });
+      new Notification("EaseBrew Paalala sa Umaga", { body: "Magandang umaga! Huwag kalimutang inumin ang 1st EaseBrew sachet mo ngayon!", icon: "/icon-192.png" });
     }
     if (h >= 19 && h < 21 && !localStorage.getItem(`eb_rem_pm_${today}`)) {
       localStorage.setItem(`eb_rem_pm_${today}`, "1");
-      new Notification("EaseBrew Evening Reminder", { body: "Good evening! Don't forget to drink your 2nd EaseBrew sachet tonight!", icon: "/icon-192.png" });
+      new Notification("EaseBrew Paalala sa Gabi", { body: "Magandang gabi! Huwag kalimutang inumin ang 2nd EaseBrew sachet mo ngayong gabi!", icon: "/icon-192.png" });
     }
   }, []);
 
@@ -879,7 +879,7 @@ export default function Home() {
     const expiryStr = session?.expires_at
       ? new Date(session.expires_at).toLocaleDateString("en-PH", { month: "long", day: "numeric", year: "numeric" })
       : null;
-    return `Hi po! I'd like to order EaseBrew again.\n\nPackage: ${pkgLabel}${expiryStr ? `\nExpires: ${expiryStr}` : ""}\n\nIs it available? Thank you po! 🙏`;
+    return `Hi po! Gusto ko po mag-order ulit ng EaseBrew.\n\nPackage: ${pkgLabel}${expiryStr ? `\nExpires: ${expiryStr}` : ""}\n\nAvailable po ba? Salamat po!`;
   }
 
   if (checking) return (
@@ -1060,7 +1060,7 @@ export default function Home() {
                   <div style={{ width: 44, height: 44, borderRadius: 12, background: "#E74C3C", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(231,76,60,0.4)" }}>
                     <HeartPulse size={22} color="#fff" strokeWidth={2.2} />
                   </div>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0, textAlign: "center", lineHeight: 1.3 }}>Weekly Wellness Report</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0, textAlign: "center", lineHeight: 1.3 }}>Lingguhang Wellness Report</p>
                 </Link>
               </div>
             </div>
@@ -1080,11 +1080,11 @@ export default function Home() {
 
             <div style={{ background: "#FEF9E7", border: `2.5px solid ${GOLD}`, borderRadius: 18, padding: "18px 20px", marginBottom: 24, textAlign: "center" }}>
               <p style={{ fontSize: 18, fontWeight: 700, color: AMBER, margin: "0 0 6px 0" }}>Inumin 2x sa isang araw</p>
-              <p style={{ fontSize: 16, color: MID, margin: 0, lineHeight: 1.6 }}><strong style={{ color: G }}>Umaga</strong> at <strong style={{ color: G }}>Gabi</strong> — para sa best results!</p>
+              <p style={{ fontSize: 16, color: MID, margin: 0, lineHeight: 1.6 }}><strong style={{ color: G }}>Umaga</strong> at <strong style={{ color: G }}>Gabi</strong> — para sa pinakamagandang resulta!</p>
             </div>
 
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0", display: "flex", alignItems: "center", gap: 8 }}>Daily Routine Mo <Sun size={24} color="#C0863B" /></h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Sundin ito araw-araw para sa best results.</p>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0", display: "flex", alignItems: "center", gap: 8 }}>Routine Mo Araw-araw <Sun size={24} color="#C0863B" /></h2>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Sundin ito araw-araw para sa pinakamagandang resulta.</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
               {REMINDERS.map((r, i) => {
                 const RIcon = r.Icon;
@@ -1112,8 +1112,8 @@ export default function Home() {
               })}
             />
 
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0", display: "flex", alignItems: "center", gap: 8 }}>90-Day Journey Mo <Calendar size={24} color={G} /></h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Ito ang aasahan mo sa bawat phase.</p>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0", display: "flex", alignItems: "center", gap: 8 }}>90-Araw na Journey Mo <Calendar size={24} color={G} /></h2>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Ito ang aasahan mo sa bawat yugto.</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
               {PROGRESS_GUIDE.map((p, i) => (
                 <div key={i} style={{ background: p.bg, border: `2px solid ${p.border}`, borderRadius: 18, padding: "22px" }}>
@@ -1130,9 +1130,9 @@ export default function Home() {
               <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: GOLD, color: G, borderRadius: 20, padding: "5px 16px", fontSize: 12, fontWeight: 700, marginBottom: 14, letterSpacing: 1 }}><Sparkles size={14} /> ESPESYAL NA OFFER</div>
               <div style={{ width: 64, height: 64, borderRadius: 16, background: "#F39C12", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px", boxShadow: "0 4px 16px rgba(243,156,18,0.5)" }}><Trophy size={32} color="#fff" /></div>
               <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 12px 0", lineHeight: 1.3 }}>Complete Wellness Program</h2>
-              <p style={{ fontSize: 16, opacity: 0.9, margin: "0 0 20px 0", lineHeight: 1.7 }}>Ang pinaka-complete na wellness program — 90-day master plan, full exercise program, weekly check-ins, at lahat ng digital products!</p>
+              <p style={{ fontSize: 16, opacity: 0.9, margin: "0 0 20px 0", lineHeight: 1.7 }}>Ang pinaka-complete na wellness program — 90-araw na master plan, exercise program, lingguhang check-ins, at lahat ng digital products!</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24, textAlign: "left" as const }}>
-                {["90-Day Master Plan na may daily schedule", "3 Phases ng progressive wellness program", "Full exercise library para sa joint pain", "Weekly milestone check-ins", "Lahat ng digital products kasama"].map((item, i) => (
+                {["90-Araw na Master Plan na may araw-araw na schedule", "3 Yugto ng wellness program", "Exercise library para sa joint pain", "Lingguhang milestone check-ins", "Lahat ng digital products kasama"].map((item, i) => (
                   <p key={i} style={{ fontSize: 16, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><CircleCheck size={16} color="#FED255" style={{ flexShrink: 0 }} /> {item}</p>
                 ))}
               </div>
@@ -1147,7 +1147,7 @@ export default function Home() {
                   </button>
                 )}
               </div>
-              <p style={{ fontSize: 13, opacity: 0.7, margin: "14px 0 0 0" }}>COD available • Libre ang shipping • Nationwide</p>
+              <p style={{ fontSize: 13, opacity: 0.7, margin: "14px 0 0 0" }}>COD available • Libreng shipping • Buong Pilipinas</p>
             </div>
           </div>
         )}
@@ -1235,7 +1235,7 @@ export default function Home() {
             ))}
 
             {/* Recipe Preview */}
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0", display: "flex", alignItems: "center", gap: 8 }}>Recipe Preview <CookingPot size={24} color={G} /></h2>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0", display: "flex", alignItems: "center", gap: 8 }}>Mga Recipe <CookingPot size={24} color={G} /></h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>3 recipes mula sa libreng Recipe Book.</p>
             {DEFAULT_RECIPES.map((r, i) => {
               const recipePhotos = ["/images/recipe-sinigang.jpg", "/images/recipe-tinola.jpg", "/images/recipe-lugaw.jpg"];
@@ -1350,7 +1350,7 @@ export default function Home() {
                     <Image src={c.photo} alt={c.name} width={60} height={60} style={{ width: 60, height: 60, borderRadius: 16, objectFit: "cover", border: `2.5px solid ${G}`, flexShrink: 0 }} />
                     <div>
                       <h3 style={{ fontSize: 19, fontWeight: 700, color: DARK, margin: 0 }}>{c.name}</h3>
-                      <p style={{ fontSize: 14, color: G, margin: "3px 0 0 0", fontWeight: 600 }}>R&M EaseBrew Wellness Coach</p>
+                      <p style={{ fontSize: 14, color: G, margin: "3px 0 0 0", fontWeight: 600 }}>EaseBrew Wellness Guide</p>
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 10 }}>
@@ -1368,14 +1368,14 @@ export default function Home() {
             {/* Footer */}
             <div style={{ marginTop: 40, paddingTop: 32, borderTop: `3px solid ${G}`, textAlign: "center" as const }}>
               <div style={{ display: "inline-block", background: G, color: GOLD, borderRadius: 14, padding: "10px 22px", fontSize: 18, fontWeight: 700, marginBottom: 12 }}>R&M EaseBrew</div>
-              <p style={{ fontSize: 13, color: G, fontWeight: 700, margin: "0 0 5px 0", letterSpacing: 1, textTransform: "uppercase" as const }}>Everyday We Care</p>
-              <p style={{ fontSize: 15, color: MID, margin: "0 0 20px 0", lineHeight: 1.65 }}>Natural na gamot sa body pain at inflammation.</p>
+              <p style={{ fontSize: 13, color: G, fontWeight: 700, margin: "0 0 5px 0", letterSpacing: 1, textTransform: "uppercase" as const }}>Araw-araw, Alaga Namin</p>
+              <p style={{ fontSize: 15, color: MID, margin: "0 0 20px 0", lineHeight: 1.65 }}>Natural na solusyon sa sakit ng katawan at pamamaga.</p>
               <button onClick={() => setShowCoachModal(true)} className="c-btn c-btn-gold" style={{ width: "100%" }}>
                 <ShoppingCart size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Mag-order Ulit
               </button>
               <p style={{ fontSize: 13, color: MID, marginTop: 24, lineHeight: 1.7 }}>
-                COD | Free Shipping | Nationwide Delivery<br />
-                © 2025 EaseBrew Herbal Coffee. All rights reserved.
+                COD | Libreng Shipping | Buong Pilipinas<br />
+                © 2025 EaseBrew Herbal Coffee.
               </p>
             </div>
           </div>

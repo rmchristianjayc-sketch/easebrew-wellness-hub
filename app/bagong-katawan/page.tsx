@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
-import { ChevronLeft, ChevronUp, ChevronDown, Home, Trophy, Sprout, Dumbbell, Coffee, Target, CircleCheck, Save, AlertTriangle, Droplets, Zap, PenLine, BarChart3, Ruler, UtensilsCrossed, Sun as SunIcon, CloudSun, Soup, Moon as MoonIcon, Flame, Lightbulb, OctagonX, Heart, Footprints } from "lucide-react";
+import { ChevronLeft, Home, Trophy, Sprout, Dumbbell, Coffee, Target, CircleCheck, AlertTriangle, PenLine, BarChart3, Ruler, UtensilsCrossed } from "lucide-react";
 
 const G = "#39613B";
 const GOLD = "#FED255";
