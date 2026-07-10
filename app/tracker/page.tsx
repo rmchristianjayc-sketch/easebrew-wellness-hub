@@ -68,6 +68,7 @@ const MOOD_OPTIONS = [
 ];
 
 const MILESTONES: Record<number, { Icon: typeof Star; title: string; message: string }> = {
+  3:  { Icon: Star,   title: "3 Araw Na!",              message: "Magandang simula! Ituloy lang ang daily tracking — mahalaga ang consistency." },
   7:  { Icon: Star,   title: "1 Linggo Na!",           message: "Magandang simula! Ituloy lang — ang pinakamabilis na resulta ay sa mga susunod na linggo!" },
   14: { Icon: Zap,    title: "2 Linggo Na!",            message: "Napakagaling! Dapat nararamdaman mo na ang pagbabago. Nagpapasalamat ang mga kasukasuan mo!" },
   30: { Icon: Medal,  title: "1 Buwan Kumpleto!",       message: "WOW! 30 araw ng consistency! I-share ang resulta sa pamilya mo. Proud kami sa iyo!" },

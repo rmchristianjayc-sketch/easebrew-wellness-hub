@@ -300,8 +300,12 @@ export default function MedicationPage() {
           )}
 
           {activeMeds.length === 0 && !showForm && (
-            <div style={{ textAlign: "center", padding: "20px 0", color: MID }}>
-              <p style={{ fontSize: 16, margin: 0 }}>Wala pang gamot. I-dagdag ang maintenance meds mo!</p>
+            <div style={{ textAlign: "center", padding: "32px 20px", color: MID }}>
+              <div style={{ width: 88, height: 88, borderRadius: "50%", background: "#e0e7ff", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+                <Pill size={44} color="#4338ca" />
+              </div>
+              <p style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "0 0 6px" }}>Wala pang gamot</p>
+              <p style={{ fontSize: 15, margin: 0, lineHeight: 1.55 }}>I-tap ang <strong>+ Dagdag</strong> button sa itaas para i-add ang mga maintenance meds mo.</p>
             </div>
           )}
 

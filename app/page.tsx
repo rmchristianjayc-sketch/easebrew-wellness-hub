@@ -79,6 +79,14 @@ const PRODUCT_ICONS: Record<number, { icon: typeof HeartPulse; bg: string }> = {
   4: { icon: Crown,            bg: "#F39C12" },
 };
 
+function getTimeGreeting(): string {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 11) return "Magandang Umaga!";
+  if (h >= 11 && h < 13) return "Magandang Tanghali!";
+  if (h >= 13 && h < 18) return "Magandang Hapon!";
+  return "Magandang Gabi!";
+}
+
 function getTierLabel(tier: number): string {
   const map: Record<number, string> = {
     399: "1 Pack", 699: "2 Packs", 999: "3 Packs", 1499: "5 Packs",
@@ -995,6 +1003,7 @@ export default function Home() {
               </div>
               <div style={{ background: G, padding: "20px 24px 24px", position: "relative" }}>
                 <div style={{ position: "absolute", top: -30, right: -20, width: 100, height: 100, background: "rgba(125,174,47,0.18)", borderRadius: "50%" }} />
+                <p style={{ fontSize: 14, color: GOLD, fontWeight: 700, margin: "0 0 8px", letterSpacing: 0.5, textTransform: "uppercase" }}>{getTimeGreeting()}</p>
                 <h1 style={{ fontSize: 26, fontWeight: 900, margin: "0 0 10px 0", lineHeight: 1.3, color: "#fff" }}>{heroTitle}</h1>
                 <p style={{ fontSize: 16, opacity: 0.9, lineHeight: 1.65, margin: 0, color: "#fff" }}>{heroSubtitle}</p>
               </div>

@@ -256,6 +256,13 @@ export default function BloodPressurePage() {
             </div>
             <p style={{ fontSize: 15, color: weekCategory.color, fontWeight: 700, margin: "0 0 6px" }}>{weekCategory.label}</p>
             <p style={{ fontSize: 14, color: DARK, margin: 0, lineHeight: 1.55 }}>{weekCategory.advice}</p>
+            {trend && prev7Days.length > 0 && (
+              <p style={{ fontSize: 13, color: DARK, margin: "8px 0 0", lineHeight: 1.5, fontWeight: 600 }}>
+                {trend === "up" && "Tumataas ang BP mo vs nakaraang linggo. Bantayan mabuti at magpakonsulta sa doctor kung tuloy-tuloy ang pagtaas."}
+                {trend === "down" && "Magaling! Bumababa ang BP mo vs nakaraang linggo. Ituloy lang ang malusog na pamumuhay."}
+                {trend === "flat" && "Pareho ang BP mo vs nakaraang linggo. Ituloy ang daily tracking."}
+              </p>
+            )}
             <p style={{ fontSize: 12, color: MID, margin: "10px 0 0" }}>Base sa {last7Days.length} readings sa nakaraang 7 araw</p>
           </div>
         )}
@@ -367,8 +374,12 @@ export default function BloodPressurePage() {
           <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "0 0 16px", display: "flex", alignItems: "center", gap: 8 }}><ClipboardList size={18} /> Mga Reading</h2>
 
           {entries.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "20px 0", color: MID }}>
-              <p style={{ fontSize: 16, margin: 0 }}>Wala pa. Mag-add ng unang reading mo!</p>
+            <div style={{ textAlign: "center", padding: "32px 20px", color: MID }}>
+              <div style={{ width: 88, height: 88, borderRadius: "50%", background: "#fce7f3", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+                <Heart size={44} color="#be185d" />
+              </div>
+              <p style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "0 0 6px" }}>Simulan mo dito</p>
+              <p style={{ fontSize: 15, margin: 0, lineHeight: 1.55 }}>Sukatin ang BP mo, i-tap ang <strong>Magdagdag ng Reading</strong> button sa itaas para i-log.</p>
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
