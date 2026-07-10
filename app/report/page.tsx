@@ -135,7 +135,7 @@ export default function WeeklyReportPage() {
         <div style={{ background: WHITE, borderRadius: 20, padding: "22px", marginBottom: 20, border: "1.5px solid #D8CDBA" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
             <Activity size={22} color={G} strokeWidth={2} />
-            <h2 className="c-heading" style={{ color: DARK, margin: 0 }}>Mga Daily Check-in</h2>
+            <h2 className="c-heading" style={{ color: DARK, margin: 0 }}>Araw-araw na Check-in</h2>
           </div>
           {checkedDays === 0 ? (
             <div style={{ textAlign: "center", padding: "20px 0", color: MID }}>

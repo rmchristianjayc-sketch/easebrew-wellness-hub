@@ -140,7 +140,7 @@ export default function MealPlanPage() {
 
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <p style={{ color: G, fontSize: 22, fontWeight: 700, fontFamily: "Georgia, serif", display: "flex", alignItems: "center", gap: 8 }}><Coffee size={22} /> Loading...</p>
+      <p style={{ color: G, fontSize: 22, fontWeight: 700, fontFamily: "Georgia, serif", display: "flex", alignItems: "center", gap: 8 }}><Coffee size={22} /> Sandali lang...</p>
     </div>
   );
 

@@ -1191,7 +1191,7 @@ export default function Home() {
 
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <p className="c-body" style={{ color: G, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}><Coffee size={20} /> Loading...</p>
+      <p className="c-body" style={{ color: G, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}><Coffee size={20} /> Sandali lang...</p>
     </div>
   );
 
@@ -1381,7 +1381,7 @@ export default function Home() {
                   <div style={{ width: 44, height: 44, borderRadius: 12, background: "#E74C3C", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(231,76,60,0.4)" }}>
                     <HeartPulse size={22} color="#fff" strokeWidth={2.2} />
                   </div>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0, textAlign: "center", lineHeight: 1.3 }}>Lingguhang Wellness Report</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0, textAlign: "center", lineHeight: 1.3 }}>Lingguhang Report ng Wellness</p>
                 </Link>
               </div>
             </div>
