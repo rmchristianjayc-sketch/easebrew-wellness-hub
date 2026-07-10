@@ -34,6 +34,12 @@ export default function RootLayout({
         {/* ✅ apple-touch-icon stays here — next/head handles this correctly */}
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         {/* ❌ REMOVED: duplicate manifest link — Next.js auto-adds this from metadata above */}
+        {/* Font-size preference: applied before hydration to prevent flash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try { if (localStorage.getItem('eb_large_font') === '1') document.documentElement.setAttribute('data-customer-text', 'large'); } catch {}`,
+          }}
+        />
       </head>
       <body>
         {children}

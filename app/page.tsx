@@ -355,6 +355,70 @@ function playChime(type: "check" | "save" = "check") {
 }
 
 // ============================================================
+// TODAY'S SUMMARY (at-a-glance daily checklist)
+// ============================================================
+type TodayTaskStatus = { key: string; label: string; done: boolean; href: string; Icon: typeof CircleCheck };
+
+function TodaysSummaryCard({ sessionCode }: { sessionCode: string }) {
+  const [tasks, setTasks] = useState<TodayTaskStatus[]>([]);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const today = new Date().toISOString().split("T")[0];
+
+    // EaseBrew Umaga + Gabi from tracker
+    const trackerKey = progressStorageKey("easebrew-tracker-v2", sessionCode);
+    const trackerEntries = readProgressCache<QuickEntry[]>(trackerKey, []);
+    const trackerToday = trackerEntries.find(e => e.date === today);
+    const umagaDone = !!trackerToday?.easebrewUmaga;
+    const gabiDone = !!trackerToday?.easebrewGabi;
+
+    // BP from bp storage
+    const bpKey = progressStorageKey("easebrew-bp-v1", sessionCode);
+    const bpEntries = readProgressCache<{ date: string }[]>(bpKey, []);
+    const bpDone = bpEntries.some(e => e.date === today);
+
+    // Gamot from medication storage
+    const medKey = progressStorageKey("easebrew-medication-v1", sessionCode);
+    const medData = readProgressCache<{ medications: { active: boolean }[]; logs: { date: string; taken: string[] }[] }>(medKey, { medications: [], logs: [] });
+    const hasMeds = medData.medications.some(m => m.active);
+    const medLog = medData.logs.find(l => l.date === today);
+    const medDone = !hasMeds || (medLog?.taken?.length ?? 0) > 0;
+
+    setTasks([
+      { key: "umaga", label: "Umagang EaseBrew", done: umagaDone, href: "/tracker", Icon: Sun },
+      { key: "gabi",  label: "Gabing EaseBrew",  done: gabiDone,  href: "/tracker", Icon: Moon },
+      { key: "bp",    label: "BP Log",           done: bpDone,    href: "/blood-pressure", Icon: HeartPulse },
+      ...(hasMeds ? [{ key: "gamot", label: "Gamot", done: medDone, href: "/medication", Icon: Pill }] : []),
+    ]);
+  }, [sessionCode]);
+
+  if (tasks.length === 0) return null;
+  const doneCount = tasks.filter(t => t.done).length;
+  const allDone = doneCount === tasks.length;
+
+  return (
+    <div style={{ background: allDone ? "#E8F5E0" : WHITE, border: `2px solid ${allDone ? G : "#D9D0C0"}`, borderRadius: 20, padding: 18, marginBottom: 20, boxShadow: "0 2px 10px rgba(0,0,0,0.06)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <p style={{ fontSize: 15, fontWeight: 700, color: allDone ? G : MID, margin: 0 }}>
+          {allDone ? "✓ Tapos na lahat ngayon!" : `Ngayong araw • ${doneCount}/${tasks.length} tapos`}
+        </p>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 8 }}>
+        {tasks.map(t => (
+          <Link key={t.key} href={t.href} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", background: t.done ? "rgba(57,97,59,0.08)" : "#f9f7f2", borderRadius: 12, border: `1.5px solid ${t.done ? "rgba(57,97,59,0.25)" : "#e5e2d7"}` }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: t.done ? G : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: t.done ? "none" : "1.5px solid #d9d0c0" }}>
+              {t.done ? <CircleCheck size={20} color="#fff" /> : <t.Icon size={20} color={G} />}
+            </div>
+            <p style={{ fontSize: 16, fontWeight: 700, color: t.done ? G : DARK, margin: 0, textDecoration: t.done ? "line-through" : "none", flex: 1 }}>{t.label}</p>
+            {!t.done && <span style={{ fontSize: 14, color: G, fontWeight: 700 }}>Buksan →</span>}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 // QUICK CHECK-IN (1-tap log from home page)
 // ============================================================
 type QuickEntry = { date: string; painScore: number; painLocation: string; easebrewUmaga: boolean; easebrewGabi: boolean; mood: number; notes: string };
@@ -736,6 +800,8 @@ export default function Home() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     localStorage.setItem("eb_large_font", largeFont ? "1" : "0");
+    if (largeFont) document.documentElement.setAttribute("data-customer-text", "large");
+    else document.documentElement.removeAttribute("data-customer-text");
   }, [largeFont]);
   const [reminderOn, setReminderOn] = useState(false);
   const [expiryDismissed, setExpiryDismissed] = useState(false);
@@ -921,7 +987,7 @@ export default function Home() {
   );
 
   return (
-    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", fontSize: largeFont ? "110%" : "100%" }}>
+    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh" }}>
       <InstallBanner />
       {showOnboarding && (
         <OnboardingModal onClose={() => {
@@ -1024,6 +1090,7 @@ export default function Home() {
               />
             )}
 
+            {session && <TodaysSummaryCard sessionCode={session.code} />}
             {session && (
               <QuickCheckIn storageKey={progressStorageKey("easebrew-tracker-v2", session.code)} />
             )}
