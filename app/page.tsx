@@ -177,17 +177,34 @@ function extractYouTubeId(url: string): string {
 // EXPIRY BANNER — auto-shows when customer's access is expiring
 // ============================================================
 function ExpiryBanner({ daysLeft, onReorder, onDismiss }: { daysLeft: number; onReorder: () => void; onDismiss: () => void }) {
-  const urgent = daysLeft <= 3;
+  // Three severity levels for more advance notice:
+  //  * 8–14 days -> subtle heads-up (dark green, no red)
+  //  * 4–7 days  -> medium urgency (amber)
+  //  * 1–3 days  -> urgent (red)
+  const tier = daysLeft <= 3 ? "urgent" : daysLeft <= 7 ? "medium" : "heads-up";
+  const bg = tier === "urgent" ? "#7f1d1d" : tier === "medium" ? "#78350f" : "#183b28";
+  const border = tier === "urgent" ? "#ef4444" : tier === "medium" ? "#f59e0b" : "#FED255";
+  const titleColor = tier === "urgent" ? "#fca5a5" : "#FED255";
+  const btnBg = tier === "urgent" ? "#ef4444" : tier === "medium" ? "#f59e0b" : "#FED255";
+  const btnFg = tier === "heads-up" ? "#183b28" : "white";
+  const Icon = tier === "urgent" ? AlertCircle : Timer;
+  const iconColor = tier === "urgent" ? "#fca5a5" : tier === "medium" ? "#f59e0b" : "#FED255";
+  const title = tier === "urgent"
+    ? `${daysLeft} araw na lang!`
+    : tier === "medium"
+    ? `Mag-e-expire sa ${daysLeft} araw!`
+    : `${daysLeft} araw pa bago mag-expire`;
+  const subtitle = tier === "heads-up"
+    ? "Mag-order na para hindi maputol ang wellness journey mo."
+    : "Mag-order na para tuloy-tuloy ang wellness journey mo.";
   return (
-    <div style={{ background: urgent ? "#7f1d1d" : "#78350f", borderBottom: `3px solid ${urgent ? "#ef4444" : "#f59e0b"}`, padding: "14px 20px", display: "flex", alignItems: "center", gap: 12 }}>
-      <span style={{ flexShrink: 0 }}>{urgent ? <AlertCircle size={22} color="#fca5a5" /> : <Timer size={22} color="#f59e0b" />}</span>
+    <div style={{ background: bg, borderBottom: `3px solid ${border}`, padding: "14px 20px", display: "flex", alignItems: "center", gap: 12 }}>
+      <span style={{ flexShrink: 0 }}><Icon size={22} color={iconColor} /></span>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 15, fontWeight: 700, color: urgent ? "#fca5a5" : "#FED255", margin: "0 0 2px" }}>
-          {urgent ? `${daysLeft} araw na lang!` : `Mag-e-expire sa ${daysLeft} araw!`}
-        </p>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", margin: 0 }}>Mag-order na para tuloy-tuloy ang wellness journey mo.</p>
+        <p style={{ fontSize: 15, fontWeight: 700, color: titleColor, margin: "0 0 2px" }}>{title}</p>
+        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", margin: 0 }}>{subtitle}</p>
       </div>
-      <button onClick={onReorder} style={{ background: urgent ? "#ef4444" : "#f59e0b", color: "white", border: "none", borderRadius: 10, padding: "10px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer", flexShrink: 0 }}>
+      <button onClick={onReorder} style={{ background: btnBg, color: btnFg, border: "none", borderRadius: 10, padding: "10px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer", flexShrink: 0 }}>
         <ShoppingCart size={14} style={{ display: "inline", verticalAlign: "middle" }} /> Order
       </button>
       <button onClick={onDismiss} aria-label="Close" style={{ background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 999, width: 28, height: 28, fontSize: 14, cursor: "pointer", color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><X size={14} /></button>
@@ -570,6 +587,7 @@ function ReferralCard({ coaches }: { coaches: Coach[] }) {
 function FamilyShareCard() {
   const [generating, setGenerating] = useState(false);
   const [link, setLink] = useState("");
+  const [expiresAt, setExpiresAt] = useState<Date | null>(null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
 
@@ -582,6 +600,10 @@ function FamilyShareCard() {
       if (!res.ok || !data.success) { setError(data.error || "Failed."); return; }
       const url = `${window.location.origin}/family/${data.token}`;
       setLink(url);
+      // Token expires in 7 days per lib/auth.ts createFamilyShareToken
+      const exp = new Date();
+      exp.setDate(exp.getDate() + 7);
+      setExpiresAt(exp);
     } catch { setError("Network error."); }
     finally { setGenerating(false); }
   }
@@ -619,6 +641,11 @@ function FamilyShareCard() {
           <div style={{ background: "#fff", border: "1.5px solid #7dd3fc", borderRadius: 10, padding: "10px 12px", fontSize: 12, color: "#0c4a6e", wordBreak: "break-all", fontFamily: "monospace" }}>
             {link}
           </div>
+          {expiresAt && (
+            <p style={{ fontSize: 12, color: "#0c4a6e", margin: 0, fontWeight: 600 }}>
+              Valid hanggang {expiresAt.toLocaleDateString("fil-PH", { month: "long", day: "numeric", year: "numeric" })}
+            </p>
+          )}
           <button onClick={copyLink} style={{ background: "#0ea5e9", color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
             {copied ? "Na-copy na ✓" : "I-copy ang mensahe"}
           </button>
@@ -627,6 +654,9 @@ function FamilyShareCard() {
               I-share sa Messenger / WhatsApp
             </button>
           )}
+          <button onClick={generateLink} disabled={generating} style={{ background: "transparent", color: "#0369a1", border: "none", padding: "8px", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Georgia, serif", textDecoration: "underline" }}>
+            {generating ? "Ginagawa..." : "Gumawa ng bagong link"}
+          </button>
         </div>
       )}
       {error && <p style={{ fontSize: 13, color: "#dc2626", margin: "8px 0 0" }}>{error}</p>}
@@ -1052,7 +1082,7 @@ export default function Home() {
     }
   }, []);
 
-  const showExpiryBanner = daysLeft !== null && daysLeft <= 7 && daysLeft > 0 && !expiryDismissed;
+  const showExpiryBanner = daysLeft !== null && daysLeft <= 14 && daysLeft > 0 && !expiryDismissed;
 
   // ── FETCH PUBLIC CONTENT ─────────────────────────────────────
   useEffect(() => {
