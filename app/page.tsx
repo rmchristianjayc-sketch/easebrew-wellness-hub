@@ -779,6 +779,15 @@ export default function Home() {
     setDaysLeft(Math.ceil((new Date(session.expires_at).getTime() - Date.now()) / 86400000));
   }, [session?.expires_at]);
 
+  // Sync session expiry to service worker so it can fire expiry notifications
+  // at 7/3/1 days left even if the user hasn't opened the app that day.
+  useEffect(() => {
+    if (!session?.code || !session?.expires_at) return;
+    navigator.serviceWorker?.ready.then(reg =>
+      reg.active?.postMessage({ type: "SET_EXPIRY", code: session.code, expiresAt: session.expires_at })
+    );
+  }, [session?.code, session?.expires_at]);
+
   const [tipIndex, setTipIndex] = useState(0);
   const [tab, setTab] = useState<Tab>("home");
   const [showCoachModal, setShowCoachModal] = useState(false);
@@ -1200,6 +1209,9 @@ export default function Home() {
               onToggle={() => setReminderOn(v => {
                 const n = !v;
                 localStorage.setItem("eb_reminder_on", n ? "1" : "0");
+                if (n && typeof Notification !== "undefined" && Notification.permission === "default") {
+                  Notification.requestPermission();
+                }
                 navigator.serviceWorker?.ready.then(reg => reg.active?.postMessage({ type: "SET_REMINDER", enabled: n }));
                 return n;
               })}

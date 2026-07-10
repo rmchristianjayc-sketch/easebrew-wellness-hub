@@ -206,6 +206,10 @@ export default function CodesPage() {
   const [dynamicCoaches, setDynamicCoaches]   = useState<string[]>(DEFAULT_COACHES.map(c => c.name));
   const [bulkCopied, setBulkCopied]           = useState(false);
   const [profileCode, setProfileCode]         = useState<string | null>(null);
+  const [bulkMode, setBulkMode]               = useState(false);
+  const [bulkNames, setBulkNames]             = useState("");
+  const [bulkResults, setBulkResults]         = useState<{ name: string; code?: string; error?: string }[]>([]);
+  const [bulkProgress, setBulkProgress]       = useState<{ current: number; total: number } | null>(null);
 
   const fetchCodes = useCallback(async () => {
     setCodesLoading(true);
@@ -267,6 +271,46 @@ export default function CodesPage() {
       fetchCodes();
     } catch { setError("Something went wrong."); }
     finally { setLoading(false); }
+  }
+
+  async function handleBulkGenerate() {
+    setError(""); setBulkResults([]);
+    const names = bulkNames.split(/\r?\n/).map(n => n.trim()).filter(Boolean);
+    if (names.length === 0) { setError("Add at least one customer name (one per line)."); return; }
+    if (!notes.trim())      { setNotesError(true); setError("Notes required."); return; }
+    if (!coachName)         { setCoachError(true); setError("Coach required."); return; }
+    if (names.length > 50)  { setError("Max 50 names at a time."); return; }
+
+    setLoading(true);
+    setBulkProgress({ current: 0, total: names.length });
+    const results: { name: string; code?: string; error?: string }[] = [];
+    for (let i = 0; i < names.length; i++) {
+      const name = names[i];
+      try {
+        const res = await fetch("/api/admin/generate-code", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tier, customer_name: name, notes: `[${coachName}] ${notes}` }),
+        });
+        const data = await res.json();
+        if (!res.ok) results.push({ name, error: data.error || "Failed" });
+        else results.push({ name, code: data.code?.code || "" });
+      } catch {
+        results.push({ name, error: "Network error" });
+      }
+      setBulkProgress({ current: i + 1, total: names.length });
+    }
+    setBulkResults(results);
+    setBulkProgress(null);
+    setBulkNames("");
+    fetchCodes();
+    setLoading(false);
+  }
+
+  function copyBulkResults() {
+    const lines = bulkResults.filter(r => r.code).map(r => `${r.name}\t${r.code}`);
+    navigator.clipboard.writeText(lines.join("\n")).then(() => {
+      setBulkCopied(true); setTimeout(() => setBulkCopied(false), 2000);
+    });
   }
 
   function copyCode()    { navigator.clipboard.writeText(generatedCode).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); }); }
@@ -477,11 +521,36 @@ export default function CodesPage() {
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 5, fontFamily: "var(--admin-font)" }}>Customer Name <span style={{ color: "#ef4444" }}>*</span></label>
-                  <input className={`a-input${nameError ? " a-input-err" : ""}`} type="text" value={customerName} placeholder="e.g. Nena Santos"
-                    onChange={e => { setCustomerName(e.target.value); if (e.target.value.trim()) setNameError(false); }}
-                  />
-                  {nameError && <p style={{ color: "#ef4444", fontSize: 11, margin: "3px 0 0", fontFamily: "var(--admin-font)" }}>Required</p>}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", fontFamily: "var(--admin-font)" }}>
+                      Customer {bulkMode ? "Names" : "Name"} <span style={{ color: "#ef4444" }}>*</span>
+                    </label>
+                    <button type="button" onClick={() => { setBulkMode(v => !v); setBulkResults([]); setError(""); }} style={{ background: bulkMode ? "#39613B" : "#f5f7f5", color: bulkMode ? "#fff" : "#39613B", border: `1px solid ${bulkMode ? "#39613B" : "#d0d5d0"}`, borderRadius: 6, padding: "3px 8px", fontSize: 10.5, fontWeight: 700, cursor: "pointer", fontFamily: "var(--admin-font)" }}>
+                      {bulkMode ? "Bulk mode ON" : "Bulk mode"}
+                    </button>
+                  </div>
+                  {bulkMode ? (
+                    <>
+                      <textarea
+                        className="a-input"
+                        rows={5}
+                        value={bulkNames}
+                        placeholder={"Nena Santos\nMario Reyes\nLuz Cruz\n(one name per line)"}
+                        onChange={e => setBulkNames(e.target.value)}
+                        style={{ fontFamily: "monospace", fontSize: 13, lineHeight: 1.5, resize: "vertical" }}
+                      />
+                      <p style={{ color: "#6b7a70", fontSize: 11, margin: "3px 0 0", fontFamily: "var(--admin-font)" }}>
+                        {bulkNames.split(/\r?\n/).filter(n => n.trim()).length} name(s) — max 50
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <input className={`a-input${nameError ? " a-input-err" : ""}`} type="text" value={customerName} placeholder="e.g. Nena Santos"
+                        onChange={e => { setCustomerName(e.target.value); if (e.target.value.trim()) setNameError(false); }}
+                      />
+                      {nameError && <p style={{ color: "#ef4444", fontSize: 11, margin: "3px 0 0", fontFamily: "var(--admin-font)" }}>Required</p>}
+                    </>
+                  )}
                 </div>
 
                 <div>
@@ -498,11 +567,35 @@ export default function CodesPage() {
                   </div>
                 )}
 
-                <button onClick={handleGenerate} disabled={loading} className="a-btn a-btn-primary" style={{ width: "100%", fontWeight: 700 }}>
-                  {loading ? "Generating..." : "Generate Code"}
+                <button onClick={bulkMode ? handleBulkGenerate : handleGenerate} disabled={loading} className="a-btn a-btn-primary" style={{ width: "100%", fontWeight: 700 }}>
+                  {loading
+                    ? (bulkProgress ? `Generating ${bulkProgress.current}/${bulkProgress.total}...` : "Generating...")
+                    : (bulkMode ? "Generate All Codes" : "Generate Code")}
                 </button>
               </div>
             </div>
+
+            {/* Bulk results card */}
+            {bulkResults.length > 0 && (
+              <div style={{ background: "#183b28", borderRadius: 12, padding: "18px 20px", marginTop: 14, boxShadow: "0 4px 16px rgba(24,59,40,0.25)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, margin: 0, fontFamily: "var(--admin-font)", fontWeight: 700 }}>
+                    Bulk results — {bulkResults.filter(r => r.code).length}/{bulkResults.length} generated
+                  </p>
+                  <button onClick={copyBulkResults} style={{ background: "#FED255", color: "#183b28", border: "none", borderRadius: 6, padding: "5px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 5, fontFamily: "var(--admin-font)" }}>
+                    {bulkCopied ? <><Check size={12} /> Copied!</> : <><ClipboardCopy size={12} /> Copy All</>}
+                  </button>
+                </div>
+                <div style={{ maxHeight: 260, overflowY: "auto", fontFamily: "monospace", fontSize: 12 }}>
+                  {bulkResults.map((r, i) => (
+                    <div key={i} style={{ padding: "5px 0", borderBottom: i < bulkResults.length - 1 ? "1px solid rgba(255,255,255,0.08)" : "none", color: r.code ? "rgba(255,255,255,0.9)" : "#fca5a5" }}>
+                      <span style={{ color: r.code ? "#FED255" : "#fca5a5" }}>{r.code || "FAILED"}</span>{" — "}<span>{r.name}</span>
+                      {r.error && <span style={{ color: "#fca5a5", fontSize: 10 }}> ({r.error})</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Generated code card */}
             {generatedCode && (

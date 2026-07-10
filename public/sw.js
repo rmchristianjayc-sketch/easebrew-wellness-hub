@@ -78,6 +78,42 @@ async function maybeShowReminder() {
   }
 }
 
+// ── Expiry notification logic ────────────────────────────────────────────────
+async function maybeShowExpiryReminder() {
+  const cache = await caches.open(CACHE_NAME);
+  const res = await cache.match('session-expiry');
+  if (!res) return;
+  const { code, expiresAt } = await res.json();
+  if (!code || !expiresAt) return;
+
+  const now = Date.now();
+  const expiryMs = new Date(expiresAt).getTime();
+  const daysLeft = Math.ceil((expiryMs - now) / 86400000);
+
+  // Fire at 7, 3, 1 days out — once each per code
+  const targets = [7, 3, 1];
+  if (!targets.includes(daysLeft)) return;
+
+  const tag = `shown-expiry-${code}-${daysLeft}`;
+  if (await wasShown(tag)) return;
+  await markShown(tag);
+
+  const bodyMap = {
+    7: 'Mag-e-expire ang access mo sa 7 araw. Mag-order na para tuloy-tuloy ang wellness journey mo!',
+    3: '3 araw na lang bago mag-expire ang access mo. I-order na para hindi maputol!',
+    1: 'Bukas na mag-e-expire ang access mo! Mag-order kaagad para hindi mawala.',
+  };
+  await self.registration.showNotification('EaseBrew — Reminder', {
+    body: bodyMap[daysLeft],
+    icon: '/icons/icon-192.png',
+    badge: '/icons/icon-192.png',
+    tag: `eb-expiry-${code}-${daysLeft}`,
+    renotify: false,
+    data: { url: '/?reorder=1' },
+    requireInteraction: daysLeft <= 3,
+  });
+}
+
 // ── Reliable reminder scheduling via message from page ────────────────────────
 // setInterval in a SW is unreliable on mobile (browser suspends the SW).
 // Instead, the page sends a TICK message every 30 minutes while it's open,
@@ -93,8 +129,19 @@ self.addEventListener('message', async (event) => {
     }
   }
 
+  if (event.data?.type === 'SET_EXPIRY') {
+    const cache = await caches.open(CACHE_NAME);
+    if (event.data.code && event.data.expiresAt) {
+      await cache.put('session-expiry', new Response(JSON.stringify({ code: event.data.code, expiresAt: event.data.expiresAt })));
+      maybeShowExpiryReminder();
+    } else {
+      await cache.delete('session-expiry');
+    }
+  }
+
   if (event.data?.type === 'REMINDER_TICK') {
     maybeShowReminder();
+    maybeShowExpiryReminder();
   }
 });
 
