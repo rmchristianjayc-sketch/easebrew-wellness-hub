@@ -69,12 +69,41 @@ function CustomerProfilePanel({ codeStr, onClose }: { codeStr: string; onClose: 
             const daysLeft = c.expires_at ? Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000) : null;
 
             // Tracker stats
-            type CheckIn = { date: string; energy?: number; pain?: number; weight?: number };
+            type CheckIn = { date: string; energy?: number; pain?: number; weight?: number; painScore?: number };
             const rawTracker = pr["tracker"]?.data;
             const trackerData: CheckIn[] = Array.isArray(rawTracker) ? rawTracker
               : Array.isArray(rawTracker?.entries) ? rawTracker.entries
               : [];
             const recentLogs  = [...trackerData].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
+
+            // BP entries
+            type BpEntry = { date: string; systolic: number; diastolic: number; pulse?: number };
+            const rawBp = pr["blood_pressure"]?.data;
+            const bpEntries: BpEntry[] = Array.isArray(rawBp?.entries) ? rawBp.entries : Array.isArray(rawBp) ? rawBp : [];
+            const recentBp = [...bpEntries].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
+
+            // Medications
+            type Med = { name: string; active: boolean; schedules: string[] };
+            const rawMed = pr["medication"]?.data;
+            const medications: Med[] = Array.isArray(rawMed?.medications) ? rawMed.medications : [];
+            const activeMeds = medications.filter(m => m.active);
+
+            // Medical card
+            const rawMc = pr["medical_card"]?.data;
+            const mc = rawMc && typeof rawMc === "object" && !Array.isArray(rawMc) ? rawMc as { fullName?: string; bloodType?: string; allergies?: string; conditions?: string } : null;
+
+            // Activity heatmap — last 30 days
+            const activityDates = new Set<string>();
+            trackerData.forEach(t => activityDates.add(t.date));
+            bpEntries.forEach(b => activityDates.add(b.date));
+            const heatmap: { date: string; active: boolean }[] = [];
+            for (let i = 29; i >= 0; i--) {
+              const d = new Date();
+              d.setDate(d.getDate() - i);
+              const ds = d.toISOString().split("T")[0];
+              heatmap.push({ date: ds, active: activityDates.has(ds) });
+            }
+            const activeDays = heatmap.filter(h => h.active).length;
 
             return (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -97,6 +126,19 @@ function CustomerProfilePanel({ codeStr, onClose }: { codeStr: string; onClose: 
                 </div>
 
 
+                {/* Activity heatmap — last 30 days */}
+                <div style={{ background: "#f8faf9", borderRadius: 14, padding: "14px 16px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "#374151", fontFamily: "var(--admin-font)", textTransform: "uppercase", letterSpacing: 0.5 }}>Activity — last 30 days</span>
+                    <span style={{ fontSize: 12, color: "#39613B", fontWeight: 700, marginLeft: "auto" }}>{activeDays}/30 active</span>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(15, 1fr)", gap: 3 }}>
+                    {heatmap.map(h => (
+                      <div key={h.date} title={h.date + (h.active ? " — active" : " — no activity")} style={{ aspectRatio: "1", background: h.active ? "#39613B" : "#e5e7eb", borderRadius: 3 }} />
+                    ))}
+                  </div>
+                </div>
+
                 {/* Tracker check-ins */}
                 <div style={{ background: "#f0fdf4", borderRadius: 14, padding: "14px 16px", border: "1.5px solid #86efac" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
@@ -111,14 +153,66 @@ function CustomerProfilePanel({ codeStr, onClose }: { codeStr: string; onClose: 
                       {recentLogs.map((log: CheckIn, i: number) => (
                         <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", background: "#fff", borderRadius: 9 }}>
                           <span style={{ fontSize: 11, color: "#166534", fontWeight: 700, fontFamily: "monospace", minWidth: 70 }}>{log.date}</span>
-                          {log.energy != null && <span style={{ fontSize: 11, color: "#9ca8a3" }}>⚡{log.energy}</span>}
-                          {log.pain   != null && <span style={{ fontSize: 11, color: "#9ca8a3" }}>🩹{log.pain}</span>}
-                          {log.weight != null && <span style={{ fontSize: 11, color: "#9ca8a3" }}>⚖️{log.weight}kg</span>}
+                          {log.painScore != null && <span style={{ fontSize: 11, color: "#9ca8a3" }}>Pain {log.painScore}/10</span>}
+                          {log.energy != null && <span style={{ fontSize: 11, color: "#9ca8a3" }}>Energy {log.energy}/10</span>}
+                          {log.weight != null && <span style={{ fontSize: 11, color: "#9ca8a3" }}>{log.weight}kg</span>}
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
+
+                {/* BP History */}
+                {bpEntries.length > 0 && (
+                  <div style={{ background: "#fef2f2", borderRadius: 14, padding: "14px 16px", border: "1.5px solid #fca5a5" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#991b1b", fontFamily: "var(--admin-font)", textTransform: "uppercase", letterSpacing: 0.5 }}>Recent BP</span>
+                      <span style={{ fontSize: 12, color: "#dc2626", fontWeight: 700, marginLeft: "auto" }}>{bpEntries.length} total</span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      {recentBp.map((b, i) => (
+                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", background: "#fff", borderRadius: 9 }}>
+                          <span style={{ fontSize: 11, color: "#991b1b", fontWeight: 700, fontFamily: "monospace", minWidth: 70 }}>{b.date}</span>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: "#991b1b" }}>{b.systolic}/{b.diastolic}</span>
+                          {b.pulse != null && <span style={{ fontSize: 11, color: "#9ca8a3" }}>· {b.pulse} bpm</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Medications */}
+                {activeMeds.length > 0 && (
+                  <div style={{ background: "#eef2ff", borderRadius: 14, padding: "14px 16px", border: "1.5px solid #a5b4fc" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#3730a3", fontFamily: "var(--admin-font)", textTransform: "uppercase", letterSpacing: 0.5 }}>Maintenance Meds</span>
+                      <span style={{ fontSize: 12, color: "#4338ca", fontWeight: 700, marginLeft: "auto" }}>{activeMeds.length}</span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      {activeMeds.slice(0, 8).map((m, i) => (
+                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", background: "#fff", borderRadius: 9 }}>
+                          <span style={{ fontSize: 13, color: "#1e1b4b", fontWeight: 600, flex: 1 }}>{m.name}</span>
+                          <span style={{ fontSize: 10, color: "#6366f1", fontFamily: "var(--admin-font)", textTransform: "uppercase", letterSpacing: 0.4 }}>{m.schedules.join(" · ")}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Medical Card Summary */}
+                {mc && mc.fullName && (
+                  <div style={{ background: "#f0fdfa", borderRadius: 14, padding: "14px 16px", border: "1.5px solid #5eead4" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#115e59", fontFamily: "var(--admin-font)", textTransform: "uppercase", letterSpacing: 0.5 }}>Medical Card</span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4, fontFamily: "var(--admin-font)", fontSize: 12 }}>
+                      <div><span style={{ color: "#9ca8a3" }}>Name: </span><span style={{ fontWeight: 600, color: "#134e4a" }}>{mc.fullName}</span></div>
+                      {mc.bloodType && <div><span style={{ color: "#9ca8a3" }}>Blood: </span><span style={{ fontWeight: 700, color: "#b91c1c" }}>{mc.bloodType}</span></div>}
+                      {mc.allergies && <div><span style={{ color: "#9ca8a3" }}>Allergies: </span><span style={{ color: "#134e4a" }}>{mc.allergies}</span></div>}
+                      {mc.conditions && <div><span style={{ color: "#9ca8a3" }}>Conditions: </span><span style={{ color: "#134e4a" }}>{mc.conditions}</span></div>}
+                    </div>
+                  </div>
+                )}
 
                 {/* BMI */}
                 {pr["tracker"]?.data && (
