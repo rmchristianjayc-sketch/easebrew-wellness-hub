@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
-import { Heart, ChevronLeft, Plus, Trash2, CircleCheck, Lightbulb, ClipboardList, TrendingUp, TrendingDown, Minus, Printer } from "lucide-react";
+import { Heart, ChevronLeft, Plus, Trash2, CircleCheck, Lightbulb, ClipboardList, TrendingUp, TrendingDown, Minus, Printer, AlertTriangle } from "lucide-react";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";
@@ -118,6 +118,8 @@ export default function BloodPressurePage() {
     setTimeout(() => setSaved(false), 1500);
   }
 
+  const [crisisAlert, setCrisisAlert] = useState<{ systolic: number; diastolic: number } | null>(null);
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const sys = parseInt(form.systolic, 10);
@@ -141,7 +143,38 @@ export default function BloodPressurePage() {
     setShowForm(false);
     const { date, time } = nowDateTime();
     setForm({ date, time, systolic: "", diastolic: "", pulse: "", notes: "" });
+
+    // Hypertensive Crisis alert
+    if (sys >= 180 || dia >= 120) {
+      setCrisisAlert({ systolic: sys, diastolic: dia });
+      if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+        try {
+          new Notification("⚠️ BP EMERGENCY", {
+            body: `BP mo ay ${sys}/${dia}. Napakataas! Tumawag agad ng 911 o pumunta sa ospital.`,
+            icon: "/icons/icon-192.png",
+            requireInteraction: true,
+          });
+        } catch {}
+      }
+    }
   }
+
+  // Read emergency contact from medical card for tap-to-call
+  const [emergencyPhone, setEmergencyPhone] = useState<string>("");
+  useEffect(() => {
+    if (!session?.code) return;
+    try {
+      const mcKey = progressStorageKey("easebrew-medical-card-v1", session.code);
+      const raw = localStorage.getItem(mcKey);
+      if (raw) {
+        const mc = JSON.parse(raw);
+        const primary = Array.isArray(mc?.emergencyContacts)
+          ? mc.emergencyContacts.find((c: { phone?: string }) => c?.phone)
+          : null;
+        if (primary?.phone) setEmergencyPhone(primary.phone.replace(/[^0-9+]/g, ""));
+      }
+    } catch {}
+  }, [session?.code]);
 
   const [undoState, setUndoState] = useState<{ entry: BpEntry; timerId: number } | null>(null);
   function handleDelete(id: string) {
@@ -207,6 +240,37 @@ export default function BloodPressurePage() {
 
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 60 }}>
+      {/* Hypertensive Crisis modal */}
+      {crisisAlert && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          <div style={{ background: "#fff", borderRadius: 24, padding: "28px 24px", maxWidth: 420, width: "100%", border: "5px solid #dc2626", boxShadow: "0 20px 60px rgba(0,0,0,0.4)" }}>
+            <div style={{ textAlign: "center", marginBottom: 16 }}>
+              <div style={{ width: 72, height: 72, borderRadius: "50%", background: "#fee2e2", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
+                <AlertTriangle size={40} color="#dc2626" />
+              </div>
+              <h2 style={{ fontSize: 26, fontWeight: 900, color: "#7f1d1d", margin: "0 0 6px", fontFamily: "Georgia, serif" }}>EMERGENCY!</h2>
+              <p style={{ fontSize: 40, fontWeight: 900, color: "#dc2626", margin: "0 0 10px" }}>{crisisAlert.systolic}/{crisisAlert.diastolic}</p>
+              <p style={{ fontSize: 16, color: DARK, margin: 0, lineHeight: 1.55, fontWeight: 600 }}>
+                Napakataas ng BP mo. Pwedeng may stroke o heart attack. Tumawag agad ng tulong!
+              </p>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <a href="tel:911" style={{ background: "#dc2626", color: "#fff", padding: "18px", borderRadius: 14, fontSize: 20, fontWeight: 900, textAlign: "center", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 60 }}>
+                📞 Tumawag ng 911
+              </a>
+              {emergencyPhone && (
+                <a href={`tel:${emergencyPhone}`} style={{ background: G, color: "#fff", padding: "16px", borderRadius: 14, fontSize: 18, fontWeight: 700, textAlign: "center", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 54 }}>
+                  Tawagin ang Emergency Contact
+                </a>
+              )}
+              <button onClick={() => setCrisisAlert(null)} style={{ background: "transparent", color: MID, padding: "12px", border: "none", fontSize: 14, cursor: "pointer", fontFamily: "Georgia, serif" }}>
+                Isara (kung kaya ko na)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div style={{ background: `linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%)`, padding: "20px 24px 28px", color: "#fff" }}>
         <Link href="/" style={{ color: "rgba(255,255,255,0.85)", textDecoration: "none", display: "flex", alignItems: "center", gap: 6, fontSize: 17, fontWeight: 600, marginBottom: 18, fontFamily: "Georgia, serif" }}>

@@ -151,6 +151,26 @@ export async function createCustomerToken(session: CustomerSession) {
     .sign(getSigningSecret());
 }
 
+export async function createFamilyShareToken(code: string, ownerName: string) {
+  // 30-day family share token — read-only access to weekly report
+  return new SignJWT({ code, name: ownerName, kind: 'family_share' })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('30d')
+    .sign(getSigningSecret());
+}
+
+export async function verifyFamilyShareToken(token: string): Promise<{ code: string; name: string } | null> {
+  try {
+    const { payload } = await verifySignedToken(token);
+    if (payload.kind !== 'family_share') return null;
+    if (typeof payload.code !== 'string' || typeof payload.name !== 'string') return null;
+    return { code: payload.code, name: payload.name };
+  } catch {
+    return null;
+  }
+}
+
 export async function verifyCustomerToken(
   req: NextRequest
 ): Promise<CustomerSession | null> {

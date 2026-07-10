@@ -419,6 +419,76 @@ function TodaysSummaryCard({ sessionCode }: { sessionCode: string }) {
 }
 
 // ============================================================
+// FAMILY SHARE CARD — generate read-only weekly report link
+// ============================================================
+function FamilyShareCard() {
+  const [generating, setGenerating] = useState(false);
+  const [link, setLink] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState("");
+
+  async function generateLink() {
+    setError("");
+    setGenerating(true);
+    try {
+      const res = await fetch("/api/family/generate", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok || !data.success) { setError(data.error || "Failed."); return; }
+      const url = `${window.location.origin}/family/${data.token}`;
+      setLink(url);
+    } catch { setError("Network error."); }
+    finally { setGenerating(false); }
+  }
+
+  function copyLink() {
+    if (!link) return;
+    const msg = `Kumusta! Ito ang wellness update ko sa EaseBrew, para makita mo ang progress ko:\n\n${link}\n\n(30 araw na valid ang link)`;
+    navigator.clipboard.writeText(msg).then(() => {
+      setCopied(true); setTimeout(() => setCopied(false), 2500);
+    });
+  }
+
+  function shareNative() {
+    if (!link || typeof navigator === "undefined" || !("share" in navigator)) return;
+    (navigator as unknown as { share: (data: { title: string; text: string; url: string }) => Promise<void> })
+      .share({ title: "EaseBrew Wellness Update", text: "Tingnan ang wellness progress ko sa EaseBrew:", url: link })
+      .catch(() => {});
+  }
+
+  return (
+    <div style={{ background: "#f0f9ff", border: `2px solid #0ea5e9`, borderRadius: 20, padding: 18, marginBottom: 20 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+        <Share2 size={20} color="#0369a1" />
+        <p style={{ fontSize: 16, fontWeight: 700, color: "#0c4a6e", margin: 0 }}>Ipakita sa Pamilya</p>
+      </div>
+      <p style={{ fontSize: 14, color: "#164e63", margin: "0 0 12px", lineHeight: 1.5 }}>
+        Gumawa ng read-only link para sa anak o asawa mo — makikita nila ang lingguhang wellness progress mo.
+      </p>
+      {!link ? (
+        <button onClick={generateLink} disabled={generating} style={{ width: "100%", background: "#0ea5e9", color: "#fff", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer", minHeight: 52, fontFamily: "Georgia, serif" }}>
+          {generating ? "Ginagawa..." : "Gumawa ng Family Link"}
+        </button>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ background: "#fff", border: "1.5px solid #7dd3fc", borderRadius: 10, padding: "10px 12px", fontSize: 12, color: "#0c4a6e", wordBreak: "break-all", fontFamily: "monospace" }}>
+            {link}
+          </div>
+          <button onClick={copyLink} style={{ background: "#0ea5e9", color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
+            {copied ? "Na-copy na ✓" : "I-copy ang mensahe"}
+          </button>
+          {typeof navigator !== "undefined" && "share" in navigator && (
+            <button onClick={shareNative} style={{ background: G, color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
+              I-share sa Messenger / WhatsApp
+            </button>
+          )}
+        </div>
+      )}
+      {error && <p style={{ fontSize: 13, color: "#dc2626", margin: "8px 0 0" }}>{error}</p>}
+    </div>
+  );
+}
+
+// ============================================================
 // QUICK CHECK-IN (1-tap log from home page)
 // ============================================================
 type QuickEntry = { date: string; painScore: number; painLocation: string; easebrewUmaga: boolean; easebrewGabi: boolean; mood: number; notes: string };
@@ -1103,6 +1173,7 @@ export default function Home() {
             {session && (
               <QuickCheckIn storageKey={progressStorageKey("easebrew-tracker-v2", session.code)} />
             )}
+            {session && <FamilyShareCard />}
 
             {/* ── Quick Access to Unlocked Tools ── */}
             {unlockedProducts.length > 0 && (
