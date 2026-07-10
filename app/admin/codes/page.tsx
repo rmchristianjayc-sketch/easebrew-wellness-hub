@@ -304,11 +304,15 @@ export default function CodesPage() {
   const [bulkNames, setBulkNames]             = useState("");
   const [bulkResults, setBulkResults]         = useState<{ name: string; code?: string; error?: string }[]>([]);
   const [bulkProgress, setBulkProgress]       = useState<{ current: number; total: number } | null>(null);
+  const [selectedIds, setSelectedIds]         = useState<Set<string>>(new Set());
+  const [bulkActionRunning, setBulkActionRunning] = useState(false);
 
   const fetchCodes = useCallback(async () => {
     setCodesLoading(true);
     try {
-      const res  = await fetch(`/api/admin/codes?filter=${filter}&limit=200`);
+      // expiring/expired are client-side computed filters — fetch everything
+      const serverFilter = (filter === "expiring" || filter === "expired") ? "all" : filter;
+      const res  = await fetch(`/api/admin/codes?filter=${serverFilter}&limit=200`);
       const data = await res.json();
       if (res.ok) setCodes(data.codes || []);
       else setError("Could not load codes. Please refresh the page.");
@@ -407,6 +411,40 @@ export default function CodesPage() {
     });
   }
 
+  function toggleSelected(id: string) {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+  function toggleSelectAll(codes: AccessCode[]) {
+    setSelectedIds(prev => {
+      const allSelected = codes.every(c => prev.has(c.id));
+      if (allSelected) return new Set();
+      const next = new Set(prev);
+      codes.forEach(c => next.add(c.id));
+      return next;
+    });
+  }
+  async function handleBulkDeactivate() {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    setBulkActionRunning(true);
+    for (const id of ids) {
+      try {
+        await fetch("/api/admin/codes", {
+          method: "PATCH", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, action: "deactivate" }),
+        });
+      } catch {}
+    }
+    setSelectedIds(new Set());
+    setBulkActionRunning(false);
+    fetchCodes();
+  }
+
   function copyCode()    { navigator.clipboard.writeText(generatedCode).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); }); }
   function copyMessage() { navigator.clipboard.writeText(generatedMessage || generatedCode).then(() => { setMessageCopied(true); setTimeout(() => setMessageCopied(false), 2000); }); }
   function copyListCode(code: string) { navigator.clipboard.writeText(code).then(() => { setCopiedId(code); setTimeout(() => setCopiedId(null), 2000); }); }
@@ -490,6 +528,21 @@ export default function CodesPage() {
     : codes;
 
   const filtered = myCodes
+    .filter(c => {
+      // status filter
+      if (filter === "unused" && c.is_used) return false;
+      if (filter === "used" && !c.is_used) return false;
+      if (filter === "expiring") {
+        if (!c.is_used || !c.expires_at) return false;
+        const d = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
+        if (d <= 0 || d > 7) return false;
+      }
+      if (filter === "expired") {
+        if (!c.expires_at) return false;
+        if (new Date(c.expires_at).getTime() > now.getTime()) return false;
+      }
+      return true;
+    })
     .filter(c =>
       search.trim() === "" ||
       (c.customer_name || "").toLowerCase().includes(search.toLowerCase()) ||
@@ -728,8 +781,8 @@ export default function CodesPage() {
               <p className="a-page-subtitle">Showing {filtered.length} of {myCodes.length}</p>
             </div>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <div style={{ display: "flex", gap: 6 }}>
-                {["all", "unused", "used"].map(f => (
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {["all", "unused", "used", "expiring", "expired"].map(f => (
                   <button key={f} onClick={() => setFilter(f)}
                     className={`a-btn a-btn-sm ${filter === f ? "a-btn-primary" : "a-btn-ghost"}`}
                     style={{ textTransform: "capitalize" }}
@@ -772,6 +825,31 @@ export default function CodesPage() {
             />
           </div>
 
+          {/* Bulk action bar */}
+          {isOwner && selectedIds.size > 0 && (
+            <div style={{ background: "#183b28", borderRadius: 8, padding: "10px 14px", marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ color: "#fff", fontSize: 13, fontWeight: 600, fontFamily: "var(--admin-font)" }}>
+                {selectedIds.size} code{selectedIds.size > 1 ? "s" : ""} selected
+              </span>
+              <div style={{ display: "flex", gap: 6 }}>
+                <button
+                  onClick={() => setConfirm({
+                    message: `Deactivate ${selectedIds.size} selected code${selectedIds.size > 1 ? "s" : ""}?`,
+                    danger: true,
+                    onConfirm: () => { setConfirm(null); handleBulkDeactivate(); },
+                  })}
+                  disabled={bulkActionRunning}
+                  className="a-btn a-btn-danger a-btn-sm"
+                >
+                  {bulkActionRunning ? "Deactivating..." : "Deactivate Selected"}
+                </button>
+                <button onClick={() => setSelectedIds(new Set())} className="a-btn a-btn-ghost a-btn-sm" style={{ color: "#fff", borderColor: "rgba(255,255,255,0.3)" }}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Table */}
           <div className="a-table-wrap">
             {codesLoading ? (
@@ -784,6 +862,17 @@ export default function CodesPage() {
               <table className="a-table">
                 <thead>
                   <tr>
+                    {isOwner && (
+                      <th style={{ width: 32 }}>
+                        <input
+                          type="checkbox"
+                          checked={filtered.length > 0 && filtered.every(c => selectedIds.has(c.id))}
+                          onChange={() => toggleSelectAll(filtered)}
+                          style={{ cursor: "pointer", width: 15, height: 15 }}
+                          aria-label="Select all"
+                        />
+                      </th>
+                    )}
                     {(isOwner ? ["Code", "Customer", "Package", "Coach / Notes", "Used At", "Expires", "Status", "Last Active", ""] : ["Code", "Customer", "Package", "Notes", "Used At", "Expires", ""]).map(h => <th key={h}>{h}</th>)}
                   </tr>
                 </thead>
@@ -794,7 +883,18 @@ export default function CodesPage() {
                     const isActing = actionLoadingId === c.id;
                     const daysLeft = c.expires_at ? Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000) : null;
                     return (
-                      <tr key={i}>
+                      <tr key={i} style={{ background: selectedIds.has(c.id) ? "#f0fdf4" : undefined }}>
+                        {isOwner && (
+                          <td>
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.has(c.id)}
+                              onChange={() => toggleSelected(c.id)}
+                              style={{ cursor: "pointer", width: 15, height: 15 }}
+                              aria-label={`Select ${c.code}`}
+                            />
+                          </td>
+                        )}
                         <td style={{ fontFamily: "monospace", fontSize: 12, color: "var(--green)", fontWeight: 700 }}>{c.code}</td>
                         <td style={{ fontWeight: 600 }}>{c.customer_name || "—"}</td>
                         <td style={{ whiteSpace: "nowrap", fontSize: 12 }}>₱{c.tier?.toLocaleString()} · {c.packs}pk · {c.validity_days}d</td>
