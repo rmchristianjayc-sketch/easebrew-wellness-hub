@@ -419,6 +419,151 @@ function TodaysSummaryCard({ sessionCode }: { sessionCode: string }) {
 }
 
 // ============================================================
+// TESTIMONIAL SUBMISSION CARD — customer shares their story
+// ============================================================
+function TestimonialSubmissionCard() {
+  const [expanded, setExpanded] = useState(false);
+  const [quote, setQuote] = useState("");
+  const [painBefore, setPainBefore] = useState("");
+  const [painAfter, setPainAfter] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+
+  async function submit() {
+    setError("");
+    if (quote.trim().length < 20) { setError("Kailangan ng at least 20 characters."); return; }
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/progress", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "testimonial_submission",
+          data: {
+            quote: quote.trim(),
+            painBefore: painBefore ? Number(painBefore) : null,
+            painAfter: painAfter ? Number(painAfter) : null,
+            submitted_at: new Date().toISOString(),
+          },
+        }),
+      });
+      const d = await res.json();
+      if (!res.ok || !d.success) { setError(d.error || "Failed to submit."); return; }
+      setSubmitted(true);
+    } catch { setError("Network error."); }
+    finally { setSubmitting(false); }
+  }
+
+  if (submitted) {
+    return (
+      <div style={{ background: "#dcfce7", border: `2px solid ${G}`, borderRadius: 20, padding: 18, marginBottom: 20, textAlign: "center" }}>
+        <CircleCheck size={40} color={G} style={{ margin: "0 auto 8px" }} />
+        <p style={{ fontSize: 16, fontWeight: 700, color: "#166534", margin: "0 0 4px" }}>Salamat sa kwento mo!</p>
+        <p style={{ fontSize: 14, color: "#166534", margin: 0 }}>I-review namin at maaaring mai-share sa hub para makapag-inspire ng iba.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ background: "#fdf4ff", border: `2px solid #a855f7`, borderRadius: 20, padding: 18, marginBottom: 20 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+        <MessageCircle size={20} color="#7c3aed" />
+        <p style={{ fontSize: 16, fontWeight: 700, color: "#581c87", margin: 0 }}>Ikaw ba may kwento?</p>
+      </div>
+      <p style={{ fontSize: 14, color: "#6b21a8", margin: "0 0 12px", lineHeight: 1.5 }}>
+        I-share ang wellness journey mo — makakatulong ito sa ibang senior na mag-decide.
+      </p>
+      {!expanded ? (
+        <button onClick={() => setExpanded(true)} style={{ width: "100%", background: "#a855f7", color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
+          Ibahagi ang kwento ko
+        </button>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <textarea
+            value={quote}
+            onChange={e => setQuote(e.target.value)}
+            placeholder="Halimbawa: Bago ako uminom ng EaseBrew, matindi ang pananakit ng tuhod ko. Ngayon..."
+            rows={4}
+            style={{ width: "100%", border: "2px solid #d8b4fe", borderRadius: 12, padding: 12, fontSize: 15, fontFamily: "Georgia, serif", resize: "vertical", boxSizing: "border-box" }}
+            maxLength={500}
+          />
+          <p style={{ fontSize: 11, color: "#7c3aed", margin: 0 }}>{quote.length}/500</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            <div>
+              <label style={{ fontSize: 12, color: "#6b21a8", fontWeight: 600, display: "block", marginBottom: 4 }}>Pain BEFORE (1-10)</label>
+              <input type="number" min={1} max={10} value={painBefore} onChange={e => setPainBefore(e.target.value)} style={{ width: "100%", border: "1.5px solid #d8b4fe", borderRadius: 10, padding: 10, fontSize: 15, fontFamily: "Georgia, serif", boxSizing: "border-box" }} />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: "#6b21a8", fontWeight: 600, display: "block", marginBottom: 4 }}>Pain NOW (1-10)</label>
+              <input type="number" min={1} max={10} value={painAfter} onChange={e => setPainAfter(e.target.value)} style={{ width: "100%", border: "1.5px solid #d8b4fe", borderRadius: 10, padding: 10, fontSize: 15, fontFamily: "Georgia, serif", boxSizing: "border-box" }} />
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={submit} disabled={submitting} style={{ flex: 1, background: "#a855f7", color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
+              {submitting ? "Isinasalin..." : "I-submit"}
+            </button>
+            <button onClick={() => setExpanded(false)} style={{ background: "transparent", color: "#7c3aed", border: "2px solid #a855f7", borderRadius: 12, padding: "12px 16px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
+              Kansel
+            </button>
+          </div>
+          {error && <p style={{ fontSize: 13, color: "#dc2626", margin: 0 }}>{error}</p>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// REFERRAL CARD — invite a friend to try EaseBrew
+// ============================================================
+function ReferralCard({ coaches }: { coaches: Coach[] }) {
+  const [copied, setCopied] = useState(false);
+  const primaryCoach = coaches[0];
+
+  function buildReferralMessage() {
+    const coachInfo = primaryCoach
+      ? `\n\nContact po ninyo ang aking coach:\n${primaryCoach.name}\n${primaryCoach.display || primaryCoach.number}`
+      : "";
+    return `Hi po! Gustong-gusto ko po ang aking EaseBrew Wellness Hub — daily wellness tracking, meal plan, exercises, at coach guidance. Mas magaan po ang katawan ko ngayon.\n\nSubukan po ninyo — para sa mga senior tayong may pananakit ng katawan.${coachInfo}\n\n🌿 EaseBrew — herbal wellness for Filipino seniors`;
+  }
+
+  function copyReferral() {
+    navigator.clipboard.writeText(buildReferralMessage()).then(() => {
+      setCopied(true); setTimeout(() => setCopied(false), 2500);
+    });
+  }
+
+  function shareNative() {
+    if (typeof navigator === "undefined" || !("share" in navigator)) return;
+    (navigator as unknown as { share: (data: { title: string; text: string }) => Promise<void> })
+      .share({ title: "EaseBrew — Wellness for Seniors", text: buildReferralMessage() })
+      .catch(() => {});
+  }
+
+  return (
+    <div style={{ background: "#fef3c7", border: `2px solid ${AMBER}`, borderRadius: 20, padding: 18, marginBottom: 20 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+        <Sparkles size={20} color={AMBER} />
+        <p style={{ fontSize: 16, fontWeight: 700, color: "#78350f", margin: 0 }}>Ipakilala sa Kaibigan</p>
+      </div>
+      <p style={{ fontSize: 14, color: "#78350f", margin: "0 0 12px", lineHeight: 1.5 }}>
+        May kaibigan ka bang may pananakit ng katawan? Ipakilala mo ang EaseBrew sa kanila.
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <button onClick={copyReferral} style={{ background: AMBER, color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
+          {copied ? "Na-copy na ✓" : "I-copy ang mensahe"}
+        </button>
+        {typeof navigator !== "undefined" && "share" in navigator && (
+          <button onClick={shareNative} style={{ background: G, color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
+            I-share sa Messenger / WhatsApp
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 // FAMILY SHARE CARD — generate read-only weekly report link
 // ============================================================
 function FamilyShareCard() {
@@ -1173,6 +1318,8 @@ export default function Home() {
             {session && (
               <QuickCheckIn storageKey={progressStorageKey("easebrew-tracker-v2", session.code)} />
             )}
+            {session && <ReferralCard coaches={coaches} />}
+            {session && <TestimonialSubmissionCard />}
             {session && <FamilyShareCard />}
 
             {/* ── Quick Access to Unlocked Tools ── */}

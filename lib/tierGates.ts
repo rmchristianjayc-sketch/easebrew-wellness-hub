@@ -32,7 +32,8 @@ type PaidProgressType =
 type FreeProgressType =
   | 'blood_pressure'
   | 'medication'
-  | 'medical_card';
+  | 'medical_card'
+  | 'testimonial_submission';
 
 export type ProgressType = PaidProgressType | FreeProgressType;
 
@@ -54,6 +55,7 @@ const FREE_PROGRESS_TYPES: readonly FreeProgressType[] = [
   'blood_pressure',
   'medication',
   'medical_card',
+  'testimonial_submission',
 ];
 
 // URL path → minimum tier (for middleware route gate).

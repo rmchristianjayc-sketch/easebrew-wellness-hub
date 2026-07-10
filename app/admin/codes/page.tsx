@@ -92,6 +92,10 @@ function CustomerProfilePanel({ codeStr, onClose }: { codeStr: string; onClose: 
             const rawMc = pr["medical_card"]?.data;
             const mc = rawMc && typeof rawMc === "object" && !Array.isArray(rawMc) ? rawMc as { fullName?: string; bloodType?: string; allergies?: string; conditions?: string } : null;
 
+            // Testimonial submission
+            const rawTs = pr["testimonial_submission"]?.data;
+            const ts = rawTs && typeof rawTs === "object" && !Array.isArray(rawTs) ? rawTs as { quote?: string; painBefore?: number; painAfter?: number; submitted_at?: string } : null;
+
             // Activity heatmap — last 30 days
             const activityDates = new Set<string>();
             trackerData.forEach(t => activityDates.add(t.date));
@@ -196,6 +200,29 @@ function CustomerProfilePanel({ codeStr, onClose }: { codeStr: string; onClose: 
                         </div>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {/* Testimonial submission */}
+                {ts && ts.quote && (
+                  <div style={{ background: "#fdf4ff", borderRadius: 14, padding: "14px 16px", border: "1.5px solid #d8b4fe" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#581c87", fontFamily: "var(--admin-font)", textTransform: "uppercase", letterSpacing: 0.5 }}>Testimonial Submission</span>
+                      <span style={{ fontSize: 10, background: "#fbbf24", color: "#78350f", padding: "2px 6px", borderRadius: 4, fontWeight: 700, marginLeft: "auto" }}>PENDING REVIEW</span>
+                    </div>
+                    <p style={{ fontSize: 13, color: "#1e1b4b", margin: "0 0 8px", lineHeight: 1.55, fontStyle: "italic" }}>
+                      &quot;{ts.quote}&quot;
+                    </p>
+                    {(ts.painBefore != null || ts.painAfter != null) && (
+                      <p style={{ fontSize: 12, color: "#6b21a8", margin: "0 0 4px", fontFamily: "var(--admin-font)" }}>
+                        Pain: <strong>{ts.painBefore ?? "—"}</strong> → <strong>{ts.painAfter ?? "—"}</strong>
+                      </p>
+                    )}
+                    {ts.submitted_at && (
+                      <p style={{ fontSize: 11, color: "#9ca8a3", margin: 0, fontFamily: "var(--admin-font)" }}>
+                        Submitted: {new Date(ts.submitted_at).toLocaleDateString("en-PH")}
+                      </p>
+                    )}
                   </div>
                 )}
 
