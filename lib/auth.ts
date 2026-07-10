@@ -152,11 +152,13 @@ export async function createCustomerToken(session: CustomerSession) {
 }
 
 export async function createFamilyShareToken(code: string, ownerName: string) {
-  // 30-day family share token — read-only access to weekly report
+  // 7-day family share token — short-lived because it's a URL bearer
+  // credential (leaks via Referer, screenshots, chat previews). Customer
+  // can regenerate anytime from the hub.
   return new SignJWT({ code, name: ownerName, kind: 'family_share' })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime('30d')
+    .setExpirationTime('7d')
     .sign(getSigningSecret());
 }
 

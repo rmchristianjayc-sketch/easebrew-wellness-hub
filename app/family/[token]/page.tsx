@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
-import { Heart, Activity, TrendingUp, TrendingDown, Minus, CircleCheck } from "lucide-react";
+import { Heart, Activity, CircleCheck } from "lucide-react";
+import { localDateStr } from "@/lib/localDate";
 
 const G = "#39613B";
 const GOLD = "#FED255";
@@ -51,13 +52,13 @@ export default function FamilySharePage({ params }: { params: Promise<{ token: s
     </div>
   );
 
-  // Last 7 days
+  // Last 7 days (local timezone)
   const today = new Date();
   const weekDates: string[] = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    weekDates.push(d.toISOString().split("T")[0]);
+    weekDates.push(localDateStr(d));
   }
   const trackerByDate = new Map(tracker.map(t => [t.date, t]));
   const daysLogged = weekDates.filter(d => trackerByDate.has(d)).length;

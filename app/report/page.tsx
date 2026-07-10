@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache } from "@/lib/progressStorage";
+import { localDateStr } from "@/lib/localDate";
 import { ChevronLeft, FileText, Activity, Scale, Apple, Heart } from "lucide-react";
 
 const G     = "#39613B";
@@ -18,7 +19,7 @@ function getWeekDates(): string[] {
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
-    return d.toISOString().split("T")[0];
+    return localDateStr(d);
   });
 }
 

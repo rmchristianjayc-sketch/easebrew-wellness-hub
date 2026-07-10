@@ -5,8 +5,7 @@ import { MINIMUM_TIER_BY_TYPE } from '@/lib/tierGates';
 
 async function getAuthorizedSession(req: NextRequest, type: string) {
   const session = await verifyCustomerToken(req);
-  const minimumTier = MINIMUM_TIER_BY_TYPE[type];
-  if (!session || !minimumTier || session.tier < minimumTier) return null;
+  if (!session) return null;
 
   const { data, error } = await supabaseAdmin
     .from('access_codes')
@@ -18,14 +17,19 @@ async function getAuthorizedSession(req: NextRequest, type: string) {
     error ||
     data?.is_used !== true ||
     data.device_id !== session.device_id ||
-    data.tier !== session.tier ||
     typeof data.expires_at !== 'string' ||
     new Date(data.expires_at).getTime() <= Date.now()
   ) {
     return null;
   }
 
-  return session;
+  // Tier gate uses the DB tier (source of truth), not the token — so an
+  // admin-side tier upgrade takes effect immediately and doesn't silently
+  // fail all writes until the session cookie is refreshed.
+  const minimumTier = MINIMUM_TIER_BY_TYPE[type];
+  if (!minimumTier || data.tier < minimumTier) return null;
+
+  return { ...session, tier: data.tier };
 }
 
 export async function GET(req: NextRequest) {

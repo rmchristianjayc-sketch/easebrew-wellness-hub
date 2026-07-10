@@ -5,6 +5,7 @@ import { useAdminGuard } from "@/lib/useAdminGuard";
 import { PRICE_CONFIG } from "@/lib/price-config";
 import { DEFAULT_COACHES, parseCoachesFromContent } from "@/lib/coaches";
 import { getCoachLabel } from "@/lib/coachLabel";
+import { localDateStr } from "@/lib/localDate";
 import type { AccessCode } from "@/lib/supabase";
 import {
   Check, ClipboardCopy, Download, MessageSquare, RefreshCw, Search, Ticket, Trash2, X, AlertTriangle,
@@ -104,7 +105,7 @@ function CustomerProfilePanel({ codeStr, onClose }: { codeStr: string; onClose: 
             for (let i = 29; i >= 0; i--) {
               const d = new Date();
               d.setDate(d.getDate() - i);
-              const ds = d.toISOString().split("T")[0];
+              const ds = localDateStr(d);
               heatmap.push({ date: ds, active: activityDates.has(ds) });
             }
             const activeDays = heatmap.filter(h => h.active).length;

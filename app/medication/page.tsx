@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
+import { localDateStr } from "@/lib/localDate";
 import { Pill, ChevronLeft, Plus, Trash2, Check, Sun, CloudSun, Sunset, Moon, CircleCheck, Lightbulb, BarChart3, Printer } from "lucide-react";
 
 const G     = "#39613B";
@@ -40,7 +41,7 @@ type MedicationData = {
 };
 
 function todayStr() {
-  return new Date().toISOString().split("T")[0];
+  return localDateStr();
 }
 
 export default function MedicationPage() {
@@ -90,22 +91,26 @@ export default function MedicationPage() {
     setShowForm(false);
   }
 
-  const [undoState, setUndoState] = useState<{ med: Medication; timerId: number } | null>(null);
+  const [undoState, setUndoState] = useState<{ med: Medication; prevLogs: DayLog[]; timerId: number } | null>(null);
   function handleDeleteMed(id: string) {
     const target = medications.find(m => m.id === id);
     if (!target) return;
     const key = (schedule: Schedule) => `${id}|${schedule}`;
     const scheduleKeys = target.schedules.map(key);
+    const prevLogs = logs;
     const cleanedLogs = logs.map(l => ({ ...l, taken: l.taken.filter(t => !scheduleKeys.includes(t)) }));
     persist(medications.filter(m => m.id !== id), cleanedLogs);
     if (undoState) clearTimeout(undoState.timerId);
     const timerId = window.setTimeout(() => setUndoState(null), 5000);
-    setUndoState({ med: target, timerId });
+    setUndoState({ med: target, prevLogs, timerId });
   }
   function handleUndoDeleteMed() {
     if (!undoState) return;
     clearTimeout(undoState.timerId);
-    persist([...medications, undoState.med], logs);
+    // Restore both the medication row AND the taken history that was
+    // stripped when it was deleted, so an accidental delete + undo
+    // doesn't lose compliance data.
+    persist([...medications, undoState.med], undoState.prevLogs);
     setUndoState(null);
   }
 
@@ -144,12 +149,16 @@ export default function MedicationPage() {
   const last7 = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    return d.toISOString().split("T")[0];
+    return localDateStr(d);
   });
   const compliance7day = last7.map(date => {
     const log = logs.find(l => l.date === date);
     const taken = log?.taken.length ?? 0;
-    const pct = totalSlotsToday > 0 ? Math.round((taken / totalSlotsToday) * 100) : 0;
+    // Denominator = max of (that day's taken count, today's slot count).
+    // This prevents >100% bars when the user removed meds today, and
+    // keeps historical compliance sensible without needing per-day config.
+    const denom = Math.max(taken, totalSlotsToday);
+    const pct = denom > 0 ? Math.min(100, Math.round((taken / denom) * 100)) : 0;
     return { date, pct };
   });
 

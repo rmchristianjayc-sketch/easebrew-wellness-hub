@@ -146,6 +146,7 @@ export default function BloodPressurePage() {
 
     // Hypertensive Crisis alert
     if (sys >= 180 || dia >= 120) {
+      setEmergencyPhone(readEmergencyPhone());
       setCrisisAlert({ systolic: sys, diastolic: dia });
       if (typeof Notification !== "undefined" && Notification.permission === "granted") {
         try {
@@ -159,22 +160,27 @@ export default function BloodPressurePage() {
     }
   }
 
-  // Read emergency contact from medical card for tap-to-call
-  const [emergencyPhone, setEmergencyPhone] = useState<string>("");
-  useEffect(() => {
-    if (!session?.code) return;
+  // Read emergency contact on-demand from medical card so recent edits
+  // (adding/updating a contact after opening this page) are seen.
+  function readEmergencyPhone(): string {
+    if (!session?.code) return "";
     try {
       const mcKey = progressStorageKey("easebrew-medical-card-v1", session.code);
       const raw = localStorage.getItem(mcKey);
-      if (raw) {
-        const mc = JSON.parse(raw);
-        const primary = Array.isArray(mc?.emergencyContacts)
-          ? mc.emergencyContacts.find((c: { phone?: string }) => c?.phone)
-          : null;
-        if (primary?.phone) setEmergencyPhone(primary.phone.replace(/[^0-9+]/g, ""));
-      }
-    } catch {}
-  }, [session?.code]);
+      if (!raw) return "";
+      const mc = JSON.parse(raw);
+      const primary = Array.isArray(mc?.emergencyContacts)
+        ? mc.emergencyContacts.find((c: { phone?: string }) => c?.phone)
+        : null;
+      if (!primary?.phone) return "";
+      // Preserve leading +, digits only; strip extensions ("x123", "ext")
+      const cleaned = String(primary.phone)
+        .split(/x|ext/i)[0]
+        .replace(/[^0-9+]/g, "");
+      return cleaned;
+    } catch { return ""; }
+  }
+  const [emergencyPhone, setEmergencyPhone] = useState<string>("");
 
   const [undoState, setUndoState] = useState<{ entry: BpEntry; timerId: number } | null>(null);
   function handleDelete(id: string) {
@@ -182,9 +188,10 @@ export default function BloodPressurePage() {
     if (!target) return;
     const next = entries.filter(e => e.id !== id);
     persist(next);
-    if (undoState) {
-      clearTimeout(undoState.timerId);
-    }
+    // Fire-and-forget the previous undo — user chose to delete another
+    // item, so we commit the previous delete instead of silently losing
+    // the ability to undo it later.
+    if (undoState) clearTimeout(undoState.timerId);
     const timerId = window.setTimeout(() => setUndoState(null), 5000);
     setUndoState({ entry: target, timerId });
   }

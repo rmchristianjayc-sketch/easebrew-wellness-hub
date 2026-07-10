@@ -8,6 +8,7 @@ import { G, GOLD, AMBER, CREAM, WHITE, DARK, MID, LIGHT_G } from "@/lib/colors";
 import { DEFAULT_PRODUCTS, applyContentOverrides, splitByTier } from "@/lib/products";
 import { PRICE_CONFIG } from "@/lib/price-config";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
+import { localDateStr, localDateStrOffset } from "@/lib/localDate";
 
 // 1.2 — Imported from single source of truth (no more duplicate definitions)
 import { Coach, DEFAULT_COACHES, buildCoaches } from "@/lib/coaches";
@@ -363,7 +364,7 @@ function TodaysSummaryCard({ sessionCode }: { sessionCode: string }) {
   const [tasks, setTasks] = useState<TodayTaskStatus[]>([]);
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const today = new Date().toISOString().split("T")[0];
+    const today = localDateStr();
 
     // EaseBrew Umaga + Gabi from tracker
     const trackerKey = progressStorageKey("easebrew-tracker-v2", sessionCode);
@@ -587,7 +588,7 @@ function FamilyShareCard() {
 
   function copyLink() {
     if (!link) return;
-    const msg = `Kumusta! Ito ang wellness update ko sa EaseBrew, para makita mo ang progress ko:\n\n${link}\n\n(30 araw na valid ang link)`;
+    const msg = `Kumusta! Ito ang wellness update ko sa EaseBrew, para makita mo ang progress ko:\n\n${link}\n\n(7 araw na valid ang link)`;
     navigator.clipboard.writeText(msg).then(() => {
       setCopied(true); setTimeout(() => setCopied(false), 2500);
     });
@@ -639,7 +640,7 @@ function FamilyShareCard() {
 type QuickEntry = { date: string; painScore: number; painLocation: string; easebrewUmaga: boolean; easebrewGabi: boolean; mood: number; notes: string };
 
 function QuickCheckIn({ storageKey }: { storageKey: string }) {
-  const today = new Date().toISOString().split("T")[0];
+  const today = localDateStr();
   const [umaga, setUmaga] = useState(false);
   const [gabi,  setGabi]  = useState(false);
 
@@ -1115,8 +1116,8 @@ export default function Home() {
     const days = Math.floor((Date.now() - new Date(lastDate + "T00:00:00").getTime()) / 86400000);
     setDaysSinceLog(days);
 
-    const todayStr = new Date().toISOString().split("T")[0];
-    const sevenAgo = new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0];
+    const todayStr = localDateStr();
+    const sevenAgo = localDateStrOffset(-7);
     const weekEntries = entries.filter(e => e.date >= sevenAgo && e.date <= todayStr);
     if (weekEntries.length >= 2) {
       const avgPain = Math.round(weekEntries.reduce((s, e) => s + e.painScore, 0) / weekEntries.length * 10) / 10;
@@ -1130,7 +1131,7 @@ export default function Home() {
     const key = progressStorageKey("easebrew-tracker-v2", session.code);
 
     function doQuickLog(period: "umaga" | "gabi") {
-      const today = new Date().toISOString().split("T")[0];
+      const today = localDateStr();
       const entries = readProgressCache<QuickEntry[]>(key, []);
       const idx = entries.findIndex(e => e.date === today);
       const base: QuickEntry = idx >= 0 ? entries[idx] : { date: today, painScore: 0, painLocation: "", easebrewUmaga: false, easebrewGabi: false, mood: 0, notes: "" };
@@ -1167,7 +1168,7 @@ export default function Home() {
     if (Notification.permission !== "granted") return;
     if (localStorage.getItem("eb_reminder_on") !== "1") return;
     const h = new Date().getHours();
-    const today = new Date().toISOString().split("T")[0];
+    const today = localDateStr();
     if (h >= 7 && h < 9 && !localStorage.getItem(`eb_rem_am_${today}`)) {
       localStorage.setItem(`eb_rem_am_${today}`, "1");
       new Notification("EaseBrew Paalala sa Umaga", { body: "Magandang umaga! Huwag kalimutang inumin ang 1st EaseBrew sachet mo ngayon!", icon: "/icon-192.png" });

@@ -16,6 +16,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
+import { localDateStr } from "@/lib/localDate";
 import { ChevronLeft, Home, BarChart3, CalendarDays, PenLine, Save, CircleCheck, Smile, Meh, Frown, Angry, Laugh, SmilePlus, Coffee, Sun, Moon, MapPin, Mic, CircleDot, Flame, TrendingDown, TrendingUp, Minus, Trophy, Medal, Star, Zap, ClipboardList, Send } from "lucide-react";
 
 const G     = "#39613B";
@@ -50,7 +51,7 @@ type DayEntry = {
 };
 
 const emptyEntry = (): DayEntry => ({
-  date: new Date().toISOString().split("T")[0],
+  date: localDateStr(),
   painScore: 0,
   painLocations: [],
   easebrewUmaga: false,
@@ -92,8 +93,8 @@ function PainIcon({ score }: { score: number }) {
 function calcStreak(entries: DayEntry[]): number {
   if (entries.length === 0) return 0;
   const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date));
-  const today = new Date().toISOString().split("T")[0];
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+  const today = localDateStr();
+  const yesterday = localDateStr(new Date(Date.now() - 86400000));
   let check: string | null = (sorted[0].date === today || sorted[0].date === yesterday) ? sorted[0].date : null;
   if (!check) return 0;
   let streak = 0;
@@ -102,7 +103,7 @@ function calcStreak(entries: DayEntry[]): number {
       streak++;
       const d: Date = new Date(check + "T00:00:00");
       d.setDate(d.getDate() - 1);
-      check = d.toISOString().split("T")[0];
+      check = localDateStr(d);
     } else break;
   }
   return streak;
@@ -125,7 +126,7 @@ function getStoredTrackerEntries(storageKey: string): DayEntry[] {
 }
 
 function getStoredTodayEntry(storageKey: string): DayEntry {
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = localDateStr();
   const found = getStoredTrackerEntries(storageKey).find(e => e.date === todayStr) ?? emptyEntry();
   // migrate old single-string painLocation to array
   const legacy = found as DayEntry & { painLocation?: string };
@@ -298,7 +299,7 @@ export default function TrackerPage() {
       setToday(getStoredTodayEntry(storageKey));
 
       // Smart pre-fill: if today is empty, carry yesterday's values
-      const todayStr = new Date().toISOString().split("T")[0];
+      const todayStr = localDateStr();
       const todayExists = localEntries.some(e => e.date === todayStr);
       if (!todayExists && localEntries.length > 0) {
         const yesterday = localEntries[localEntries.length - 1];
@@ -327,7 +328,7 @@ export default function TrackerPage() {
           setEntries(merged);
           writeProgressCache(storageKey, merged);
 
-          const todayStr = new Date().toISOString().split("T")[0];
+          const todayStr = localDateStr();
           const mergedToday = merged.find(e => e.date === todayStr);
           if (mergedToday) setToday(mergedToday);
         })
@@ -353,7 +354,7 @@ export default function TrackerPage() {
 
   const saveEntry = () => {
     if (!session) return;
-    const todayStr = new Date().toISOString().split("T")[0];
+    const todayStr = localDateStr();
     const entry = { ...today, date: todayStr };
     const idx = entries.findIndex(e => e.date === todayStr);
     const updated = idx >= 0

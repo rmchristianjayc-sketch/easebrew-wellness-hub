@@ -90,27 +90,36 @@ async function maybeShowExpiryReminder() {
   const expiryMs = new Date(expiresAt).getTime();
   const daysLeft = Math.ceil((expiryMs - now) / 86400000);
 
-  // Fire at 7, 3, 1 days out — once each per code
-  const targets = [7, 3, 1];
-  if (!targets.includes(daysLeft)) return;
-
-  const tag = `shown-expiry-${code}-${daysLeft}`;
-  if (await wasShown(tag)) return;
-  await markShown(tag);
+  // Highest unshown milestone that's still ahead of the current day count.
+  // If the SW never ticks on the exact day (very common on mobile), the
+  // next tick still catches up so the customer doesn't miss the warning.
+  const milestones = [7, 3, 1];
+  let milestone = null;
+  for (const m of milestones) {
+    if (daysLeft > m) continue; // still further out than this milestone
+    const t = `shown-expiry-${code}-${m}`;
+    if (!(await wasShown(t))) { milestone = m; break; }
+  }
+  if (milestone === null || daysLeft < 0) return;
+  await markShown(`shown-expiry-${code}-${milestone}`);
+  const daysLeftLabel = daysLeft <= 0 ? 'ngayong araw'
+                      : daysLeft === 1 ? 'bukas'
+                      : `sa ${daysLeft} araw`;
 
   const bodyMap = {
-    7: 'Mag-e-expire ang access mo sa 7 araw. Mag-order na para tuloy-tuloy ang wellness journey mo!',
-    3: '3 araw na lang bago mag-expire ang access mo. I-order na para hindi maputol!',
-    1: 'Bukas na mag-e-expire ang access mo! Mag-order kaagad para hindi mawala.',
+    7: `Mag-e-expire ang access mo ${daysLeftLabel}. Mag-order na para tuloy-tuloy ang wellness journey mo!`,
+    3: `${daysLeft} araw na lang bago mag-expire ang access mo. I-order na para hindi maputol!`,
+    1: `Mag-e-expire ang access mo ${daysLeftLabel}! Mag-order kaagad para hindi mawala.`,
   };
+  const chosenBody = bodyMap[milestone];
   await self.registration.showNotification('EaseBrew — Reminder', {
-    body: bodyMap[daysLeft],
+    body: chosenBody,
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
-    tag: `eb-expiry-${code}-${daysLeft}`,
+    tag: `eb-expiry-${code}-${milestone}`,
     renotify: false,
     data: { url: '/?reorder=1' },
-    requireInteraction: daysLeft <= 3,
+    requireInteraction: milestone <= 3,
   });
 }
 

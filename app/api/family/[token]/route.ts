@@ -10,6 +10,19 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       return NextResponse.json({ error: 'Invalid or expired share link.' }, { status: 404 });
     }
 
+    // Ensure the underlying access code is still active — if the coach
+    // deactivated it, or the pack has expired, refuse even if the share
+    // token itself is still within its 30-day window.
+    const { data: codeRow } = await supabaseAdmin
+      .from('access_codes')
+      .select('is_used, expires_at')
+      .eq('code', payload.code)
+      .maybeSingle();
+    if (!codeRow || !codeRow.is_used || !codeRow.expires_at ||
+        new Date(codeRow.expires_at).getTime() <= Date.now()) {
+      return NextResponse.json({ error: 'Share link is no longer available.' }, { status: 410 });
+    }
+
     // Only return safe subset: tracker + BP summary, no medications, no medical card details
     const { data: progressRows } = await supabaseAdmin
       .from('progress')
