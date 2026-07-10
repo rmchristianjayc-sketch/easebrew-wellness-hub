@@ -295,7 +295,7 @@ export default function VerifyPage() {
                   }}
                 />
                 <p className="c-body" style={{ textAlign: "center", margin: "10px 0 0" }}>
-                  Example: <strong style={{ fontFamily: "monospace", letterSpacing: 3 }}>EASE-ABCD-1234</strong>
+                  Halimbawa: <strong style={{ fontFamily: "monospace", letterSpacing: 3 }}>EASE-ABCD-1234</strong>
                 </p>
 
                 {visibleError && (
@@ -325,7 +325,7 @@ export default function VerifyPage() {
                 {/* Trust badges */}
                 <div style={{ marginTop: 20, display: "flex", justifyContent: "center", gap: 20, flexWrap: "wrap" }}>
                   {[
-                    { icon: <Lock size={14} />, label: "Secure" },
+                    { icon: <Lock size={14} />, label: "Ligtas" },
                     { icon: <CircleCheck size={14} />, label: "Halal" },
                     { icon: <Leaf size={14} />, label: "100% Natural" },
                   ].map(badge => (

@@ -165,7 +165,7 @@ export default function MedicationPage() {
   if (checking) {
     return (
       <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ color: G, fontWeight: 600, fontFamily: "Georgia, serif", fontSize: 18 }}>Loading...</p>
+        <p style={{ color: G, fontWeight: 600, fontFamily: "Georgia, serif", fontSize: 18 }}>Sandali lang...</p>
       </div>
     );
   }
@@ -194,7 +194,7 @@ export default function MedicationPage() {
         {activeMeds.length > 0 && (
           <div style={{ background: WHITE, borderRadius: 20, padding: "20px 22px", marginBottom: 20, border: "1.5px solid #D8CDBA" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 10 }}>
-              <p style={{ fontSize: 12, color: MID, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: 0 }}>Today</p>
+              <p style={{ fontSize: 12, color: MID, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: 0 }}>Ngayong Araw</p>
               <span style={{ fontSize: 13, color: DARK, fontWeight: 700 }}>{takenToday}/{totalSlotsToday}</span>
             </div>
             <div style={{ background: "#e5e7eb", borderRadius: 999, height: 12, overflow: "hidden", marginBottom: 8 }}>
@@ -261,7 +261,7 @@ export default function MedicationPage() {
             <div className="c-no-print" style={{ display: "flex", gap: 8 }}>
               {medications.length > 0 && (
                 <button onClick={() => window.print()} style={{ background: GOLD, color: G, border: `2px solid ${G}`, borderRadius: 10, padding: "8px 14px", fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
-                  <Printer size={16} /> Print
+                  <Printer size={16} /> I-print
                 </button>
               )}
               {!showForm && (

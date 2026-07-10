@@ -880,12 +880,12 @@ useEffect(() => {
           </div>
           <div style={{ position: "absolute", bottom: 16, right: 20, textAlign: "center", background: "rgba(0,0,0,0.45)", borderRadius: 14, padding: "10px 14px", backdropFilter: "blur(4px)" }}>
             <p style={{ fontSize: 26, fontWeight: 900, margin: 0, color: GOLD }}>{favorites.length}</p>
-            <p style={{ fontSize: 13, margin: 0, color: "rgba(255,255,255,0.85)" }}>favorites</p>
+            <p style={{ fontSize: 13, margin: 0, color: "rgba(255,255,255,0.85)" }}>paborito</p>
           </div>
         </div>
         <div style={{ padding: "16px 24px 24px" }}>
         <Link href="/" style={{ color: GOLD, fontSize: 18, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", minHeight: 44, marginBottom: 16 }}>
-          ← Back to Hub
+          ← Bumalik sa Hub
         </Link>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
           <div>
@@ -897,7 +897,7 @@ useEffect(() => {
         <div style={{ marginTop: 16 }}>
           <input
             type="text"
-            placeholder="🔍  Search recipes..."
+            placeholder="🔍  Hanapin ang recipe..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             style={{
@@ -914,7 +914,7 @@ useEffect(() => {
       <div style={{ background: GOLD, padding: "12px 20px", display: "flex", gap: 20, overflowX: "auto" }}>
         {[
           { icon: "☕", text: "Easebrew 30 mins bago kumain" },
-          { icon: "💧", text: "8+ glasses tubig araw-araw" },
+          { icon: "💧", text: "8+ baso ng tubig araw-araw" },
           { icon: "🫚", text: "Brown rice bilang base" },
         ].map((tip, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
@@ -1159,7 +1159,7 @@ useEffect(() => {
           textDecoration: "none", minHeight: 52,
           display: "flex", alignItems: "center",
         }}>
-          🏠 Back to Hub
+          🏠 Bumalik sa Hub
         </Link>
       </div>
 

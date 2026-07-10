@@ -49,7 +49,7 @@ export default function WeeklyReportPage() {
 
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <p style={{ color: G, fontWeight: 600, fontFamily: "Georgia, serif", fontSize: 18 }}>Loading...</p>
+      <p style={{ color: G, fontWeight: 600, fontFamily: "Georgia, serif", fontSize: 18 }}>Sandali lang...</p>
     </div>
   );
 
@@ -93,7 +93,7 @@ export default function WeeklyReportPage() {
           </div>
           <div>
             <div style={{ fontSize: 11, color: "rgba(254,210,85,0.8)", fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>Lingguhang Buod</div>
-            <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0, lineHeight: 1.2 }}>Wellness Report</h1>
+            <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0, lineHeight: 1.2 }}>Report ng Wellness</h1>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", margin: "4px 0 0", fontFamily: "Georgia, serif" }}>{weekStart} – {weekEnd}</p>
           </div>
         </div>
@@ -116,9 +116,9 @@ export default function WeeklyReportPage() {
         <div style={{ background: WHITE, borderRadius: 20, padding: "22px", marginBottom: 20, border: "1.5px solid #D8CDBA" }}>
           <h2 className="c-heading" style={{ color: DARK, marginBottom: 18 }}>Detalye ng Score</h2>
           {[
-            { label: "Daily Check-ins (40pts)", score: trackerScore, max: 40, color: G, detail: `${checkedDays}/7 araw na-log` },
-            { label: "Energy Level (30pts)", score: energyScore, max: 30, color: "#f59e0b", detail: avgEnergy != null ? `Average: ${avgEnergy}/10` : "Walang data" },
-            { label: "Pain Level (30pts)", score: painScore, max: 30, color: "#ef4444", detail: avgPain != null ? `Average na sakit: ${avgPain}/10 (mas mababa = mas maganda)` : "Walang data" },
+            { label: "Araw-araw na Check-in (40pts)", score: trackerScore, max: 40, color: G, detail: `${checkedDays}/7 araw na-log` },
+            { label: "Lakas ng Katawan (30pts)", score: energyScore, max: 30, color: "#f59e0b", detail: avgEnergy != null ? `Karaniwang: ${avgEnergy}/10` : "Walang data" },
+            { label: "Antas ng Sakit (30pts)", score: painScore, max: 30, color: "#ef4444", detail: avgPain != null ? `Karaniwang sakit: ${avgPain}/10 (mas mababa = mas maganda)` : "Walang data" },
           ].map((item, i) => (
             <div key={i} style={{ marginBottom: 16 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
@@ -153,8 +153,8 @@ export default function WeeklyReportPage() {
                       <p style={{ fontSize: 13, fontWeight: 600, color: ci ? DARK : MID, margin: 0 }}>{formatDate(d)}</p>
                       {ci && (
                         <p style={{ fontSize: 12, color: MID, margin: "2px 0 0" }}>
-                          {ci.energy != null && `Energy: ${ci.energy}/10`}
-                          {ci.pain != null && ` · Pain: ${ci.pain}/10`}
+                          {ci.energy != null && `Lakas: ${ci.energy}/10`}
+                          {ci.pain != null && ` · Sakit: ${ci.pain}/10`}
                           {ci.weight != null && ` · ${ci.weight}kg`}
                         </p>
                       )}

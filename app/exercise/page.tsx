@@ -140,7 +140,7 @@ export default function ExercisePage() {
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: CREAM }}>
       <div style={{ textAlign: "center" }}>
         <div style={{ width: 56, height: 56, borderRadius: 16, background: "#E8F5E0", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><Dumbbell size={28} color={G} /></div>
-        <p style={{ fontSize: 22, color: G, fontWeight: 700 }}>Loading...</p>
+        <p style={{ fontSize: 22, color: G, fontWeight: 700 }}>Sandali lang...</p>
       </div>
     </div>
   );
@@ -158,7 +158,7 @@ export default function ExercisePage() {
             <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 999, padding: "4px 14px", fontSize: 12, fontWeight: 900, letterSpacing: 1, marginBottom: 6 }}>
               HOME EXERCISE
             </div>
-            <h1 style={{ fontSize: 28, fontWeight: 900, margin: 0, color: "#fff", lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}>30-Day Program<br />Para sa Seniors</h1>
+            <h1 style={{ fontSize: 28, fontWeight: 900, margin: 0, color: "#fff", lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}>30-Araw na Programa<br />Para sa Seniors</h1>
           </div>
         </div>
         <div style={{ padding: "18px 24px 28px", position: "relative" }}>
@@ -171,7 +171,7 @@ export default function ExercisePage() {
             <div style={{ background: GOLD, height: "100%", width: `${progressPct}%`, transition: "width 0.4s ease", borderRadius: 12 }} />
           </div>
           <p style={{ fontSize: 16, opacity: 0.85, margin: "10px 0 0 0", fontWeight: 600 }}>
-            {completedDays.size} / {totalDays} days completed ({progressPct}%)
+            {completedDays.size} / {totalDays} araw na tapos ({progressPct}%)
           </p>
         </div>
       </div>
@@ -234,7 +234,7 @@ export default function ExercisePage() {
                     <div>
                       <p style={{ fontSize: 19, fontWeight: 700, color: DARK, margin: "0 0 4px 0", lineHeight: 1.3 }}>{day.title}</p>
                       <p style={{ fontSize: 16, color: MID, margin: 0 }}>
-                        {day.exercises.length} {day.exercises.length === 1 ? "activity" : "exercises"}
+                        {day.exercises.length} {day.exercises.length === 1 ? "gawain" : "ehersisyo"}
                         {isDone && <span style={{ color: c.color, fontWeight: 700, marginLeft: 8, display: "inline-flex", alignItems: "center", gap: 4 }}><CircleCheck size={14} /> Tapos!</span>}
                       </p>
                     </div>

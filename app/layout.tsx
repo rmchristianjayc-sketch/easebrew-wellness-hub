@@ -29,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fil">
+    <html lang="fil" suppressHydrationWarning>
       <head>
         {/* ✅ apple-touch-icon stays here — next/head handles this correctly */}
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />

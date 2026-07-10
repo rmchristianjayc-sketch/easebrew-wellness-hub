@@ -72,7 +72,7 @@ export default function BmiPage() {
 
   if (checking) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <p className="c-body" style={{ color: G, fontWeight: 600 }}>Loading...</p>
+      <p className="c-body" style={{ color: G, fontWeight: 600 }}>Sandali lang...</p>
     </div>
   );
 
@@ -111,7 +111,7 @@ export default function BmiPage() {
                 type="number"
                 value={heightCm}
                 onChange={e => { setHeightCm(e.target.value); setResult(null); }}
-                placeholder="Example: 158"
+                placeholder="Halimbawa: 158"
                 inputMode="decimal"
                 className="c-input"
                 style={{ width: "100%", boxSizing: "border-box" }}
@@ -126,7 +126,7 @@ export default function BmiPage() {
                 type="number"
                 value={weightKg}
                 onChange={e => { setWeightKg(e.target.value); setResult(null); }}
-                placeholder="Example: 65"
+                placeholder="Halimbawa: 65"
                 inputMode="decimal"
                 className="c-input"
                 style={{ width: "100%", boxSizing: "border-box" }}
@@ -140,7 +140,7 @@ export default function BmiPage() {
                 type="number"
                 value={age}
                 onChange={e => setAge(e.target.value)}
-                placeholder="Example: 55"
+                placeholder="Halimbawa: 55"
                 inputMode="numeric"
                 className="c-input"
                 style={{ width: "100%", boxSizing: "border-box" }}
@@ -198,9 +198,9 @@ export default function BmiPage() {
                 }} />
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: MID, fontWeight: 700 }}>
-                <span>Under</span>
+                <span>Kulang</span>
                 <span>Normal</span>
-                <span>Over</span>
+                <span>Sobra</span>
                 <span>Obese</span>
               </div>
             </div>

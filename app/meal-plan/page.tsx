@@ -177,7 +177,7 @@ export default function MealPlanPage() {
             <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 999, padding: "4px 14px", fontSize: 12, fontWeight: 900, letterSpacing: 1, marginBottom: 6 }}>
               50-DAY PROGRAM
             </div>
-            <h1 style={{ fontSize: 26, fontWeight: 900, margin: 0, color: WHITE, lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}>Anti-Inflammation<br />Pinoy Meal Plan</h1>
+            <h1 style={{ fontSize: 26, fontWeight: 900, margin: 0, color: WHITE, lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}>Anti-Inflammation<br />na Meal Plan</h1>
           </div>
         </div>
         <div style={{ padding: "18px 24px 24px" }}>

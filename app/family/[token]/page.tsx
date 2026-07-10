@@ -39,14 +39,14 @@ export default function FamilySharePage({ params }: { params: Promise<{ token: s
 
   if (loading) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "grid", placeItems: "center", fontFamily: "Georgia, serif" }}>
-      <p style={{ color: G, fontSize: 18 }}>Loading...</p>
+      <p style={{ color: G, fontSize: 18 }}>Sandali lang...</p>
     </div>
   );
 
   if (error) return (
     <div style={{ minHeight: "100vh", background: CREAM, display: "grid", placeItems: "center", padding: 20, fontFamily: "Georgia, serif" }}>
       <div style={{ background: WHITE, borderRadius: 20, padding: 30, textAlign: "center", maxWidth: 400 }}>
-        <p style={{ fontSize: 22, fontWeight: 700, color: DARK, margin: "0 0 8px" }}>Link not available</p>
+        <p style={{ fontSize: 22, fontWeight: 700, color: DARK, margin: "0 0 8px" }}>Hindi available ang link</p>
         <p style={{ fontSize: 15, color: MID, margin: 0 }}>{error}</p>
       </div>
     </div>
@@ -81,7 +81,7 @@ export default function FamilySharePage({ params }: { params: Promise<{ token: s
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "20px 16px 40px" }}>
         {/* Header */}
         <div style={{ background: `linear-gradient(135deg, ${G} 0%, #2a5c34 100%)`, borderRadius: 22, padding: "24px 22px", color: "#fff", marginBottom: 20 }}>
-          <p style={{ fontSize: 13, color: GOLD, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: "0 0 6px" }}>Family Wellness Update</p>
+          <p style={{ fontSize: 13, color: GOLD, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: "0 0 6px" }}>Update ng Wellness sa Pamilya</p>
           <h1 style={{ fontSize: 28, fontWeight: 900, margin: "0 0 8px", lineHeight: 1.2 }}>{name}</h1>
           <p style={{ fontSize: 15, opacity: 0.85, margin: 0, lineHeight: 1.5 }}>Ito ang lingguhang wellness update ni {name.split(" ")[0]}. Nakakagawa ba nang tama ang mahal mong senior?</p>
         </div>
@@ -89,7 +89,7 @@ export default function FamilySharePage({ params }: { params: Promise<{ token: s
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
           <div style={{ background: WHITE, borderRadius: 18, padding: "18px 16px", border: "2px solid #d9d0c0" }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: MID, letterSpacing: 0.5, textTransform: "uppercase", margin: "0 0 6px" }}>Daily Check-ins</p>
+            <p style={{ fontSize: 11, fontWeight: 700, color: MID, letterSpacing: 0.5, textTransform: "uppercase", margin: "0 0 6px" }}>Araw-araw na Check-in</p>
             <p style={{ fontSize: 32, fontWeight: 900, color: G, margin: "0 0 4px" }}>{daysLogged} / 7</p>
             <p style={{ fontSize: 13, color: MID, margin: 0 }}>araw ng linggong ito</p>
           </div>
@@ -105,7 +105,7 @@ export default function FamilySharePage({ params }: { params: Promise<{ token: s
           <div style={{ background: WHITE, borderRadius: 18, padding: "18px 20px", border: "2px solid #d9d0c0", marginBottom: 20 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
               <Activity size={20} color={G} />
-              <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0 }}>Average pain level ngayong linggo</p>
+              <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0 }}>Karaniwang pain level ngayong linggo</p>
             </div>
             <p style={{ fontSize: 44, fontWeight: 900, color: avgPain <= 3 ? G : avgPain <= 6 ? "#C0863B" : "#dc2626", margin: 0, lineHeight: 1 }}>
               {avgPain}<span style={{ fontSize: 20, color: MID }}>/10</span>
@@ -121,12 +121,12 @@ export default function FamilySharePage({ params }: { params: Promise<{ token: s
           <div style={{ background: WHITE, borderRadius: 18, padding: "18px 20px", border: "2px solid #d9d0c0", marginBottom: 20 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
               <Heart size={20} color="#dc2626" />
-              <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0 }}>Average BP ngayong linggo</p>
+              <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: 0 }}>Karaniwang BP ngayong linggo</p>
             </div>
             <p style={{ fontSize: 40, fontWeight: 900, color: bpAvg.sys < 130 ? G : bpAvg.sys < 140 ? "#C0863B" : "#dc2626", margin: 0, lineHeight: 1 }}>
               {bpAvg.sys}/{bpAvg.dia}
             </p>
-            <p style={{ fontSize: 14, color: MID, margin: "6px 0 0" }}>Base sa {last7Bp.length} readings</p>
+            <p style={{ fontSize: 14, color: MID, margin: "6px 0 0" }}>Base sa {last7Bp.length} sukat</p>
           </div>
         )}
 
@@ -137,7 +137,7 @@ export default function FamilySharePage({ params }: { params: Promise<{ token: s
             {weekDates.map(d => {
               const t = trackerByDate.get(d);
               const done = !!t;
-              const day = new Date(d + "T00:00:00").toLocaleDateString("en-PH", { weekday: "short" });
+              const day = new Date(d + "T00:00:00").toLocaleDateString("fil-PH", { weekday: "short" });
               return (
                 <div key={d} style={{ textAlign: "center" }}>
                   <p style={{ fontSize: 11, color: MID, margin: "0 0 6px", fontWeight: 600 }}>{day}</p>

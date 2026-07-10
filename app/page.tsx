@@ -308,7 +308,7 @@ function YouTubeEmbed({ url, title }: { url: string; title: string }) {
     <div style={{ background: DARK, borderRadius: 18, aspectRatio: "16/9", display: "flex", alignItems: "center", justifyContent: "center", border: `2px solid ${G}` }}>
       <div style={{ textAlign: "center", color: "#fff" }}>
         <div style={{ fontSize: 60, marginBottom: 10, color: GOLD }}>▶</div>
-        <p style={{ fontSize: 13, opacity: 0.55, margin: 0 }}>Paste the YouTube link in Admin → Content → Videos</p>
+        <p style={{ fontSize: 13, opacity: 0.55, margin: 0 }}>Malapit nang idagdag ang video na ito.</p>
       </div>
     </div>
   );
@@ -764,10 +764,10 @@ function InstallBanner() {
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 14 }}>
         {[
-          { step: "1", icon: <Globe size={20} color={G} />, label: "Open in", highlight: "Safari" },
-          { step: "2", icon: <Share2 size={20} color={G} />, label: "Tap the", highlight: "Share button at the bottom" },
-          { step: "3", icon: <Plus size={20} color={G} />, label: "Select", highlight: '"Add to Home Screen"' },
-          { step: "4", icon: <CircleCheck size={20} color={G} />, label: "Tap", highlight: '"Add" — done!' },
+          { step: "1", icon: <Globe size={20} color={G} />, label: "Buksan sa", highlight: "Safari" },
+          { step: "2", icon: <Share2 size={20} color={G} />, label: "I-tap ang", highlight: "Share button sa baba" },
+          { step: "3", icon: <Plus size={20} color={G} />, label: "Piliin ang", highlight: '"Add to Home Screen"' },
+          { step: "4", icon: <CircleCheck size={20} color={G} />, label: "I-tap ang", highlight: '"Add" — tapos na!' },
         ].map((s, idx) => (
           <div key={idx} style={{ display: "flex", alignItems: "center", gap: 12, background: "#F4FAF0", borderRadius: 12, padding: "12px 14px", border: "1.5px solid #C5D9BC" }}>
             <div style={{ width: 28, height: 28, borderRadius: 999, background: G, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{s.step}</div>
@@ -777,7 +777,7 @@ function InstallBanner() {
         ))}
       </div>
       <div style={{ background: "#FEF9E7", borderRadius: 10, padding: "10px 14px", border: `1px solid ${GOLD}` }}>
-        <p style={{ fontSize: 13, color: AMBER, margin: 0, textAlign: "center", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><AlertTriangle size={14} /> Use Safari — hindi Chrome ang gagamitin sa iPhone</p>
+        <p style={{ fontSize: 13, color: AMBER, margin: 0, textAlign: "center", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><AlertTriangle size={14} /> Gamitin ang Safari — hindi Chrome sa iPhone</p>
       </div>
     </div>
   );

@@ -104,7 +104,7 @@ export default function MedicalCardPage() {
   if (checking) {
     return (
       <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ color: G, fontWeight: 600, fontFamily: "Georgia, serif", fontSize: 18 }}>Loading...</p>
+        <p style={{ color: G, fontWeight: 600, fontFamily: "Georgia, serif", fontSize: 18 }}>Sandali lang...</p>
       </div>
     );
   }
@@ -244,7 +244,7 @@ export default function MedicalCardPage() {
               </Field>
             </div>
 
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "20px 0 12px" }}>Medical History</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "20px 0 12px" }}>Kasaysayang Medikal</h2>
             <Field label="Mga Allergy (ihiwalay ng comma)">
               <input type="text" value={card.allergies} onChange={e => setCard({ ...card, allergies: e.target.value })} placeholder="hal. Penicillin, Mani, Seafood" style={inputStyle} maxLength={300} />
             </Field>
@@ -255,14 +255,14 @@ export default function MedicalCardPage() {
               <input type="text" value={card.currentMedications} onChange={e => setCard({ ...card, currentMedications: e.target.value })} placeholder="hal. Losartan 50mg, Metformin 500mg, EaseBrew" style={inputStyle} maxLength={500} />
             </Field>
 
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "20px 0 12px" }}>Emergency Contacts</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "20px 0 12px" }}>Tawagan sa Emergency</h2>
             {card.emergencyContacts.map((c, i) => (
               <div key={i} style={{ background: "#f9fafb", borderRadius: 12, padding: "14px", marginBottom: 10, border: "1.5px solid #e5e7eb" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
-                  <input type="text" placeholder="Name" value={c.name} onChange={e => updateContact(i, "name", e.target.value)} style={inputStyle} maxLength={80} />
+                  <input type="text" placeholder="Pangalan" value={c.name} onChange={e => updateContact(i, "name", e.target.value)} style={inputStyle} maxLength={80} />
                   <input type="text" placeholder="Relasyon (Asawa, Anak, atbp.)" value={c.relationship} onChange={e => updateContact(i, "relationship", e.target.value)} style={inputStyle} maxLength={40} />
                 </div>
-                <input type="tel" placeholder="Phone Number" value={c.phone} onChange={e => updateContact(i, "phone", e.target.value)} style={inputStyle} maxLength={30} inputMode="tel" />
+                <input type="tel" placeholder="Numero ng Telepono" value={c.phone} onChange={e => updateContact(i, "phone", e.target.value)} style={inputStyle} maxLength={30} inputMode="tel" />
                 {card.emergencyContacts.length > 1 && (
                   <button type="button" onClick={() => removeContact(i)} style={{ background: "none", border: "none", color: "#991b1b", fontSize: 13, cursor: "pointer", marginTop: 8, fontWeight: 600 }}>
                     Tanggalin
@@ -274,12 +274,12 @@ export default function MedicalCardPage() {
               + Magdagdag ng contact
             </button>
 
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "20px 0 12px" }}>Primary Doctor</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "20px 0 12px" }}>Doktor</h2>
             <Field label="Pangalan ng Doctor">
               <input type="text" value={card.primaryDoctor.name} onChange={e => setCard({ ...card, primaryDoctor: { ...card.primaryDoctor, name: e.target.value } })} style={inputStyle} maxLength={80} />
             </Field>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              <Field label="Clinic / Hospital">
+              <Field label="Clinic / Ospital">
                 <input type="text" value={card.primaryDoctor.clinic} onChange={e => setCard({ ...card, primaryDoctor: { ...card.primaryDoctor, clinic: e.target.value } })} style={inputStyle} maxLength={80} />
               </Field>
               <Field label="Phone">
