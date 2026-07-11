@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
@@ -61,20 +61,53 @@ export default function MedicationPage() {
     setLogs(data.logs);
   }, [session, storageKey]);
 
+  // Debounced sync with latest-write-wins so rapid checkbox taps don't
+  // arrive at the server out of order and overwrite each other.
+  const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingPayloadRef = useRef<MedicationData | null>(null);
+
   function persist(nextMeds: Medication[], nextLogs: DayLog[]) {
     setMedications(nextMeds);
     setLogs(nextLogs);
     if (!storageKey) return;
     const payload: MedicationData = { medications: nextMeds, logs: nextLogs };
     writeProgressCache(storageKey, payload);
-    fetch("/api/progress", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "medication", data: payload }),
-    }).catch(() => {});
+
+    // Coalesce rapid persist calls (checkbox taps) into a single POST
+    // 500ms after the last change. Latest snapshot always wins.
+    pendingPayloadRef.current = payload;
+    if (syncTimeout.current) clearTimeout(syncTimeout.current);
+    syncTimeout.current = setTimeout(() => {
+      const snapshot = pendingPayloadRef.current;
+      pendingPayloadRef.current = null;
+      if (!snapshot) return;
+      fetch("/api/progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "medication", data: snapshot }),
+      }).catch(() => {});
+    }, 500);
+
     setSaved(true);
     setTimeout(() => setSaved(false), 1200);
   }
+
+  // On unmount, flush any pending sync so a quick navigation doesn't
+  // lose the last checkbox tap.
+  useEffect(() => () => {
+    if (syncTimeout.current) {
+      clearTimeout(syncTimeout.current);
+      const snapshot = pendingPayloadRef.current;
+      pendingPayloadRef.current = null;
+      if (snapshot) {
+        fetch("/api/progress", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "medication", data: snapshot }),
+        }).catch(() => {});
+      }
+    }
+  }, []);
 
   function handleAddMed(e: React.FormEvent) {
     e.preventDefault();

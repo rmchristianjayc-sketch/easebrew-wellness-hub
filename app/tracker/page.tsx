@@ -400,8 +400,12 @@ export default function TrackerPage() {
     setTimeout(() => setSaved(false), 2500);
     playChime("save");
     const newTotal = updated.length;
-    if (MILESTONES[newTotal] && localStorage.getItem(`eb_milestone_${newTotal}`) !== "1") {
-      localStorage.setItem(`eb_milestone_${newTotal}`, "1");
+    // Scope the milestone-shown flag per session code so a returning
+    // customer with a new pack (or two customers sharing a device) each
+    // see their own celebration modals.
+    const milestoneKey = `eb_milestone_${session?.code ?? "shared"}_${newTotal}`;
+    if (MILESTONES[newTotal] && localStorage.getItem(milestoneKey) !== "1") {
+      localStorage.setItem(milestoneKey, "1");
       setMilestone(newTotal);
       playChime("milestone");
     }

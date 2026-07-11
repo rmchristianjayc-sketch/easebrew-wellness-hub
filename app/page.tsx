@@ -549,7 +549,7 @@ function ReferralCard({ coaches }: { coaches: Coach[] }) {
     const coachInfo = primaryCoach
       ? `\n\nContact po ninyo ang aking coach:\n${primaryCoach.name}\n${primaryCoach.display || primaryCoach.number}`
       : "";
-    return `Hi po! Gustong-gusto ko po ang aking EaseBrew Wellness Hub — daily wellness tracking, meal plan, exercises, at coach guidance. Mas magaan po ang katawan ko ngayon.\n\nSubukan po ninyo — para sa mga senior tayong may pananakit ng katawan.${coachInfo}\n\n🌿 EaseBrew — herbal wellness for Filipino seniors`;
+    return `Hi po! Gusto kong ibahagi sayo ang EaseBrew Wellness Hub — may daily wellness tracking, meal plan, ehersisyo, at coach guidance na kasama.\n\nSubukan mo — magaan lang gamitin at para sa mga senior tayo.${coachInfo}\n\nEaseBrew — wellness routine para sa Pinoy seniors.`;
   }
 
   function copyReferral() {
@@ -1087,13 +1087,20 @@ export default function Home() {
   const [videos, setVideos]                 = useState(DEFAULT_VIDEOS);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  // ── ONBOARDING — show once on first visit ────────────────────
+  // ── ONBOARDING — show once per customer (not once per device) ──
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!localStorage.getItem("eb_onboarded_v1")) {
+    if (!session?.code) return;
+    const key = `eb_onboarded_${session.code}`;
+    // Backfill: if the legacy per-device flag is set, treat this session
+    // as already onboarded to avoid re-showing to existing customers.
+    if (localStorage.getItem("eb_onboarded_v1") === "1" && !localStorage.getItem(key)) {
+      localStorage.setItem(key, "1");
+    }
+    if (!localStorage.getItem(key)) {
       setShowOnboarding(true);
     }
-  }, []);
+  }, [session?.code]);
 
   // Show through the very last day so the customer sees the reminder
   // even on expiration day itself (daysLeft === 0 during that day).
@@ -1208,21 +1215,10 @@ export default function Home() {
     return () => navigator.serviceWorker?.removeEventListener("message", handler);
   }, [checking, session]);
 
-  useEffect(() => {
-    if (typeof window === "undefined" || !("Notification" in window)) return;
-    if (Notification.permission !== "granted") return;
-    if (localStorage.getItem("eb_reminder_on") !== "1") return;
-    const h = new Date().getHours();
-    const today = localDateStr();
-    if (h >= 7 && h < 9 && !localStorage.getItem(`eb_rem_am_${today}`)) {
-      localStorage.setItem(`eb_rem_am_${today}`, "1");
-      new Notification("EaseBrew Paalala sa Umaga", { body: "Magandang umaga! Huwag kalimutang inumin ang 1st EaseBrew sachet mo ngayon!", icon: "/icon-192.png" });
-    }
-    if (h >= 19 && h < 21 && !localStorage.getItem(`eb_rem_pm_${today}`)) {
-      localStorage.setItem(`eb_rem_pm_${today}`, "1");
-      new Notification("EaseBrew Paalala sa Gabi", { body: "Magandang gabi! Huwag kalimutang inumin ang 2nd EaseBrew sachet mo ngayong gabi!", icon: "/icon-192.png" });
-    }
-  }, []);
+  // Reminders are handled by the service worker (SET_REMINDER + TICK).
+  // The old in-page fallback that fired only while the hub was open led
+  // to missed reminders if the customer wasn't on this exact page during
+  // the 7-9AM or 7-9PM window — the SW schedule is the source of truth.
 
   const { unlocked: unlockedProducts, locked: lockedProducts } = splitByTier(products, customerTier);
 
@@ -1261,7 +1257,8 @@ export default function Home() {
       <InstallBanner />
       {showOnboarding && (
         <OnboardingModal onClose={() => {
-          localStorage.setItem("eb_onboarded_v1", "1");
+          if (session?.code) localStorage.setItem(`eb_onboarded_${session.code}`, "1");
+          localStorage.setItem("eb_onboarded_v1", "1"); // legacy fallback
           setShowOnboarding(false);
         }} />
       )}

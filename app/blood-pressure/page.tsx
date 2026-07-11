@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
-import { Heart, ChevronLeft, Plus, Trash2, CircleCheck, Lightbulb, ClipboardList, TrendingUp, TrendingDown, Minus, Printer, AlertTriangle } from "lucide-react";
+import { Heart, ChevronLeft, Plus, Trash2, CircleCheck, Lightbulb, ClipboardList, TrendingUp, TrendingDown, Minus, Printer, AlertTriangle, Phone } from "lucide-react";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";
@@ -105,18 +105,46 @@ export default function BloodPressurePage() {
     setEntries(readProgressCache<BpEntry[]>(storageKey, []));
   }, [session, storageKey]);
 
+  // Debounced sync with latest-write-wins so rapid deletes/adds don't
+  // arrive at the server out of order and overwrite each other.
+  const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingEntriesRef = useRef<BpEntry[] | null>(null);
+
   function persist(next: BpEntry[]) {
     setEntries(next);
     if (!storageKey) return;
     writeProgressCache(storageKey, next);
-    fetch("/api/progress", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "blood_pressure", data: { entries: next } }),
-    }).catch(() => {});
+    pendingEntriesRef.current = next;
+    if (syncTimeout.current) clearTimeout(syncTimeout.current);
+    syncTimeout.current = setTimeout(() => {
+      const snapshot = pendingEntriesRef.current;
+      pendingEntriesRef.current = null;
+      if (!snapshot) return;
+      fetch("/api/progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "blood_pressure", data: { entries: snapshot } }),
+      }).catch(() => {});
+    }, 500);
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
   }
+
+  // Flush on unmount so the last edit isn't lost by quick navigation.
+  useEffect(() => () => {
+    if (syncTimeout.current) {
+      clearTimeout(syncTimeout.current);
+      const snapshot = pendingEntriesRef.current;
+      pendingEntriesRef.current = null;
+      if (snapshot) {
+        fetch("/api/progress", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "blood_pressure", data: { entries: snapshot } }),
+        }).catch(() => {});
+      }
+    }
+  }, []);
 
   const [crisisAlert, setCrisisAlert] = useState<{ systolic: number; diastolic: number } | null>(null);
 
@@ -207,12 +235,11 @@ export default function BloodPressurePage() {
   }
 
   // Weekly average — compute cutoff on mount so Date.now() is not called during render
-  const [cutoff7d, setCutoff7d] = useState<number>(0);
-  const [cutoff14d, setCutoff14d] = useState<number>(0);
-  useEffect(() => {
-    setCutoff7d(Date.now() - 7 * 86400000);
-    setCutoff14d(Date.now() - 14 * 86400000);
-  }, []);
+  // Lazy initializer so the very first render already has correct cutoffs
+  // (previously they were 0 on mount, which briefly included ALL historical
+  // entries in the weekly stats before the useEffect ran).
+  const [cutoff7d]  = useState<number>(() => Date.now() - 7  * 86400000);
+  const [cutoff14d] = useState<number>(() => Date.now() - 14 * 86400000);
   const last7Days = entries.filter(e => {
     const d = new Date(e.date + "T00:00:00").getTime();
     return d >= cutoff7d;
@@ -287,7 +314,7 @@ export default function BloodPressurePage() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <a href="tel:911" style={{ background: "#dc2626", color: "#fff", padding: "18px", borderRadius: 14, fontSize: 20, fontWeight: 900, textAlign: "center", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 60 }}>
-                📞 Tumawag ng 911
+                <Phone size={20} /> Tumawag ng 911
               </a>
               {emergencyPhone && (
                 <a href={`tel:${emergencyPhone}`} style={{ background: G, color: "#fff", padding: "16px", borderRadius: 14, fontSize: 18, fontWeight: 700, textAlign: "center", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 54 }}>
