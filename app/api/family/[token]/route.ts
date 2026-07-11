@@ -12,7 +12,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
 
     // Ensure the underlying access code is still active — if the coach
     // deactivated it, or the pack has expired, refuse even if the share
-    // token itself is still within its 30-day window.
+    // token itself is still within its 7-day window.
     const { data: codeRow } = await supabaseAdmin
       .from('access_codes')
       .select('is_used, expires_at')

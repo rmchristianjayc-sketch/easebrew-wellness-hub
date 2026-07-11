@@ -35,25 +35,25 @@ export type Product = {
   export const DEFAULT_PRODUCTS: Product[] = [
     {
       id: 1, icon: "tracker", name: "Daily Health Tracker",
-      desc: "I-track ang pain levels, energy, at weight mo araw-araw. Simple lang — 1 minute bawat araw.",
+      desc: "I-track ang pain, lakas ng katawan, at timbang araw-araw. Simple lang — 1 minuto bawat araw.",
       tier: 999, tierLabel: "3 Packs (₱999)",
       appUrl: "/tracker", appLabel: "Buksan ang Tracker",
     },
     {
-      id: 2, icon: "meal", name: "Meal Plan + Recipe Book",
-      desc: "50-day Pinoy-friendly meal plan at 30 healthy recipes para sa joint pain, arthritis, at fatigue.",
+      id: 2, icon: "meal", name: "Meal Plan at Recipe Book",
+      desc: "50-araw na Pinoy meal plan at 30 masustansyang recipes na madali gawin sa bahay.",
       tier: 1499, tierLabel: "5 Packs (₱1,499)",
       appUrl: "/meal-plan", appLabel: "Buksan ang Meal Plan",
     },
     {
       id: 3, icon: "exercise", name: "Home Exercise Guide",
-      desc: "Gentle exercises na pwede mong gawin sa bahay. Para sa may joint pain — hindi kailangan ng gym.",
+      desc: "Magaan na ehersisyo na pwedeng gawin sa bahay — para sa seniors, walang gym na kailangan.",
       tier: 2998, tierLabel: "10 Packs (₱2,998)",
       appUrl: "/exercise", appLabel: "Buksan ang Exercises",
     },
     {
       id: 4, icon: "program", name: "Complete Wellness Program",
-      desc: "Lahat kasama: 90-day program, full exercise plan, meal guide, at weekly check-in. Ang complete package.",
+      desc: "Lahat kasama: 90-araw na program, exercise plan, meal guide, at lingguhang check-in.",
       tier: 4497, tierLabel: "15 Packs (₱4,497)",
       appUrl: "/bagong-katawan", appLabel: "Buksan ang Program",
     },

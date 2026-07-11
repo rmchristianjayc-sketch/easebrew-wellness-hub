@@ -170,8 +170,27 @@ export default function MedicationPage() {
     );
   }
 
+  // Read patient name from medical card for the print output header
+  const patientName = (() => {
+    if (!session?.code) return "";
+    try {
+      const mcKey = progressStorageKey("easebrew-medical-card-v1", session.code);
+      const raw = localStorage.getItem(mcKey);
+      if (!raw) return "";
+      const mc = JSON.parse(raw);
+      return typeof mc?.fullName === "string" ? mc.fullName : "";
+    } catch { return ""; }
+  })();
+
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 60 }}>
+      {/* Print-only header (identifies patient on printed page) */}
+      <div className="c-print-only" style={{ padding: "12px 20px", borderBottom: "2px solid #000" }}>
+        <p style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Gamot Log</p>
+        {patientName && <p style={{ fontSize: 14, margin: "4px 0 0" }}>Pasyente: <strong>{patientName}</strong></p>}
+        <p style={{ fontSize: 12, margin: "4px 0 0", color: "#555" }}>Na-print: {new Date().toLocaleDateString("fil-PH", { year: "numeric", month: "long", day: "numeric" })}</p>
+      </div>
+
       {/* Header */}
       <div style={{ background: `linear-gradient(135deg, #312e81 0%, #4f46e5 100%)`, padding: "20px 24px 28px", color: "#fff" }}>
         <Link href="/" style={{ color: "rgba(255,255,255,0.85)", textDecoration: "none", display: "flex", alignItems: "center", gap: 6, fontSize: 17, fontWeight: 600, marginBottom: 18, fontFamily: "Georgia, serif" }}>

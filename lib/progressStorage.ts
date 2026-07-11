@@ -16,5 +16,13 @@ export function readProgressCache<T>(key: string, fallback: T): T {
 
 export function writeProgressCache(key: string, value: unknown) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(key, JSON.stringify(value));
+  // localStorage can throw QuotaExceededError on older iOS Safari when
+  // the 5MB budget is full (many tabs, dev-only history, etc.). Swallow
+  // the failure — the server POST is the source of truth; localStorage
+  // is only an offline convenience. Without this try/catch the throw
+  // bubbles out of an event handler and looks like the Save button
+  // crashed to the customer.
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {}
 }

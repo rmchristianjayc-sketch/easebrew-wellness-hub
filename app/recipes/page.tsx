@@ -505,7 +505,7 @@ const RECIPES: Recipe[] = [
   {
     id: 19, name: "Buko at Papaya Salad", category: "Salad / Dessert", benefit: "Enzyme-Rich + Digestive Aid",
     servings: "4", prepTime: "15 mins", cookTime: "0 mins", calories: "160 kcal", difficulty: "Easy", stars: 4,
-    description: "Papaya contains papain enzyme, a natural anti-inflammatory that also helps with digestion and joint pain.",
+    description: "Papaya contains papain enzyme, traditionally associated with digestive comfort. Refreshing Pinoy salad-dessert.",
     easebrewTip: "Serve buko at papaya salad as a merienda with Easebrew Herbal Coffee — a fresh, enzyme-rich, and herbal combination!",
     ingredients: [
       { qty: "2 cups", unit: "", ingredient: "Ripe papaya", notes: "cut into cubes" },

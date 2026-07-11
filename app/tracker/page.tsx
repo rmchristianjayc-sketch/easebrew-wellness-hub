@@ -289,6 +289,8 @@ export default function TrackerPage() {
   const [milestone, setMilestone] = useState<number | null>(null);
   const [prefilledFromYesterday, setPrefilledFromYesterday] = useState(false);
   const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingEntriesRef = useRef<DayEntry[] | null>(null);
+  const todayDirtyRef = useRef(false);
 
   useEffect(() => {
     if (checking || !session) return;
@@ -320,23 +322,42 @@ export default function TrackerPage() {
           const remoteEntries: DayEntry[] = Array.isArray(res?.data?.entries) ? res.data.entries : [];
           if (remoteEntries.length === 0) return;
 
+          // Merge: prefer local entries where they exist (they're either
+          // unsynced edits or already-flushed edits — either way, they
+          // are at least as fresh as the remote snapshot). Fall back to
+          // remote only for dates local doesn't have.
           const map = new Map<string, DayEntry>();
           remoteEntries.forEach(e => map.set(e.date, e));
-          localEntries.forEach(e => { if (!map.has(e.date)) map.set(e.date, e); });
+          localEntries.forEach(e => map.set(e.date, e));
 
           const merged = Array.from(map.values()).sort((a, b) => a.date.localeCompare(b.date));
           setEntries(merged);
           writeProgressCache(storageKey, merged);
 
-          const todayStr = localDateStr();
-          const mergedToday = merged.find(e => e.date === todayStr);
-          if (mergedToday) setToday(mergedToday);
+          // Only overwrite `today` if the user hasn't started editing —
+          // otherwise the network response wipes their in-progress input.
+          if (!todayDirtyRef.current) {
+            const mergedToday = merged.find(e => e.date === todayStr);
+            if (mergedToday) setToday(mergedToday);
+          }
         })
         .catch(() => {});
     }
 
     loadProgress();
-    return () => { if (syncTimeout.current) clearTimeout(syncTimeout.current); };
+    return () => {
+      // If a debounced sync is queued, fire it NOW so the customer's
+      // last edit isn't lost when they navigate away within the 1-second
+      // debounce window.
+      if (syncTimeout.current) {
+        clearTimeout(syncTimeout.current);
+        syncTimeout.current = null;
+        if (pendingEntriesRef.current) {
+          syncTrackerProgress(pendingEntriesRef.current);
+          pendingEntriesRef.current = null;
+        }
+      }
+    };
   }, [checking, session, storageKey]);
 
   if (checking) return (
@@ -346,10 +367,22 @@ export default function TrackerPage() {
   );
 
   const triggerSync = (allEntries: DayEntry[]) => {
+    // Store the most recent snapshot so unmount cleanup can flush it if
+    // the debounce timer hasn't fired yet.
+    pendingEntriesRef.current = allEntries;
     if (syncTimeout.current) clearTimeout(syncTimeout.current);
     syncTimeout.current = setTimeout(() => {
-      syncTrackerProgress(allEntries);
+      const snapshot = pendingEntriesRef.current;
+      pendingEntriesRef.current = null;
+      if (snapshot) syncTrackerProgress(snapshot);
     }, 1000);
+  };
+
+  // Wrap setToday so any user edit flips the dirty flag, preventing the
+  // slow /api/progress fetch response from clobbering their input.
+  const setTodayDirty: typeof setToday = (v) => {
+    todayDirtyRef.current = true;
+    setToday(v);
   };
 
   const saveEntry = () => {
@@ -503,7 +536,7 @@ export default function TrackerPage() {
               ].map(({ key, Icon, label, sub, activeColor }) => (
                 <button
                   key={key}
-                  onClick={() => setToday(e => ({ ...e, [key]: !e[key] }))}
+                  onClick={() => setTodayDirty(e => ({ ...e, [key]: !e[key] }))}
                   style={{
                     width: "100%", padding: "20px 24px", borderRadius: 16, border: "none",
                     background: today[key] ? activeColor : "#F0F0E8",
@@ -550,7 +583,7 @@ export default function TrackerPage() {
               {PAIN_LEVELS.map(p => (
                 <button
                   key={p.score}
-                  onClick={() => setToday(e => ({ ...e, painScore: p.score }))}
+                  onClick={() => setTodayDirty(e => ({ ...e, painScore: p.score }))}
                   style={{
                     width: "100%", padding: "18px 20px", borderRadius: 16,
                     border: today.painScore === p.score ? `3px solid ${p.color}` : "2.5px solid #E0D8CC",
@@ -592,7 +625,7 @@ export default function TrackerPage() {
                   <button
                     key={loc}
                     onClick={() => {
-                      setToday(e => ({
+                      setTodayDirty(e => ({
                         ...e,
                         painLocations: selected
                           ? e.painLocations.filter(l => l !== loc)
@@ -633,7 +666,7 @@ export default function TrackerPage() {
               {MOOD_OPTIONS.map(m => (
                 <button
                   key={m.val}
-                  onClick={() => setToday(e => ({ ...e, mood: m.val }))}
+                  onClick={() => setTodayDirty(e => ({ ...e, mood: m.val }))}
                   style={{
                     flex: 1, padding: "14px 4px", borderRadius: 14,
                     border: today.mood === m.val ? `3px solid ${G}` : "2px solid #E0D8CC",
@@ -660,11 +693,11 @@ export default function TrackerPage() {
             </div>
             <p style={{ fontSize: 18, color: MID, margin: "0 0 14px 0" }}>Opsyonal — pero makakatulong kung isusulat mo</p>
             <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
-              <VoiceButton onResult={(text) => setToday(p => ({ ...p, notes: p.notes ? p.notes + " " + text : text }))} />
+              <VoiceButton onResult={(text) => setTodayDirty(p => ({ ...p, notes: p.notes ? p.notes + " " + text : text }))} />
             </div>
             <textarea
               value={today.notes}
-              onChange={e => setToday(p => ({ ...p, notes: e.target.value }))}
+              onChange={e => setTodayDirty(p => ({ ...p, notes: e.target.value }))}
               placeholder="Halimbawa: Mas magaan ang tuhod ko ngayon. Nakatulog nang maayos."
               rows={5}
               style={{ width: "100%", padding: "16px", borderRadius: 14, border: `2px solid #D9D0C0`, fontSize: 18, resize: "none", outline: "none", background: "#FAFAF8", color: DARK, fontFamily: "inherit", boxSizing: "border-box" as const, lineHeight: 1.7 }}

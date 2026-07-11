@@ -20,30 +20,41 @@ export function useSessionGuard() {
   const [checking, setChecking] = useState(true);
   const [session, setSession] = useState<EbSession | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const networkFailuresRef = useRef(0);
 
   useEffect(() => {
     let active = true;
 
     async function checkSession() {
+      let response: Response;
       try {
-        const response = await fetch("/api/session", { cache: "no-store" });
-        const data = await response.json();
-        if (!active) return;
-
-        if (!response.ok || !data?.session) {
-          if (intervalRef.current) clearInterval(intervalRef.current);
-          router.replace(`/verify?from=${encodeURIComponent(pathname)}`);
-          return;
-        }
-
-        setSession(data.session);
-        setChecking(false);
+        response = await fetch("/api/session", { cache: "no-store" });
       } catch {
-        if (active) {
+        // Network error (mobile signal drop, offline). Don't kick the user
+        // out — keep the current session in memory. Only bounce after
+        // several consecutive failures, so a brief signal blip is tolerated.
+        networkFailuresRef.current += 1;
+        if (active && networkFailuresRef.current >= 5) {
           if (intervalRef.current) clearInterval(intervalRef.current);
           router.replace(`/verify?from=${encodeURIComponent(pathname)}`);
         }
+        return;
       }
+      networkFailuresRef.current = 0;
+
+      const data = await response.json().catch(() => null);
+      if (!active) return;
+
+      // A confirmed 401 (or any error status) means the cookie is gone
+      // or the code was deactivated — bounce immediately.
+      if (!response.ok || !data?.session) {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        router.replace(`/verify?from=${encodeURIComponent(pathname)}`);
+        return;
+      }
+
+      setSession(data.session);
+      setChecking(false);
     }
 
     checkSession();

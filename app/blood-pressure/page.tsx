@@ -150,8 +150,11 @@ export default function BloodPressurePage() {
       setCrisisAlert({ systolic: sys, diastolic: dia });
       if (typeof Notification !== "undefined" && Notification.permission === "granted") {
         try {
-          new Notification("⚠️ BP EMERGENCY", {
-            body: `BP mo ay ${sys}/${dia}. Napakataas! Tumawag agad ng 911 o pumunta sa ospital.`,
+          // Keep the notification body generic — the phone may be locked
+          // and anyone glancing at the preview shouldn't see the exact BP
+          // reading. The actual numbers are shown in the in-app modal.
+          new Notification("⚠️ EaseBrew Emergency", {
+            body: "Mataas ang BP mo. Buksan ang app agad.",
             icon: "/icons/icon-192.png",
             requireInteraction: true,
           });
@@ -245,8 +248,29 @@ export default function BloodPressurePage() {
     );
   }
 
+  // Read patient name from medical card so the print output has a header
+  // that identifies the customer (a doctor gets pages of readings with
+  // no patient identifier otherwise).
+  const patientName = (() => {
+    if (!session?.code) return "";
+    try {
+      const mcKey = progressStorageKey("easebrew-medical-card-v1", session.code);
+      const raw = localStorage.getItem(mcKey);
+      if (!raw) return "";
+      const mc = JSON.parse(raw);
+      return typeof mc?.fullName === "string" ? mc.fullName : "";
+    } catch { return ""; }
+  })();
+
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 60 }}>
+      {/* Print-only header (identifies patient on printed page) */}
+      <div className="c-print-only" style={{ padding: "12px 20px", borderBottom: "2px solid #000" }}>
+        <p style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Blood Pressure Log</p>
+        {patientName && <p style={{ fontSize: 14, margin: "4px 0 0" }}>Pasyente: <strong>{patientName}</strong></p>}
+        <p style={{ fontSize: 12, margin: "4px 0 0", color: "#555" }}>Na-print: {new Date().toLocaleDateString("fil-PH", { year: "numeric", month: "long", day: "numeric" })}</p>
+      </div>
+
       {/* Hypertensive Crisis modal */}
       {crisisAlert && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>

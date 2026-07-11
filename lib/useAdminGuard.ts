@@ -51,40 +51,41 @@ export function useAdminGuard(allowedRoles: Role[] = ["owner", "coach"]) {
     let active = true;
 
     async function verifyWithServer(skipRedirectOnCacheHit = false) {
+      let res: Response;
       try {
-        const res = await fetch("/api/admin/me");
-        if (!res.ok) {
-          clearAdminAuthCache();
-          if (intervalRef.current) clearInterval(intervalRef.current);
-          router.replace("/admin/login");
-          return;
-        }
-        const data = await res.json();
-        const r = data.role as Role;
-        const u = data.username as string;
-
-        if (!active) return;
-
-        if (!allowedRoles.includes(r)) {
-          clearAdminAuthCache();
-          router.replace(r === "coach" ? "/admin/codes" : "/admin");
-          return;
-        }
-
-        writeCache(u, r);
-        if (!skipRedirectOnCacheHit) {
-          setUsername(u);
-          setRole(r);
-          setChecking(false);
-        } else {
-          setUsername(u);
-          setRole(r);
-        }
+        res = await fetch("/api/admin/me");
       } catch {
-        if (!active) return;
+        // Transient network error — keep whatever cache we have; don't
+        // dump the admin/coach back to the login screen mid-task.
+        return;
+      }
+      if (!res.ok) {
+        // Confirmed 401/403 — cookie is invalid.
         clearAdminAuthCache();
         if (intervalRef.current) clearInterval(intervalRef.current);
         router.replace("/admin/login");
+        return;
+      }
+      const data = await res.json().catch(() => null);
+      if (!active || !data) return;
+
+      const r = data.role as Role;
+      const u = data.username as string;
+
+      if (!allowedRoles.includes(r)) {
+        clearAdminAuthCache();
+        router.replace(r === "coach" ? "/admin/codes" : "/admin");
+        return;
+      }
+
+      writeCache(u, r);
+      if (!skipRedirectOnCacheHit) {
+        setUsername(u);
+        setRole(r);
+        setChecking(false);
+      } else {
+        setUsername(u);
+        setRole(r);
       }
     }
 

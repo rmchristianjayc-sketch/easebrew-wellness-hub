@@ -18,24 +18,24 @@ import { Gift, Home as HomeIcon, Lightbulb, Phone, Users, HeartPulse, UtensilsCr
 // CONFIG — FALLBACK DEFAULTS (used when no value in DB)
 // ============================================================
 const DEFAULT_VIDEOS = [
-  { title: "Paano Ihanda ang EaseBrew",                desc: "Tamang paraan para ma-maximize ang herbal benefits ng EaseBrew.", url: "" },
-  { title: "Simpleng Exercises para sa Joint Pain",    desc: "Low-impact exercises na ligtas para sa seniors at may arthritis.",  url: "" },
+  { title: "Paano Ihanda ang EaseBrew",                desc: "Tamang paraan para maghanda ng EaseBrew araw-araw.", url: "" },
+  { title: "Simpleng Ehersisyo para sa Seniors",       desc: "Magaan na exercises na kayang gawin sa bahay.",  url: "" },
 ];
 
 const DEFAULT_WELLNESS_TIPS = [
-  "Inumin ang EaseBrew 30 mins bago kumain para sa best effect.",
-  "Uminom ng 8 baso ng tubig araw-araw — ang dehydration ay nagpapalala ng joint pain.",
-  "Maglakad ng 15 mins pagkatapos kumain para sa mas maayos na digestion.",
-  "Kumain ng isda (salmon o bangus) 3x sa isang linggo para sa omega-3.",
-  "Ang turmeric at luya ay natural na anti-inflammatory — idagdag sa mga pagkain mo araw-araw.",
-  "Matulog ng 7-8 oras — dito nagre-repair ang joints at muscles mo.",
-  "Ang malunggay ay superfood — idagdag sa sinigang, tinola, o lugaw.",
+  "Inumin ang EaseBrew 30 mins bago kumain — bahagi ng daily routine mo.",
+  "Uminom ng 8 baso ng tubig araw-araw — mahalaga sa katawan.",
+  "Maglakad ng 15 mins pagkatapos kumain para sa mabuting digestion.",
+  "Kumain ng isda (salmon o bangus) 3x sa isang linggo — mayaman sa omega-3.",
+  "Ang turmeric at luya ay traditional na Pinoy ingredients sa lugaw at soup.",
+  "Matulog ng 7-8 oras araw-araw — mahalaga sa recovery ng katawan.",
+  "Ang malunggay ay tradisyonal na superfood — idagdag sa sinigang, tinola, o lugaw.",
 ];
 
 const DEFAULT_RECIPES = [
-  { name: "Sinigang na Salmon",            benefit: "Omega-3 Anti-Inflammation",    ingredients: "Salmon, kamatis, kangkong, labanos, sampalok", iconId: "fish" },
-  { name: "Tinolang Manok with Malunggay", benefit: "Immune Boost + Joint Support", ingredients: "Manok, malunggay, sayote, luya, bawang",        iconId: "chicken" },
-  { name: "Ginger-Turmeric Lugaw",         benefit: "Powerful Anti-Inflammation",   ingredients: "Bigas, luya, turmeric, bawang, sibuyas",         iconId: "rice" },
+  { name: "Sinigang na Salmon",            benefit: "Omega-3, Vitamin C",           ingredients: "Salmon, kamatis, kangkong, labanos, sampalok", iconId: "fish" },
+  { name: "Tinolang Manok with Malunggay", benefit: "Vitamin A, Iron, Protein",     ingredients: "Manok, malunggay, sayote, luya, bawang",        iconId: "chicken" },
+  { name: "Ginger-Turmeric Lugaw",         benefit: "Warming Pinoy Comfort Food",   ingredients: "Bigas, luya, turmeric, bawang, sibuyas",         iconId: "rice" },
 ];
 
 const RECIPE_ICONS: Record<string, { icon: typeof Fish; bg: string }> = {
@@ -45,18 +45,18 @@ const RECIPE_ICONS: Record<string, { icon: typeof Fish; bg: string }> = {
 };
 
 const DEFAULT_FAQS = [
-  { q: "Kailan ko dapat inumin ang EaseBrew?",             a: "Umaga at gabi — 2 sachets bawat araw para sa best results. Inumin 30 mins bago kumain para sa best effect." },
-  { q: "Safe ba para sa may ulcer?",                       a: "Oo, pero inumin pagkatapos kumain ng konti. Huwag inumin na walang laman ang tiyan." },
-  { q: "Kailan ko mararamdaman ang effect?",               a: "Karamihan sa customers ay nakakaramdam ng pagbabago sa loob ng 7-14 araw ng tuloy-tuloy na paggamit. Para sa mas malalim na results — 30-90 araw." },
-  { q: "Ilang sachets bawat araw?",                        a: "2 sachets bawat araw — isa sa umaga, isa sa gabi. Ito ang recommended dosage para sa best results." },
+  { q: "Kailan ko dapat inumin ang EaseBrew?",             a: "Umaga at gabi — 2 sachets bawat araw. Inumin 30 mins bago kumain bilang bahagi ng daily routine mo." },
+  { q: "May maintenance medicine ako — pwede pa rin ba?",  a: "Kumonsulta muna sa doktor mo bago mag-umpisa. Ipakita mo sa kanya ang EaseBrew para masuri kung compatible sa gamot mo." },
+  { q: "Kailan pa lamang ako makakaramdam ng pagbabago?",  a: "Iba-iba ang karanasan ng bawat isa. Ituloy lang ang daily routine at i-track ang progress mo sa daily tracker sa app na ito." },
+  { q: "Ilang sachets bawat araw?",                        a: "2 sachets bawat araw — isa sa umaga, isa sa gabi. Sundin lang ang instructions sa packaging." },
   { q: "Paano ko ma-access ang mga libreng digital products?", a: "I-tap ang button sa bawat product card. Lahat ng products na kasama sa order mo ay automatic na ma-access!" },
-  { q: "May side effects ba ang EaseBrew?",                a: "Ang EaseBrew ay gawa sa natural na herbs. Walang kilalang side effects para sa karamihan. Kung may allergy ka o maintenance medicine — kumonsulta muna sa doktor." },
+  { q: "May allergy ako sa ilang herbs — safe ba ito?",    a: "Palaging basahin muna ang ingredients list sa packaging. Kung may kilalang allergy ka, kumonsulta sa doktor bago inumin." },
 ];
 
 const DEFAULT_TESTIMONIALS = [
-  { name: "Nena R.",   age: 58, location: "Quezon City", quote: "Pagkatapos ng 3 weeks, mas magaan na ang tuhod ko. Hindi ko na kailangan uminom ng gamot araw-araw.", stars: 5, painBefore: 8, painAfter: 3 },
-  { name: "Mang Tony", age: 64, location: "Cebu City",   quote: "Hindi ako naniniwala noong una pero sinubukan ko. Ngayon — hindi ko na maimagine ang umaga ko na walang EaseBrew.", stars: 5, painBefore: 7, painAfter: 2 },
-  { name: "Ate Susan", age: 52, location: "Davao",       quote: "Yung libreng meal plan at recipe book — super helpful! Ngayon alam ko na kung anong pagkain ang nagpapalala ng arthritis ko.", stars: 5, painBefore: 6, painAfter: 3 },
+  { name: "Nena R.",   age: 58, location: "Quezon City", quote: "Bahagi na ng aking daily routine ang EaseBrew — kasama sa umaga at gabi ko.", stars: 5, painBefore: 8, painAfter: 3 },
+  { name: "Mang Tony", age: 64, location: "Cebu City",   quote: "Sinubukan ko at naging habit ko na. Kasama ko lagi ang EaseBrew araw-araw.", stars: 5, painBefore: 7, painAfter: 2 },
+  { name: "Ate Susan", age: 52, location: "Davao",       quote: "Yung libreng meal plan at recipe book — super helpful sa pagpapalinis ng diet ko.", stars: 5, painBefore: 6, painAfter: 3 },
 ];
 
 const REMINDERS = [
@@ -67,10 +67,10 @@ const REMINDERS = [
 ];
 
 const PROGRESS_GUIDE = [
-  { period: "Week 1–2", title: "Simula",                      desc: "Mararamdaman mo na ang unang effect — mas magaan ang umaga, mas may energy.",                         bg: "#E8F5E0", border: "#39613B", color: "#39613B" },
-  { period: "Week 3–4", title: "Makikita na ang Pagbabago",   desc: "Mapapansin ng mga tao sa paligid mo. Mas madaling gumalaw, bumaba ang pain score.",                    bg: "#FEF9E7", border: "#C0863B", color: "#C0863B" },
-  { period: "Month 2",  title: "Tuloy-tuloy na Progress",     desc: "Ang anti-inflammation routine mo ay magiging natural habit na. Hindi mo na kailangan ng reminder.",      bg: "#FFFBF0", border: "#FED255", color: "#8B6914" },
-  { period: "Month 3",  title: "Bagong Ikaw, Bagong Buhay",   desc: "50%+ na bawas sa pain score. Mas aktibo, mas masaya, mas healthy. Ito ang Bagong Ikaw.",                bg: "#F4F8F0", border: "#7DAE2F", color: "#39613B" },
+  { period: "Linggo 1–2", title: "Simula",                    desc: "Kasama mo ang EaseBrew sa umaga at gabi. I-set up ang daily routine mo — tracker, meal plan, exercise.",      bg: "#E8F5E0", border: "#39613B", color: "#39613B" },
+  { period: "Linggo 3–4", title: "Consistent na Habit",       desc: "Nagiging bahagi na ng araw-araw ang wellness journey mo. I-track ang progress mo sa daily tracker.",           bg: "#FEF9E7", border: "#C0863B", color: "#C0863B" },
+  { period: "Buwan 2",    title: "Tuloy-tuloy na Progress",   desc: "Natural na habit na ang daily routine mo. I-review ang lingguhang wellness report para sa insights.",         bg: "#FFFBF0", border: "#FED255", color: "#8B6914" },
+  { period: "Buwan 3",    title: "Bagong Ikaw, Bagong Buhay", desc: "Kumpleto na ang 90 araw. I-review ang trend ng pain score at BP. Ipagpatuloy ang malusog na pamumuhay.",       bg: "#F4F8F0", border: "#7DAE2F", color: "#39613B" },
 ];
 
 const PRODUCT_ICONS: Record<number, { icon: typeof HeartPulse; bg: string }> = {
@@ -189,7 +189,9 @@ function ExpiryBanner({ daysLeft, onReorder, onDismiss }: { daysLeft: number; on
   const btnFg = tier === "heads-up" ? "#183b28" : "white";
   const Icon = tier === "urgent" ? AlertCircle : Timer;
   const iconColor = tier === "urgent" ? "#fca5a5" : tier === "medium" ? "#f59e0b" : "#FED255";
-  const title = tier === "urgent"
+  const title = daysLeft === 0
+    ? "Ngayong araw na mag-e-expire!"
+    : tier === "urgent"
     ? `${daysLeft} araw na lang!`
     : tier === "medium"
     ? `Mag-e-expire sa ${daysLeft} araw!`
@@ -309,11 +311,16 @@ function StarRating({ count }: { count: number }) {
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div onClick={() => setOpen(!open)} style={{ borderBottom: "1px solid #D9D0C0", padding: "20px 0", cursor: "pointer" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+    <div style={{ borderBottom: "1px solid #D9D0C0", padding: "20px 0" }}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, width: "100%", background: "transparent", border: "none", padding: 0, cursor: "pointer", textAlign: "left", fontFamily: "Georgia, serif" }}
+      >
         <p style={{ fontSize: 18, fontWeight: 600, color: DARK, margin: 0, lineHeight: 1.4 }}>{q}</p>
-        <span style={{ fontSize: 26, color: G, flexShrink: 0 }}>{open ? "−" : "+"}</span>
-      </div>
+        <span style={{ fontSize: 26, color: G, flexShrink: 0 }} aria-hidden="true">{open ? "−" : "+"}</span>
+      </button>
       {open && <p style={{ fontSize: 17, color: MID, margin: "12px 0 0 0", lineHeight: 1.7 }}>{a}</p>}
     </div>
   );
@@ -600,10 +607,16 @@ function FamilyShareCard() {
       if (!res.ok || !data.success) { setError(data.error || "Failed."); return; }
       const url = `${window.location.origin}/family/${data.token}`;
       setLink(url);
-      // Token expires in 7 days per lib/auth.ts createFamilyShareToken
-      const exp = new Date();
-      exp.setDate(exp.getDate() + 7);
-      setExpiresAt(exp);
+      // Server returns the effective expiry (min of 7-day token TTL and
+      // the customer's pack expiry) so the displayed date matches when
+      // the link actually stops working.
+      if (typeof data.expiresAt === "string") {
+        setExpiresAt(new Date(data.expiresAt));
+      } else {
+        const fallback = new Date();
+        fallback.setDate(fallback.getDate() + 7);
+        setExpiresAt(fallback);
+      }
     } catch { setError("Network error."); }
     finally { setGenerating(false); }
   }
@@ -972,7 +985,7 @@ function OnboardingModal({ onClose }: { onClose: () => void }) {
     {
       Icon: BarChart3, iconBg: "#2980B9",
       title: "I-track ang Progress Mo",
-      body: "Gamitin ang Pain Tracker araw-araw para makita ang improvement mo. Makikita mo kung gaano kabilis bumaba ang pain mo!",
+      body: "Gamitin ang Pain Tracker araw-araw para makita ang trend ng pain mo — magiging mas malinaw ang usapan mo sa doktor.",
     },
   ];
   const s = steps[step];
@@ -1082,7 +1095,9 @@ export default function Home() {
     }
   }, []);
 
-  const showExpiryBanner = daysLeft !== null && daysLeft <= 14 && daysLeft > 0 && !expiryDismissed;
+  // Show through the very last day so the customer sees the reminder
+  // even on expiration day itself (daysLeft === 0 during that day).
+  const showExpiryBanner = daysLeft !== null && daysLeft <= 14 && daysLeft >= 0 && !expiryDismissed;
 
   // ── FETCH PUBLIC CONTENT ─────────────────────────────────────
   useEffect(() => {
@@ -1486,7 +1501,7 @@ export default function Home() {
               <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 12px 0", lineHeight: 1.3 }}>Complete Wellness Program</h2>
               <p style={{ fontSize: 16, opacity: 0.9, margin: "0 0 20px 0", lineHeight: 1.7 }}>Ang pinaka-complete na wellness program — 90-araw na master plan, exercise program, lingguhang check-ins, at lahat ng digital products!</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24, textAlign: "left" as const }}>
-                {["90-Araw na Master Plan na may araw-araw na schedule", "3 Yugto ng wellness program", "Exercise library para sa joint pain", "Lingguhang milestone check-ins", "Lahat ng digital products kasama"].map((item, i) => (
+                {["90-Araw na Master Plan na may araw-araw na schedule", "3 Yugto ng wellness program", "Exercise library para sa seniors", "Lingguhang milestone check-ins", "Lahat ng digital products kasama"].map((item, i) => (
                   <p key={i} style={{ fontSize: 16, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><CircleCheck size={16} color="#FED255" style={{ flexShrink: 0 }} /> {item}</p>
                 ))}
               </div>
@@ -1501,7 +1516,7 @@ export default function Home() {
                   </button>
                 )}
               </div>
-              <p style={{ fontSize: 13, opacity: 0.7, margin: "14px 0 0 0" }}>COD available • Libreng shipping • Buong Pilipinas</p>
+              <p style={{ fontSize: 13, opacity: 0.7, margin: "14px 0 0 0" }}>COD • Libreng Shipping • Buong Pilipinas</p>
             </div>
           </div>
         )}

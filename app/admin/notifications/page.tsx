@@ -7,13 +7,13 @@ import { Sun, Lightbulb, BarChart3, Droplets, Tag, Heart, Moon, PenLine, type Lu
 const G = "#39613B", DARK = "#1B201A", MID = "#4E504F";
 
 const QUICK_MESSAGES: { label: string; icon: LucideIcon; iconBg: string; title: string; body: string }[] = [
-  { label: "Morning Reminder",  icon: Sun,        iconBg: "#F59E0B", title: "Good Morning!",                 body: "Magandang umaga! Wag kalimutan ang EaseBrew mo — inumin 30 mins bago kumain para mas maganda ang effect. Tuloy-tuloy lang!" },
-  { label: "Wellness Tip",      icon: Lightbulb,  iconBg: "#8B5CF6", title: "Wellness Tip",                  body: "Alam mo ba? Ang turmeric at luya ay natural na anti-inflammatory. Idagdag mo sa mga pagkain mo kasama ng EaseBrew para mas maganda pa ang results!" },
-  { label: "Tracker Reminder",  icon: BarChart3,  iconBg: "#2563EB", title: "I-log ang Progress Mo!",        body: "Buksan ang Wellness Hub mo at i-update ang tracker — para makita mo kung gaano ka na ka-improve. Kahit ilang minuto lang!" },
-  { label: "Hydration",         icon: Droplets,   iconBg: "#06B6D4", title: "Uminom ng Tubig!",              body: "Mag-inom ng 8 glasses ng tubig araw-araw — nakakatulong ito laban sa joint pain at mas effective pa ang EaseBrew mo!" },
+  { label: "Morning Reminder",  icon: Sun,        iconBg: "#F59E0B", title: "Magandang Umaga!",              body: "Magandang umaga! Huwag kalimutan ang EaseBrew mo — inumin 30 mins bago kumain bilang bahagi ng daily routine mo." },
+  { label: "Wellness Tip",      icon: Lightbulb,  iconBg: "#8B5CF6", title: "Wellness Tip",                  body: "Alam mo ba? Ang turmeric at luya ay tradisyonal na Pinoy ingredients. Idagdag mo sa mga pagkain mo — perfect kasama ng EaseBrew." },
+  { label: "Tracker Reminder",  icon: BarChart3,  iconBg: "#2563EB", title: "I-log ang Progress Mo!",        body: "Buksan ang Wellness Hub mo at i-update ang tracker — para makita mo ang trend ng progress mo. Kahit ilang minuto lang!" },
+  { label: "Hydration",         icon: Droplets,   iconBg: "#06B6D4", title: "Uminom ng Tubig!",              body: "Mag-inom ng 8 baso ng tubig araw-araw — mahalaga sa katawan mo at bahagi ng daily wellness routine." },
   { label: "Promo",             icon: Tag,        iconBg: "#E74C3C", title: "May Promo!",                    body: "[I-edit ito — ilagay ang promo details, presyo, o bundle]. I-message ang coach mo para sa details!" },
-  { label: "Encouragement",     icon: Heart,      iconBg: "#EC4899", title: "Keep Going!",                   body: "Tuloy-tuloy lang sa EaseBrew at healthy lifestyle! Tandaan — consistency ang susi. Ang katawan mo, nagpapasalamat sayo!" },
-  { label: "Evening Reminder",  icon: Moon,       iconBg: "#6366F1", title: "Good Evening!",                 body: "Magandang gabi! Wag kalimutan ang pangalawang sachet ng EaseBrew mo bago matulog. Matulog ng 7-8 oras — dito nagre-repair ang katawan mo." },
+  { label: "Encouragement",     icon: Heart,      iconBg: "#EC4899", title: "Ituloy Lang!",                  body: "Tuloy-tuloy lang sa EaseBrew at malusog na pamumuhay! Tandaan — consistency ang susi." },
+  { label: "Evening Reminder",  icon: Moon,       iconBg: "#6366F1", title: "Magandang Gabi!",               body: "Magandang gabi! Huwag kalimutan ang pangalawang sachet ng EaseBrew bago matulog. Matulog ng 7-8 oras — mahalaga sa recovery ng katawan." },
   { label: "Custom",            icon: PenLine,    iconBg: MID,       title: "",                              body: "" },
 ];
 

@@ -13,7 +13,19 @@ const CREAM = "#EEE5D4";
 const DARK  = "#1B201A";
 const MID   = "#4E504F";
 const WHITE = "#FFFFFB";
-type CheckIn = { date: string; weight?: number; energy?: number; pain?: number; notes?: string };
+// Tracker writes { date, painScore, painLocations, easebrewUmaga, easebrewGabi, mood, notes }.
+// Older exports may still carry `pain`/`energy`; we read either.
+type CheckIn = {
+  date: string;
+  painScore?: number;   // 0–10
+  pain?: number;        // legacy alias
+  mood?: number;        // 0–10 (proxy for energy/lakas ng katawan)
+  energy?: number;      // legacy alias
+  weight?: number;
+  notes?: string;
+  easebrewUmaga?: boolean;
+  easebrewGabi?: boolean;
+};
 
 function getWeekDates(): string[] {
   return Array.from({ length: 7 }, (_, i) => {
@@ -44,7 +56,22 @@ export default function WeeklyReportPage() {
   useEffect(() => {
     if (!session) return;
     const tKey = progressStorageKey("easebrew-tracker-v2", session.code);
+    // Local first (offline works)
     setCheckIns(readProgressCache<CheckIn[]>(tKey, []));
+    // Then merge with server so this page works after a fresh device install
+    fetch("/api/progress?type=tracker")
+      .then(r => r.json())
+      .then(res => {
+        const remote: CheckIn[] = Array.isArray(res?.data?.entries) ? res.data.entries : [];
+        if (remote.length === 0) return;
+        setCheckIns(prev => {
+          const map = new Map<string, CheckIn>();
+          prev.forEach(e => map.set(e.date, e));
+          remote.forEach(e => map.set(e.date, e));
+          return Array.from(map.values()).sort((a, b) => a.date.localeCompare(b.date));
+        });
+      })
+      .catch(() => {});
   }, [session]);
 
   if (checking) return (
@@ -53,15 +80,15 @@ export default function WeeklyReportPage() {
     </div>
   );
 
-  // Check-in stats
+  // Check-in stats — read new-schema (painScore/mood) with legacy fallback
   const weekCheckIns = weekDates.map(d => checkIns.find(c => c.date === d));
   const checkedDays  = weekCheckIns.filter(Boolean).length;
   const avgEnergy    = (() => {
-    const vals = weekCheckIns.filter(c => c?.energy != null).map(c => c!.energy!);
+    const vals = weekCheckIns.map(c => c?.mood ?? c?.energy).filter((v): v is number => typeof v === "number" && v > 0);
     return vals.length ? Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10 : null;
   })();
   const avgPain = (() => {
-    const vals = weekCheckIns.filter(c => c?.pain != null).map(c => c!.pain!);
+    const vals = weekCheckIns.map(c => c?.painScore ?? c?.pain).filter((v): v is number => typeof v === "number" && v > 0);
     return vals.length ? Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10 : null;
   })();
 
@@ -153,9 +180,15 @@ export default function WeeklyReportPage() {
                       <p style={{ fontSize: 13, fontWeight: 600, color: ci ? DARK : MID, margin: 0 }}>{formatDate(d)}</p>
                       {ci && (
                         <p style={{ fontSize: 12, color: MID, margin: "2px 0 0" }}>
-                          {ci.energy != null && `Lakas: ${ci.energy}/10`}
-                          {ci.pain != null && ` · Sakit: ${ci.pain}/10`}
-                          {ci.weight != null && ` · ${ci.weight}kg`}
+                          {(() => {
+                            const e = ci.mood ?? ci.energy;
+                            const p = ci.painScore ?? ci.pain;
+                            const parts: string[] = [];
+                            if (typeof e === "number" && e > 0) parts.push(`Lakas: ${e}/10`);
+                            if (typeof p === "number" && p > 0) parts.push(`Sakit: ${p}/10`);
+                            if (ci.weight != null) parts.push(`${ci.weight}kg`);
+                            return parts.join(" · ");
+                          })()}
                         </p>
                       )}
                     </div>
