@@ -185,6 +185,38 @@ export default function ExercisePage() {
         </div>
       </div>
 
+      {/* ── PRE-WORKOUT SAFETY CHECKLIST ── */}
+      <div style={{ padding: "20px 24px 0" }}>
+        <div style={{ background: "#f0fdf4", border: `2px solid ${G}`, borderRadius: 16, padding: "16px 18px" }}>
+          <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 10px", display: "flex", alignItems: "center", gap: 8 }}>
+            <CircleCheck size={20} /> Bago Mag-simula (Safety Checklist)
+          </p>
+          <ul style={{ margin: 0, paddingLeft: 20, color: DARK, fontSize: 15, lineHeight: 1.75 }}>
+            <li>May matibay na upuan sa tabi mo bilang support</li>
+            <li>May tubig kang malapit para uminom habang exercise</li>
+            <li>Suot ang komportableng sapatos na may grip (hindi tsinelas)</li>
+            <li>Kumain nang konti 1-2 oras bago mag-exercise</li>
+            <li>Kung may hypertension o heart condition, sukatin ang BP mo muna</li>
+          </ul>
+        </div>
+
+        {/* ── STOP SIGNS ── */}
+        <div style={{ background: "#fef2f2", border: "2px solid #dc2626", borderRadius: 16, padding: "16px 18px", marginTop: 12 }}>
+          <p style={{ fontSize: 16, fontWeight: 700, color: "#991b1b", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 8 }}>
+            <OctagonX size={20} /> Tigilan Agad Kung Nararamdaman:
+          </p>
+          <ul style={{ margin: 0, paddingLeft: 20, color: "#7f1d1d", fontSize: 15, lineHeight: 1.75, fontWeight: 500 }}>
+            <li>Sakit ng dibdib o pananakit sa braso/leeg</li>
+            <li>Sobrang hirap huminga o pagkahilo</li>
+            <li>Malabo ang paningin o nawawala ang balanse</li>
+            <li>Malakas na sakit sa joint na hindi natural</li>
+          </ul>
+          <p style={{ fontSize: 14, color: "#991b1b", margin: "10px 0 0", fontWeight: 700 }}>
+            Kung anumang ito ay maramdaman mo — tumigil, umupo, at magpakonsulta sa doctor. Kung matindi, tumawag agad ng 911.
+          </p>
+        </div>
+      </div>
+
       {/* ── PHASE SELECTOR ── */}
       <div style={{ padding: "28px 24px 0" }}>
         <h2 style={{ fontSize: 22, fontWeight: 700, color: G, marginBottom: 16 }}>Pumili ng Phase</h2>
