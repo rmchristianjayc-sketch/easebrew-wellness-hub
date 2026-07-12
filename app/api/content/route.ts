@@ -30,7 +30,7 @@ export async function GET() {
     });
 
     const res = NextResponse.json({ success: true, content: map });
-    res.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
+    res.headers.set('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=300');
     return res;
 
   } catch {
