@@ -87,6 +87,16 @@ const CONTENT_LABELS: Record<string, { label: string; group: string; multiline?:
   video_3_desc:  { label: "Video 3 — Description",                     group: "🎬 Videos", multiline: true },
   video_3_url:   { label: "Video 3 — YouTube Link", group: "🎬 Videos" },
 
+  // ── Reorder & Coach Modal ─────────────────────────────────
+  reorder_message_template: {
+    label: "Reorder Message Template — kino-copy ng customer para i-send sa coach. Gumamit ng {{package}} at {{expiry}} bilang placeholders.",
+    group: "🛒 Reorder & Coach Modal",
+    multiline: true,
+  },
+  coach_modal_title:            { label: "Coach Modal — Title (default: Pumili ng Coach)",                                         group: "🛒 Reorder & Coach Modal" },
+  coach_modal_subtitle_reorder: { label: "Coach Modal Subtitle — kapag may reorder message (default: I-copy ang mensahe sa taas…)", group: "🛒 Reorder & Coach Modal" },
+  coach_modal_subtitle_default: { label: "Coach Modal Subtitle — normal (default: Tumawag o mag-message para mag-order)",           group: "🛒 Reorder & Coach Modal" },
+
   // ── Notifications ─────────────────────────────────────────
   // ✅ Bug #5 FIX: Tinanggal na ang reorder_reminder_days — dead setting, walang gumagamit
 };

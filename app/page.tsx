@@ -245,7 +245,7 @@ function PromoBanner({ text, onDismiss }: { text: string; onDismiss: () => void 
 // ============================================================
 // COACH PICKER MODAL
 // ============================================================
-function CoachModal({ coaches, onClose, reorderMessage }: { coaches: Coach[]; onClose: () => void; reorderMessage?: string }) {
+function CoachModal({ coaches, onClose, reorderMessage, modalTitle, subtitleReorder, subtitleDefault }: { coaches: Coach[]; onClose: () => void; reorderMessage?: string; modalTitle: string; subtitleReorder: string; subtitleDefault: string }) {
   const [msgCopied, setMsgCopied] = useState(false);
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
@@ -268,8 +268,8 @@ function CoachModal({ coaches, onClose, reorderMessage }: { coaches: Coach[]; on
         <div style={{ padding: "12px 24px 20px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 4px 0", display: "flex", alignItems: "center", gap: 8 }}><Users size={22} /> Pumili ng Coach</h2>
-              <p style={{ fontSize: 15, color: MID, margin: 0 }}>{reorderMessage ? "I-copy ang mensahe sa taas, tapos i-send sa coach mo!" : "Tumawag o mag-message para mag-order"}</p>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 4px 0", display: "flex", alignItems: "center", gap: 8 }}><Users size={22} /> {modalTitle}</h2>
+              <p style={{ fontSize: 15, color: MID, margin: 0 }}>{reorderMessage ? subtitleReorder : subtitleDefault}</p>
             </div>
             <button onClick={onClose} style={{ background: "#F0EDE6", border: "none", borderRadius: 999, width: 40, height: 40, cursor: "pointer", color: MID, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><X size={20} /></button>
           </div>
@@ -1093,6 +1093,14 @@ export default function Home() {
   const [faqs, setFaqs]                     = useState(DEFAULT_FAQS);
   const [testimonials, setTestimonials]     = useState(DEFAULT_TESTIMONIALS);
   const [videos, setVideos]                 = useState(DEFAULT_VIDEOS);
+  const DEFAULT_REORDER_TEMPLATE = "Hi po! Gusto ko po mag-order ulit ng EaseBrew.\n\nPackage: {{package}}{{expiry_line}}\n\nAvailable po ba? Salamat po!";
+  const DEFAULT_COACH_MODAL_TITLE = "Pumili ng Coach";
+  const DEFAULT_COACH_SUBTITLE_REORDER = "I-copy ang mensahe sa taas, tapos i-send sa coach mo!";
+  const DEFAULT_COACH_SUBTITLE_DEFAULT = "Tumawag o mag-message para mag-order";
+  const [reorderTemplate, setReorderTemplate]         = useState(DEFAULT_REORDER_TEMPLATE);
+  const [coachModalTitle, setCoachModalTitle]         = useState(DEFAULT_COACH_MODAL_TITLE);
+  const [coachSubtitleReorder, setCoachSubtitleReorder] = useState(DEFAULT_COACH_SUBTITLE_REORDER);
+  const [coachSubtitleDefault, setCoachSubtitleDefault] = useState(DEFAULT_COACH_SUBTITLE_DEFAULT);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   // ── ONBOARDING — show once per customer (not once per device) ──
@@ -1146,6 +1154,11 @@ export default function Home() {
         setFaqs(buildFaqs(c, DEFAULT_FAQS));
         setTestimonials(buildTestimonials(c, DEFAULT_TESTIMONIALS));
         setVideos(buildVideos(c, DEFAULT_VIDEOS));
+
+        if (c.reorder_message_template?.trim())      setReorderTemplate(c.reorder_message_template.trim());
+        if (c.coach_modal_title?.trim())             setCoachModalTitle(c.coach_modal_title.trim());
+        if (c.coach_modal_subtitle_reorder?.trim())  setCoachSubtitleReorder(c.coach_modal_subtitle_reorder.trim());
+        if (c.coach_modal_subtitle_default?.trim())  setCoachSubtitleDefault(c.coach_modal_subtitle_default.trim());
       })
       .catch(() => {});
   }, []);
@@ -1234,8 +1247,12 @@ export default function Home() {
     const pkgLabel = getTierLabel(customerTier);
     const expiryStr = session?.expires_at
       ? new Date(session.expires_at).toLocaleDateString("en-PH", { month: "long", day: "numeric", year: "numeric" })
-      : null;
-    return `Hi po! Gusto ko po mag-order ulit ng EaseBrew.\n\nPackage: ${pkgLabel}${expiryStr ? `\nExpires: ${expiryStr}` : ""}\n\nAvailable po ba? Salamat po!`;
+      : "";
+    const expiryLine = expiryStr ? `\nExpires: ${expiryStr}` : "";
+    return reorderTemplate
+      .replace(/\{\{\s*package\s*\}\}/g, pkgLabel)
+      .replace(/\{\{\s*expiry_line\s*\}\}/g, expiryLine)
+      .replace(/\{\{\s*expiry\s*\}\}/g, expiryStr);
   }
 
   if (checking) return (
@@ -1270,7 +1287,7 @@ export default function Home() {
           setShowOnboarding(false);
         }} />
       )}
-      {showCoachModal && <CoachModal coaches={coaches} onClose={() => { setShowCoachModal(false); setReorderMessage(undefined); }} reorderMessage={reorderMessage} />}
+      {showCoachModal && <CoachModal coaches={coaches} onClose={() => { setShowCoachModal(false); setReorderMessage(undefined); }} reorderMessage={reorderMessage} modalTitle={coachModalTitle} subtitleReorder={coachSubtitleReorder} subtitleDefault={coachSubtitleDefault} />}
 
       {/* ── STICKY HEADER + TABS ─────────────────────────────── */}
       <div style={{ background: G, position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 12px rgba(0,0,0,0.15)" }}>

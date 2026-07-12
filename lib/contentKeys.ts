@@ -36,6 +36,10 @@ export const PUBLIC_CONTENT_KEYS = [
   'video_3_title', 'video_3_desc', 'video_3_url',
   'coaches_data',
   'exercise_videos',
+  'reorder_message_template',
+  'coach_modal_title',
+  'coach_modal_subtitle_reorder',
+  'coach_modal_subtitle_default',
 ] as const;
 
 export const PUBLIC_CONTENT_KEY_SET = new Set<string>(PUBLIC_CONTENT_KEYS);
