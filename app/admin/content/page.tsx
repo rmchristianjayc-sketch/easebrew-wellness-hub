@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Sidebar from "@/app/admin/_components/Sidebar";
 import { useAdminGuard } from "@/lib/useAdminGuard";
-import { HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard, Home, ShoppingBag, Users, Lightbulb, HelpCircle, MessageSquare, Film, Plus, Trash2, type LucideIcon } from "lucide-react";
+import { HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard, Home, ShoppingBag, ShoppingCart, Users, Lightbulb, HelpCircle, MessageSquare, Film, Plus, Trash2, type LucideIcon } from "lucide-react";
 import Image from "next/image";
 import { DEFAULT_COACHES, parseCoachesFromContent } from "@/lib/coaches";
 import type { Coach } from "@/lib/coaches";
@@ -424,6 +424,7 @@ export default function ContentPage() {
                 "❓ FAQs": HelpCircle,
                 "💬 Testimonials": MessageSquare,
                 "🎬 Videos": Film,
+                "🛒 Reorder & Coach Modal": ShoppingCart,
               };
               return groupNames.map(g => {
                 const isActive   = activeGroup === g;
