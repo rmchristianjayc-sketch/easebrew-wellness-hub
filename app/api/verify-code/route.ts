@@ -14,7 +14,9 @@ function isValidDeviceId(value: unknown): value is string {
   return typeof value === 'string' && DEVICE_ID_RE.test(value);
 }
 
-const VERIFY_MAX_ATTEMPTS = 10;
+const VERIFY_MAX_ATTEMPTS_PER_DEVICE = 10;
+const VERIFY_MAX_ATTEMPTS_PER_CODE = 20;
+const VERIFY_MAX_ATTEMPTS_PER_IP = 40;
 const VERIFY_WINDOW_MINUTES = 15;
 
 function getVerifyIp(req: NextRequest) {
@@ -22,22 +24,47 @@ function getVerifyIp(req: NextRequest) {
   return forwardedFor || req.headers.get('x-real-ip') || 'unknown';
 }
 
-async function isVerifyRateLimited(ip: string, deviceId: string) {
-  const windowStart = new Date(Date.now() - VERIFY_WINDOW_MINUTES * 60 * 1000).toISOString();
-  const identifier = `${ip}:${deviceId}`;
+type VerifyRateLimitKey = {
+  identifier: string;
+  maxAttempts: number;
+};
+
+function getVerifyRateLimitKeys(ip: string, deviceId: string, code: string): VerifyRateLimitKey[] {
+  return [
+    { identifier: `verify:ip:${ip}`, maxAttempts: VERIFY_MAX_ATTEMPTS_PER_IP },
+    { identifier: `verify:device:${deviceId}`, maxAttempts: VERIFY_MAX_ATTEMPTS_PER_DEVICE },
+    { identifier: `verify:code:${code}`, maxAttempts: VERIFY_MAX_ATTEMPTS_PER_CODE },
+  ];
+}
+
+async function countRecentAttempts(identifier: string, windowStart: string) {
   const { count, error } = await supabaseAdmin
     .from('admin_login_attempts')
     .select('id', { count: 'exact', head: true })
-    .eq('identifier', `verify:${identifier}`)
+    .eq('identifier', identifier)
     .gt('attempted_at', windowStart);
-  if (error) return false;
-  return (count ?? 0) >= VERIFY_MAX_ATTEMPTS;
+
+  if (error) return null;
+  return count ?? 0;
 }
 
-async function recordVerifyAttempt(ip: string, deviceId: string) {
+async function isVerifyRateLimited(keys: VerifyRateLimitKey[]) {
+  const windowStart = new Date(Date.now() - VERIFY_WINDOW_MINUTES * 60 * 1000).toISOString();
+  const counts = await Promise.all(
+    keys.map(async (key) => ({
+      key,
+      count: await countRecentAttempts(key.identifier, windowStart),
+    }))
+  );
+
+  // Keep the existing fail-open behavior if Supabase rate-limit reads fail.
+  return counts.some(({ key, count }) => count !== null && count >= key.maxAttempts);
+}
+
+async function recordVerifyAttempt(keys: VerifyRateLimitKey[]) {
   await supabaseAdmin
     .from('admin_login_attempts')
-    .insert({ identifier: `verify:${ip}:${deviceId}` });
+    .insert(keys.map(({ identifier }) => ({ identifier })));
 }
 
 export async function POST(req: NextRequest) {
@@ -54,13 +81,14 @@ export async function POST(req: NextRequest) {
     }
 
     const ip = getVerifyIp(req);
-    if (await isVerifyRateLimited(ip, deviceId)) {
+    const rateLimitKeys = getVerifyRateLimitKeys(ip, deviceId, code);
+    if (await isVerifyRateLimited(rateLimitKeys)) {
       return NextResponse.json(
         { error: 'Too many attempts. Please try again later.' },
         { status: 429 }
       );
     }
-    await recordVerifyAttempt(ip, deviceId);
+    await recordVerifyAttempt(rateLimitKeys);
 
     const { data: accessCode, error: fetchError } = await supabaseAdmin
       .from('access_codes')

@@ -2,7 +2,6 @@
 
 import { useEffect, useState, use } from "react";
 import { Heart, Activity, CircleCheck } from "lucide-react";
-import { localDateStr } from "@/lib/localDate";
 
 const G = "#39613B";
 const GOLD = "#FED255";
@@ -11,16 +10,22 @@ const DARK = "#1B201A";
 const MID = "#4E504F";
 const WHITE = "#FFFFFB";
 
-type CheckIn = { date: string; painScore?: number; easebrewUmaga?: boolean; easebrewGabi?: boolean };
-type BpEntry = { date: string; systolic: number; diastolic: number };
+type FamilySummary = {
+  weekDates: string[];
+  loggedDates: string[];
+  daysLogged: number;
+  easebrewCount: number;
+  avgPain: number | null;
+  bpAvg: { sys: number; dia: number } | null;
+  bpReadingsCount: number;
+};
 
 export default function FamilySharePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = use(params);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [name, setName] = useState("");
-  const [tracker, setTracker] = useState<CheckIn[]>([]);
-  const [bp, setBp] = useState<BpEntry[]>([]);
+  const [summary, setSummary] = useState<FamilySummary | null>(null);
 
   useEffect(() => {
     fetch(`/api/family/${token}`)
@@ -28,10 +33,7 @@ export default function FamilySharePage({ params }: { params: Promise<{ token: s
       .then(d => {
         if (!d.success) { setError(d.error || "Invalid link."); return; }
         setName(d.name);
-        const rawTracker = d.progress?.tracker?.data;
-        setTracker(Array.isArray(rawTracker?.entries) ? rawTracker.entries : Array.isArray(rawTracker) ? rawTracker : []);
-        const rawBp = d.progress?.blood_pressure?.data;
-        setBp(Array.isArray(rawBp?.entries) ? rawBp.entries : Array.isArray(rawBp) ? rawBp : []);
+        setSummary(d.summary ?? null);
       })
       .catch(() => setError("Failed to load."))
       .finally(() => setLoading(false));
@@ -52,29 +54,13 @@ export default function FamilySharePage({ params }: { params: Promise<{ token: s
     </div>
   );
 
-  // Last 7 days (local timezone)
-  const today = new Date();
-  const weekDates: string[] = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(d.getDate() - i);
-    weekDates.push(localDateStr(d));
-  }
-  const trackerByDate = new Map(tracker.map(t => [t.date, t]));
-  const daysLogged = weekDates.filter(d => trackerByDate.has(d)).length;
-  const easebrewCount = weekDates.filter(d => {
-    const t = trackerByDate.get(d);
-    return t?.easebrewUmaga || t?.easebrewGabi;
-  }).length;
-  const painValues = weekDates.map(d => trackerByDate.get(d)?.painScore).filter((v): v is number => typeof v === "number");
-  const avgPain = painValues.length ? Math.round((painValues.reduce((a, b) => a + b, 0) / painValues.length) * 10) / 10 : null;
-
-  // BP trend
-  const last7Bp = bp.filter(b => weekDates.includes(b.date));
-  const bpAvg = last7Bp.length
-    ? { sys: Math.round(last7Bp.reduce((a, b) => a + b.systolic, 0) / last7Bp.length),
-        dia: Math.round(last7Bp.reduce((a, b) => a + b.diastolic, 0) / last7Bp.length) }
-    : null;
+  const weekDates = summary?.weekDates ?? [];
+  const loggedDates = new Set(summary?.loggedDates ?? []);
+  const daysLogged = summary?.daysLogged ?? 0;
+  const easebrewCount = summary?.easebrewCount ?? 0;
+  const avgPain = summary?.avgPain ?? null;
+  const bpAvg = summary?.bpAvg ?? null;
+  const bpReadingsCount = summary?.bpReadingsCount ?? 0;
 
   return (
     <div style={{ minHeight: "100vh", background: CREAM, fontFamily: "Georgia, serif" }}>
@@ -126,7 +112,7 @@ export default function FamilySharePage({ params }: { params: Promise<{ token: s
             <p style={{ fontSize: 40, fontWeight: 900, color: bpAvg.sys < 130 ? G : bpAvg.sys < 140 ? "#C0863B" : "#dc2626", margin: 0, lineHeight: 1 }}>
               {bpAvg.sys}/{bpAvg.dia}
             </p>
-            <p style={{ fontSize: 14, color: MID, margin: "6px 0 0" }}>Base sa {last7Bp.length} sukat</p>
+            <p style={{ fontSize: 14, color: MID, margin: "6px 0 0" }}>Base sa {bpReadingsCount} sukat</p>
           </div>
         )}
 
@@ -135,8 +121,7 @@ export default function FamilySharePage({ params }: { params: Promise<{ token: s
           <p style={{ fontSize: 14, fontWeight: 700, color: DARK, margin: "0 0 12px" }}>Nakaraang 7 Araw</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 8 }}>
             {weekDates.map(d => {
-              const t = trackerByDate.get(d);
-              const done = !!t;
+              const done = loggedDates.has(d);
               const day = new Date(d + "T00:00:00").toLocaleDateString("fil-PH", { weekday: "short" });
               return (
                 <div key={d} style={{ textAlign: "center" }}>

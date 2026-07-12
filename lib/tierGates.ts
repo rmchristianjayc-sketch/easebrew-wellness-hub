@@ -6,9 +6,9 @@
 // May dalawang uri ng features:
 //   1. PAID (TIER_GATES) — may route gate sa middleware at data
 //      gate sa /api/progress. Bawat isa may unique minimum tier.
-//   2. FREE (FREE_PROGRESS_TYPES) — walang route gate sa
-//      middleware (client-side useSessionGuard() lang). Data
-//      gate sa /api/progress ay "any active session" (399+).
+//   2. FREE (FREE_PROGRESS_TYPES) — walang tier gate, pero may
+//      session gate sa middleware kapag may standalone route.
+//      Data gate sa /api/progress ay "any active session" (399+).
 //
 // Kung magdagdag ng bagong PAID feature:
 //   1. Idagdag sa TIER_GATES.
@@ -16,8 +16,8 @@
 //
 // Kung magdagdag ng bagong FREE tool:
 //   1. Idagdag ang progress type sa FREE_PROGRESS_TYPES.
-//   2. Client-side lang: gumamit ng useSessionGuard() sa page.
-//      Walang kailangan sa proxy.ts.
+//   2. Kung may standalone route, idagdag sa SESSION_ONLY_PATHS.
+//   3. Idagdag ang route sa `config.matcher` sa `proxy.ts`.
 // ============================================================
 
 // PAID feature progress types
@@ -58,8 +58,16 @@ const FREE_PROGRESS_TYPES: readonly FreeProgressType[] = [
   'testimonial_submission',
 ];
 
+export const SESSION_ONLY_PATHS = [
+  '/blood-pressure',
+  '/medication',
+  '/medical-card',
+  '/bmi',
+  '/report',
+];
+
 // URL path → minimum tier (for middleware route gate).
-// Free tools NOT included here — walang route gate sila.
+// Free tools are session-gated only, so they are not included here.
 export const MINIMUM_TIER_BY_PATH: Record<string, number> = Object.fromEntries(
   Object.values(TIER_GATES).map((g) => [g.path, g.minTier])
 );
@@ -73,8 +81,9 @@ export const MINIMUM_TIER_BY_TYPE: Record<string, number> = {
 
 // Paths na kailangan ng logged-in customer session (used by middleware).
 // Kasama ang '/' na hindi tier-gated pero session-gated.
-// Free tool routes hindi kasama — client-side useSessionGuard() lang.
+// Free tool routes are included through SESSION_ONLY_PATHS.
 export const PROTECTED_CUSTOMER_PATHS: string[] = [
   '/',
   ...Object.values(TIER_GATES).map((g) => g.path),
+  ...SESSION_ONLY_PATHS,
 ];

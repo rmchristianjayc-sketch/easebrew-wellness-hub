@@ -118,9 +118,9 @@ export const EXERCISE_PROGRAM: Phase[] = [
         { name: "Tricep Extensions", sets: 2, reps: "12 pag-baluktot", rest: "45s", instruction: "Nakaupo. Isang kamay may hawak na bote sa likod ng ulo. Itaas ang bote nang tuwid, tapos ibaba." },
         { name: "Cool-down Shoulder Stretch", sets: 1, duration: "20s bawat side", rest: "N/A", instruction: "Hilahin ang isang braso sa harap ng dibdib. Ramdam ang stretch sa balikat." },
       ]},
-      { day: 12, title: "Brisk Walking + Balance", exercises: [
+      { day: 12, title: "Paglakad + Balance", exercises: [
         { name: "Warm-up Marching", sets: 1, duration: "1 minuto", rest: "N/A", instruction: "Nakatayo, hawak sa upuan. Simulan sa mabagal na march sa lugar." },
-        { name: "Brisk Walking", duration: "15–20 minuto", rest: "N/A", instruction: "Mabilis pa sa normal, pero pwede pang mag-usap habang naglalakad. Sa loob ng bahay o labas.", modification: "Simulan sa 10 minuto kung kaya lang." },
+        { name: "Katamtamang Paglakad", duration: "10–15 minuto", rest: "N/A", instruction: "Konting bilisan sa normal — dapat kayang mag-usap. Sa loob ng bahay o labas. Kung nangangapos ng hinga, bumagal.", modification: "5–10 minuto lang okay na. Sit-down break kung kailangan." },
         { name: "Seated Balance (Isang Paa Nasa Taas)", sets: 3, duration: "15s bawat paa", rest: "30s", instruction: "Nakaupo. Itaas ang isang paa 6 pulgada, hold. Palitan.", modification: "Hawak sa upuan kung mahirap." },
         { name: "Standing Single-Leg (May Chair)", sets: 2, duration: "10s bawat paa", rest: "45s", instruction: "Nakatayo, HAWAK SA UPUAN o wall. Itaas ang isang paa konti lang. Konti-konti lang muna.", modification: "Nakaupo — itaas ang isang tuhod sa taas at hawakan doon." },
         { name: "Cool-down Leg Stretch", sets: 1, duration: "30s bawat leg", rest: "N/A", instruction: "Iunat ang binti para sa cool-down." },
@@ -170,7 +170,7 @@ export const EXERCISE_PROGRAM: Phase[] = [
         { name: "Backward Step (May Wall)", sets: 2, reps: "8 step bawat paa", rest: "45s", instruction: "Nakatayo tabi ng wall. Step paatras nang dahan-dahan, tapos step pauna. Balance drill." },
         { name: "Cool-down Ankle Stretches", sets: 1, duration: "30s bawat paa", rest: "N/A", instruction: "Nakaupo. Iflex at iunat ang bukong-bukong. Mahalaga sa balance." },
       ]},
-      { day: 19, title: "Cardio + Strength Combo", exercises: [
+      { day: 19, title: "Paglakad + Chair Strength", exercises: [
         { name: "Warm-up Deep Breathing + March", sets: 1, duration: "2 minuto", rest: "N/A", instruction: "Simulan sa deep breathing tapos magaan na march." },
         { name: "Walking + Chair Squat Circuit", sets: 3, reps: "3-minutong walk + 8 chair squats", rest: "60s", instruction: "Maglakad ng 3 minuto (loob o labas), tapos gawin ang chair squats. Rest, ulitin.", modification: "Maglakad lang kung mahirap magsquat pagkatapos maglakad." },
         { name: "Standing Bicep Curls (May Chair)", sets: 2, reps: "12 curls", rest: "45s", instruction: "Nakatayo, one hand on chair. Curl the water bottle." },
@@ -188,14 +188,14 @@ export const EXERCISE_PROGRAM: Phase[] = [
     days: [
       { day: 21, title: "Power Walking", exercises: [
         { name: "Warm-up Marching + Breathing", sets: 1, duration: "2 minuto", rest: "N/A", instruction: "Painitin ang katawan sa marching at malalim na paghinga." },
-        { name: "Power Walking", duration: "25–30 minuto", rest: "N/A", instruction: "Mabilis at may layunin. Dapat kayang mag-usap pero medyo hingal. Kung may fitness tracker, target: 100+ steps per minute.", modification: "Simulan sa 15 minuto lang. Idagdag ng 5 minuto bawat linggo." },
+        { name: "Malumanay na Power Walking", duration: "15–20 minuto", rest: "N/A", instruction: "Konting bilisan sa normal na lakad — pero dapat kayang mag-usap habang naglalakad. Kung mahirap huminga, bumagal agad.", modification: "10 minuto lang okay na — huwag ipilit. Simulan sa loob ng bahay bago labas." },
         { name: "Post-Walk Leg Stretch", sets: 2, duration: "30s bawat leg", rest: "N/A", instruction: "Nakatayo, kamay sa upuan. Iunat ang binti — calf stretch at hamstring stretch." },
         { name: "Cool-down Deep Breathing", sets: 1, reps: "10 hinga", rest: "N/A", instruction: "Nakaupo. Recovery breathing." },
       ]},
-      { day: 22, title: "Sustained Chair Strength", exercises: [
+      { day: 22, title: "Chair Strength (Malumanay)", exercises: [
         { name: "Warm-up Shoulder Rolls + Ankle Pumps", sets: 2, reps: "10 bawat", rest: "N/A", instruction: "Painitin ang katawan." },
-        { name: "Chair Squats (Advanced)", sets: 4, reps: "12 pag-tayo", rest: "60s", instruction: "Slow tempo — 4 segundo pababa, 2 segundo pause, 2 segundo pataas. Ramdam ang muscles.", modification: "3 sets lang kung nauubos ang energy." },
-        { name: "Wall Push-Ups (Advanced)", sets: 3, reps: "12 pag-taboy", rest: "60s", instruction: "Slow tempo — mas kontrolado. Mas malayo sa wall." },
+        { name: "Chair Squats (Slow Tempo)", sets: 2, reps: "10 pag-tayo", rest: "90s", instruction: "Slow lang — 4 segundo pababa, pause, 2 segundo pataas. Ramdam ang muscles. Kung pagod, mag-rest ng matagal.", modification: "1 set lang kung nauubos ang energy — okay na yun." },
+        { name: "Wall Push-Ups (Slow)", sets: 2, reps: "10 pag-taboy", rest: "90s", instruction: "Slow tempo — mas kontrolado. Mas malapit sa wall = mas madali; huwag mag-force ng lalayo.", modification: "1 set lang kung mahapo." },
         { name: "Standing Bicep Curls (Water Bottle)", sets: 3, reps: "12 curls", rest: "45s", instruction: "Nakatayo, kamay sa upuan sa side. Full range of motion." },
         { name: "Standing Calf Raises (Free)", sets: 3, reps: "15 pag-taas", rest: "45s", instruction: "Nakatayo, kamay LIGHT touch lang sa wall — mas free na. Itaas ang katawan sa daliri ng paa.", modification: "Kamay ng buo sa wall pa rin kung kailangan." },
         { name: "Cool-down Full Stretch", sets: 1, duration: "3 minuto", rest: "N/A", instruction: "Deep stretch of everything worked today." },
@@ -211,11 +211,11 @@ export const EXERCISE_PROGRAM: Phase[] = [
         { name: "Pahinga at Hydration", duration: "Buong araw", rest: "N/A", instruction: "Uminom ng 8 baso ng tubig. Matulog ng maaga. Rest ang goal ngayon." },
         { name: "Pagninilay: Ano Nakita Mo?", duration: "5 minuto", rest: "N/A", instruction: "Umupo nang tahimik. Isipin: Ano na ang napansin mong pagbabago sa katawan? Ano ang paborito mong exercise? Isulat kung gusto." },
       ]},
-      { day: 25, title: "Full Body Challenge (Safe Version)", exercises: [
-        { name: "Warm-up Full Body Warm-up", sets: 1, duration: "3 minuto", rest: "N/A", instruction: "Marching, ankle circles, shoulder rolls, ankle pumps — pumainit lahat ng joints." },
-        { name: "Circuit: 3 Exercises × 3 Rounds", sets: 3, reps: "10 wall push-ups + 10 chair squats + 30s seated march", rest: "90s", instruction: "Isang round: 10 wall push-ups → 10 chair squats → 30 segundong seated march. Rest 90s. 3 rounds total.", modification: "2 rounds lang kung mahirap." },
-        { name: "Balance Test (Optional)", sets: 1, duration: "30s bawat paa", rest: "60s", instruction: "Kung feeling ka na confident, subukan ang single-leg stand na may LIGHT touch sa wall. Time yourself. Progress mo!" },
-        { name: "Cool-down Complete Stretch", sets: 1, duration: "5 minuto", rest: "N/A", instruction: "Full body stretch — 30s bawat major muscle group." },
+      { day: 25, title: "Buong Katawan Practice", exercises: [
+        { name: "Malumanay na Warm-up", sets: 1, duration: "3 minuto", rest: "N/A", instruction: "Marching, ankle circles, shoulder rolls, ankle pumps — pumainit lahat ng joints. Slow lang." },
+        { name: "3 Ehersisyo x 2 Rounds", sets: 2, reps: "6 wall push-ups + 6 chair squats + 30s seated march", rest: "2 minuto", instruction: "Isang round: 6 wall push-ups → 6 chair squats → 30 segundong seated march. Rest ng 2 minuto. 2 rounds lang — huwag mag-force ng higit pa.", modification: "1 round lang kung mahapo, or bumaba ang reps sa 4 kada exercise." },
+        { name: "Balance (Opsyonal)", sets: 1, duration: "20s bawat paa", rest: "60s", instruction: "Opsyonal ito — kung kaya lang. Nakatayo, HAWAK PARIN SA UPUAN. Itaas ang isang paa konti. Skip kung hindi confident.", modification: "Nakaupo — itaas ang tuhod. Same benefit, safer." },
+        { name: "Cool-down Complete Stretch", sets: 1, duration: "5 minuto", rest: "N/A", instruction: "Full body stretch — 30s bawat major muscle group. Deep breathing." },
       ]},
       { day: 26, title: "Balance Mastery", exercises: [
         { name: "Warm-up Ankle Work", sets: 2, reps: "15 pumps bawat paa", rest: "N/A", instruction: "Iflex at iunat ang bukong-bukong. Sole tapping." },

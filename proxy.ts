@@ -62,5 +62,10 @@ export const config = {
     '/recipes/:path*',
     '/tracker/:path*',
     '/bagong-katawan/:path*',
+    '/blood-pressure/:path*',
+    '/medication/:path*',
+    '/medical-card/:path*',
+    '/bmi/:path*',
+    '/report/:path*',
   ],
 };
