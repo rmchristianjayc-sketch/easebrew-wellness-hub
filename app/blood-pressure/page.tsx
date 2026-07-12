@@ -321,8 +321,8 @@ export default function BloodPressurePage() {
                   Tawagin ang Emergency Contact
                 </a>
               )}
-              <button onClick={() => setCrisisAlert(null)} style={{ background: "transparent", color: MID, padding: "12px", border: "none", fontSize: 14, cursor: "pointer", fontFamily: "Georgia, serif" }}>
-                Isara (kung kaya ko na)
+              <button onClick={() => setCrisisAlert(null)} style={{ background: "#fff", color: DARK, padding: "16px", border: "2px solid #d1d5db", borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif", minHeight: 56 }}>
+                Isara (mali ang na-type ko)
               </button>
             </div>
           </div>
@@ -444,13 +444,13 @@ export default function BloodPressurePage() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
               <div>
-                <label style={{ fontSize: 14, color: MID, fontWeight: 700, display: "block", marginBottom: 4 }}>Systolic *</label>
-                <p style={{ fontSize: 12, color: MID, margin: "0 0 6px", lineHeight: 1.35 }}>Ang <strong>malaking number</strong> sa taas ng BP monitor</p>
+                <label style={{ fontSize: 15, color: DARK, fontWeight: 700, display: "block", marginBottom: 4 }}>BP sa Taas (malaking number) *</label>
+                <p style={{ fontSize: 12, color: MID, margin: "0 0 6px", lineHeight: 1.35 }}>Ang <strong>malaking number</strong> sa BP monitor mo</p>
                 <input type="number" inputMode="numeric" min={60} max={260} value={form.systolic} onChange={e => setForm({ ...form, systolic: e.target.value })} placeholder="hal. 120" required style={inputStyle} />
               </div>
               <div>
-                <label style={{ fontSize: 14, color: MID, fontWeight: 700, display: "block", marginBottom: 4 }}>Diastolic *</label>
-                <p style={{ fontSize: 12, color: MID, margin: "0 0 6px", lineHeight: 1.35 }}>Ang <strong>maliit na number</strong> sa baba ng BP monitor</p>
+                <label style={{ fontSize: 15, color: DARK, fontWeight: 700, display: "block", marginBottom: 4 }}>BP sa Baba (maliit na number) *</label>
+                <p style={{ fontSize: 12, color: MID, margin: "0 0 6px", lineHeight: 1.35 }}>Ang <strong>maliit na number</strong> sa BP monitor mo</p>
                 <input type="number" inputMode="numeric" min={40} max={200} value={form.diastolic} onChange={e => setForm({ ...form, diastolic: e.target.value })} placeholder="hal. 80" required style={inputStyle} />
               </div>
             </div>
@@ -522,8 +522,8 @@ export default function BloodPressurePage() {
                         {entry.notes ? ` · ${entry.notes}` : ""}
                       </p>
                     </div>
-                    <button onClick={() => handleDelete(entry.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#991b1b", padding: 4 }} aria-label="Delete">
-                      <Trash2 size={16} />
+                    <button onClick={() => handleDelete(entry.id)} style={{ background: "#fef2f2", border: "1.5px solid #fecaca", cursor: "pointer", color: "#991b1b", padding: "10px 12px", borderRadius: 10, fontSize: 13, fontWeight: 700, minHeight: 48, minWidth: 48, display: "flex", alignItems: "center", gap: 6 }} aria-label="Tanggalin ang reading na ito">
+                      <Trash2 size={16} /> Tanggalin
                     </button>
                   </div>
                 );

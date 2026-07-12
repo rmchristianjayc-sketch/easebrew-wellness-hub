@@ -515,17 +515,17 @@ function TestimonialSubmissionCard() {
           <p style={{ fontSize: 11, color: "#7c3aed", margin: 0 }}>{quote.length}/500</p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             <div>
-              <label style={{ fontSize: 12, color: "#6b21a8", fontWeight: 600, display: "block", marginBottom: 4 }}>Pain BEFORE (1-10)</label>
-              <input type="number" min={1} max={10} value={painBefore} onChange={e => setPainBefore(e.target.value)} style={{ width: "100%", border: "1.5px solid #d8b4fe", borderRadius: 10, padding: 10, fontSize: 15, fontFamily: "Georgia, serif", boxSizing: "border-box" }} />
+              <label style={{ fontSize: 16, color: "#6b21a8", fontWeight: 700, display: "block", marginBottom: 6 }}>Sakit noon (1–10)</label>
+              <input type="number" min={1} max={10} value={painBefore} onChange={e => setPainBefore(e.target.value)} style={{ width: "100%", border: "1.5px solid #d8b4fe", borderRadius: 10, padding: 12, fontSize: 16, fontFamily: "Georgia, serif", boxSizing: "border-box", minHeight: 48 }} />
             </div>
             <div>
-              <label style={{ fontSize: 12, color: "#6b21a8", fontWeight: 600, display: "block", marginBottom: 4 }}>Pain NOW (1-10)</label>
-              <input type="number" min={1} max={10} value={painAfter} onChange={e => setPainAfter(e.target.value)} style={{ width: "100%", border: "1.5px solid #d8b4fe", borderRadius: 10, padding: 10, fontSize: 15, fontFamily: "Georgia, serif", boxSizing: "border-box" }} />
+              <label style={{ fontSize: 16, color: "#6b21a8", fontWeight: 700, display: "block", marginBottom: 6 }}>Sakit ngayon (1–10)</label>
+              <input type="number" min={1} max={10} value={painAfter} onChange={e => setPainAfter(e.target.value)} style={{ width: "100%", border: "1.5px solid #d8b4fe", borderRadius: 10, padding: 12, fontSize: 16, fontFamily: "Georgia, serif", boxSizing: "border-box", minHeight: 48 }} />
             </div>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={submit} disabled={submitting} style={{ flex: 1, background: "#a855f7", color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
-              {submitting ? "Isinasalin..." : "I-submit"}
+              {submitting ? "Sini-save..." : "I-submit"}
             </button>
             <button onClick={() => setExpanded(false)} style={{ background: "transparent", color: "#7c3aed", border: "2px solid #a855f7", borderRadius: 12, padding: "12px 16px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
               Kansel
@@ -580,7 +580,7 @@ function ReferralCard({ coaches }: { coaches: Coach[] }) {
         </button>
         {typeof navigator !== "undefined" && "share" in navigator && (
           <button onClick={shareNative} style={{ background: G, color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
-            I-share sa Messenger / WhatsApp
+            I-share sa Messenger o iba pang app
           </button>
         )}
       </div>
@@ -643,7 +643,7 @@ function FamilyShareCard() {
         <p style={{ fontSize: 16, fontWeight: 700, color: "#0c4a6e", margin: 0 }}>Ipakita sa Pamilya</p>
       </div>
       <p style={{ fontSize: 14, color: "#164e63", margin: "0 0 12px", lineHeight: 1.5 }}>
-        Gumawa ng read-only link para sa anak o asawa mo — makikita nila ang lingguhang wellness progress mo.
+        Gumawa ng link para sa anak o asawa mo — makikita lang nila ang lingguhang wellness progress mo, hindi maba-baguhan.
       </p>
       {!link ? (
         <button onClick={generateLink} disabled={generating} style={{ width: "100%", background: "#0ea5e9", color: "#fff", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer", minHeight: 52, fontFamily: "Georgia, serif" }}>
@@ -664,7 +664,7 @@ function FamilyShareCard() {
           </button>
           {typeof navigator !== "undefined" && "share" in navigator && (
             <button onClick={shareNative} style={{ background: G, color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
-              I-share sa Messenger / WhatsApp
+              I-share sa Messenger o iba pang app
             </button>
           )}
           <button onClick={generateLink} disabled={generating} style={{ background: "transparent", color: "#0369a1", border: "none", padding: "8px", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Georgia, serif", textDecoration: "underline" }}>
@@ -754,12 +754,12 @@ function InstallBanner() {
       (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     const isSafari = /safari/i.test(ua) && !/chrome|crios|fxios/i.test(ua);
 
-    if (isIOS && isSafari) { setTimeout(() => setShowIOS(true), 3000); return; }
+    if (isIOS && isSafari) { setTimeout(() => setShowIOS(true), 20000); return; }
 
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setTimeout(() => setShowAndroid(true), 3000);
+      setTimeout(() => setShowAndroid(true), 20000);
     };
     window.addEventListener("beforeinstallprompt", handler);
     return () => window.removeEventListener("beforeinstallprompt", handler);
@@ -1002,12 +1002,20 @@ function OnboardingModal({ onClose }: { onClose: () => void }) {
           ))}
         </div>
         {step < steps.length - 1 ? (
-          <button
-            onClick={() => setStep(s => s + 1)}
-            style={{ width: "100%", background: "#39613B", color: "white", border: "none", borderRadius: 16, padding: "20px", fontSize: 20, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif" }}
-          >
-            Susunod →
-          </button>
+          <>
+            <button
+              onClick={() => setStep(s => s + 1)}
+              style={{ width: "100%", background: "#39613B", color: "white", border: "none", borderRadius: 16, padding: "20px", fontSize: 20, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif" }}
+            >
+              Susunod →
+            </button>
+            <button
+              onClick={onClose}
+              style={{ width: "100%", background: "transparent", color: "#4E504F", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "Georgia, serif", marginTop: 8 }}
+            >
+              Laktawan (Skip)
+            </button>
+          </>
         ) : (
           <button
             onClick={onClose}

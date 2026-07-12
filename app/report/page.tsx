@@ -101,7 +101,7 @@ export default function WeeklyReportPage() {
   const scoreLabel = totalScore >= 80 ? { text: "Napakagaling!", color: G, bg: "#dcfce7" }
     : totalScore >= 60 ? { text: "Magaling!", color: "#1d4ed8", bg: "#eff6ff" }
     : totalScore >= 40 ? { text: "Ituloy lang!", color: "#92400e", bg: "#fef9e7" }
-    : { text: "Kailangan pa ng improvement", color: "#991b1b", bg: "#fef2f2" };
+    : { text: "Puwede pang gumaling", color: "#991b1b", bg: "#fef2f2" };
 
   const weekStart = formatDate(weekDates[0]);
   const weekEnd   = formatDate(weekDates[6]);

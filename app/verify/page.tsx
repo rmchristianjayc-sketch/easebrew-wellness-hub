@@ -273,7 +273,7 @@ export default function VerifyPage() {
                   value={code}
                   onChange={e => { setCode(formatCode(e.target.value)); if (errorType) setErrorType(null); }}
                   onKeyDown={e => e.key === "Enter" && handleVerify()}
-                  placeholder="EASE-XXXX-XXXX"
+                  placeholder="EASE-ABCD-1234"
                   maxLength={14}
                   inputMode="text"
                   autoCapitalize="characters"

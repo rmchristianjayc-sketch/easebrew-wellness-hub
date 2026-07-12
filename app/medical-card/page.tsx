@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
-import { IdCard, ChevronLeft, Save, Eye, Pencil, AlertTriangle, Stethoscope, Pill, Phone, Smartphone, UserRound, CircleCheck, Lightbulb, Printer } from "lucide-react";
+import { IdCard, ChevronLeft, Save, Eye, Pencil, AlertTriangle, Stethoscope, Pill, Phone, Smartphone, UserRound, CircleCheck, Lightbulb, Printer, Trash2 } from "lucide-react";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";
@@ -218,7 +218,7 @@ export default function MedicalCardPage() {
             )}
 
             <div style={{ borderTop: "1.5px dashed #D8CDBA", marginTop: 16, paddingTop: 12, textAlign: "center" }}>
-              <p style={{ fontSize: 11, color: MID, margin: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}><Lightbulb size={12} /> I-screenshot ito para ipakita sa doctor kung may emergency</p>
+              <p style={{ fontSize: 11, color: MID, margin: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}><Lightbulb size={12} /> I-print o kumuha ng litrato ng screen para maipakita sa doctor kung may emergency</p>
             </div>
           </div>
         )}
@@ -226,7 +226,7 @@ export default function MedicalCardPage() {
         {/* EDIT MODE — form */}
         {mode === "edit" && (
           <form onSubmit={handleSave} style={{ background: WHITE, borderRadius: 20, padding: "22px", border: "1.5px solid #D8CDBA" }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "0 0 6px" }}>Personal Info</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: DARK, margin: "0 0 6px" }}>Personal na Impormasyon</h2>
             <p style={{ fontSize: 13, color: MID, margin: "0 0 16px" }}>Pangalan lang ang kailangan. Lahat ng iba ay opsyonal.</p>
 
             <Field label="Buong Pangalan *">
@@ -238,7 +238,7 @@ export default function MedicalCardPage() {
               </Field>
               <Field label="Blood Type">
                 <select value={card.bloodType} onChange={e => setCard({ ...card, bloodType: e.target.value })} style={inputStyle}>
-                  <option value="">— Select —</option>
+                  <option value="">— Pumili —</option>
                   {BLOOD_TYPES.map(bt => <option key={bt} value={bt}>{bt}</option>)}
                 </select>
               </Field>
@@ -264,8 +264,8 @@ export default function MedicalCardPage() {
                 </div>
                 <input type="tel" placeholder="Numero ng Telepono" value={c.phone} onChange={e => updateContact(i, "phone", e.target.value)} style={inputStyle} maxLength={30} inputMode="tel" />
                 {card.emergencyContacts.length > 1 && (
-                  <button type="button" onClick={() => removeContact(i)} style={{ background: "none", border: "none", color: "#991b1b", fontSize: 13, cursor: "pointer", marginTop: 8, fontWeight: 600 }}>
-                    Tanggalin
+                  <button type="button" onClick={() => removeContact(i)} style={{ background: "#fff", color: "#991b1b", border: "2px solid #fecaca", borderRadius: 10, padding: "10px 14px", fontSize: 14, cursor: "pointer", marginTop: 10, fontWeight: 700, minHeight: 44, display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <Trash2 size={14} /> Tanggalin
                   </button>
                 )}
               </div>
@@ -295,13 +295,13 @@ export default function MedicalCardPage() {
 
         {saved && (
           <div style={{ background: "#dcfce7", color: "#166534", borderRadius: 12, padding: "12px 16px", marginTop: 16, fontSize: 14, fontWeight: 600, textAlign: "center" }}>
-            <CircleCheck size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Na-save na! I-screenshot para lagi mong dala.
+            <CircleCheck size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Na-save na! I-print o kumuha ng litrato para lagi mong dala.
           </div>
         )}
 
         <div style={{ background: `${GOLD}22`, borderRadius: 12, padding: "14px 16px", marginTop: 16, border: `1.5px solid ${GOLD}` }}>
           <p style={{ fontSize: 13, color: DARK, margin: 0, lineHeight: 1.5 }}>
-            <Lightbulb size={14} style={{ display: "inline", verticalAlign: "middle" }} /> <strong>Tip:</strong> I-screenshot ang &quot;Tingnan&quot; mode at i-save sa phone photos, o i-print at ilagay sa wallet. Mabilis itong makikita ng doctor kung may emergency.
+            <Lightbulb size={14} style={{ display: "inline", verticalAlign: "middle" }} /> <strong>Tip:</strong> I-print ang &quot;Tingnan&quot; mode at ilagay sa wallet, o kumuha ng litrato ng screen at i-save sa cellphone. Mabilis itong makikita ng doctor kung may emergency.
           </p>
         </div>
 

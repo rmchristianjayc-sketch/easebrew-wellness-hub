@@ -35,9 +35,11 @@ const PAIN_LEVELS = [
   { score: 9, Icon: Angry,  label: "Sobrang sakit",  color: "#ef4444" },
 ];
 
+// Ordered so easy-to-confuse "Balikat" (shoulder) and "Balakang" (hip)
+// end up on opposite ends of the grid, preventing mis-taps.
 const PAIN_LOCATIONS = [
-  "Tuhod", "Likod", "Balikat", "Kamay",
-  "Paa",   "Leeg",  "Balakang", "Ulo",
+  "Ulo",   "Leeg",   "Balikat", "Kamay",
+  "Likod", "Tuhod",  "Paa",     "Balakang",
 ];
 
 type DayEntry = {
@@ -213,15 +215,15 @@ function VoiceButton({ onResult }: { onResult: (text: string) => void }) {
       onClick={startListening}
       disabled={listening}
       style={{
-        background: listening ? "#ef4444" : "#E8F5E0",
-        border: `2px solid ${listening ? "#ef4444" : "#39613B"}`,
+        background: listening ? "#39613B" : "#E8F5E0",
+        border: `2px solid #39613B`,
         borderRadius: 12, padding: "12px 20px", fontSize: 17,
         color: listening ? "white" : "#39613B",
         cursor: listening ? "default" : "pointer", fontWeight: 700,
         display: "flex", alignItems: "center", gap: 8, flexShrink: 0, minHeight: 48,
       }}
     >
-      {listening ? <><CircleDot size={18} /> Nakinikinig...</> : <><Mic size={18} /> Magsalita</>}
+      {listening ? <><CircleDot size={18} /> Nakikinig...</> : <><Mic size={18} /> Magsalita para i-type</>}
     </button>
   );
 }
@@ -449,7 +451,7 @@ export default function TrackerPage() {
     ? Math.round((entries.filter(e => e.easebrewUmaga && e.easebrewGabi).length / totalDays) * 100)
     : 0;
 
-  const todayStr = new Date().toLocaleDateString("en-PH", {
+  const todayStr = new Date().toLocaleDateString("fil-PH", {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
   });
 
@@ -516,8 +518,18 @@ export default function TrackerPage() {
         <div style={{ padding: "24px 20px" }}>
 
               {prefilledFromYesterday && (
-                <div style={{ background: "#EEF4FF", border: "1px solid #93C5FD", borderRadius: 12, padding: "14px 18px", marginBottom: 16, fontSize: 17, color: "#1D4ED8", display: "flex", alignItems: "center", gap: 10, fontWeight: 600 }}>
-                  <Zap size={20} /> Na-pre-fill mula sa kahapon — i-bago kung kailangan.
+                <div style={{ background: "#EEF4FF", border: "1px solid #93C5FD", borderRadius: 12, padding: "14px 18px", marginBottom: 16, fontSize: 17, color: "#1D4ED8", display: "flex", alignItems: "center", gap: 10, fontWeight: 600, flexWrap: "wrap" }}>
+                  <Zap size={20} />
+                  <span style={{ flex: 1 }}>Na-kopya mula kahapon — i-bago kung iba na ngayon.</span>
+                  <button
+                    onClick={() => {
+                      setTodayDirty(e => ({ ...e, painScore: 0, painLocations: [], mood: 0, notes: "" }));
+                      setPrefilledFromYesterday(false);
+                    }}
+                    style={{ background: "#fff", border: "1.5px solid #93C5FD", color: "#1D4ED8", padding: "8px 12px", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "Georgia, serif" }}
+                  >
+                    I-clear
+                  </button>
                 </div>
               )}
 
@@ -789,7 +801,7 @@ export default function TrackerPage() {
                 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                     <p style={{ fontSize: 17, fontWeight: 700, color: DARK, margin: 0 }}>
-                      {new Date(entry.date + "T00:00:00").toLocaleDateString("en-PH", { weekday: "short", month: "short", day: "numeric" })}
+                      {new Date(entry.date + "T00:00:00").toLocaleDateString("fil-PH", { weekday: "short", month: "short", day: "numeric" })}
                     </p>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <PainIcon score={entry.painScore} />

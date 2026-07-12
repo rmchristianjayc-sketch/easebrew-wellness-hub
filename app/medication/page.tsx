@@ -386,8 +386,8 @@ export default function MedicationPage() {
                     })}
                   </div>
                 </div>
-                <button onClick={() => handleDeleteMed(med.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#991b1b", padding: 4 }} aria-label="Delete">
-                  <Trash2 size={16} />
+                <button onClick={() => handleDeleteMed(med.id)} style={{ background: "#fef2f2", border: "1.5px solid #fecaca", cursor: "pointer", color: "#991b1b", padding: "10px 12px", borderRadius: 10, fontSize: 13, fontWeight: 700, minHeight: 48, minWidth: 48, display: "flex", alignItems: "center", gap: 6 }} aria-label="Tanggalin ang gamot na ito">
+                  <Trash2 size={16} /> Tanggalin
                 </button>
               </div>
             ))}
@@ -406,8 +406,8 @@ export default function MedicationPage() {
                     <div style={{ width: "100%", height: 60, background: "#f3f4f6", borderRadius: 8, overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
                       <div style={{ height: `${day.pct}%`, background: day.pct >= 80 ? G : day.pct >= 40 ? "#f59e0b" : "#ef4444", borderRadius: 8, transition: "height 0.5s", minHeight: day.pct > 0 ? 4 : 0 }} />
                     </div>
-                    <span style={{ fontSize: 10, color: MID, fontWeight: 600 }}>{dayName}</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: day.pct >= 80 ? G : MID }}>{day.pct}%</span>
+                    <span style={{ fontSize: 13, color: MID, fontWeight: 600 }}>{dayName}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: day.pct >= 80 ? G : MID }}>{day.pct}%</span>
                   </div>
                 );
               })}
