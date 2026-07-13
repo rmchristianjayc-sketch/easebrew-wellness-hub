@@ -390,7 +390,7 @@ export default function CodesPage() {
       const packageLabel = PRICE_CONFIG[tier]?.label ?? `₱${tier.toLocaleString()} package`;
       setGeneratedCode(newCode);
       setGeneratedMessage(
-        `Hello po ${customerName.trim()},\n\nHere is your R&M EaseBrew Wellness Hub access code:\n\n${newCode}\n\nOpen here: ${window.location.origin}/verify\n\nPackage: ${packageLabel}\nIf you have questions, just message your coach.`
+        `Kumusta po ${customerName.trim()}!\n\nEto po ang R&M EaseBrew Wellness Hub access mo.\n\nI-tap lang po ang link — auto-fill na ang code mo, tapos tap "Continue":\n\n${window.location.origin}/verify?code=${newCode}\n\nPackage: ${packageLabel}\nCode (kung kailangan mo i-type): ${newCode}\n\nKung may tanong, message mo lang ang coach mo. Salamat po!`
       );
       setCustomerName(""); setNotes("");
       if (role !== "coach") setCoachName("");
@@ -484,7 +484,7 @@ export default function CodesPage() {
     const daysLeft     = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
     const expiresDate  = new Date(c.expires_at).toLocaleDateString("en-PH", { month: "long", day: "numeric", year: "numeric" });
     const packageLabel = PRICE_CONFIG[c.tier]?.label ?? `₱${c.tier?.toLocaleString()} package`;
-    const msg = `Hello ${c.customer_name || ""}!\n\nYour EaseBrew ${packageLabel} will expire on ${expiresDate} (${daysLeft} days left).\n\nTo keep your wellness journey going, please order a new package!\n\nIf you have any questions, just message your coach.\n\n— R&M EaseBrew Wellness Team`;
+    const msg = `Kumusta ${c.customer_name || ""}!\n\nYour EaseBrew ${packageLabel} will expire on ${expiresDate} (${daysLeft} days left).\n\nTo keep your wellness journey going, please order a new package na po!\n\nAccess mo pa rin ang app hanggang ${expiresDate}: ${window.location.origin}/verify?code=${c.code}\n\nIf you have any questions, just message your coach.\n\n— R&M EaseBrew Wellness Team`;
     navigator.clipboard.writeText(msg).then(() => { setReorderCopiedId(c.id); setTimeout(() => setReorderCopiedId(null), 2500); }).catch(() => {});
   }
 
