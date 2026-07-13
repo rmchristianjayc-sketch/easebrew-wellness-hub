@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { G, GOLD, AMBER, CREAM, WHITE, DARK, MID, LIGHT_G } from "@/lib/colors";
 import { DEFAULT_PRODUCTS, applyContentOverrides, splitByTier, type Product } from "@/lib/products";
+import { EXERCISE_PROGRAM } from "@/lib/exerciseProgram";
 import { PRICE_CONFIG } from "@/lib/price-config";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
 import { localDateStr, localDateStrOffset } from "@/lib/localDate";
@@ -727,6 +728,41 @@ function QuickCheckIn({ storageKey }: { storageKey: string }) {
         {btn("gabi",  <Moon size={36} color="#2980B9" />, "Gabi",  gabi)}
       </div>
     </div>
+  );
+}
+
+// ============================================================
+// NEXT EXERCISE PREVIEW — small "Bukas: Day X — [title]" card so
+// the customer can see what's ahead without opening the exercise
+// tool, and tap it if they want to start now.
+// ============================================================
+function NextExercisePreview({ tier }: { tier: number }) {
+  const [nextDay, setNextDay] = useState<{ day: number; title: string } | null>(null);
+  useEffect(() => {
+    if (tier < 2998) return;
+    let mounted = true;
+    fetch("/api/progress?type=exercise").then(r => r.json()).then(res => {
+      if (!mounted) return;
+      const completed: number[] = Array.isArray(res?.data?.days) ? res.data.days : [];
+      const done = new Set(completed);
+      const allDays = EXERCISE_PROGRAM.flatMap(p => p.days);
+      const next = allDays.find(d => !done.has(d.day));
+      if (next) setNextDay({ day: next.day, title: next.title });
+    }).catch(() => {});
+    return () => { mounted = false; };
+  }, [tier]);
+  if (!nextDay) return null;
+  return (
+    <Link href="/exercise" style={{
+      display: "block", background: "#F3F8EE", border: "2px solid #C5D9AF",
+      borderRadius: 18, padding: "14px 18px", marginBottom: 24, textDecoration: "none",
+    }}>
+      <p style={{ fontSize: 12, fontWeight: 700, color: G, margin: "0 0 4px", textTransform: "uppercase" as const, letterSpacing: 0.5, display: "flex", alignItems: "center", gap: 6 }}>
+        <Dumbbell size={14} /> Kasunod sa exercise mo
+      </p>
+      <p style={{ fontSize: 16, fontWeight: 700, color: DARK, margin: "0 0 2px" }}>Araw {nextDay.day} — {nextDay.title}</p>
+      <p style={{ fontSize: 13, color: G, margin: 0, fontWeight: 600 }}>I-tap para simulan →</p>
+    </Link>
   );
 }
 
@@ -1552,6 +1588,7 @@ export default function Home() {
             {session && !unusedFeatureDismissed && (
               <UnusedFeatureNudge unlockedProducts={unlockedProducts} onDismiss={() => setUnusedFeatureDismissed(true)} />
             )}
+            {session && <NextExercisePreview tier={customerTier} />}
             {session && <ReferralCard coaches={coaches} />}
             {session && <TestimonialSubmissionCard />}
             {session && <FamilyShareCard />}
