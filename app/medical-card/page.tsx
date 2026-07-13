@@ -129,6 +129,28 @@ export default function MedicalCardPage() {
       </div>
 
       <div style={{ padding: "24px 20px" }}>
+        {/* EMERGENCY QUICK-CALL — always visible when a primary contact exists */}
+        {(() => {
+          const primary = card.emergencyContacts.find(c => c.name.trim() && c.phone.trim());
+          if (!primary) return null;
+          const cleanNumber = primary.phone.replace(/[^0-9+]/g, "");
+          return (
+            <a
+              href={`tel:${cleanNumber}`}
+              className="c-no-print"
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+                background: "#dc2626", color: "#fff", borderRadius: 16,
+                padding: "18px 20px", marginBottom: 16, textDecoration: "none",
+                fontSize: 17, fontWeight: 800, boxShadow: "0 4px 14px rgba(220,38,38,0.35)",
+                minHeight: 64,
+              }}
+            >
+              <Phone size={22} /> Tumawag kay {primary.name}{primary.relationship ? ` (${primary.relationship})` : ""}
+            </a>
+          );
+        })()}
+
         {/* Mode toggle */}
         {card.fullName.trim() && (
           <div className="c-no-print" style={{ display: "flex", gap: 8, marginBottom: 20 }}>
