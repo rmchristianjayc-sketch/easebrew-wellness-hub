@@ -11,12 +11,26 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "R&M EaseBrew Wellness Hub",
-  description: "Your personal wellness companion. For a healthier body.",
+  description: "Ang wellness companion mo — para sa mas malusog na katawan ng buong pamilya.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "R&M EaseBrew",
+  },
+  openGraph: {
+    title: "R&M EaseBrew Wellness Hub",
+    description: "Ang wellness companion mo — para sa mas malusog na katawan ng buong pamilya.",
+    siteName: "R&M EaseBrew",
+    type: "website",
+    locale: "fil_PH",
+    images: [{ url: "/icons/icon-512.png", width: 512, height: 512, alt: "R&M EaseBrew" }],
+  },
+  twitter: {
+    card: "summary",
+    title: "R&M EaseBrew Wellness Hub",
+    description: "Ang wellness companion mo — para sa mas malusog na katawan ng buong pamilya.",
+    images: ["/icons/icon-512.png"],
   },
   other: {
     "mobile-web-app-capable": "yes",

@@ -434,11 +434,11 @@ export default function BloodPressurePage() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
               <div>
                 <label style={{ fontSize: 13, color: MID, fontWeight: 600, display: "block", marginBottom: 6 }}>Petsa</label>
-                <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required style={inputStyle} />
+                <input aria-label="Petsa" type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required style={inputStyle} />
               </div>
               <div>
                 <label style={{ fontSize: 13, color: MID, fontWeight: 600, display: "block", marginBottom: 6 }}>Oras</label>
-                <input type="time" value={form.time} onChange={e => setForm({ ...form, time: e.target.value })} required style={inputStyle} />
+                <input aria-label="Oras" type="time" value={form.time} onChange={e => setForm({ ...form, time: e.target.value })} required style={inputStyle} />
               </div>
             </div>
 
@@ -446,23 +446,23 @@ export default function BloodPressurePage() {
               <div>
                 <label style={{ fontSize: 15, color: DARK, fontWeight: 700, display: "block", marginBottom: 4 }}>BP sa Taas (malaking number) *</label>
                 <p style={{ fontSize: 12, color: MID, margin: "0 0 6px", lineHeight: 1.35 }}>Ang <strong>malaking number</strong> sa BP monitor mo</p>
-                <input type="number" inputMode="numeric" min={60} max={260} value={form.systolic} onChange={e => setForm({ ...form, systolic: e.target.value })} placeholder="hal. 120" required style={inputStyle} />
+                <input aria-label="BP sa Taas (systolic)" type="number" inputMode="numeric" min={60} max={260} value={form.systolic} onChange={e => setForm({ ...form, systolic: e.target.value })} placeholder="hal. 120" required style={inputStyle} />
               </div>
               <div>
                 <label style={{ fontSize: 15, color: DARK, fontWeight: 700, display: "block", marginBottom: 4 }}>BP sa Baba (maliit na number) *</label>
                 <p style={{ fontSize: 12, color: MID, margin: "0 0 6px", lineHeight: 1.35 }}>Ang <strong>maliit na number</strong> sa BP monitor mo</p>
-                <input type="number" inputMode="numeric" min={40} max={200} value={form.diastolic} onChange={e => setForm({ ...form, diastolic: e.target.value })} placeholder="hal. 80" required style={inputStyle} />
+                <input aria-label="BP sa Baba (diastolic)" type="number" inputMode="numeric" min={40} max={200} value={form.diastolic} onChange={e => setForm({ ...form, diastolic: e.target.value })} placeholder="hal. 80" required style={inputStyle} />
               </div>
             </div>
 
             <div style={{ marginBottom: 12 }}>
               <label style={{ fontSize: 13, color: MID, fontWeight: 600, display: "block", marginBottom: 6 }}>Pulse rate (opsyonal)</label>
-              <input type="number" inputMode="numeric" min={30} max={220} value={form.pulse} onChange={e => setForm({ ...form, pulse: e.target.value })} placeholder="tibok bawat minuto" style={inputStyle} />
+              <input aria-label="Pulse rate" type="number" inputMode="numeric" min={30} max={220} value={form.pulse} onChange={e => setForm({ ...form, pulse: e.target.value })} placeholder="tibok bawat minuto" style={inputStyle} />
             </div>
 
             <div style={{ marginBottom: 16 }}>
               <label style={{ fontSize: 13, color: MID, fontWeight: 600, display: "block", marginBottom: 6 }}>Notes (opsyonal)</label>
-              <input type="text" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="hal. Bago mag-almusal" maxLength={200} style={inputStyle} />
+              <input aria-label="Notes" type="text" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="hal. Bago mag-almusal" maxLength={200} style={inputStyle} />
             </div>
 
             <div style={{ display: "flex", gap: 10 }}>
