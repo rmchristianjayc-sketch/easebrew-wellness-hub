@@ -1,0 +1,22 @@
+# EaseBrew Wellness Hub — private customer app.
+# Access is by verified code only, so search engines do not need to index.
+
+User-agent: *
+Disallow: /admin
+Disallow: /api
+Disallow: /tracker
+Disallow: /blood-pressure
+Disallow: /medication
+Disallow: /medical-card
+Disallow: /bmi
+Disallow: /meal-plan
+Disallow: /recipes
+Disallow: /exercise
+Disallow: /bagong-katawan
+Disallow: /report
+Disallow: /family
+Disallow: /?locked=
+Allow: /verify
+Allow: /manifest.json
+Allow: /icons/
+Allow: /images/
