@@ -4,7 +4,7 @@ import Sidebar from "@/app/admin/_components/Sidebar";
 import { useAdminGuard } from "@/lib/useAdminGuard";
 import { HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard, Home, ShoppingBag, ShoppingCart, Users, Lightbulb, HelpCircle, MessageSquare, Film, Plus, Trash2, type LucideIcon } from "lucide-react";
 import Image from "next/image";
-import { DEFAULT_COACHES, parseCoachesFromContent } from "@/lib/coaches";
+import { parseCoachesFromContent } from "@/lib/coaches";
 import type { Coach } from "@/lib/coaches";
 
 const G    = "#39613B";
@@ -99,27 +99,6 @@ const CONTENT_LABELS: Record<string, { label: string; group: string; multiline?:
 
   // ── Notifications ─────────────────────────────────────────
   // ✅ Bug #5 FIX: Tinanggal na ang reorder_reminder_days — dead setting, walang gumagamit
-};
-
-const COACH_DIVIDERS: Record<string, string> = {
-  coach_1_name: "👤 Coach 1", coach_2_name: "👤 Coach 2",
-  coach_3_name: "👤 Coach 3", coach_4_name: "👤 Coach 4",
-  coach_5_name: "👤 Coach 5", coach_6_name: "👤 Coach 6",
-};
-const TESTIMONIAL_DIVIDERS: Record<string, string> = {
-  testimonial_1_name: "⭐ Testimonial 1",
-  testimonial_2_name: "⭐ Testimonial 2",
-  testimonial_3_name: "⭐ Testimonial 3",
-};
-const FAQ_DIVIDERS: Record<string, string> = {
-  faq_1_q: "❓ FAQ 1", faq_2_q: "❓ FAQ 2", faq_3_q: "❓ FAQ 3",
-  faq_4_q: "❓ FAQ 4", faq_5_q: "❓ FAQ 5", faq_6_q: "❓ FAQ 6",
-  faq_7_q: "❓ FAQ 7",
-};
-const VIDEO_DIVIDERS: Record<string, string> = {
-  video_1_title: "🎬 Video 1",
-  video_2_title: "🎬 Video 2",
-  video_3_title: "🎬 Video 3",
 };
 
 const PRODUCTS_META: { n: number; icon: LucideIcon; iconBg: string; name: string; desc: string; tier: string }[] = [
@@ -858,7 +837,6 @@ export default function ContentPage() {
                         const urlVal = (editing[urlKey] ?? "").trim();
                         const videoId = extractId(urlVal);
                         const displayTitle = (editing[titleKey] ?? "").trim() || def.title;
-                        const displayDesc = (editing[descKey] ?? "").trim() || def.desc;
                         const hasUrl = !!urlVal;
                         return (
                           <div key={n} style={{ background: "white", border: `1.5px solid ${hasChange ? "#f59e0b" : "#e8e8e8"}`, borderRadius: 12, padding: "16px 18px" }}>

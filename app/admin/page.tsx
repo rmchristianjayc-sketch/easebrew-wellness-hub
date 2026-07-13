@@ -25,14 +25,12 @@ function StatCard({
   label,
   value,
   sub,
-  accent,
   bg,
 }: {
   icon: React.ElementType;
   label: string;
   value: string | number;
   sub?: string;
-  accent: string;
   bg: string;
 }) {
   return (
@@ -155,7 +153,6 @@ function AtensyonPanel({
     label: string;
     icon: string;
     color: string;
-    accent: string;
     items: AccessCode[];
     action: (c: AccessCode) => React.ReactNode;
   };
@@ -163,7 +160,7 @@ function AtensyonPanel({
   const sections: Section[] = [
     {
       key: "critical", label: "Expiring in 3 days", icon: "🚨",
-      color: "#991b1b", accent: "#dc2626",
+      color: "#991b1b",
       items: critical,
       action: (c) => (
         <button onClick={() => copyReorderMessage(c)} style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", fontSize: 11.5, fontWeight: 700, cursor: "pointer", fontFamily: "var(--admin-font)" }}>
@@ -173,7 +170,7 @@ function AtensyonPanel({
     },
     {
       key: "soon", label: "Expiring in 4-7 days", icon: "⚠️",
-      color: "#92400e", accent: "#d97706",
+      color: "#92400e",
       items: soon,
       action: (c) => (
         <button onClick={() => copyReorderMessage(c)} style={{ background: "#d97706", color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", fontSize: 11.5, fontWeight: 700, cursor: "pointer", fontFamily: "var(--admin-font)" }}>
@@ -183,7 +180,7 @@ function AtensyonPanel({
     },
     {
       key: "stale", label: "Codes not yet verified (3+ days)", icon: "💤",
-      color: "#3730a3", accent: "#6366f1",
+      color: "#3730a3",
       items: staleUnused.slice(0, 20),
       action: () => (
         <Link href="/admin/codes" style={{ background: "#6366f1", color: "#fff", borderRadius: 6, padding: "6px 12px", fontSize: 11.5, fontWeight: 700, textDecoration: "none", fontFamily: "var(--admin-font)" }}>
@@ -379,10 +376,10 @@ export default function AdminDashboard() {
 
             {/* ── Stat cards ── */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 18, marginBottom: 28 }}>
-              <StatCard icon={Users}           label="Active Customers" value={active.length}                        accent="#39613B" bg="#39613B" />
-              <StatCard icon={PesoIcon} label="Total Revenue"    value={`₱${totalRevenue.toLocaleString()}`}  accent="#f59e0b" bg="#d97706" />
-              <StatCard icon={TrendingUp}      label="New This Month"   value={newThisMonth}                         accent="#3b82f6" bg="#2563eb" />
-              <StatCard icon={Clock}           label="Expired"          value={expired.length} sub={`${unused.length} unused codes`} accent="#ef4444" bg="#dc2626" />
+              <StatCard icon={Users}           label="Active Customers" value={active.length}                        bg="#39613B" />
+              <StatCard icon={PesoIcon} label="Total Revenue"    value={`₱${totalRevenue.toLocaleString()}`}  bg="#d97706" />
+              <StatCard icon={TrendingUp}      label="New This Month"   value={newThisMonth}                         bg="#2563eb" />
+              <StatCard icon={Clock}           label="Expired"          value={expired.length} sub={`${unused.length} unused codes`} bg="#dc2626" />
             </div>
 
             {/* ── Two column ── */}

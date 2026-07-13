@@ -13,7 +13,7 @@ import { localDateStr, localDateStrOffset } from "@/lib/localDate";
 
 // 1.2 — Imported from single source of truth (no more duplicate definitions)
 import { Coach, DEFAULT_COACHES, buildCoaches } from "@/lib/coaches";
-import { Gift, Home as HomeIcon, Lightbulb, Phone, Users, HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard, Coffee, Footprints, Droplets, Moon, Sun, Sparkles, Trophy, BookOpen, Leaf, MessageCircle, HelpCircle, Heart, ShoppingCart, ClipboardList, PenLine, Bell, Smartphone, BarChart3, Video, CookingPot, CircleCheck, Lock, Info, Package, Calendar, Target, AlertTriangle, Megaphone, AlertCircle, Timer, X, Fish, Globe, Share2, Plus, Star, Copy, Wheat } from "lucide-react";
+import { Gift, Home as HomeIcon, Lightbulb, Phone, Users, HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard, Coffee, Footprints, Droplets, Moon, Sun, Sparkles, Trophy, BookOpen, Leaf, MessageCircle, HelpCircle, Heart, ShoppingCart, ClipboardList, Bell, Smartphone, BarChart3, Video, CookingPot, CircleCheck, Lock, Info, Package, Calendar, Target, AlertTriangle, Megaphone, AlertCircle, Timer, X, Fish, Globe, Share2, Plus, Star, Copy, Wheat } from "lucide-react";
 
 // ============================================================
 // CONFIG — FALLBACK DEFAULTS (used when no value in DB)
