@@ -168,6 +168,19 @@ export default function VerifyPage() {
       .catch(() => {});
   }, [router]);
 
+  // ── AUTO-FILL FROM ?code= QUERY PARAM ──
+  // Admin/coach shares a link like /verify?code=EASE-A3F2-9K1X and the
+  // customer just taps Continue — no manual typing of the 12-char code.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("code");
+    if (q) {
+      const formatted = formatCode(q);
+      if (formatted) setCode(formatted);
+    }
+  }, []);
+
   async function handleVerify() {
     if (!isComplete) { setErrorType("incomplete"); return; }
     const stripped  = code.replace(/[-\s]/g, "").toUpperCase().slice(0, 12);
