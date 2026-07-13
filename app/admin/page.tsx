@@ -146,84 +146,90 @@ function AtensyonPanel({
     if (!c.expires_at) return;
     const daysLeft = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
     const expiresDate = new Date(c.expires_at).toLocaleDateString("en-PH", { month: "long", day: "numeric", year: "numeric" });
-    const msg = `Kumusta ${c.customer_name || ""}! Your EaseBrew access will expire on ${expiresDate} (${daysLeft} days left). Please mag-order na po para tuloy-tuloy ang wellness journey mo. Salamat!`;
+    const msg = `Hi ${c.customer_name || ""}! Your EaseBrew access will expire on ${expiresDate} (${daysLeft} days left). Please order a new package to keep your wellness journey going. Thank you!`;
     navigator.clipboard.writeText(msg).then(() => { setCopiedCode(c.code); setTimeout(() => setCopiedCode(null), 2500); }).catch(() => {});
   }
 
-  const rowStyle: React.CSSProperties = { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", borderRadius: 10, background: "#fff", border: "1px solid #f0f0f0", fontSize: 13, fontFamily: "var(--admin-font)" };
+  type Section = {
+    key: string;
+    label: string;
+    icon: string;
+    color: string;
+    accent: string;
+    items: AccessCode[];
+    action: (c: AccessCode) => React.ReactNode;
+  };
+
+  const sections: Section[] = [
+    {
+      key: "critical", label: "Expiring in 3 days", icon: "🚨",
+      color: "#991b1b", accent: "#dc2626",
+      items: critical,
+      action: (c) => (
+        <button onClick={() => copyReorderMessage(c)} style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", fontSize: 11.5, fontWeight: 700, cursor: "pointer", fontFamily: "var(--admin-font)" }}>
+          {copiedCode === c.code ? "Copied ✓" : "Copy message"}
+        </button>
+      ),
+    },
+    {
+      key: "soon", label: "Expiring in 4-7 days", icon: "⚠️",
+      color: "#92400e", accent: "#d97706",
+      items: soon,
+      action: (c) => (
+        <button onClick={() => copyReorderMessage(c)} style={{ background: "#d97706", color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", fontSize: 11.5, fontWeight: 700, cursor: "pointer", fontFamily: "var(--admin-font)" }}>
+          {copiedCode === c.code ? "Copied ✓" : "Copy message"}
+        </button>
+      ),
+    },
+    {
+      key: "stale", label: "Codes not yet verified (3+ days)", icon: "💤",
+      color: "#3730a3", accent: "#6366f1",
+      items: staleUnused.slice(0, 20),
+      action: () => (
+        <Link href="/admin/codes" style={{ background: "#6366f1", color: "#fff", borderRadius: 6, padding: "6px 12px", fontSize: 11.5, fontWeight: 700, textDecoration: "none", fontFamily: "var(--admin-font)" }}>
+          Follow up
+        </Link>
+      ),
+    },
+  ];
+
+  const activeSections = sections.filter(s => s.items.length > 0);
+
+  const rowStyle: React.CSSProperties = { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 12px", borderRadius: 8, background: "#fff", border: "1px solid #e8ece9", fontSize: 13, fontFamily: "var(--admin-font)" };
 
   return (
     <div style={{
-      background: totalAtensyon === 0 ? "#f0fdf4" : "#fff8ec",
+      background: totalAtensyon === 0 ? "#f0fdf4" : "#fff",
       border: `1.5px solid ${totalAtensyon === 0 ? "#bbf7d0" : "#fcd34d"}`,
       borderRadius: 16, padding: "18px 22px", marginBottom: 22,
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: totalAtensyon === 0 ? 0 : 14 }}>
-        <span style={{ fontSize: 20 }}>{totalAtensyon === 0 ? "✅" : "🔔"}</span>
-        <h2 style={{ fontSize: 15, fontWeight: 800, color: "#1B201A", margin: 0, fontFamily: "var(--admin-font)" }}>
-          Kailangan ng Atensyon
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: totalAtensyon === 0 ? 0 : 16 }}>
+        <span style={{ fontSize: 18 }}>{totalAtensyon === 0 ? "✅" : "🔔"}</span>
+        <h2 style={{ fontSize: 14, fontWeight: 800, color: "#1B201A", margin: 0, fontFamily: "var(--admin-font)", textTransform: "uppercase" as const, letterSpacing: 0.4 }}>
+          Needs attention
         </h2>
         <span style={{ fontSize: 12, color: totalAtensyon === 0 ? "#166534" : "#92400e", fontWeight: 600, marginLeft: "auto", fontFamily: "var(--admin-font)" }}>
-          {totalAtensyon === 0 ? "Wala ngayon — good work!" : `${totalAtensyon} item${totalAtensyon > 1 ? "s" : ""}`}
+          {totalAtensyon === 0 ? "All clear — good work!" : `${totalAtensyon} item${totalAtensyon > 1 ? "s" : ""}`}
         </span>
       </div>
 
-      {totalAtensyon > 0 && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
-          {/* Critical (≤3 days) */}
-          <div>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#991b1b", margin: "0 0 8px", textTransform: "uppercase" as const, letterSpacing: 0.5, fontFamily: "var(--admin-font)" }}>
-              🚨 3 days na lang ({critical.length})
-            </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 180, overflowY: "auto" }}>
-              {critical.length === 0 ? (
-                <p style={{ fontSize: 12, color: "#a3b0a8", margin: 0, fontFamily: "var(--admin-font)" }}>Wala.</p>
-              ) : critical.map(c => (
-                <div key={c.code} style={rowStyle}>
-                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, marginRight: 8 }}>{c.customer_name || c.code}</span>
-                  <button onClick={() => copyReorderMessage(c)} style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: 6, padding: "5px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "var(--admin-font)" }}>
-                    {copiedCode === c.code ? "Copied!" : "Copy msg"}
-                  </button>
-                </div>
-              ))}
+      {activeSections.length > 0 && (
+        <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(activeSections.length, 3)}, 1fr)`, gap: 16 }}>
+          {activeSections.map(s => (
+            <div key={s.key}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: s.color, margin: "0 0 10px", textTransform: "uppercase" as const, letterSpacing: 0.5, fontFamily: "var(--admin-font)", display: "flex", alignItems: "center", gap: 6 }}>
+                <span>{s.icon}</span> {s.label} ({s.items.length})
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 200, overflowY: "auto" }}>
+                {s.items.map(c => (
+                  <div key={c.code} style={rowStyle}>
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, marginRight: 10, fontWeight: 500 }}>{c.customer_name || c.code}</span>
+                    {s.action(c)}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-
-          {/* Soon (4-7 days) */}
-          <div>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#92400e", margin: "0 0 8px", textTransform: "uppercase" as const, letterSpacing: 0.5, fontFamily: "var(--admin-font)" }}>
-              ⚠️ 4-7 days ({soon.length})
-            </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 180, overflowY: "auto" }}>
-              {soon.length === 0 ? (
-                <p style={{ fontSize: 12, color: "#a3b0a8", margin: 0, fontFamily: "var(--admin-font)" }}>Wala.</p>
-              ) : soon.map(c => (
-                <div key={c.code} style={rowStyle}>
-                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, marginRight: 8 }}>{c.customer_name || c.code}</span>
-                  <button onClick={() => copyReorderMessage(c)} style={{ background: "#d97706", color: "#fff", border: "none", borderRadius: 6, padding: "5px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "var(--admin-font)" }}>
-                    {copiedCode === c.code ? "Copied!" : "Copy msg"}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Stale unused (3+ days na hindi na-verify) */}
-          <div>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#3730a3", margin: "0 0 8px", textTransform: "uppercase" as const, letterSpacing: 0.5, fontFamily: "var(--admin-font)" }}>
-              💤 Hindi pa nag-verify ({staleUnused.length})
-            </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 180, overflowY: "auto" }}>
-              {staleUnused.length === 0 ? (
-                <p style={{ fontSize: 12, color: "#a3b0a8", margin: 0, fontFamily: "var(--admin-font)" }}>Wala.</p>
-              ) : staleUnused.slice(0, 20).map(c => (
-                <div key={c.code} style={rowStyle}>
-                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, marginRight: 8 }}>{c.customer_name || c.code}</span>
-                  <Link href="/admin/codes" style={{ background: "#6366f1", color: "#fff", borderRadius: 6, padding: "5px 10px", fontSize: 11, fontWeight: 700, textDecoration: "none", fontFamily: "var(--admin-font)" }}>Follow up</Link>
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
       )}
     </div>
