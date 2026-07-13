@@ -40,14 +40,25 @@ async function wasShown(tag) {
   return !!(await cache.match(tag));
 }
 
+async function getReminderHours() {
+  const cache = await caches.open(CACHE_NAME);
+  const res = await cache.match('reminder-hours');
+  if (!res) return { amHour: 7, pmHour: 19 };
+  try {
+    const { amHour, pmHour } = await res.json();
+    return { amHour: Number(amHour) || 7, pmHour: Number(pmHour) || 19 };
+  } catch { return { amHour: 7, pmHour: 19 }; }
+}
+
 // ── Reminder logic ─────────────────────────────────────────────────────────────
 async function maybeShowReminder() {
   if (!(await isReminderEnabled())) return;
   const now = new Date();
   const h = now.getHours();
   const today = now.toISOString().split('T')[0];
+  const { amHour, pmHour } = await getReminderHours();
 
-  if (h >= 7 && h < 9 && !(await wasShown(`shown-${today}-am`))) {
+  if (h >= amHour && h < amHour + 2 && !(await wasShown(`shown-${today}-am`))) {
     await markShown(`shown-${today}-am`);
     await self.registration.showNotification('EaseBrew — Umaga!', {
       body: 'Inumin mo na ang EaseBrew mo para sa pinakamagandang resulta!',
@@ -61,7 +72,7 @@ async function maybeShowReminder() {
         { action: 'snooze',   title: '⏰ Later'      },
       ],
     });
-  } else if (h >= 19 && h < 21 && !(await wasShown(`shown-${today}-pm`))) {
+  } else if (h >= pmHour && h < pmHour + 2 && !(await wasShown(`shown-${today}-pm`))) {
     await markShown(`shown-${today}-pm`);
     await self.registration.showNotification('EaseBrew — Gabi!', {
       body: 'Huwag kalimutang uminom ng EaseBrew bago matulog!',
@@ -132,6 +143,9 @@ self.addEventListener('message', async (event) => {
     const cache = await caches.open(CACHE_NAME);
     if (event.data.enabled) {
       await cache.put('reminder-enabled', new Response('1'));
+      const amHour = Number(event.data.amHour) || 7;
+      const pmHour = Number(event.data.pmHour) || 19;
+      await cache.put('reminder-hours', new Response(JSON.stringify({ amHour, pmHour })));
       maybeShowReminder();
     } else {
       await cache.delete('reminder-enabled');

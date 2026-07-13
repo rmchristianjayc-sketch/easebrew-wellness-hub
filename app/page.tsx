@@ -1004,9 +1004,26 @@ function WeeklySummaryCard({ data, onDismiss }: { data: { avgPain: number; consi
 // ============================================================
 function DailyReminderCard({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
   const [perm, setPerm] = useState<NotificationPermission>("default");
+  const [amHour, setAmHour] = useState<number>(7);
+  const [pmHour, setPmHour] = useState<number>(19);
   useEffect(() => {
     if ("Notification" in window) setPerm(Notification.permission);
+    const savedAm = Number(localStorage.getItem("eb_reminder_am_hour"));
+    const savedPm = Number(localStorage.getItem("eb_reminder_pm_hour"));
+    if (savedAm >= 5 && savedAm <= 11) setAmHour(savedAm);
+    if (savedPm >= 15 && savedPm <= 22) setPmHour(savedPm);
   }, []);
+
+  function saveHour(period: "am" | "pm", h: number) {
+    if (period === "am") { setAmHour(h); localStorage.setItem("eb_reminder_am_hour", String(h)); }
+    else                 { setPmHour(h); localStorage.setItem("eb_reminder_pm_hour", String(h)); }
+    navigator.serviceWorker?.ready.then(reg => reg.active?.postMessage({
+      type: "SET_REMINDER",
+      enabled,
+      amHour: period === "am" ? h : amHour,
+      pmHour: period === "pm" ? h : pmHour,
+    }));
+  }
 
   async function handleEnable() {
     if (!("Notification" in window)) return;
@@ -1014,11 +1031,16 @@ function DailyReminderCard({ enabled, onToggle }: { enabled: boolean; onToggle: 
     setPerm(p);
     if (p === "granted") {
       onToggle();
-      new Notification("EaseBrew Paalala", { body: "Na-set na ang paalala mo! Mag-aalerto kami sa umaga (7–9 AM) at gabi (7–9 PM).", icon: "/icon-192.png" });
+      new Notification("EaseBrew Paalala", { body: `Na-set na ang paalala mo! Aalerto ka namin ng ${amHour} AM at ${pmHour - 12} PM araw-araw.`, icon: "/icon-192.png" });
     }
   }
 
   if (perm === "denied") return null;
+
+  const fmtAm = (h: number) => `${h} AM`;
+  const fmtPm = (h: number) => `${h > 12 ? h - 12 : h} PM`;
+  const amOptions = [5, 6, 7, 8, 9, 10, 11];
+  const pmOptions = [15, 16, 17, 18, 19, 20, 21, 22];
 
   return (
     <div style={{ background: enabled ? "#E8F5E0" : "#FEF9E7", border: `2px solid ${enabled ? "#39613B" : "#FED255"}`, borderRadius: 18, padding: "20px", marginBottom: 24 }}>
@@ -1026,9 +1048,25 @@ function DailyReminderCard({ enabled, onToggle }: { enabled: boolean; onToggle: 
         <span><Bell size={36} color="#C0863B" /></span>
         <div>
           <p style={{ fontSize: 18, fontWeight: 700, color: "#1B201A", margin: 0 }}>Paalala Araw-araw</p>
-          <p style={{ fontSize: 15, color: "#4E504F", margin: "3px 0 0 0", lineHeight: 1.5 }}>I-remind ka namin tuwing 7 AM at 7 PM para hindi ka makalimot uminom!</p>
+          <p style={{ fontSize: 15, color: "#4E504F", margin: "3px 0 0 0", lineHeight: 1.5 }}>I-remind ka namin tuwing {amHour} AM at {pmHour - 12} PM para hindi ka makalimot uminom!</p>
         </div>
       </div>
+      {enabled && (
+        <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+          <label style={{ flex: 1, fontSize: 13, color: MID, fontWeight: 600 }}>
+            Umaga
+            <select value={amHour} onChange={e => saveHour("am", Number(e.target.value))} style={{ width: "100%", marginTop: 4, padding: "10px 12px", borderRadius: 10, border: "2px solid #C5B99A", fontSize: 15, background: "white" }}>
+              {amOptions.map(h => <option key={h} value={h}>{fmtAm(h)}</option>)}
+            </select>
+          </label>
+          <label style={{ flex: 1, fontSize: 13, color: MID, fontWeight: 600 }}>
+            Gabi
+            <select value={pmHour} onChange={e => saveHour("pm", Number(e.target.value))} style={{ width: "100%", marginTop: 4, padding: "10px 12px", borderRadius: 10, border: "2px solid #C5B99A", fontSize: 15, background: "white" }}>
+              {pmOptions.map(h => <option key={h} value={h}>{fmtPm(h)}</option>)}
+            </select>
+          </label>
+        </div>
+      )}
       {enabled ? (
         <button onClick={onToggle} style={{ width: "100%", background: "#39613B", color: "white", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
           <CircleCheck size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Paalala ON — I-tap para i-off
@@ -1577,7 +1615,9 @@ export default function Home() {
                 if (n && typeof Notification !== "undefined" && Notification.permission === "default") {
                   Notification.requestPermission();
                 }
-                navigator.serviceWorker?.ready.then(reg => reg.active?.postMessage({ type: "SET_REMINDER", enabled: n }));
+                const amHour = Number(localStorage.getItem("eb_reminder_am_hour")) || 7;
+                const pmHour = Number(localStorage.getItem("eb_reminder_pm_hour")) || 19;
+                navigator.serviceWorker?.ready.then(reg => reg.active?.postMessage({ type: "SET_REMINDER", enabled: n, amHour, pmHour }));
                 return n;
               })}
             />
