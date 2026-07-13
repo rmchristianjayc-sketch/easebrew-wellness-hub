@@ -1710,6 +1710,10 @@ export default function Home() {
                 {lockedProducts.map(p => {
                   const meta = PRODUCT_ICONS[p.id];
                   const Icon = meta?.icon;
+                  const deltaPeso = p.tier - customerTier;
+                  const packsNeeded = PRICE_CONFIG[p.tier]?.packs ?? null;
+                  const currentPacks = session?.packs ?? 0;
+                  const extraPacks = packsNeeded !== null ? Math.max(0, packsNeeded - currentPacks) : null;
                   return (
                   <div key={p.id} style={{ background: "#F5F0E8", border: "2px solid #C5B99A", borderRadius: 18, padding: "22px", marginBottom: 14, opacity: 0.85 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
@@ -1724,7 +1728,20 @@ export default function Home() {
                     </div>
                     <h3 style={{ fontSize: 19, fontWeight: 700, color: "#8A7D6A", margin: "0 0 6px 0" }}>{p.name}</h3>
                     <p style={{ fontSize: 16, color: "#A89880", margin: "0 0 18px 0", lineHeight: 1.65 }}>{p.desc}</p>
-                    <button onClick={() => setShowCoachModal(true)} className="c-btn c-btn-outline" style={{ width: "100%" }}>
+                    {deltaPeso > 0 && (
+                      <div style={{ background: "#fff", border: "1.5px solid #FED255", borderRadius: 10, padding: "10px 14px", marginBottom: 14, fontSize: 15, color: "#78350f", fontWeight: 600 }}>
+                        Kulang ka pa ng <strong>₱{deltaPeso.toLocaleString()}</strong>
+                        {extraPacks !== null && extraPacks > 0 ? ` (${extraPacks} pang pack)` : ""} para ma-unlock ito.
+                      </div>
+                    )}
+                    <button
+                      onClick={() => {
+                        setReorderMessage(`Kumusta! Gusto ko po sanang i-upgrade ang order ko para ma-unlock ang "${p.name}" (${p.tierLabel}).\n\nCurrent tier ko: ${getTierLabel(customerTier)}\nGusto ko: ${p.tierLabel}\n\nSalamat po!`);
+                        setShowCoachModal(true);
+                      }}
+                      className="c-btn c-btn-outline"
+                      style={{ width: "100%" }}
+                    >
                       Mag-order pa para ma-unlock ito →
                     </button>
                   </div>
