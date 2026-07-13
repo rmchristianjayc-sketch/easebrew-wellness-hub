@@ -55,6 +55,7 @@ export default function ExercisePage() {
   const exercisesStorageKey = progressStorageKey("eb_completed_exercises", session?.code);
   const [selectedPhase, setSelectedPhase] = useState(1);
   const [expandedDay, setExpandedDay] = useState<number | null>(null);
+  const [autoNavigated, setAutoNavigated] = useState(false);
   const [completedDays, setCompletedDays] = useState<Set<number>>(new Set());
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [videoMap, setVideoMap] = useState<Record<string, string>>({});
@@ -135,6 +136,18 @@ export default function ExercisePage() {
   const currentPhase = EXERCISE_PROGRAM.find(p => p.phase === selectedPhase)!;
   const totalDays = EXERCISE_PROGRAM.flatMap(p => p.days).length;
   const progressPct = Math.round((completedDays.size / totalDays) * 100);
+
+  // Auto-jump to the customer's next uncompleted day on first load only.
+  useEffect(() => {
+    if (autoNavigated || completedDays.size === 0) return;
+    const allDays = EXERCISE_PROGRAM.flatMap(p => p.days.map(d => ({ day: d.day, phase: p.phase })));
+    const next = allDays.find(d => !completedDays.has(d.day));
+    if (next) {
+      if (next.phase !== selectedPhase) setSelectedPhase(next.phase);
+      setExpandedDay(next.day);
+    }
+    setAutoNavigated(true);
+  }, [completedDays, autoNavigated, selectedPhase]);
 
   if (!ready) return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: CREAM }}>

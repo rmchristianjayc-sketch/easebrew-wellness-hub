@@ -113,6 +113,7 @@ export default function MealPlanPage() {
   const [selectedWeek, setSelectedWeek]   = useState("Week 1");
   const [completedDays, setCompletedDays] = useState<number[]>([]);
   const [expandedDay, setExpandedDay]     = useState<number | null>(null);
+  const [autoNavigated, setAutoNavigated] = useState(false);
   const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -163,6 +164,19 @@ export default function MealPlanPage() {
 
   const filteredDays = MEAL_PLAN.filter(d => d.week === selectedWeek);
   const progress = Math.round((completedDays.length / 50) * 100);
+
+  // Auto-navigate to the customer's next uncompleted day on first load only.
+  // Manual week switches after that are respected.
+  useEffect(() => {
+    if (autoNavigated || completedDays.length === 0) return;
+    const done = new Set(completedDays);
+    let nextDay = 1;
+    for (let d = 1; d <= 50; d++) { if (!done.has(d)) { nextDay = d; break; } }
+    const nextEntry = MEAL_PLAN.find(d => d.day === nextDay);
+    if (nextEntry && nextEntry.week !== selectedWeek) setSelectedWeek(nextEntry.week);
+    setExpandedDay(nextDay);
+    setAutoNavigated(true);
+  }, [completedDays, autoNavigated, selectedWeek]);
 
   return (
     <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 100 }}>
