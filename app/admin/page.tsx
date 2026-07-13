@@ -119,6 +119,117 @@ function SectionCard({ title, icon: Icon, action, children, noPad }: {
   );
 }
 
+function AtensyonPanel({
+  expiringSoon, unused,
+}: {
+  expiringSoon: (AccessCode & { expires_at: string })[];
+  unused: AccessCode[];
+}) {
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const now = new Date();
+  const critical = expiringSoon.filter(c => {
+    const d = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
+    return d <= 3;
+  });
+  const soon = expiringSoon.filter(c => {
+    const d = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
+    return d > 3 && d <= 7;
+  });
+  const staleUnused = unused.filter(c => {
+    if (!c.created_at) return false;
+    const days = Math.floor((now.getTime() - new Date(c.created_at).getTime()) / 86400000);
+    return days >= 3;
+  });
+  const totalAtensyon = critical.length + soon.length + staleUnused.length;
+
+  function copyReorderMessage(c: AccessCode) {
+    if (!c.expires_at) return;
+    const daysLeft = Math.ceil((new Date(c.expires_at).getTime() - now.getTime()) / 86400000);
+    const expiresDate = new Date(c.expires_at).toLocaleDateString("en-PH", { month: "long", day: "numeric", year: "numeric" });
+    const msg = `Kumusta ${c.customer_name || ""}! Your EaseBrew access will expire on ${expiresDate} (${daysLeft} days left). Please mag-order na po para tuloy-tuloy ang wellness journey mo. Salamat!`;
+    navigator.clipboard.writeText(msg).then(() => { setCopiedCode(c.code); setTimeout(() => setCopiedCode(null), 2500); }).catch(() => {});
+  }
+
+  const rowStyle: React.CSSProperties = { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", borderRadius: 10, background: "#fff", border: "1px solid #f0f0f0", fontSize: 13, fontFamily: "var(--admin-font)" };
+
+  return (
+    <div style={{
+      background: totalAtensyon === 0 ? "#f0fdf4" : "#fff8ec",
+      border: `1.5px solid ${totalAtensyon === 0 ? "#bbf7d0" : "#fcd34d"}`,
+      borderRadius: 16, padding: "18px 22px", marginBottom: 22,
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: totalAtensyon === 0 ? 0 : 14 }}>
+        <span style={{ fontSize: 20 }}>{totalAtensyon === 0 ? "✅" : "🔔"}</span>
+        <h2 style={{ fontSize: 15, fontWeight: 800, color: "#1B201A", margin: 0, fontFamily: "var(--admin-font)" }}>
+          Kailangan ng Atensyon
+        </h2>
+        <span style={{ fontSize: 12, color: totalAtensyon === 0 ? "#166534" : "#92400e", fontWeight: 600, marginLeft: "auto", fontFamily: "var(--admin-font)" }}>
+          {totalAtensyon === 0 ? "Wala ngayon — good work!" : `${totalAtensyon} item${totalAtensyon > 1 ? "s" : ""}`}
+        </span>
+      </div>
+
+      {totalAtensyon > 0 && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+          {/* Critical (≤3 days) */}
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#991b1b", margin: "0 0 8px", textTransform: "uppercase" as const, letterSpacing: 0.5, fontFamily: "var(--admin-font)" }}>
+              🚨 3 days na lang ({critical.length})
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 180, overflowY: "auto" }}>
+              {critical.length === 0 ? (
+                <p style={{ fontSize: 12, color: "#a3b0a8", margin: 0, fontFamily: "var(--admin-font)" }}>Wala.</p>
+              ) : critical.map(c => (
+                <div key={c.code} style={rowStyle}>
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, marginRight: 8 }}>{c.customer_name || c.code}</span>
+                  <button onClick={() => copyReorderMessage(c)} style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: 6, padding: "5px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "var(--admin-font)" }}>
+                    {copiedCode === c.code ? "Copied!" : "Copy msg"}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Soon (4-7 days) */}
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#92400e", margin: "0 0 8px", textTransform: "uppercase" as const, letterSpacing: 0.5, fontFamily: "var(--admin-font)" }}>
+              ⚠️ 4-7 days ({soon.length})
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 180, overflowY: "auto" }}>
+              {soon.length === 0 ? (
+                <p style={{ fontSize: 12, color: "#a3b0a8", margin: 0, fontFamily: "var(--admin-font)" }}>Wala.</p>
+              ) : soon.map(c => (
+                <div key={c.code} style={rowStyle}>
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, marginRight: 8 }}>{c.customer_name || c.code}</span>
+                  <button onClick={() => copyReorderMessage(c)} style={{ background: "#d97706", color: "#fff", border: "none", borderRadius: 6, padding: "5px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "var(--admin-font)" }}>
+                    {copiedCode === c.code ? "Copied!" : "Copy msg"}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Stale unused (3+ days na hindi na-verify) */}
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#3730a3", margin: "0 0 8px", textTransform: "uppercase" as const, letterSpacing: 0.5, fontFamily: "var(--admin-font)" }}>
+              💤 Hindi pa nag-verify ({staleUnused.length})
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 180, overflowY: "auto" }}>
+              {staleUnused.length === 0 ? (
+                <p style={{ fontSize: 12, color: "#a3b0a8", margin: 0, fontFamily: "var(--admin-font)" }}>Wala.</p>
+              ) : staleUnused.slice(0, 20).map(c => (
+                <div key={c.code} style={rowStyle}>
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, marginRight: 8 }}>{c.customer_name || c.code}</span>
+                  <Link href="/admin/codes" style={{ background: "#6366f1", color: "#fff", borderRadius: 6, padding: "5px 10px", fontSize: 11, fontWeight: 700, textDecoration: "none", fontFamily: "var(--admin-font)" }}>Follow up</Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const router = useRouter();
   const { checking, username, role } = useAdminGuard(["owner"]);
@@ -257,6 +368,9 @@ export default function AdminDashboard() {
           </div>
         ) : (
           <>
+            {/* ── Kailangan ng Atensyon (priority triage) ── */}
+            <AtensyonPanel expiringSoon={expiringSoon} unused={unused} />
+
             {/* ── Stat cards ── */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 18, marginBottom: 28 }}>
               <StatCard icon={Users}           label="Active Customers" value={active.length}                        accent="#39613B" bg="#39613B" />
