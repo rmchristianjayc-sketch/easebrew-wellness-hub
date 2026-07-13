@@ -248,6 +248,33 @@ export default function MealPlanPage() {
         </div>
       </div>
 
+      {/* ── PALENGKE / GROCERY LIST ── */}
+      <div style={{ padding: "16px 20px 0" }}>
+        <button
+          onClick={() => {
+            const items = filteredDays.map(d =>
+              `Day ${d.day} (${d.weekday})\n` +
+              `  Agahan:     ${d.agahan}\n` +
+              `  Tanghalian: ${d.tanghalian}\n` +
+              `  Merienda:   ${d.merienda}\n` +
+              `  Hapunan:    ${d.hapunan}`
+            ).join("\n\n");
+            const text = `LISTAHAN NG PAGKAIN — ${selectedWeek}\n(Para sa palengke o grocery)\n\n${items}\n\nEaseBrew — 2x bawat araw (Umaga at Gabi)`;
+            navigator.clipboard.writeText(text).then(
+              () => alert("Na-copy na sa clipboard! Puwede mo nang i-paste sa Notes o Messenger."),
+              () => window.print()
+            );
+          }}
+          style={{
+            width: "100%", background: WHITE, color: G, border: `2px solid ${G}`,
+            borderRadius: 14, padding: "14px", fontSize: 16, fontWeight: 700,
+            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+          }}
+        >
+          🛒 I-copy ang listahan ng pagkain sa {selectedWeek} (para sa palengke)
+        </button>
+      </div>
+
       {/* ── DAY CARDS ── */}
       <div style={{ padding: "20px 20px 0" }}>
         {filteredDays.map(d => {
