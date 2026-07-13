@@ -731,6 +731,75 @@ function QuickCheckIn({ storageKey }: { storageKey: string }) {
 }
 
 // ============================================================
+// MOOD QUICK-TAP — one-tap emoji check-in on home
+// Seniors don't need to navigate to the tracker for a mood log:
+// a single tap here writes it to the same tracker entry for today.
+// ============================================================
+function MoodQuickTap({ storageKey }: { storageKey: string }) {
+  const today = localDateStr();
+  const [mood, setMood] = useState(0);
+  const [justTapped, setJustTapped] = useState(false);
+
+  useEffect(() => {
+    const entries = readProgressCache<QuickEntry[]>(storageKey, []);
+    const t = entries.find(e => e.date === today);
+    if (t?.mood) setMood(t.mood);
+  }, [storageKey, today]);
+
+  function logMood(value: number) {
+    const entries = readProgressCache<QuickEntry[]>(storageKey, []);
+    const idx = entries.findIndex(e => e.date === today);
+    const base: QuickEntry = idx >= 0 ? entries[idx] : { date: today, painScore: 0, painLocation: "", easebrewUmaga: false, easebrewGabi: false, mood: 0, notes: "" };
+    const updated = { ...base, mood: value };
+    const next = idx >= 0 ? entries.map((e, i) => i === idx ? updated : e) : [...entries, updated];
+    writeProgressCache(storageKey, next);
+    fetch("/api/progress", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "tracker", data: { entries: next } }) }).catch(() => {});
+    setMood(value);
+    setJustTapped(true);
+    setTimeout(() => setJustTapped(false), 1600);
+    playChime("check");
+  }
+
+  const options: { emoji: string; label: string; value: number }[] = [
+    { emoji: "😢", label: "Masama", value: 2 },
+    { emoji: "😔", label: "Hindi masyado", value: 4 },
+    { emoji: "😐", label: "Ok lang", value: 6 },
+    { emoji: "🙂", label: "Maayos", value: 8 },
+    { emoji: "😄", label: "Maganda", value: 10 },
+  ];
+
+  return (
+    <div style={{ background: "white", border: "2px solid #D9D0C0", borderRadius: 22, padding: "18px", marginBottom: 24 }}>
+      <p style={{ fontSize: 17, fontWeight: 700, color: MID, margin: "0 0 12px", textAlign: "center" as const }}>
+        {justTapped ? "Salamat sa pag-log!" : mood > 0 ? "Kamusta pa ngayon?" : "Kamusta ka ngayon?"}
+      </p>
+      <div style={{ display: "flex", gap: 6, justifyContent: "space-between" }}>
+        {options.map(o => {
+          const active = mood === o.value;
+          return (
+            <button
+              key={o.value}
+              onClick={() => logMood(o.value)}
+              aria-label={o.label}
+              style={{
+                flex: 1, background: active ? "#FFF7DB" : "transparent",
+                border: `2.5px solid ${active ? "#FED255" : "transparent"}`,
+                borderRadius: 16, padding: "10px 4px", cursor: "pointer",
+                fontSize: 32, lineHeight: 1, transition: "all 0.15s",
+                display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4,
+              }}
+            >
+              <span aria-hidden="true">{o.emoji}</span>
+              <span style={{ fontSize: 10, color: MID, fontWeight: 600 }}>{o.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 // INSTALL BANNER — iOS, Android, Tablet
 // ============================================================
 function InstallBanner() {
@@ -1385,6 +1454,9 @@ export default function Home() {
             {session && <TodaysSummaryCard sessionCode={session.code} />}
             {session && (
               <QuickCheckIn storageKey={progressStorageKey("easebrew-tracker-v2", session.code)} />
+            )}
+            {session && (
+              <MoodQuickTap storageKey={progressStorageKey("easebrew-tracker-v2", session.code)} />
             )}
             {session && <ReferralCard coaches={coaches} />}
             {session && <TestimonialSubmissionCard />}
