@@ -193,7 +193,10 @@ self.addEventListener('notificationclick', (event) => {
   // Also check reminders on user interaction — keeps SW alive on mobile
   maybeShowReminder();
 
-  if (event.action === 'log-done' && period) {
+  // Any tap on a reminder notification (Done action OR body tap) auto-logs
+  // the intake — seniors shouldn't have to find the tiny action button.
+  const isReminderTap = period && (event.action === 'log-done' || !event.action);
+  if (isReminderTap) {
     const target = `/?quick_log=${period}`;
     event.waitUntil(
       self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
