@@ -470,7 +470,7 @@ export default function BloodPressurePage() {
                 Kansel
               </button>
               <button type="submit" style={{ flex: 2, background: G, color: "#fff", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>
-                Save
+                I-save
               </button>
             </div>
           </form>
