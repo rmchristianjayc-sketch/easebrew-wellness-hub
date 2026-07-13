@@ -941,17 +941,24 @@ function PackCountdownCard({ tier, packs, daysLeft, onReorder }: { tier: number;
 // ENGAGEMENT NUDGE (Feature 2)
 // ============================================================
 function EngagementNudge({ days, onDismiss }: { days: number; onDismiss: () => void }) {
+  function scrollToMood() {
+    // Auto-scroll to the mood picker further down on the page — the
+    // one-tap flow the customer just needs to tap ONE emoji to satisfy.
+    const buttons = document.querySelectorAll('button[aria-label="Ok lang"]');
+    const target = buttons[0];
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
   return (
     <div style={{ background: "#FEF9E7", border: "2px solid #FED255", borderRadius: 18, padding: "18px 20px", marginBottom: 24, display: "flex", alignItems: "center", gap: 14 }}>
-      <span style={{ flexShrink: 0 }}><ClipboardList size={36} color="#C0863B" /></span>
+      <span style={{ flexShrink: 0, fontSize: 36 }} aria-hidden="true">👋</span>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 17, fontWeight: 700, color: "#1B201A", margin: "0 0 4px" }}>{days} araw na mula sa huling log!</p>
-        <p style={{ fontSize: 15, color: "#4E504F", margin: 0, lineHeight: 1.5 }}>I-update ang pain tracker mo para ma-track ang progress mo.</p>
+        <p style={{ fontSize: 17, fontWeight: 700, color: "#1B201A", margin: "0 0 4px" }}>Miss ka namin!</p>
+        <p style={{ fontSize: 15, color: "#4E504F", margin: 0, lineHeight: 1.5 }}>{days} araw na. Sandali lang — i-tap ang emoji sa baba para mag-check-in.</p>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
-        <Link href="/tracker" style={{ background: "#39613B", color: "white", textDecoration: "none", borderRadius: 10, padding: "11px 16px", fontSize: 14, fontWeight: 700, textAlign: "center" as const }}>
-          <PenLine size={14} style={{ display: "inline", verticalAlign: "middle" }} /> I-log Ngayon
-        </Link>
+        <button onClick={scrollToMood} style={{ background: "#39613B", color: "white", border: "none", borderRadius: 10, padding: "11px 16px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
+          Simulan
+        </button>
         <button onClick={onDismiss} style={{ background: "transparent", border: "none", fontSize: 12, color: "#9E9E9E", cursor: "pointer", padding: "4px" }}>
           Mamaya
         </button>
