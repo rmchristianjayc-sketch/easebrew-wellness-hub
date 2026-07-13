@@ -712,6 +712,7 @@ export default function TrackerPage() {
               <VoiceButton onResult={(text) => setTodayDirty(p => ({ ...p, notes: p.notes ? p.notes + " " + text : text }))} />
             </div>
             <textarea
+              aria-label="Notes ng araw"
               value={today.notes}
               onChange={e => setTodayDirty(p => ({ ...p, notes: e.target.value }))}
               placeholder="Halimbawa: Mas magaan ang tuhod ko ngayon. Nakatulog nang maayos."
