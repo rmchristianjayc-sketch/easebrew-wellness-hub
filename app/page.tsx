@@ -1813,6 +1813,20 @@ export default function Home() {
           <div>
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0", display: "flex", alignItems: "center", gap: 8 }}>Mga Coach Namin <Users size={24} color={G} /></h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 20px 0", lineHeight: 1.6 }}>Kailangan ng tulong? Nandito kami para sa iyo!</p>
+
+            {/* Self-serve FAQ before phoning a coach — saves both sides time */}
+            {faqs.length > 0 && (
+              <div style={{ background: "#F3F8EE", border: "2px solid #C5D9AF", borderRadius: 18, padding: "16px 18px", marginBottom: 20 }}>
+                <p style={{ fontSize: 15, fontWeight: 700, color: G, margin: "0 0 6px", display: "flex", alignItems: "center", gap: 6 }}>
+                  <HelpCircle size={18} /> Baka may sagot na dito
+                </p>
+                <p style={{ fontSize: 13, color: MID, margin: "0 0 10px", lineHeight: 1.5 }}>Basahin muna bago mag-message — baka mabilis na masagot ang tanong mo.</p>
+                <div style={{ background: WHITE, borderRadius: 12, padding: "4px 14px" }}>
+                  {faqs.slice(0, 5).map((faq, i) => <FAQItem key={i} q={faq.q} a={faq.a} />)}
+                </div>
+              </div>
+            )}
+
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {coaches.map((c, i) => (
                 <div key={i} style={{ background: WHITE, border: "2px solid #C5B99A", borderRadius: 18, padding: "18px 20px" }}>
