@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { G, GOLD, AMBER, CREAM, WHITE, DARK, MID, LIGHT_G } from "@/lib/colors";
-import { DEFAULT_PRODUCTS, applyContentOverrides, splitByTier } from "@/lib/products";
+import { DEFAULT_PRODUCTS, applyContentOverrides, splitByTier, type Product } from "@/lib/products";
 import { PRICE_CONFIG } from "@/lib/price-config";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
 import { localDateStr, localDateStrOffset } from "@/lib/localDate";
@@ -731,6 +731,51 @@ function QuickCheckIn({ storageKey }: { storageKey: string }) {
 }
 
 // ============================================================
+// UNUSED FEATURE NUDGE — remind about paid features they haven't
+// opened in 7+ days so they get value from what they already own.
+// ============================================================
+function UnusedFeatureNudge({ unlockedProducts, onDismiss }: { unlockedProducts: Product[]; onDismiss: () => void }) {
+  const [suggestion, setSuggestion] = useState<Product | null>(null);
+  useEffect(() => {
+    const typeMap: Record<string, string> = {
+      "/meal-plan": "mealplan",
+      "/exercise": "exercise",
+      "/recipes": "recipe_favorites",
+      "/bagong-katawan": "bagong_katawan",
+    };
+    async function check() {
+      for (const p of unlockedProducts) {
+        const t = typeMap[p.appUrl];
+        if (!t) continue;
+        try {
+          const r = await fetch(`/api/progress?type=${t}`).then(r => r.json());
+          const updatedAt = r?.updated_at;
+          const stale = !updatedAt || (Date.now() - new Date(updatedAt).getTime()) > 7 * 86400_000;
+          if (stale) { setSuggestion(p); return; }
+        } catch { /* ignore */ }
+      }
+    }
+    if (unlockedProducts.length > 0) check();
+  }, [unlockedProducts]);
+  if (!suggestion) return null;
+  return (
+    <div style={{ background: "#E8F5E0", border: "2px solid #39613B", borderRadius: 18, padding: "16px 18px", marginBottom: 24, display: "flex", alignItems: "center", gap: 12 }}>
+      <span style={{ fontSize: 28, flexShrink: 0 }} aria-hidden="true">🎁</span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ fontSize: 15, fontWeight: 700, color: "#1B201A", margin: "0 0 3px" }}>May regalo ka na hindi pa nabu-buksan!</p>
+        <p style={{ fontSize: 14, color: "#4E504F", margin: 0, lineHeight: 1.5 }}>Subukan mo yung <strong>{suggestion.name}</strong> — kasama na sa order mo.</p>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6, flexShrink: 0 }}>
+        <Link href={suggestion.appUrl} style={{ background: "#39613B", color: "white", textDecoration: "none", borderRadius: 10, padding: "10px 14px", fontSize: 13, fontWeight: 700, textAlign: "center" as const }}>
+          Buksan
+        </Link>
+        <button onClick={onDismiss} style={{ background: "transparent", border: "none", fontSize: 11, color: "#9E9E9E", cursor: "pointer" }}>Mamaya</button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 // MOOD QUICK-TAP — one-tap emoji check-in on home
 // Seniors don't need to navigate to the tracker for a mood log:
 // a single tap here writes it to the same tracker entry for today.
@@ -1199,6 +1244,7 @@ export default function Home() {
   const [nudgeDismissed, setNudgeDismissed] = useState(false);
   const [weeklyData, setWeeklyData]         = useState<{ avgPain: number; consistency: number; entries: number } | null>(null);
   const [weeklyDismissed, setWeeklyDismissed] = useState(false);
+  const [unusedFeatureDismissed, setUnusedFeatureDismissed] = useState(false);
   const [products, setProducts]             = useState(DEFAULT_PRODUCTS);
   const [coaches, setCoaches]               = useState<Coach[]>(DEFAULT_COACHES);
   const [heroTitle, setHeroTitle]           = useState("Kamusta, Nanay at Tatay!");
@@ -1502,6 +1548,9 @@ export default function Home() {
             )}
             {session && (
               <MoodQuickTap storageKey={progressStorageKey("easebrew-tracker-v2", session.code)} />
+            )}
+            {session && !unusedFeatureDismissed && (
+              <UnusedFeatureNudge unlockedProducts={unlockedProducts} onDismiss={() => setUnusedFeatureDismissed(true)} />
             )}
             {session && <ReferralCard coaches={coaches} />}
             {session && <TestimonialSubmissionCard />}
