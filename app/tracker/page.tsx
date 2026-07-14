@@ -678,13 +678,13 @@ export default function TrackerPage() {
               <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><Smile size={20} /> Paano ang mood mo?</h2>
             </div>
             <p style={{ fontSize: 18, color: MID, margin: "0 0 16px 0" }}>I-tap ang pinakamalapit sa pakiramdam mo ngayon</p>
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 6 }}>
               {MOOD_OPTIONS.map(m => (
                 <button
                   key={m.val}
                   onClick={() => setTodayDirty(e => ({ ...e, mood: m.val }))}
                   style={{
-                    flex: 1, padding: "14px 4px", borderRadius: 14,
+                    flex: 1, minWidth: 0, padding: "14px 2px", borderRadius: 14,
                     border: today.mood === m.val ? `3px solid ${G}` : "2px solid #E0D8CC",
                     background: today.mood === m.val ? "#E8F5E0" : WHITE,
                     display: "flex", flexDirection: "column", alignItems: "center",
@@ -692,8 +692,8 @@ export default function TrackerPage() {
                     minHeight: 80,
                   }}
                 >
-                  <m.Icon size={28} color={today.mood === m.val ? G : m.color} />
-                  <span style={{ fontSize: 16, color: today.mood === m.val ? G : MID, fontWeight: 600, textAlign: "center" as const, lineHeight: 1.2 }}>
+                  <m.Icon size={26} color={today.mood === m.val ? G : m.color} />
+                  <span style={{ fontSize: 12, color: today.mood === m.val ? G : MID, fontWeight: 600, textAlign: "center" as const, lineHeight: 1.15, wordBreak: "break-word" as const, hyphens: "auto" as const }}>
                     {m.label}
                   </span>
                 </button>
