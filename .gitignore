@@ -43,3 +43,9 @@ next-env.d.ts
 # Claude Code agent worktrees / session data
 .claude/
 cookies.txt
+
+# Playwright artifacts
+/playwright-report/
+/test-results/
+/blob-report/
+/playwright/.cache/
