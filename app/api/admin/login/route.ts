@@ -78,7 +78,16 @@ async function findAdminUser(username: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { username, password } = await req.json();
+    let username: unknown;
+    let password: unknown;
+    try {
+      ({ username, password } = await req.json());
+    } catch {
+      return NextResponse.json(
+        { error: 'Username and password are required.' },
+        { status: 400 }
+      );
+    }
     const rateLimitKey = getRateLimitKey(req, username);
     const normalizedUsername = normalizeUsername(username);
 

@@ -69,7 +69,15 @@ async function recordVerifyAttempt(keys: VerifyRateLimitKey[]) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    let body: { code?: unknown; device_id?: unknown };
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'A valid code and device ID are required.' },
+        { status: 400 }
+      );
+    }
     const code = normalizeCode(body.code);
     const deviceId = body.device_id;
 
