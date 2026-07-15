@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const securityHeaders = [
   { key: "X-Content-Type-Options",    value: "nosniff" },
@@ -38,4 +39,21 @@ const nextConfig: NextConfig = {
   compress: true,
 };
 
-export default nextConfig;
+// Wrap with Sentry only when a DSN is configured; otherwise stay a plain
+// Next.js config so local dev / CI / anyone without a Sentry account works
+// exactly as before. The Sentry wrapper is a superset: it injects source-map
+// upload + tunnel routes for ad-blocker resilience when auth is present.
+const config = process.env.SENTRY_DSN
+  ? withSentryConfig(nextConfig, {
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      silent: !process.env.CI,
+      widenClientFileUpload: true,
+      tunnelRoute: "/monitoring",
+      sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN },
+      disableLogger: true,
+    })
+  : nextConfig;
+
+export default config;
