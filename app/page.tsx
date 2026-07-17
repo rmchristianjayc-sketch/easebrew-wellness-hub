@@ -13,7 +13,7 @@ import { localDateStr, localDateStrOffset } from "@/lib/localDate";
 
 // 1.2 — Imported from single source of truth (no more duplicate definitions)
 import { Coach, DEFAULT_COACHES, buildCoaches } from "@/lib/coaches";
-import { Gift, Home as HomeIcon, Lightbulb, Phone, Users, HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard, Coffee, Footprints, Droplets, Moon, Sun, Sparkles, Trophy, BookOpen, Leaf, MessageCircle, HelpCircle, Heart, ShoppingCart, ClipboardList, Bell, Smartphone, BarChart3, Video, CookingPot, CircleCheck, Lock, Info, Package, Calendar, Target, AlertTriangle, Megaphone, AlertCircle, Timer, X, Fish, Globe, Share2, Plus, Star, Copy, Wheat } from "lucide-react";
+import { Gift, Home as HomeIcon, Lightbulb, Phone, Users, HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard, Coffee, Footprints, Droplets, Moon, Sun, Sparkles, Trophy, BookOpen, Leaf, MessageCircle, HelpCircle, Heart, ShoppingCart, ClipboardList, Bell, Smartphone, BarChart3, Video, CookingPot, CircleCheck, Lock, Info, Package, Calendar, Target, AlertTriangle, Megaphone, AlertCircle, Timer, X, Fish, Globe, Share2, Plus, Star, Copy, Wheat, LogOut, Shield } from "lucide-react";
 
 // ============================================================
 // CONFIG — FALLBACK DEFAULTS (used when no value in DB)
@@ -1522,6 +1522,18 @@ export default function Home() {
             >
               <span style={{ fontSize: 13 }}>A</span><span style={{ fontSize: 18 }}>A</span>
             </button>
+            <button
+              onClick={async () => {
+                if (!confirm("Sigurado ka bang gusto mong mag-log out?")) return;
+                try { await fetch("/api/session", { method: "DELETE" }); } catch {}
+                window.location.href = "/verify";
+              }}
+              aria-label="I-log out"
+              title="I-log out"
+              style={{ background: "rgba(254,210,85,0.15)", border: "1.5px solid rgba(254,210,85,0.4)", borderRadius: 12, padding: "8px 10px", cursor: "pointer", color: GOLD, fontWeight: 700, fontSize: 13, display: "flex", alignItems: "center", gap: 4, minHeight: 40 }}
+            >
+              <LogOut size={16} /> Log out
+            </button>
             <div style={{ background: "rgba(254,210,85,0.15)", border: "1.5px solid rgba(254,210,85,0.4)", borderRadius: 14, padding: "8px 14px", textAlign: "center" as const }}>
               <p style={{ color: GOLD, fontSize: 20, fontWeight: 900, margin: 0, lineHeight: 1 }}>{unlockedProducts.length}</p>
               <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 11, margin: "2px 0 0 0", fontWeight: 600 }}>Regalo</p>
@@ -2003,6 +2015,10 @@ export default function Home() {
               <p style={{ fontSize: 13, color: MID, marginTop: 24, lineHeight: 1.7 }}>
                 COD | Libreng Shipping | Buong Pilipinas<br />
                 © 2025 EaseBrew Herbal Coffee.
+              </p>
+              <p style={{ fontSize: 13, color: G, marginTop: 12, lineHeight: 1.7, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontWeight: 600 }}>
+                <Shield size={14} />
+                <a href="/privacy" style={{ color: G, textDecoration: "underline" }}>Ligtas ang data mo — Privacy Policy</a>
               </p>
             </div>
           </div>

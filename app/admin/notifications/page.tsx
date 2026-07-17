@@ -183,6 +183,10 @@ export default function NotificationsPage() {
               )}
             </div>
 
+            <p style={{ marginTop: 10, fontSize: 12, color: "#6b7a70", fontStyle: "italic", fontFamily: "var(--admin-font)", lineHeight: 1.5 }}>
+              ℹ️ Aabot lang ito sa mga customer na naka-ON ang Paalala (browser notification permission granted).
+            </p>
+
             {publishMsg && (
               <p style={{ marginTop: 12, fontSize: 13, fontWeight: 600, color: publishMsg.startsWith("✅") || publishMsg.startsWith("🗑️") ? "#39613B" : "#ef4444", fontFamily: "Inter, system-ui, sans-serif" }}>
                 {publishMsg}

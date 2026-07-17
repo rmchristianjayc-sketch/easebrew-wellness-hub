@@ -492,18 +492,28 @@ export default function ContentPage() {
                         { field: "display" as const,  label: "Display Number", placeholder: "0917 xxx xxxx" },
                         { field: "facebook" as const, label: "Facebook",       placeholder: "https://facebook.com/..." },
                         { field: "photo" as const,    label: "Photo URL",      placeholder: "/coaches/name.jpg" },
-                      ]).map(({ field, label, placeholder }) => (
-                        <div key={field} style={{ marginBottom: 6 }}>
-                          <label style={{ fontSize: 10, color: MID, fontWeight: 700, display: "block", marginBottom: 2, textTransform: "uppercase" as const, letterSpacing: 0.3 }}>
-                            {label}{field === "name" && <span style={{ color: "#ef4444", marginLeft: 2 }}>*</span>}
-                          </label>
-                          <input type="text" value={coach[field]}
-                            onChange={e => updateCoach(idx, field, e.target.value)}
-                            placeholder={placeholder}
-                            style={{ width: "100%", padding: "6px 10px", borderRadius: 7, border: "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, background: "white", color: DARK }}
-                          />
-                        </div>
-                      ))}
+                      ]).map(({ field, label, placeholder }) => {
+                        const isPhone = field === "number";
+                        const phoneRaw = isPhone ? coach[field].replace(/[\s\-()]/g, "") : "";
+                        const phoneInvalid = isPhone && phoneRaw.length > 0 && !/^(09\d{9}|\+639\d{9})$/.test(phoneRaw);
+                        return (
+                          <div key={field} style={{ marginBottom: 6 }}>
+                            <label style={{ fontSize: 10, color: MID, fontWeight: 700, display: "block", marginBottom: 2, textTransform: "uppercase" as const, letterSpacing: 0.3 }}>
+                              {label}{field === "name" && <span style={{ color: "#ef4444", marginLeft: 2 }}>*</span>}
+                            </label>
+                            <input type="text" value={coach[field]}
+                              onChange={e => updateCoach(idx, field, e.target.value)}
+                              placeholder={placeholder}
+                              style={{ width: "100%", padding: "6px 10px", borderRadius: 7, border: phoneInvalid ? "1.5px solid #ef4444" : "1.5px solid #e0e0e0", fontSize: 12, outline: "none", boxSizing: "border-box" as const, background: "white", color: DARK }}
+                            />
+                            {phoneInvalid && (
+                              <p style={{ margin: "3px 0 0", fontSize: 10, color: "#dc2626", fontWeight: 600 }}>
+                                Must be PH mobile: 09XXXXXXXXX or +639XXXXXXXXX (breaks tap-to-call if invalid).
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   ))}
                 </div>

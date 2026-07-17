@@ -186,7 +186,10 @@ function VoiceButton({ onResult }: { onResult: (text: string) => void }) {
   const [listening, setListening] = useState(false);
   const [supported, setSupported] = useState(false);
   useEffect(() => {
-    setSupported("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
+    const hasApi = "SpeechRecognition" in window || "webkitSpeechRecognition" in window;
+    const ua = navigator.userAgent || "";
+    const isIOS = /iPad|iPhone|iPod/.test(ua) || (ua.includes("Mac") && "ontouchend" in document);
+    setSupported(hasApi && !isIOS);
   }, []);
   if (!supported) return null;
 
