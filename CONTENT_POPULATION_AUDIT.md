@@ -1,5 +1,7 @@
 # Content Population Audit — R&M EaseBrew Wellness Hub
 
+> **Session update 2026-07-21** — 45 additional fields populated via service-role upsert on top of Batch 1 (commit `06776f1`). Live state now: **~70 of 101 keys filled**. Remaining unfilled are intentionally deferred (need owner-provided assets — see § Session update below).
+
 **Audit date:** 2026-07-17
 **Auditor:** Claude Opus 4.7 (analysis only — no code, database, UI, or business logic changed)
 **Method:** direct enumeration of `PUBLIC_CONTENT_KEYS` in [lib/contentKeys.ts](lib/contentKeys.ts), group-labeling from [app/admin/content/page.tsx](app/admin/content/page.tsx), live `content` table read via service-role client, and cross-check of `exercise_videos` against the 30-day program in [lib/exerciseProgram.ts](lib/exerciseProgram.ts)
@@ -237,4 +239,48 @@ Coach role has no access to any of these — content editing is owner-only.
 
 ---
 
-*End of audit. No code, database, UI, or business logic was modified during this analysis. Populate P0 items first; the app is safe to launch at any time thanks to hardcoded fallbacks, but populated authentic content is what earns the trust required for the target audience to keep using it.*
+*End of original audit. No code, database, UI, or business logic was modified during that analysis. Populate P0 items first; the app is safe to launch at any time thanks to hardcoded fallbacks, but populated authentic content is what earns the trust required for the target audience to keep using it.*
+
+---
+
+## Session update — 2026-07-21 (Content Batch 2)
+
+DB-only updates via service-role upsert. No code changed. Groups 1-4 completed with owner approval field-by-field:
+
+### Applied (45 fields)
+
+| Group | DB keys | Wording source |
+|-------|---------|----------------|
+| Coach modal + reorder (4) | `coach_modal_title`, `coach_modal_subtitle_reorder`, `coach_modal_subtitle_default`, `reorder_message_template` | CONTENT_DRAFT_V2 § 7 (with one owner tweak: reorder template dropped "Salamat po sa pagsuporta" for universal fit) |
+| Wellness tips 1/6/7/8 (4 new) | `daily_tip_1`, `daily_tip_6`, `daily_tip_7`, `daily_tip_8` | CONTENT_DRAFT_V2 § 2 as-is |
+| Wellness tips 2/5 (refreshed for "po" consistency) | `daily_tip_2`, `daily_tip_5` | Minimal edits — added "po" to existing safe copy |
+| FAQ 6 & 7 (extra, not shown on Coach tab; first 5 only render) | `faq_6_q`, `faq_6_a`, `faq_7_q`, `faq_7_a` | CONTENT_DRAFT_V2 § 3 as-is |
+| Coach data mirrored to DB (30 = 6 × 5) | `coach_1..6_{name,number,display,facebook,photo}` | Copied verbatim from [lib/coaches.ts](lib/coaches.ts) `DEFAULT_COACHES` (real R&M coaches confirmed by owner). Enables admin editing via `/admin/content` → Coach Management without needing code change for future roster updates. Hardcoded defaults preserved as fallback. |
+| Hero title consistency fix | `hero_title` | Changed `"Kamusta, Nanay at Tatay!"` → `"Kamusta po, Nanay at Tatay!"` — matches subtitle's "po" pattern applied throughout content. |
+
+### Still intentionally unfilled (need owner-provided assets)
+
+| Category | Keys | Blocked on |
+|----------|------|------------|
+| Wellness videos 1-3 (9 fields) | `video_1..3_{title, desc, url}` | Owner supplies 3 YouTube URLs |
+| Testimonials (18 fields) | `testimonial_1..3_*` | Real customer signed consent per policy in CONTENT_DRAFT_V2 § 8 |
+| Announcement / promo banners (5 fields) | `notification_active`, `promo_enabled`, `promo_text`, etc. | Owner activates via `/admin/notifications` when campaign runs |
+| Exercise videos 2-30 (29 slots) | `exercise_videos` JSON entries beyond `p1-d1-neck-rolls` | Owner records or curates 29 more YouTube URLs |
+
+### Live state after session
+
+- **Filled: ~70 of 101 keys** in `PUBLIC_CONTENT_KEYS` schema.
+- **Every customer-facing surface** has authentic Tagalog content — hero, products, tips (all 8), FAQs (all 7), coach modal strings, reorder template, coach roster.
+- **All 6 real coaches** editable via admin UI going forward.
+- **Test suite:** 61 passed / 10 skipped / 0 failed (baseline held).
+- **All 7 QA must-fix items** and **CSP dev-fix** already live in code (commits `38f629a`, `3bdb9fb`).
+
+### Handoff to owner (blocking launch or first-week polish)
+
+1. Activate Sentry DSN in Vercel env vars per [docs/MONITORING.md](docs/MONITORING.md).
+2. Set up external uptime monitor pointed at `/api/session`.
+3. Collect real customer testimonials with signed consent → populate 1-3 slots.
+4. Record or curate remaining 29 exercise videos + 3 wellness videos.
+5. Verify pre-launch checklist per [docs/LAUNCH_CHECKLIST.md](docs/LAUNCH_CHECKLIST.md).
+
+*End of session update. App is content-ready for soft launch.*
