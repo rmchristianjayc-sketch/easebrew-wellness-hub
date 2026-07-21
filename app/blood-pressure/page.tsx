@@ -181,7 +181,7 @@ export default function BloodPressurePage() {
           // Keep the notification body generic — the phone may be locked
           // and anyone glancing at the preview shouldn't see the exact BP
           // reading. The actual numbers are shown in the in-app modal.
-          new Notification("⚠️ EaseBrew Emergency", {
+          new Notification("EaseBrew Emergency Alert", {
             body: "Mataas ang BP mo. Buksan ang app agad.",
             icon: "/icons/icon-192.png",
             requireInteraction: true,

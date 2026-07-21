@@ -426,7 +426,7 @@ function TodaysSummaryCard({ sessionCode }: { sessionCode: string }) {
     <div style={{ background: allDone ? "#E8F5E0" : WHITE, border: `2px solid ${allDone ? G : "#D9D0C0"}`, borderRadius: 20, padding: 18, marginBottom: 20, boxShadow: "0 2px 10px rgba(0,0,0,0.06)" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
         <p style={{ fontSize: 15, fontWeight: 700, color: allDone ? G : MID, margin: 0 }}>
-          {allDone ? "✓ Tapos na lahat ngayon!" : `Ngayong araw • ${doneCount}/${tasks.length} tapos`}
+          {allDone ? "Tapos na lahat ngayon!" : `Ngayong araw • ${doneCount}/${tasks.length} tapos`}
         </p>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 8 }}>
@@ -577,7 +577,7 @@ function ReferralCard({ coaches }: { coaches: Coach[] }) {
       </p>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         <button onClick={copyReferral} style={{ background: AMBER, color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
-          {copied ? "Na-copy na ✓" : "I-copy ang mensahe"}
+          {copied ? "Na-copy na" : "I-copy ang mensahe"}
         </button>
         {typeof navigator !== "undefined" && "share" in navigator && (
           <button onClick={shareNative} style={{ background: G, color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
@@ -661,7 +661,7 @@ function FamilyShareCard() {
             </p>
           )}
           <button onClick={copyLink} style={{ background: "#0ea5e9", color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
-            {copied ? "Na-copy na ✓" : "I-copy ang mensahe"}
+            {copied ? "Na-copy na" : "I-copy ang mensahe"}
           </button>
           {typeof navigator !== "undefined" && "share" in navigator && (
             <button onClick={shareNative} style={{ background: G, color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
@@ -796,7 +796,7 @@ function UnusedFeatureNudge({ unlockedProducts, onDismiss }: { unlockedProducts:
   if (!suggestion) return null;
   return (
     <div style={{ background: "#E8F5E0", border: "2px solid #39613B", borderRadius: 18, padding: "16px 18px", marginBottom: 24, display: "flex", alignItems: "center", gap: 12 }}>
-      <span style={{ fontSize: 28, flexShrink: 0 }} aria-hidden="true">🎁</span>
+      <Gift size={28} color="#39613B" style={{ flexShrink: 0 }} aria-hidden="true" />
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontSize: 15, fontWeight: 700, color: "#1B201A", margin: "0 0 3px" }}>May regalo ka na hindi pa nabu-buksan!</p>
         <p style={{ fontSize: 14, color: "#4E504F", margin: 0, lineHeight: 1.5 }}>Subukan mo yung <strong>{suggestion.name}</strong> — kasama na sa order mo.</p>
@@ -1031,7 +1031,7 @@ function EngagementNudge({ days, onDismiss }: { days: number; onDismiss: () => v
   }
   return (
     <div style={{ background: "#FEF9E7", border: "2px solid #FED255", borderRadius: 18, padding: "18px 20px", marginBottom: 24, display: "flex", alignItems: "center", gap: 14 }}>
-      <span style={{ flexShrink: 0, fontSize: 36 }} aria-hidden="true">👋</span>
+      <Heart size={36} color="#E74C3C" style={{ flexShrink: 0 }} aria-hidden="true" />
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontSize: 17, fontWeight: 700, color: "#1B201A", margin: "0 0 4px" }}>Miss ka namin!</p>
         <p style={{ fontSize: 15, color: "#4E504F", margin: 0, lineHeight: 1.5 }}>{days} araw na. Sandali lang — i-tap ang emoji sa baba para mag-check-in.</p>

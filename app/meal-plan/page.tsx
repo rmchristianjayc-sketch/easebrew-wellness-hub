@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
-import { ChevronLeft, Home, Coffee, UtensilsCrossed, Pill, Lightbulb, Target, CircleCheck, Undo2, ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronLeft, Home, Coffee, UtensilsCrossed, Pill, Lightbulb, Target, CircleCheck, Undo2, ChevronUp, ChevronDown, ShoppingCart } from "lucide-react";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";
@@ -271,7 +271,7 @@ export default function MealPlanPage() {
             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
           }}
         >
-          🛒 I-copy ang listahan ng pagkain sa {selectedWeek} (para sa palengke)
+          <ShoppingCart size={18} /> I-copy ang listahan ng pagkain sa {selectedWeek} (para sa palengke)
         </button>
       </div>
 

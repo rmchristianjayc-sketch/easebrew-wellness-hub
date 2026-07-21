@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Sidebar from "@/app/admin/_components/Sidebar";
 import { useAdminGuard } from "@/lib/useAdminGuard";
-import { Sun, Lightbulb, BarChart3, Droplets, Tag, Heart, Moon, PenLine, type LucideIcon } from "lucide-react";
+import { Sun, Lightbulb, BarChart3, Droplets, Tag, Heart, Moon, PenLine, Megaphone, Smartphone, Info, CheckCircle2, XCircle, Trash2, type LucideIcon } from "lucide-react";
 
 const G = "#39613B", DARK = "#1B201A", MID = "#4E504F";
 
@@ -30,7 +30,12 @@ export default function NotificationsPage() {
   const [current, setCurrent] = useState<{ title: string; message: string; active: boolean } | null>(null);
   const [publishing, setPublishing] = useState(false);
   const [clearing, setClearing]     = useState(false);
-  const [publishMsg, setPublishMsg] = useState("");
+  const [publishMsg, setPublishMsgRaw] = useState<{ text: string; tone: "success" | "error" | "cleared" } | null>(null);
+  const setPublishMsg = (arg: string | { text: string; tone: "success" | "error" | "cleared" } | null) => {
+    if (arg === "" || arg === null) setPublishMsgRaw(null);
+    else if (typeof arg === "string") setPublishMsgRaw({ text: arg, tone: "success" });
+    else setPublishMsgRaw(arg);
+  };
 
   useEffect(() => {
     if (checking) return;
@@ -72,9 +77,9 @@ export default function NotificationsPage() {
       });
       if (!res.ok) throw new Error(await res.text());
       setCurrent({ title, message: body, active: true });
-      setPublishMsg("✅ Published! All customers can now see it.");
+      setPublishMsg({ text: "Published. All customers can now see it.", tone: "success" });
     } catch {
-      setPublishMsg("❌ Error occurred. Please try again.");
+      setPublishMsg({ text: "Error occurred. Please try again.", tone: "error" });
     }
     setPublishing(false);
   }
@@ -90,9 +95,9 @@ export default function NotificationsPage() {
       });
       if (!res.ok) throw new Error(await res.text());
       setCurrent(prev => prev ? { ...prev, active: false } : null);
-      setPublishMsg("🗑️ Notification cleared.");
+      setPublishMsg({ text: "Notification cleared.", tone: "cleared" });
     } catch {
-      setPublishMsg("❌ Error occurred. Please try again.");
+      setPublishMsg({ text: "Error occurred. Please try again.", tone: "error" });
     }
     setClearing(false);
   }
@@ -136,7 +141,7 @@ export default function NotificationsPage() {
 
           {current && current.active && (
             <div style={{ background: "#e8f5e0", borderRadius: 12, padding: "14px", marginTop: 20, border: "1px solid #39613B40" }}>
-              <p style={{ color: G, fontWeight: "bold", fontSize: 12, margin: "0 0 6px" }}>📣 Active App Notification:</p>
+              <p style={{ color: G, fontWeight: "bold", fontSize: 12, margin: "0 0 6px", display: "flex", alignItems: "center", gap: 6 }}><Megaphone size={12} /> Active App Notification:</p>
               <p style={{ color: DARK, fontSize: 12, fontWeight: "bold", margin: "0 0 4px" }}>{current.title}</p>
               <p style={{ color: MID, fontSize: 11, margin: 0, lineHeight: 1.5 }}>{current.message}</p>
             </div>
@@ -183,13 +188,16 @@ export default function NotificationsPage() {
               )}
             </div>
 
-            <p style={{ marginTop: 10, fontSize: 12, color: "#6b7a70", fontStyle: "italic", fontFamily: "var(--admin-font)", lineHeight: 1.5 }}>
-              ℹ️ Aabot lang ito sa mga customer na naka-ON ang Paalala (browser notification permission granted).
+            <p style={{ marginTop: 10, fontSize: 12, color: "#6b7a70", fontStyle: "italic", fontFamily: "var(--admin-font)", lineHeight: 1.5, display: "flex", alignItems: "center", gap: 6 }}>
+              <Info size={12} /> Aabot lang ito sa mga customer na naka-ON ang Paalala (browser notification permission granted).
             </p>
 
             {publishMsg && (
-              <p style={{ marginTop: 12, fontSize: 13, fontWeight: 600, color: publishMsg.startsWith("✅") || publishMsg.startsWith("🗑️") ? "#39613B" : "#ef4444", fontFamily: "Inter, system-ui, sans-serif" }}>
-                {publishMsg}
+              <p style={{ marginTop: 12, fontSize: 13, fontWeight: 600, color: publishMsg.tone === "error" ? "#ef4444" : "#39613B", fontFamily: "Inter, system-ui, sans-serif", display: "flex", alignItems: "center", gap: 6 }}>
+                {publishMsg.tone === "success" && <CheckCircle2 size={14} />}
+                {publishMsg.tone === "error" && <XCircle size={14} />}
+                {publishMsg.tone === "cleared" && <Trash2 size={14} />}
+                {publishMsg.text}
               </p>
             )}
           </div>
@@ -197,11 +205,11 @@ export default function NotificationsPage() {
           {/* Preview */}
           {(title || body) && (
             <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e8ece9", padding: "24px 28px", boxShadow: "0 1px 3px rgba(20,35,25,0.04)" }}>
-              <h3 style={{ color: DARK, fontSize: 13, fontWeight: 700, margin: "0 0 14px", textTransform: "uppercase", letterSpacing: "0.3px", fontFamily: "var(--admin-font)" }}>
-                📱 App Preview
+              <h3 style={{ color: DARK, fontSize: 13, fontWeight: 700, margin: "0 0 14px", textTransform: "uppercase", letterSpacing: "0.3px", fontFamily: "var(--admin-font)", display: "flex", alignItems: "center", gap: 6 }}>
+                <Smartphone size={14} /> App Preview
               </h3>
               <div style={{ maxWidth: 420, background: DARK, borderRadius: 12, padding: "14px 16px", display: "flex", gap: 12, alignItems: "flex-start", border: `2px solid ${G}` }}>
-                <span style={{ fontSize: 22, flexShrink: 0, marginTop: 2 }}>📣</span>
+                <Megaphone size={22} color="#FED255" style={{ flexShrink: 0, marginTop: 2 }} />
                 <div style={{ flex: 1 }}>
                   <p style={{ color: "#FED255", fontWeight: "bold", fontSize: 14, margin: "0 0 4px" }}>{title || "Title..."}</p>
                   <p style={{ color: "rgba(255,255,255,0.85)", fontSize: 13, margin: 0, lineHeight: 1.5 }}>{body || "Message..."}</p>

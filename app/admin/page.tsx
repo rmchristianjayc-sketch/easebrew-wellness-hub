@@ -9,7 +9,7 @@ import type { AccessCode } from "@/lib/supabase";
 import {
   Users, TrendingUp, Clock,
   AlertTriangle, Package, ArrowUpRight,
-  CalendarDays,
+  CalendarDays, Siren, Moon, CheckCircle2, Bell, Check, type LucideIcon,
 } from "lucide-react";
 
 function PesoIcon({ size = 21, color = "#fff", strokeWidth = 2, style }: { size?: number; color?: string; strokeWidth?: number; style?: React.CSSProperties }) {
@@ -151,7 +151,7 @@ function AtensyonPanel({
   type Section = {
     key: string;
     label: string;
-    icon: string;
+    icon: LucideIcon;
     color: string;
     items: AccessCode[];
     action: (c: AccessCode) => React.ReactNode;
@@ -159,27 +159,27 @@ function AtensyonPanel({
 
   const sections: Section[] = [
     {
-      key: "critical", label: "Expiring in 3 days", icon: "🚨",
+      key: "critical", label: "Expiring in 3 days", icon: Siren,
       color: "#991b1b",
       items: critical,
       action: (c) => (
         <button onClick={() => copyReorderMessage(c)} style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", fontSize: 11.5, fontWeight: 700, cursor: "pointer", fontFamily: "var(--admin-font)" }}>
-          {copiedCode === c.code ? "Copied ✓" : "Copy message"}
+          {copiedCode === c.code ? "Copied" : "Copy message"}
         </button>
       ),
     },
     {
-      key: "soon", label: "Expiring in 4-7 days", icon: "⚠️",
+      key: "soon", label: "Expiring in 4-7 days", icon: AlertTriangle,
       color: "#92400e",
       items: soon,
       action: (c) => (
         <button onClick={() => copyReorderMessage(c)} style={{ background: "#d97706", color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", fontSize: 11.5, fontWeight: 700, cursor: "pointer", fontFamily: "var(--admin-font)" }}>
-          {copiedCode === c.code ? "Copied ✓" : "Copy message"}
+          {copiedCode === c.code ? "Copied" : "Copy message"}
         </button>
       ),
     },
     {
-      key: "stale", label: "Codes not yet verified (3+ days)", icon: "💤",
+      key: "stale", label: "Codes not yet verified (3+ days)", icon: Moon,
       color: "#3730a3",
       items: staleUnused.slice(0, 20),
       action: () => (
@@ -201,7 +201,9 @@ function AtensyonPanel({
       borderRadius: 16, padding: "18px 22px", marginBottom: 22,
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: totalAtensyon === 0 ? 0 : 16 }}>
-        <span style={{ fontSize: 18 }}>{totalAtensyon === 0 ? "✅" : "🔔"}</span>
+        {totalAtensyon === 0
+          ? <CheckCircle2 size={18} color="#16a34a" />
+          : <Bell size={18} color="#d97706" />}
         <h2 style={{ fontSize: 14, fontWeight: 800, color: "#1B201A", margin: 0, fontFamily: "var(--admin-font)", textTransform: "uppercase" as const, letterSpacing: 0.4 }}>
           Needs attention
         </h2>
@@ -215,7 +217,7 @@ function AtensyonPanel({
           {activeSections.map(s => (
             <div key={s.key}>
               <p style={{ fontSize: 11, fontWeight: 700, color: s.color, margin: "0 0 10px", textTransform: "uppercase" as const, letterSpacing: 0.5, fontFamily: "var(--admin-font)", display: "flex", alignItems: "center", gap: 6 }}>
-                <span>{s.icon}</span> {s.label} ({s.items.length})
+                <s.icon size={13} /> {s.label} ({s.items.length})
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 200, overflowY: "auto" }}>
                 {s.items.map(c => (
@@ -325,7 +327,7 @@ export default function AdminDashboard() {
               color: "#fff", fontSize: 24, fontWeight: 800, margin: "0 0 5px",
               fontFamily: "var(--admin-font)", letterSpacing: "-0.3px",
             }}>
-              {greeting}, {displayName} 👋
+              {greeting}, {displayName}
             </h1>
             <p style={{
               color: "rgba(255,255,255,0.5)", fontSize: 13, margin: 0,

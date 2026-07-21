@@ -63,7 +63,7 @@ function CustomerProfilePanel({ codeStr, onClose }: { codeStr: string; onClose: 
 
         <div style={{ padding: "20px", flex: 1 }}>
           {loading && <div style={{ textAlign: "center", padding: "40px 0", color: "#9ca8a3", fontFamily: "var(--admin-font)", fontSize: 13 }}>Loading profile...</div>}
-          {err    && <div style={{ color: "#dc2626", fontSize: 13, padding: "20px 0", fontFamily: "var(--admin-font)" }}>⚠️ {err}</div>}
+          {err    && <div style={{ color: "#dc2626", fontSize: 13, padding: "20px 0", fontFamily: "var(--admin-font)" }}>{err}</div>}
           {data && (() => {
             const c  = data.code;
             const pr = data.progress;
