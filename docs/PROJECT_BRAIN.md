@@ -640,6 +640,15 @@ Root-level files worth knowing:
 
 Append entries here for major changes. Older entries stay for history.
 
+### 2026-07-21 — Content Batch 1 & 2, QA fixes, CSP dev-fix
+
+- **7 QA must-fix items shipped** (commit `38f629a`): logout button in customer header, iOS voice-input hide, PH-mobile phone validation on coach editor, notifications reach disclaimer, Tagalog PWA manifest description, `/privacy` static page, "Ligtas ang data mo" footer link. Playwright fixture also stabilised (self-seeds `EASE-TEST-0001` customer code — restored 61 passing / 10 skipped / 0 failed).
+- **CSP dev-mode fix** (commit `3bdb9fb`): `next.config.ts` now allows `'unsafe-eval'` in `script-src` only when `NODE_ENV !== 'production'`. Production CSP remains strict. Fixes Turbopack module-loader failure in dev that left React unhydrated and all buttons frozen locally.
+- **Launch Readiness Report** committed (`3bdb9fb`) — 0 blockers, 2 dev-only advisories, GO for launch.
+- **Content Batch 1** (commit `06776f1` docs + `content` table upsert): 22 keys — hero subtitle, 4 product name+desc (Tagalog replacing English defaults), 5 FAQs, `daily_tip_3/4` rewrite (removed "resulta ay darating" / "mas mabilis ang resulta" guarantee language). Emoji prefix on product names stripped afterwards to avoid double-icon on `/verify` Packages tab.
+- **Content Batch 2** (commit `9cddf99` docs + `content` table upsert): 45 more keys — coach modal + reorder template (4), `daily_tip_1/6/7/8` new + `daily_tip_2/5` refreshed for "po" consistency (6), FAQ 6 & 7 (4), all 6 real coaches mirrored to DB so admin can edit via `/admin/content` (30), hero title "po" fix (1). Live state: ~70 of 101 `PUBLIC_CONTENT_KEYS` populated. Remaining gaps are intentionally deferred pending owner-supplied videos or real testimonial consent.
+- **Production Readiness Review** (commit `9517733`), Security Hardening + SECURITY_REPORT (commit `346b8ff`), Sentry integration (deferred activation), GitHub Actions CI + CodeQL — all in place from prior work.
+
 ### 2026-07-13 — Automation batch + audit + brain
 
 - 13 automations shipped (see § 10 Roadmap "Completed")
