@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Sidebar from "@/app/admin/_components/Sidebar";
 import { useAdminGuard } from "@/lib/useAdminGuard";
-import { HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard, Home, ShoppingBag, ShoppingCart, Users, Lightbulb, HelpCircle, MessageSquare, Film, Plus, Trash2, type LucideIcon } from "lucide-react";
+import { HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard, Home, ShoppingBag, ShoppingCart, Users, Lightbulb, HelpCircle, MessageSquare, Film, Plus, Trash2, X, type LucideIcon } from "lucide-react";
 import Image from "next/image";
 import { parseCoachesFromContent } from "@/lib/coaches";
 import type { Coach } from "@/lib/coaches";
@@ -14,88 +14,88 @@ const MID  = "#4E504F";
 // keep legacy constants for inline field styles throughout the page
 const CONTENT_LABELS: Record<string, { label: string; group: string; multiline?: boolean; type?: "boolean" }> = {
   // ── Homepage ─────────────────────────────────────────────
-  hero_title:    { label: "Hero Title", group: "🏠 Homepage" },
-  hero_subtitle: { label: "Hero Subtitle",  group: "🏠 Homepage", multiline: true },
+  hero_title:    { label: "Hero Title", group: "Homepage" },
+  hero_subtitle: { label: "Hero Subtitle",  group: "Homepage", multiline: true },
 
   // ── Products ─────────────────────────────────────────────
-  product_1_name: { label: "Product 1 — Name (📊 Daily Health Tracker)",   group: "🛍️ Products & Gifts" },
-  product_1_desc: { label: "Product 1 — Description",                     group: "🛍️ Products & Gifts", multiline: true },
-  product_2_name: { label: "Product 2 — Name (🥗 Meal Plan + Recipe Book)", group: "🛍️ Products & Gifts" },
-  product_2_desc: { label: "Product 2 — Description",                     group: "🛍️ Products & Gifts", multiline: true },
-  product_3_name: { label: "Product 3 — Name (💪 Home Exercise Guide)",    group: "🛍️ Products & Gifts" },
-  product_3_desc: { label: "Product 3 — Description",                     group: "🛍️ Products & Gifts", multiline: true },
-  product_4_name: { label: "Product 4 — Name (🏆 Complete Wellness Program)", group: "🛍️ Products & Gifts" },
-  product_4_desc: { label: "Product 4 — Description",                     group: "🛍️ Products & Gifts", multiline: true },
+  product_1_name: { label: "Product 1 — Name (Daily Health Tracker)",   group: "Products & Gifts" },
+  product_1_desc: { label: "Product 1 — Description",                     group: "Products & Gifts", multiline: true },
+  product_2_name: { label: "Product 2 — Name (Meal Plan + Recipe Book)", group: "Products & Gifts" },
+  product_2_desc: { label: "Product 2 — Description",                     group: "Products & Gifts", multiline: true },
+  product_3_name: { label: "Product 3 — Name (Home Exercise Guide)",    group: "Products & Gifts" },
+  product_3_desc: { label: "Product 3 — Description",                     group: "Products & Gifts", multiline: true },
+  product_4_name: { label: "Product 4 — Name (Complete Wellness Program)", group: "Products & Gifts" },
+  product_4_desc: { label: "Product 4 — Description",                     group: "Products & Gifts", multiline: true },
 
   // ── Coaches — managed via custom UI, not individual keys ──
 
 
   // ── Wellness Tips ─────────────────────────────────────────
-  daily_tip_1: { label: "Tip 1", group: "💡 Wellness Tips", multiline: true },
-  daily_tip_2: { label: "Tip 2", group: "💡 Wellness Tips", multiline: true },
-  daily_tip_3: { label: "Tip 3", group: "💡 Wellness Tips", multiline: true },
-  daily_tip_4: { label: "Tip 4", group: "💡 Wellness Tips", multiline: true },
-  daily_tip_5: { label: "Tip 5", group: "💡 Wellness Tips", multiline: true },
-  daily_tip_6: { label: "Tip 6", group: "💡 Wellness Tips", multiline: true },
-  daily_tip_7: { label: "Tip 7", group: "💡 Wellness Tips", multiline: true },
-  daily_tip_8: { label: "Tip 8", group: "💡 Wellness Tips", multiline: true },
+  daily_tip_1: { label: "Tip 1", group: "Wellness Tips", multiline: true },
+  daily_tip_2: { label: "Tip 2", group: "Wellness Tips", multiline: true },
+  daily_tip_3: { label: "Tip 3", group: "Wellness Tips", multiline: true },
+  daily_tip_4: { label: "Tip 4", group: "Wellness Tips", multiline: true },
+  daily_tip_5: { label: "Tip 5", group: "Wellness Tips", multiline: true },
+  daily_tip_6: { label: "Tip 6", group: "Wellness Tips", multiline: true },
+  daily_tip_7: { label: "Tip 7", group: "Wellness Tips", multiline: true },
+  daily_tip_8: { label: "Tip 8", group: "Wellness Tips", multiline: true },
 
   // ── FAQs ─────────────────────────────────────────────────
-  faq_1_q: { label: "FAQ 1 — Question", group: "❓ FAQs" },
-  faq_1_a: { label: "FAQ 1 — Answer",   group: "❓ FAQs", multiline: true },
-  faq_2_q: { label: "FAQ 2 — Question", group: "❓ FAQs" },
-  faq_2_a: { label: "FAQ 2 — Answer",   group: "❓ FAQs", multiline: true },
-  faq_3_q: { label: "FAQ 3 — Question", group: "❓ FAQs" },
-  faq_3_a: { label: "FAQ 3 — Answer",   group: "❓ FAQs", multiline: true },
-  faq_4_q: { label: "FAQ 4 — Question", group: "❓ FAQs" },
-  faq_4_a: { label: "FAQ 4 — Answer",   group: "❓ FAQs", multiline: true },
-  faq_5_q: { label: "FAQ 5 — Question", group: "❓ FAQs" },
-  faq_5_a: { label: "FAQ 5 — Answer",   group: "❓ FAQs", multiline: true },
-  faq_6_q: { label: "FAQ 6 — Question", group: "❓ FAQs" },
-  faq_6_a: { label: "FAQ 6 — Answer",   group: "❓ FAQs", multiline: true },
-  faq_7_q: { label: "FAQ 7 — Question", group: "❓ FAQs" },
-  faq_7_a: { label: "FAQ 7 — Answer",   group: "❓ FAQs", multiline: true },
+  faq_1_q: { label: "FAQ 1 — Question", group: "FAQs" },
+  faq_1_a: { label: "FAQ 1 — Answer",   group: "FAQs", multiline: true },
+  faq_2_q: { label: "FAQ 2 — Question", group: "FAQs" },
+  faq_2_a: { label: "FAQ 2 — Answer",   group: "FAQs", multiline: true },
+  faq_3_q: { label: "FAQ 3 — Question", group: "FAQs" },
+  faq_3_a: { label: "FAQ 3 — Answer",   group: "FAQs", multiline: true },
+  faq_4_q: { label: "FAQ 4 — Question", group: "FAQs" },
+  faq_4_a: { label: "FAQ 4 — Answer",   group: "FAQs", multiline: true },
+  faq_5_q: { label: "FAQ 5 — Question", group: "FAQs" },
+  faq_5_a: { label: "FAQ 5 — Answer",   group: "FAQs", multiline: true },
+  faq_6_q: { label: "FAQ 6 — Question", group: "FAQs" },
+  faq_6_a: { label: "FAQ 6 — Answer",   group: "FAQs", multiline: true },
+  faq_7_q: { label: "FAQ 7 — Question", group: "FAQs" },
+  faq_7_a: { label: "FAQ 7 — Answer",   group: "FAQs", multiline: true },
 
   // ── Testimonials ─────────────────────────────────────────
-  testimonial_1_name:        { label: "Testimonial 1 — Name",               group: "💬 Testimonials" },
-  testimonial_1_age:         { label: "Testimonial 1 — Age",                group: "💬 Testimonials" },
-  testimonial_1_location:    { label: "Testimonial 1 — Location",           group: "💬 Testimonials" },
-  testimonial_1_quote:       { label: "Testimonial 1 — Quote",              group: "💬 Testimonials", multiline: true },
-  testimonial_1_pain_before: { label: "Testimonial 1 — Pain Before (1-10)", group: "💬 Testimonials" },
-  testimonial_1_pain_after:  { label: "Testimonial 1 — Pain After (1-10)",  group: "💬 Testimonials" },
-  testimonial_2_name:        { label: "Testimonial 2 — Name",               group: "💬 Testimonials" },
-  testimonial_2_age:         { label: "Testimonial 2 — Age",                group: "💬 Testimonials" },
-  testimonial_2_location:    { label: "Testimonial 2 — Location",           group: "💬 Testimonials" },
-  testimonial_2_quote:       { label: "Testimonial 2 — Quote",              group: "💬 Testimonials", multiline: true },
-  testimonial_2_pain_before: { label: "Testimonial 2 — Pain Before (1-10)", group: "💬 Testimonials" },
-  testimonial_2_pain_after:  { label: "Testimonial 2 — Pain After (1-10)",  group: "💬 Testimonials" },
-  testimonial_3_name:        { label: "Testimonial 3 — Name",               group: "💬 Testimonials" },
-  testimonial_3_age:         { label: "Testimonial 3 — Age",                group: "💬 Testimonials" },
-  testimonial_3_location:    { label: "Testimonial 3 — Location",           group: "💬 Testimonials" },
-  testimonial_3_quote:       { label: "Testimonial 3 — Quote",              group: "💬 Testimonials", multiline: true },
-  testimonial_3_pain_before: { label: "Testimonial 3 — Pain Before (1-10)", group: "💬 Testimonials" },
-  testimonial_3_pain_after:  { label: "Testimonial 3 — Pain After (1-10)",  group: "💬 Testimonials" },
+  testimonial_1_name:        { label: "Testimonial 1 — Name",               group: "Testimonials" },
+  testimonial_1_age:         { label: "Testimonial 1 — Age",                group: "Testimonials" },
+  testimonial_1_location:    { label: "Testimonial 1 — Location",           group: "Testimonials" },
+  testimonial_1_quote:       { label: "Testimonial 1 — Quote",              group: "Testimonials", multiline: true },
+  testimonial_1_pain_before: { label: "Testimonial 1 — Pain Before (1-10)", group: "Testimonials" },
+  testimonial_1_pain_after:  { label: "Testimonial 1 — Pain After (1-10)",  group: "Testimonials" },
+  testimonial_2_name:        { label: "Testimonial 2 — Name",               group: "Testimonials" },
+  testimonial_2_age:         { label: "Testimonial 2 — Age",                group: "Testimonials" },
+  testimonial_2_location:    { label: "Testimonial 2 — Location",           group: "Testimonials" },
+  testimonial_2_quote:       { label: "Testimonial 2 — Quote",              group: "Testimonials", multiline: true },
+  testimonial_2_pain_before: { label: "Testimonial 2 — Pain Before (1-10)", group: "Testimonials" },
+  testimonial_2_pain_after:  { label: "Testimonial 2 — Pain After (1-10)",  group: "Testimonials" },
+  testimonial_3_name:        { label: "Testimonial 3 — Name",               group: "Testimonials" },
+  testimonial_3_age:         { label: "Testimonial 3 — Age",                group: "Testimonials" },
+  testimonial_3_location:    { label: "Testimonial 3 — Location",           group: "Testimonials" },
+  testimonial_3_quote:       { label: "Testimonial 3 — Quote",              group: "Testimonials", multiline: true },
+  testimonial_3_pain_before: { label: "Testimonial 3 — Pain Before (1-10)", group: "Testimonials" },
+  testimonial_3_pain_after:  { label: "Testimonial 3 — Pain After (1-10)",  group: "Testimonials" },
 
   // ── Videos ────────────────────────────────────────────────
-  video_1_title: { label: "Video 1 — Title",                           group: "🎬 Videos" },
-  video_1_desc:  { label: "Video 1 — Description",                     group: "🎬 Videos", multiline: true },
-  video_1_url:   { label: "Video 1 — YouTube Link", group: "🎬 Videos" },
-  video_2_title: { label: "Video 2 — Title",                           group: "🎬 Videos" },
-  video_2_desc:  { label: "Video 2 — Description",                     group: "🎬 Videos", multiline: true },
-  video_2_url:   { label: "Video 2 — YouTube Link", group: "🎬 Videos" },
-  video_3_title: { label: "Video 3 — Title",                           group: "🎬 Videos" },
-  video_3_desc:  { label: "Video 3 — Description",                     group: "🎬 Videos", multiline: true },
-  video_3_url:   { label: "Video 3 — YouTube Link", group: "🎬 Videos" },
+  video_1_title: { label: "Video 1 — Title",                           group: "Videos" },
+  video_1_desc:  { label: "Video 1 — Description",                     group: "Videos", multiline: true },
+  video_1_url:   { label: "Video 1 — YouTube Link", group: "Videos" },
+  video_2_title: { label: "Video 2 — Title",                           group: "Videos" },
+  video_2_desc:  { label: "Video 2 — Description",                     group: "Videos", multiline: true },
+  video_2_url:   { label: "Video 2 — YouTube Link", group: "Videos" },
+  video_3_title: { label: "Video 3 — Title",                           group: "Videos" },
+  video_3_desc:  { label: "Video 3 — Description",                     group: "Videos", multiline: true },
+  video_3_url:   { label: "Video 3 — YouTube Link", group: "Videos" },
 
   // ── Reorder & Coach Modal ─────────────────────────────────
   reorder_message_template: {
     label: "Reorder Message Template — kino-copy ng customer para i-send sa coach. Gumamit ng {{package}} at {{expiry}} bilang placeholders.",
-    group: "🛒 Reorder & Coach Modal",
+    group: "Reorder & Coach Modal",
     multiline: true,
   },
-  coach_modal_title:            { label: "Coach Modal — Title (default: Pumili ng Coach)",                                         group: "🛒 Reorder & Coach Modal" },
-  coach_modal_subtitle_reorder: { label: "Coach Modal Subtitle — kapag may reorder message (default: I-copy ang mensahe sa taas…)", group: "🛒 Reorder & Coach Modal" },
-  coach_modal_subtitle_default: { label: "Coach Modal Subtitle — normal (default: Tumawag o mag-message para mag-order)",           group: "🛒 Reorder & Coach Modal" },
+  coach_modal_title:            { label: "Coach Modal — Title (default: Pumili ng Coach)",                                         group: "Reorder & Coach Modal" },
+  coach_modal_subtitle_reorder: { label: "Coach Modal Subtitle — kapag may reorder message (default: I-copy ang mensahe sa taas…)", group: "Reorder & Coach Modal" },
+  coach_modal_subtitle_default: { label: "Coach Modal Subtitle — normal (default: Tumawag o mag-message para mag-order)",           group: "Reorder & Coach Modal" },
 
   // ── Notifications ─────────────────────────────────────────
   // ✅ Bug #5 FIX: Tinanggal na ang reorder_reminder_days — dead setting, walang gumagamit
@@ -163,7 +163,7 @@ function ProductsSection({ editing, content, saved, setEditing, setContent, setS
                       setTimeout(() => setSaved(p => ({ ...p, [nameKey]: false, [descKey]: false })), 2000);
                     }
                   }} style={{ background: allSaved ? "#dcfce7" : G, color: allSaved ? G : "white", border: "none", borderRadius: 8, padding: "8px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
-                    {allSaved ? "✅ Saved!" : "Save"}
+                    {allSaved ? "Saved!" : "Save"}
                   </button>
                 )}
               </div>
@@ -236,7 +236,7 @@ export default function ContentPage() {
   const [saved, setSaved]             = useState<Record<string, boolean>>({});
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState("");
-  const [activeGroup, setActiveGroup] = useState("🏠 Homepage");
+  const [activeGroup, setActiveGroup] = useState("Homepage");
   const [coaches, setCoaches]         = useState<Coach[]>([]);
   const [coachesSaving, setCoachesSaving] = useState(false);
   const [coachesSaved, setCoachesSaved]   = useState(false);
@@ -362,7 +362,7 @@ export default function ContentPage() {
     groups[meta.group].push(key);
   });
   // Coach Management uses custom UI, not CONTENT_LABELS — ensure it appears in tabs
-  if (!groups["👥 Coach Management"]) groups["👥 Coach Management"] = [];
+  if (!groups["Coach Management"]) groups["Coach Management"] = [];
   const groupNames = Object.keys(groups);
 
   const pendingCount       = Object.entries(editing).filter(([k, v]) => v !== (content[k] ?? "")).length;
@@ -389,21 +389,21 @@ export default function ContentPage() {
 
           {pendingCount > 0 && (
             <div style={{ background: "#fef9c3", border: "1px solid #fde68a", borderRadius: 10, padding: "10px 14px", marginBottom: 16, fontSize: 12, color: "#b45309" }}>
-              ⚠️ {pendingCount} unsaved change{pendingCount > 1 ? "s" : ""}
+              {pendingCount} unsaved change{pendingCount > 1 ? "s" : ""}
             </div>
           )}
 
           <nav style={{ display: "flex", flexDirection: "column", gap: 3 }}>
             {(() => {
               const GROUP_ICONS: Record<string, LucideIcon> = {
-                "🏠 Homepage": Home,
-                "🛍️ Products & Gifts": ShoppingBag,
-                "👥 Coach Management": Users,
-                "💡 Wellness Tips": Lightbulb,
-                "❓ FAQs": HelpCircle,
-                "💬 Testimonials": MessageSquare,
-                "🎬 Videos": Film,
-                "🛒 Reorder & Coach Modal": ShoppingCart,
+                "Homepage": Home,
+                "Products & Gifts": ShoppingBag,
+                "Coach Management": Users,
+                "Wellness Tips": Lightbulb,
+                "FAQs": HelpCircle,
+                "Testimonials": MessageSquare,
+                "Videos": Film,
+                "Reorder & Coach Modal": ShoppingCart,
               };
               return groupNames.map(g => {
                 const isActive   = activeGroup === g;
@@ -438,8 +438,8 @@ export default function ContentPage() {
         <div style={{ flex: 1, minWidth: 0 }}>
           {error && (
             <div style={{ background: "#fff0f0", border: "1px solid #ffcccc", borderRadius: 10, padding: "12px 16px", color: "#cc0000", fontSize: 13, marginBottom: 16 }}>
-              ⚠️ {error}
-              <button onClick={() => setError("")} style={{ marginLeft: 12, background: "none", border: "none", cursor: "pointer", color: "#cc0000", fontWeight: "bold" }}>✕</button>
+              {error}
+              <button onClick={() => setError("")} aria-label="Dismiss error" style={{ marginLeft: 12, background: "none", border: "none", cursor: "pointer", color: "#cc0000", display: "inline-flex", alignItems: "center", verticalAlign: "middle" }}><X size={14} /></button>
             </div>
           )}
 
@@ -454,7 +454,7 @@ export default function ContentPage() {
             </div>
 
             {/* ── COACH MANAGEMENT — dynamic list ── */}
-            {activeGroup === "👥 Coach Management" ? (
+            {activeGroup === "Coach Management" ? (
               <div>
                 <div style={{ background: "#f0fdf4", borderRadius: 10, padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <span style={{ fontSize: 13, color: "#166534", fontWeight: 600 }}>{coaches.length} coach{coaches.length !== 1 ? "es" : ""}</span>
@@ -519,11 +519,11 @@ export default function ContentPage() {
                 </div>
               </div>
 
-            ) : activeGroup === "🛍️ Products & Gifts" ? (
+            ) : activeGroup === "Products & Gifts" ? (
               <ProductsSection editing={editing} content={content} saved={saved} setEditing={setEditing} setContent={setContent} setSaved={setSaved} />
 
             /* ── WELLNESS TIPS — numbered list with defaults ── */
-            ) : activeGroup === "💡 Wellness Tips" ? (
+            ) : activeGroup === "Wellness Tips" ? (
               (() => {
                 const DEFAULT_TIPS = [
                   "Drink EaseBrew 30 mins before eating for the best effect.",
@@ -540,7 +540,7 @@ export default function ContentPage() {
                   <div>
                     <div style={{ background: "#f0f7f0", border: "1px solid #d4e8d4", borderRadius: 10, padding: "12px 16px", marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ fontSize: 12, color: G }}>
-                        💡 These tips rotate daily on the customer hub. Leave blank to use defaults.
+                        These tips rotate daily on the customer hub. Leave blank to use defaults.
                       </div>
                       <span style={{ fontSize: 12, fontWeight: 700, color: filledCount > 0 ? G : MID }}>
                         {filledCount}/8 custom
@@ -577,7 +577,7 @@ export default function ContentPage() {
                               color: isSaved2 ? G : hasChange ? "white" : "#aaa",
                               border: "none", borderRadius: 6, padding: "6px 14px", fontSize: 11, fontWeight: 700, cursor: hasChange ? "pointer" : "not-allowed",
                               flexShrink: 0, marginTop: 2,
-                            }}>{isSaved2 ? "✅" : "Save"}</button>
+                            }}>{isSaved2 ? "Saved" : "Save"}</button>
                           </div>
                         );
                       })}
@@ -587,7 +587,7 @@ export default function ContentPage() {
               })()
 
             /* ── FAQs — card per Q&A pair ── */
-            ) : activeGroup === "❓ FAQs" ? (
+            ) : activeGroup === "FAQs" ? (
               (() => {
                 const DEFAULT_FAQ_LIST = [
                   { q: "When should I drink EaseBrew?", a: "Morning and evening — 2 sachets per day for best results. Drink 30 mins before meals for the best effect." },
@@ -603,7 +603,7 @@ export default function ContentPage() {
                   <div>
                     <div style={{ background: "#fef9f0", border: "1px solid #f0dfc0", borderRadius: 10, padding: "12px 16px", marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ fontSize: 12, color: "#8B6914" }}>
-                        ❓ Customers see these on the main page. Leave blank to use defaults.
+                        Customers see these on the main page. Leave blank to use defaults.
                       </div>
                       <span style={{ fontSize: 12, fontWeight: 700, color: filledCount > 0 ? G : MID }}>
                         {filledCount}/7 custom
@@ -663,7 +663,7 @@ export default function ContentPage() {
                               color: allSaved2 ? G : hasChange ? "white" : "#aaa",
                               border: "none", borderRadius: 6, padding: "6px 14px", fontSize: 11, fontWeight: 700, cursor: hasChange ? "pointer" : "not-allowed",
                               flexShrink: 0, marginTop: 2,
-                            }}>{allSaved2 ? "✅" : "Save"}</button>
+                            }}>{allSaved2 ? "Saved" : "Save"}</button>
                           </div>
                         );
                       })}
@@ -673,7 +673,7 @@ export default function ContentPage() {
               })()
 
             /* ── TESTIMONIALS — card per person ── */
-            ) : activeGroup === "💬 Testimonials" ? (
+            ) : activeGroup === "Testimonials" ? (
               (() => {
                 const DEFAULT_TESTIMONIALS = [
                   { name: "Nena R.", age: "58", location: "Quezon City", quote: "Pagkatapos ng 3 weeks, mas magaan na ang tuhod ko. Hindi ko na kailangan uminom ng gamot araw-araw.", painBefore: "8", painAfter: "3" },
@@ -688,7 +688,7 @@ export default function ContentPage() {
                   <div>
                     <div style={{ background: "#fef0f5", border: "1px solid #f0c0d0", borderRadius: 10, padding: "12px 16px", marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ fontSize: 12, color: "#9B2C5A" }}>
-                        💬 Real customer stories shown on the main page. Leave blank to use defaults.
+                        Real customer stories shown on the main page. Leave blank to use defaults.
                       </div>
                       <span style={{ fontSize: 12, fontWeight: 700, color: filledCount > 0 ? G : MID }}>
                         {filledCount}/3 custom
@@ -740,7 +740,7 @@ export default function ContentPage() {
                                 background: allSaved2 ? "#dcfce7" : hasChange ? G : "#f0f0f0",
                                 color: allSaved2 ? G : hasChange ? "white" : "#aaa",
                                 border: "none", borderRadius: 6, padding: "6px 14px", fontSize: 11, fontWeight: 700, cursor: hasChange ? "pointer" : "not-allowed",
-                              }}>{allSaved2 ? "✅" : "Save"}</button>
+                              }}>{allSaved2 ? "Saved" : "Save"}</button>
                             </div>
                             {/* Live preview card */}
                             <div style={{ background: "#FFFDF5", border: "1px solid #f0e8d0", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
@@ -806,7 +806,7 @@ export default function ContentPage() {
               })()
 
             /* ── VIDEOS — card per video ── */
-            ) : activeGroup === "🎬 Videos" ? (
+            ) : activeGroup === "Videos" ? (
               (() => {
                 const DEFAULT_VIDEO_LIST = [
                   { title: "How to Prepare EaseBrew", desc: "The right way to maximize the herbal benefits of EaseBrew.", url: "" },
@@ -829,7 +829,7 @@ export default function ContentPage() {
                   <div>
                     <div style={{ background: "#eef0f7", border: "1px solid #c0c8e0", borderRadius: 10, padding: "12px 16px", marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ fontSize: 12, color: "#3B4A8B", lineHeight: 1.5 }}>
-                        🎬 Upload to YouTube (set as &quot;Unlisted&quot; if needed), then paste the link here.
+                        Upload to YouTube (set as &quot;Unlisted&quot; if needed), then paste the link here.
                       </div>
                       <span style={{ fontSize: 12, fontWeight: 700, color: filledCount > 0 ? G : MID, whiteSpace: "nowrap" as const, marginLeft: 12 }}>
                         {filledCount}/3 linked
@@ -874,7 +874,7 @@ export default function ContentPage() {
                                 background: allSaved2 ? "#dcfce7" : hasChange ? G : "#f0f0f0",
                                 color: allSaved2 ? G : hasChange ? "white" : "#aaa",
                                 border: "none", borderRadius: 6, padding: "6px 14px", fontSize: 11, fontWeight: 700, cursor: hasChange ? "pointer" : "not-allowed",
-                              }}>{allSaved2 ? "✅" : "Save"}</button>
+                              }}>{allSaved2 ? "Saved" : "Save"}</button>
                             </div>
                             {/* YouTube thumbnail preview */}
                             {videoId ? (
@@ -969,8 +969,8 @@ export default function ContentPage() {
                                 onChange={e => setEditing(p => ({ ...p, [key]: e.target.value }))}
                                 style={{ ...fieldStyle, cursor: "pointer" }}
                               >
-                                <option value="true">✅ Yes — Show</option>
-                                <option value="false">🚫 No — Hide</option>
+                                <option value="true">Yes — Show</option>
+                                <option value="false">No — Hide</option>
                               </select>
                             ) : meta.multiline ? (
                               <textarea value={val}
@@ -991,7 +991,7 @@ export default function ContentPage() {
                             fontSize: 12, fontWeight: "bold",
                             cursor: hasChange ? "pointer" : "not-allowed", whiteSpace: "nowrap",
                           }}>
-                            {isSaved ? "✅ Saved!" : isSaving ? "Saving..." : "Save"}
+                            {isSaved ? "Saved!" : isSaving ? "Saving..." : "Save"}
                           </button>
                         </div>
                       </div>
