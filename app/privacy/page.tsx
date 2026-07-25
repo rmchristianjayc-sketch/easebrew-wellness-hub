@@ -40,7 +40,6 @@ export default function PrivacyPage() {
 
       <h2 style={{ fontSize: 20, color: "#39613B", marginTop: 24 }}>Ano ang mga karapatan mo?</h2>
       <ul>
-        <li>Pwede mong i-log out anumang oras (sa Log out button sa taas ng home page).</li>
         <li>Pwede kang humingi ng kopya, pag-edit, o pag-delete ng data mo — i-message ang coach mo.</li>
         <li>Kapag mag-expire na ang package mo, mananatili ang data mo hanggang mag-request ka ng deletion.</li>
       </ul>

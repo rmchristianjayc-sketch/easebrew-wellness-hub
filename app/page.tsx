@@ -13,7 +13,7 @@ import { localDateStr, localDateStrOffset } from "@/lib/localDate";
 
 // 1.2 — Imported from single source of truth (no more duplicate definitions)
 import { Coach, DEFAULT_COACHES, buildCoaches } from "@/lib/coaches";
-import { Gift, Home as HomeIcon, Lightbulb, Phone, Users, HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard, Coffee, Footprints, Droplets, Moon, Sun, Sparkles, Trophy, BookOpen, Leaf, MessageCircle, HelpCircle, Heart, ShoppingCart, ClipboardList, Bell, Smartphone, BarChart3, Video, CookingPot, CircleCheck, Lock, Info, Package, Calendar, Target, AlertTriangle, Megaphone, AlertCircle, Timer, X, Fish, Globe, Share2, Plus, Star, Copy, Wheat, LogOut, Shield } from "lucide-react";
+import { Gift, Home as HomeIcon, Lightbulb, Phone, Users, HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard, Coffee, Footprints, Droplets, Moon, Sun, Sparkles, Trophy, BookOpen, Leaf, MessageCircle, HelpCircle, Heart, ShoppingCart, ClipboardList, Bell, Smartphone, BarChart3, Video, CookingPot, CircleCheck, Lock, Info, Package, Calendar, Target, AlertTriangle, Megaphone, AlertCircle, Timer, X, Fish, Globe, Share2, Plus, Star, Copy, Wheat, Shield } from "lucide-react";
 
 // ============================================================
 // CONFIG — FALLBACK DEFAULTS (used when no value in DB)
@@ -1521,18 +1521,6 @@ export default function Home() {
               style={{ background: largeFont ? GOLD : "rgba(254,210,85,0.15)", border: "1.5px solid rgba(254,210,85,0.4)", borderRadius: 12, padding: "8px 12px", cursor: "pointer", color: largeFont ? G : GOLD, fontWeight: 900, fontSize: 16, display: "flex", alignItems: "center", gap: 4, fontFamily: "Georgia, serif" }}
             >
               <span style={{ fontSize: 13 }}>A</span><span style={{ fontSize: 18 }}>A</span>
-            </button>
-            <button
-              onClick={async () => {
-                if (!confirm("Sigurado ka bang gusto mong mag-log out?")) return;
-                try { await fetch("/api/session", { method: "DELETE" }); } catch {}
-                window.location.href = "/verify";
-              }}
-              aria-label="I-log out"
-              title="I-log out"
-              style={{ background: "rgba(254,210,85,0.15)", border: "1.5px solid rgba(254,210,85,0.4)", borderRadius: 12, padding: "8px 10px", cursor: "pointer", color: GOLD, fontWeight: 700, fontSize: 13, display: "flex", alignItems: "center", gap: 4, minHeight: 40 }}
-            >
-              <LogOut size={16} /> Log out
             </button>
             <div style={{ background: "rgba(254,210,85,0.15)", border: "1.5px solid rgba(254,210,85,0.4)", borderRadius: 14, padding: "8px 14px", textAlign: "center" as const }}>
               <p style={{ color: GOLD, fontSize: 20, fontWeight: 900, margin: 0, lineHeight: 1 }}>{unlockedProducts.length}</p>
