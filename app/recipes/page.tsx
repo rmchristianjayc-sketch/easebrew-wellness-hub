@@ -911,15 +911,15 @@ useEffect(() => {
       </div>
 
       {/* ── DAILY TIP STRIP ── */}
-      <div style={{ background: GOLD, padding: "12px 20px", display: "flex", gap: 20, overflowX: "auto" }}>
+      <div style={{ background: GOLD, padding: "12px 20px", display: "flex", gap: 20, flexWrap: "wrap", rowGap: 8 }}>
         {[
           { icon: "☕", text: "Easebrew 30 mins bago kumain" },
           { icon: "💧", text: "8+ baso ng tubig araw-araw" },
-          { icon: "🫚", text: "Brown rice bilang base" },
+          { icon: "🍚", text: "Brown rice bilang base" },
         ].map((tip, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 20 }}>{tip.icon}</span>
-            <span style={{ fontSize: 16, color: G, fontWeight: 700, whiteSpace: "nowrap" }}>{tip.text}</span>
+            <span style={{ fontSize: 16, color: G, fontWeight: 700 }}>{tip.text}</span>
           </div>
         ))}
       </div>
