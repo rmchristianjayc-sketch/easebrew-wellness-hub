@@ -1283,8 +1283,8 @@ export default function Home() {
   const [unusedFeatureDismissed, setUnusedFeatureDismissed] = useState(false);
   const [products, setProducts]             = useState(DEFAULT_PRODUCTS);
   const [coaches, setCoaches]               = useState<Coach[]>(DEFAULT_COACHES);
-  const [heroTitle, setHeroTitle]           = useState("Kamusta, Nanay at Tatay!");
-  const [heroSubtitle, setHeroSubtitle]     = useState("Kasama mo araw-araw para sa mas malusog na katawan.");
+  const [heroTitle, setHeroTitle]           = useState("Kamusta po, Nanay at Tatay!");
+  const [heroSubtitle, setHeroSubtitle]     = useState("Salamat po sa pagtitiwala sa R&M EaseBrew. Kasama po namin kayo araw-araw.");
   const [wellnessTips, setWellnessTips]     = useState(DEFAULT_WELLNESS_TIPS);
   const [faqs, setFaqs]                     = useState(DEFAULT_FAQS);
   const [testimonials, setTestimonials]     = useState(DEFAULT_TESTIMONIALS);

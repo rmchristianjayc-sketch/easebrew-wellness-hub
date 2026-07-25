@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Sidebar from "@/app/admin/_components/Sidebar";
 import { useAdminGuard } from "@/lib/useAdminGuard";
 import { HeartPulse, UtensilsCrossed, Dumbbell, Crown, Activity, Pill, IdCard, Home, ShoppingBag, ShoppingCart, Users, Lightbulb, HelpCircle, MessageSquare, Film, Plus, Trash2, X, type LucideIcon } from "lucide-react";
@@ -240,6 +240,10 @@ export default function ContentPage() {
   const [coaches, setCoaches]         = useState<Coach[]>([]);
   const [coachesSaving, setCoachesSaving] = useState(false);
   const [coachesSaved, setCoachesSaved]   = useState(false);
+  // Ref-based lock: React state updates are batched, so a rapid double-click
+  // on a Save button can see the same stale isSaving=false and fire two POSTs.
+  // savingLock catches the second call synchronously, before the fetch.
+  const savingLock = useRef<Set<string>>(new Set());
 
   const fetchContent = useCallback(async () => {
     setLoading(true);
@@ -261,6 +265,8 @@ export default function ContentPage() {
   }, [checking, fetchContent]);
 
   async function handleSave(key: string) {
+    if (savingLock.current.has(key)) return;
+    savingLock.current.add(key);
     setSaving(p => ({ ...p, [key]: true }));
     try {
       const res = await fetch("/api/admin/content", {
@@ -280,15 +286,17 @@ export default function ContentPage() {
       setError("Something went wrong.");
     }
     setSaving(p => ({ ...p, [key]: false }));
+    savingLock.current.delete(key);
   }
 
   async function handleSaveAll() {
     const keys    = groups[activeGroup] ?? [];
     const changed = keys
-      .filter(k => editing[k] !== (content[k] ?? ""))
+      .filter(k => editing[k] !== (content[k] ?? "") && !savingLock.current.has(k))
       .map(k => ({ key: k, value: editing[k] ?? "" }));
     if (changed.length === 0) return;
 
+    changed.forEach(({ key }) => savingLock.current.add(key));
     const savingMap: Record<string, boolean> = {};
     changed.forEach(({ key }) => { savingMap[key] = true; });
     setSaving(p => ({ ...p, ...savingMap }));
@@ -321,6 +329,7 @@ export default function ContentPage() {
     const notSavingMap: Record<string, boolean> = {};
     changed.forEach(({ key }) => { notSavingMap[key] = false; });
     setSaving(p => ({ ...p, ...notSavingMap }));
+    changed.forEach(({ key }) => savingLock.current.delete(key));
   }
 
   function updateCoach(idx: number, field: keyof Coach, value: string) {
