@@ -795,17 +795,19 @@ function UnusedFeatureNudge({ unlockedProducts, onDismiss }: { unlockedProducts:
   }, [unlockedProducts]);
   if (!suggestion) return null;
   return (
-    <div style={{ background: "#E8F5E0", border: "2px solid #39613B", borderRadius: 18, padding: "16px 18px", marginBottom: 24, display: "flex", alignItems: "center", gap: 12 }}>
-      <Gift size={28} color="#39613B" style={{ flexShrink: 0 }} aria-hidden="true" />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 15, fontWeight: 700, color: "#1B201A", margin: "0 0 3px" }}>May regalo ka na hindi pa nabu-buksan!</p>
-        <p style={{ fontSize: 14, color: "#4E504F", margin: 0, lineHeight: 1.5 }}>Subukan mo yung <strong>{suggestion.name}</strong> — kasama na sa order mo.</p>
+    <div style={{ background: "#E8F5E0", border: "2px solid #39613B", borderRadius: 18, padding: "16px 18px", marginBottom: 24 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
+        <Gift size={28} color="#39613B" style={{ flexShrink: 0, marginTop: 2 }} aria-hidden="true" />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: 15, fontWeight: 700, color: "#1B201A", margin: "0 0 3px" }}>May regalo ka na hindi pa nabu-buksan!</p>
+          <p style={{ fontSize: 14, color: "#4E504F", margin: 0, lineHeight: 1.5 }}>Subukan mo yung <strong>{suggestion.name}</strong> — kasama na sa order mo.</p>
+        </div>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 6, flexShrink: 0 }}>
-        <Link href={suggestion.appUrl} style={{ background: "#39613B", color: "white", textDecoration: "none", borderRadius: 10, padding: "10px 14px", fontSize: 13, fontWeight: 700, textAlign: "center" as const }}>
+      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        <Link href={suggestion.appUrl} style={{ flex: 1, background: "#39613B", color: "white", textDecoration: "none", borderRadius: 10, padding: "12px 14px", fontSize: 14, fontWeight: 700, textAlign: "center" as const, minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}>
           Buksan
         </Link>
-        <button onClick={onDismiss} style={{ background: "transparent", border: "none", fontSize: 11, color: "#9E9E9E", cursor: "pointer" }}>Mamaya</button>
+        <button onClick={onDismiss} style={{ background: "transparent", border: "none", fontSize: 13, color: "#9E9E9E", cursor: "pointer", padding: "8px 12px" }}>Mamaya</button>
       </div>
     </div>
   );
@@ -854,7 +856,7 @@ function MoodQuickTap({ storageKey }: { storageKey: string }) {
       <p style={{ fontSize: 17, fontWeight: 700, color: MID, margin: "0 0 12px", textAlign: "center" as const }}>
         {justTapped ? "Salamat sa pag-log!" : mood > 0 ? "Kamusta pa ngayon?" : "Kamusta ka ngayon?"}
       </p>
-      <div style={{ display: "flex", gap: 6, justifyContent: "space-between" }}>
+      <div style={{ display: "flex", gap: 4, justifyContent: "space-between" }}>
         {options.map(o => {
           const active = mood === o.value;
           return (
@@ -863,15 +865,15 @@ function MoodQuickTap({ storageKey }: { storageKey: string }) {
               onClick={() => logMood(o.value)}
               aria-label={o.label}
               style={{
-                flex: 1, background: active ? "#FFF7DB" : "transparent",
+                flex: 1, minWidth: 0, background: active ? "#FFF7DB" : "transparent",
                 border: `2.5px solid ${active ? "#FED255" : "transparent"}`,
-                borderRadius: 16, padding: "10px 4px", cursor: "pointer",
-                fontSize: 32, lineHeight: 1, transition: "all 0.15s",
+                borderRadius: 16, padding: "10px 2px", cursor: "pointer",
+                fontSize: 30, lineHeight: 1, transition: "all 0.15s",
                 display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4,
               }}
             >
               <span aria-hidden="true">{o.emoji}</span>
-              <span style={{ fontSize: 10, color: MID, fontWeight: 600 }}>{o.label}</span>
+              <span style={{ fontSize: 10, color: MID, fontWeight: 600, lineHeight: 1.15, textAlign: "center" as const, wordBreak: "break-word" as const }}>{o.label}</span>
             </button>
           );
         })}
@@ -2014,22 +2016,23 @@ export default function Home() {
 
       </div>
 
-      {/* Floating coach button */}
+      {/* Floating coach button — sized down + tightened to corner so it
+          doesn't overlap card content on narrow (≤ 360px) viewports. */}
       <button
         onClick={() => setShowCoachModal(true)}
         aria-label="Call Coach"
         style={{
-          position: "fixed", bottom: 88, right: 14,
-          width: 62, height: 62, borderRadius: "50%",
-          background: "#39613B", border: "3px solid #FED255",
+          position: "fixed", bottom: 92, right: 10,
+          width: 52, height: 52, borderRadius: "50%",
+          background: "#39613B", border: "2.5px solid #FED255",
           boxShadow: "0 4px 20px rgba(57,97,59,0.5)",
           display: "flex", flexDirection: "column",
           alignItems: "center", justifyContent: "center",
           cursor: "pointer", zIndex: 500, gap: 1,
         }}
       >
-        <Phone size={20} color="#FED255" strokeWidth={2.5} />
-        <span style={{ fontSize: 9, color: "#FED255", fontWeight: 700, letterSpacing: 0.5 }}>COACH</span>
+        <Phone size={18} color="#FED255" strokeWidth={2.5} />
+        <span style={{ fontSize: 8, color: "#FED255", fontWeight: 700, letterSpacing: 0.4 }}>COACH</span>
       </button>
     </div>
   );
