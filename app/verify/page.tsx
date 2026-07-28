@@ -238,7 +238,13 @@ export default function VerifyPage() {
         <div style={{ maxWidth: 520, margin: "0 auto" }}>
 
           {/* ── Hero Banner ── */}
-          <div style={{ position: "relative", width: "100%", aspectRatio: "16/7", overflow: "hidden", background: G }}>
+          {/* aspect-ratio drives portrait height; viewport-aware cap prevents
+              the hero from eating a landscape viewport (e.g. 667×375 rotate
+              would otherwise give a 292px hero, pushing code input below the
+              fold). `min(220px, 35vh)` — never taller than 220 on wide portrait
+              screens, and never more than 35% of viewport height on short
+              screens like phone landscape. */}
+          <div style={{ position: "relative", width: "100%", aspectRatio: "16/7", maxHeight: "min(220px, 35vh)", overflow: "hidden", background: G }}>
             {!imgError ? (
               <Image src="/images/hero-product.jpg" alt="EaseBrew Herbal Coffee" fill
                 style={{ objectFit: "cover", objectPosition: "center" }}
