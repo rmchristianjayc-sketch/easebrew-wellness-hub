@@ -459,7 +459,7 @@ export default function TrackerPage() {
   });
 
   return (
-    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 100 }}>
+    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100dvh", paddingBottom: "calc(100px + env(safe-area-inset-bottom, 0px))" }}>
       {milestone && <MilestoneModal days={milestone} onClose={() => setMilestone(null)} />}
 
       {/* ── HEADER ── */}

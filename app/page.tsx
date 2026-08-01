@@ -1539,7 +1539,10 @@ export default function Home() {
       </div>
 
       {/* ── TAB CONTENT ──────────────────────────────────────── */}
-      <div style={{ padding: "28px 20px 80px" }}>
+      {/* Bottom padding clears the fixed Coach FAB (~136px above viewport
+          bottom) plus the iOS home-indicator safe-area, so the last card
+          on any tab (esp. Coach) stays fully visible when scrolled. */}
+      <div style={{ padding: "28px 20px calc(148px + env(safe-area-inset-bottom, 0px))" }}>
 
         {/* ═══ HOME TAB ═════════════════════════════════════════ */}
         {tab === "home" && (

@@ -159,7 +159,7 @@ export default function ExercisePage() {
   );
 
   return (
-    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100dvh", paddingBottom: 100 }}>
+    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100dvh", paddingBottom: "calc(100px + env(safe-area-inset-bottom, 0px))" }}>
 
       {/* ── HEADER ── */}
       <div style={{ background: G, color: "#fff" }}>

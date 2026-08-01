@@ -303,7 +303,7 @@ export default function BagongKatawanPage() {
   const phase3Done = PLAN.filter(d => d.phase === 3 && completedDays.includes(d.day)).length;
 
   return (
-    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100dvh", paddingBottom: 110 }}>
+    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100dvh", paddingBottom: "calc(110px + env(safe-area-inset-bottom, 0px))" }}>
 
       {/* ── HEADER ── */}
       <div style={{ background: G, padding: "36px 24px 28px", color: "#fff" }}>
