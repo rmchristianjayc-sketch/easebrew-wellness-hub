@@ -9,7 +9,7 @@ import type { AccessCode } from "@/lib/supabase";
 import {
   Users, TrendingUp, Clock,
   AlertTriangle, Package, ArrowUpRight,
-  CalendarDays, Siren, Moon, CheckCircle2, Bell, Check, type LucideIcon,
+  CalendarDays, Siren, Moon, CheckCircle2, Bell, type LucideIcon,
 } from "lucide-react";
 
 function PesoIcon({ size = 21, color = "#fff", strokeWidth = 2, style }: { size?: number; color?: string; strokeWidth?: number; style?: React.CSSProperties }) {
