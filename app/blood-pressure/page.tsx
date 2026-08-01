@@ -269,7 +269,7 @@ export default function BloodPressurePage() {
 
   if (checking) {
     return (
-      <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100dvh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <p style={{ color: G, fontWeight: 600, fontFamily: "Georgia, serif", fontSize: 18 }}>Sandali lang...</p>
       </div>
     );
@@ -290,7 +290,7 @@ export default function BloodPressurePage() {
   })();
 
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 60 }}>
+    <div style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100dvh", paddingBottom: 60 }}>
       {/* Print-only header (identifies patient on printed page) */}
       <div className="c-print-only" style={{ padding: "12px 20px", borderBottom: "2px solid #000" }}>
         <p style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Blood Pressure Log</p>

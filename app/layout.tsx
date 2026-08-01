@@ -6,7 +6,14 @@ export const viewport: Viewport = {
   themeColor: "#39613B",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  // No maximumScale — WCAG SC 1.4.4 (Resize Text) requires the user be
+  // able to pinch-zoom; seniors especially need this. Combined with the
+  // system-font-scale-aware `clamp()` on hero titles, layout stays sane
+  // when the OS bumps text size or the user zooms.
+  viewportFit: "cover",
+  // ↑ enables `env(safe-area-inset-*)` values on iPhone X+ / notched
+  // Android devices so the bottom nav clears the home indicator in PWA
+  // standalone mode.
 };
 
 export const metadata: Metadata = {

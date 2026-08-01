@@ -71,7 +71,7 @@ export default function BmiPage() {
   }
 
   if (checking) return (
-    <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ minHeight: "100dvh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <p className="c-body" style={{ color: G, fontWeight: 600 }}>Sandali lang...</p>
     </div>
   );
@@ -79,7 +79,7 @@ export default function BmiPage() {
   const bmiPct = result ? Math.min(Math.max(((result.bmi - 10) / (40 - 10)) * 100, 0), 100) : 0;
 
   return (
-    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 60 }}>
+    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100dvh", paddingBottom: 60 }}>
 
       {/* Header */}
       <div style={{ background: `linear-gradient(135deg, #3b1f6e 0%, #5b2d8e 100%)`, padding: "20px 24px 28px", color: "#fff" }}>

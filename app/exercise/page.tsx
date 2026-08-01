@@ -150,7 +150,7 @@ export default function ExercisePage() {
   }, [completedDays, autoNavigated, selectedPhase]);
 
   if (!ready) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: CREAM }}>
+    <div style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", background: CREAM }}>
       <div style={{ textAlign: "center" }}>
         <div style={{ width: 56, height: 56, borderRadius: 16, background: "#E8F5E0", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><Dumbbell size={28} color={G} /></div>
         <p style={{ fontSize: 22, color: G, fontWeight: 700 }}>Sandali lang...</p>
@@ -159,7 +159,7 @@ export default function ExercisePage() {
   );
 
   return (
-    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 100 }}>
+    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100dvh", paddingBottom: 100 }}>
 
       {/* ── HEADER ── */}
       <div style={{ background: G, color: "#fff" }}>

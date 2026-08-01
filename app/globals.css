@@ -12,6 +12,13 @@ body {
   overflow-y: auto;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  /* Prevent iOS Safari from auto-inflating font size on rotate; keep
+     text sized by the app's own scale so the layout is identical
+     across devices and orientations. Combined with pixel/`clamp()`
+     font sizes this stops the "one phone shows bigger text than the
+     other" real-device symptom. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -56,7 +63,12 @@ body {
   --c-font-lg:      22px;
   --c-font-xl:      26px;
   --c-font-2xl:     30px;
+  /* Fluid heading — shrinks on narrow screens so long titles like
+     "Buksan ang Wellness Hub Mo" don't wrap to 3+ lines when the
+     system font scale is bumped. Old browsers gracefully fall back
+     to the flat 34px value on the previous line. */
   --c-font-heading: 34px;
+  --c-font-heading: clamp(24px, 7vw, 34px);
   --c-radius:       20px;
   --c-radius-lg:    28px;
   --c-btn-h:        64px;
@@ -111,7 +123,11 @@ html[data-customer-text="large"] body:not(:has(.admin-shell)) input {
   max-width: 680px;
   margin: 0 auto;
   background: var(--cream);
-  min-height: 100vh;
+  min-height: 100vh;         /* fallback for old iOS < 15.4 */
+  min-height: 100dvh;        /* dynamic viewport — accounts for
+                                the retracting Safari toolbar so
+                                content near the bottom never hides
+                                behind the URL bar */
   font-family: Georgia, serif;
   font-size: var(--c-font-base);
 }

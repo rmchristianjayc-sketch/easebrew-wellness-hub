@@ -828,7 +828,7 @@ useEffect(() => {
 }, [checking, favoritesStorageKey, session]);
 
   if (checking) return (
-    <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ minHeight: "100dvh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ textAlign: "center" }}>
         <p style={{ fontSize: 48, margin: "0 0 12px 0" }}>🍽️</p>
         <p style={{ fontSize: 22, color: G, fontWeight: 700 }}>Loading Recipes...</p>
@@ -864,7 +864,7 @@ useEffect(() => {
   });
 
   return (
-    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 110 }}>
+    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100dvh", paddingBottom: 110 }}>
 
       {/* ── HEADER ── */}
       <div style={{ background: G, color: "#fff" }}>

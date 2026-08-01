@@ -267,7 +267,7 @@ export default function BagongKatawanPage() {
   }
 
   if (checking) return (
-    <div style={{ minHeight: "100vh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ minHeight: "100dvh", background: CREAM, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ textAlign: "center" }}>
         <div style={{ width: 56, height: 56, borderRadius: 16, background: "#E8F5E0", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}><Trophy size={28} color={G} /></div>
         <p style={{ fontSize: 20, color: G, fontWeight: 700 }}>Loading Bagong Katawan...</p>
@@ -303,7 +303,7 @@ export default function BagongKatawanPage() {
   const phase3Done = PLAN.filter(d => d.phase === 3 && completedDays.includes(d.day)).length;
 
   return (
-    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100vh", paddingBottom: 110 }}>
+    <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100dvh", paddingBottom: 110 }}>
 
       {/* ── HEADER ── */}
       <div style={{ background: G, padding: "36px 24px 28px", color: "#fff" }}>

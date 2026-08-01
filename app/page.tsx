@@ -1560,7 +1560,7 @@ export default function Home() {
               <div style={{ background: G, padding: "20px 24px 24px", position: "relative" }}>
                 <div style={{ position: "absolute", top: -30, right: -20, width: 100, height: 100, background: "rgba(125,174,47,0.18)", borderRadius: "50%" }} />
                 <p style={{ fontSize: 14, color: GOLD, fontWeight: 700, margin: "0 0 8px", letterSpacing: 0.5, textTransform: "uppercase" }}>{getTimeGreeting()}</p>
-                <h1 style={{ fontSize: 26, fontWeight: 900, margin: "0 0 10px 0", lineHeight: 1.3, color: "#fff" }}>{heroTitle}</h1>
+                <h1 style={{ fontSize: "clamp(20px, 6.2vw, 26px)", fontWeight: 900, margin: "0 0 10px 0", lineHeight: 1.25, color: "#fff", overflowWrap: "break-word" }}>{heroTitle}</h1>
                 <p style={{ fontSize: 16, opacity: 0.9, lineHeight: 1.65, margin: 0, color: "#fff" }}>{heroSubtitle}</p>
               </div>
             </div>
@@ -2017,12 +2017,17 @@ export default function Home() {
       </div>
 
       {/* Floating coach button — sized down + tightened to corner so it
-          doesn't overlap card content on narrow (≤ 360px) viewports. */}
+          doesn't overlap card content on narrow (≤ 360px) viewports.
+          Bottom position anchors to the bottom-nav height (~72px) PLUS
+          the iOS home-indicator safe-area so the FAB always sits ~12px
+          above the nav whether we're in browser or PWA standalone. */}
       <button
         onClick={() => setShowCoachModal(true)}
         aria-label="Call Coach"
         style={{
-          position: "fixed", bottom: 92, right: 10,
+          position: "fixed",
+          bottom: "calc(72px + env(safe-area-inset-bottom, 0px) + 12px)",
+          right: "calc(10px + env(safe-area-inset-right, 0px))",
           width: 52, height: 52, borderRadius: "50%",
           background: "#39613B", border: "2.5px solid #FED255",
           boxShadow: "0 4px 20px rgba(57,97,59,0.5)",

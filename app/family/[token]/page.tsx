@@ -40,13 +40,13 @@ export default function FamilySharePage({ params }: { params: Promise<{ token: s
   }, [token]);
 
   if (loading) return (
-    <div style={{ minHeight: "100vh", background: CREAM, display: "grid", placeItems: "center", fontFamily: "Georgia, serif" }}>
+    <div style={{ minHeight: "100dvh", background: CREAM, display: "grid", placeItems: "center", fontFamily: "Georgia, serif" }}>
       <p style={{ color: G, fontSize: 18 }}>Sandali lang...</p>
     </div>
   );
 
   if (error) return (
-    <div style={{ minHeight: "100vh", background: CREAM, display: "grid", placeItems: "center", padding: 20, fontFamily: "Georgia, serif" }}>
+    <div style={{ minHeight: "100dvh", background: CREAM, display: "grid", placeItems: "center", padding: 20, fontFamily: "Georgia, serif" }}>
       <div style={{ background: WHITE, borderRadius: 20, padding: 30, textAlign: "center", maxWidth: 400 }}>
         <p style={{ fontSize: 22, fontWeight: 700, color: DARK, margin: "0 0 8px" }}>Hindi available ang link</p>
         <p style={{ fontSize: 15, color: MID, margin: 0 }}>{error}</p>
@@ -63,7 +63,7 @@ export default function FamilySharePage({ params }: { params: Promise<{ token: s
   const bpReadingsCount = summary?.bpReadingsCount ?? 0;
 
   return (
-    <div style={{ minHeight: "100vh", background: CREAM, fontFamily: "Georgia, serif" }}>
+    <div style={{ minHeight: "100dvh", background: CREAM, fontFamily: "Georgia, serif" }}>
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "20px 16px 40px" }}>
         {/* Header */}
         <div style={{ background: `linear-gradient(135deg, ${G} 0%, #2a5c34 100%)`, borderRadius: 22, padding: "24px 22px", color: "#fff", marginBottom: 20 }}>

@@ -257,11 +257,15 @@ export default function VerifyPage() {
               </div>
             )}
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(24,59,40,0.25) 0%, rgba(24,59,40,0.72) 100%)" }} />
-            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "22px 22px" }}>
-              <p style={{ fontSize: 14, color: GOLD, fontWeight: 800, margin: "0 0 6px", fontFamily: "Georgia, serif", letterSpacing: "0.5px", textShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>
+            {/* Absolute-positioned overlay clipped to the hero; the wrapper
+                clips overflow while the child grows downward from the top
+                so long titles under increased system font size can't
+                spill outside the hero image. */}
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "16px 22px 18px", maxHeight: "100%", overflow: "hidden" }}>
+              <p style={{ fontSize: 13, color: GOLD, fontWeight: 800, margin: "0 0 4px", fontFamily: "Georgia, serif", letterSpacing: "0.5px", textShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>
                 R&amp;M EaseBrew Wellness Hub
               </p>
-              <h1 className="c-heading" style={{ color: "#fff", margin: 0, textShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
+              <h1 className="c-heading" style={{ color: "#fff", margin: 0, textShadow: "0 2px 8px rgba(0,0,0,0.3)", overflowWrap: "break-word" }}>
                 Buksan ang Wellness Hub Mo
               </h1>
             </div>
