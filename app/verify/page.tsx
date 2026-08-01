@@ -113,18 +113,18 @@ function buildPerks(content: Record<string, string>) {
 function CoachCard({ coach }: { coach: Coach }) {
   return (
     <div className="c-card" style={{ marginBottom: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 18 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
         <Image
           src={coach.photo}
           alt={coach.name}
-          width={80}
-          height={80}
-          style={{ width: 80, height: 80, borderRadius: 20, objectFit: "cover", border: `3px solid ${G}`, flexShrink: 0 }}
+          width={64}
+          height={64}
+          style={{ width: 64, height: 64, borderRadius: 16, objectFit: "cover", border: `2.5px solid ${G}`, flexShrink: 0 }}
         />
-        <div>
-          <p style={{ fontSize: 22, fontWeight: 900, color: DARK, margin: 0, fontFamily: "Georgia, serif" }}>{coach.name}</p>
-          <p style={{ fontSize: 16, color: G, margin: "4px 0 0", fontWeight: 700, fontFamily: "Georgia, serif" }}>EaseBrew Wellness Guide</p>
-          <p className="c-body" style={{ margin: "3px 0 0" }}>{coach.display}</p>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: 19, fontWeight: 900, color: DARK, margin: 0, fontFamily: "Georgia, serif", lineHeight: 1.2 }}>{coach.name}</p>
+          <p style={{ fontSize: 13, color: G, margin: "3px 0 0", fontWeight: 700, fontFamily: "Georgia, serif" }}>EaseBrew Wellness Guide</p>
+          <p className="c-body" style={{ margin: "3px 0 0", fontSize: 14 }}>{coach.display}</p>
         </div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
