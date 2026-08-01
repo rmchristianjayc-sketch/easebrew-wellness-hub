@@ -271,7 +271,7 @@ export default function VerifyPage() {
             </div>
           </div>
 
-          <div style={{ padding: "0 18px", paddingBottom: "calc(96px + env(safe-area-inset-bottom, 0px))" }}>
+          <div style={{ padding: "0 18px", paddingBottom: "calc(140px + env(safe-area-inset-bottom, 0px))" }}>
             <p className="c-body" style={{ textAlign: "center", padding: "18px 0", margin: 0 }}>
               Ilagay ang code mula sa coach mo para ma-access ang wellness guide mo.
             </p>
