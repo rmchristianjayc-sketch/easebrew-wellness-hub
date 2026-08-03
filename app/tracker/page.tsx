@@ -17,7 +17,7 @@ import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
 import { localDateStr } from "@/lib/localDate";
-import { ChevronLeft, Home, BarChart3, CalendarDays, PenLine, Save, CircleCheck, Smile, Meh, Frown, Angry, Laugh, SmilePlus, Coffee, Sun, Moon, MapPin, Mic, CircleDot, Flame, TrendingDown, TrendingUp, Minus, Trophy, Medal, Star, Zap, ClipboardList, Send } from "lucide-react";
+import { ChevronLeft, ChevronDown, ChevronUp, Home, BarChart3, CalendarDays, PenLine, Save, CircleCheck, Smile, Meh, Frown, Angry, Laugh, SmilePlus, Coffee, Sun, Moon, MapPin, Mic, CircleDot, Flame, TrendingDown, TrendingUp, Minus, Trophy, Medal, Star, Zap, ClipboardList, Send } from "lucide-react";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";
@@ -123,8 +123,22 @@ async function syncTrackerProgress(entries: DayEntry[]) {
   }
 }
 
+function normalizeEntry(e: Partial<DayEntry> & { painLocation?: string }): DayEntry {
+  return {
+    date: e.date ?? "",
+    painScore: e.painScore ?? 0,
+    painLocations: Array.isArray(e.painLocations)
+      ? e.painLocations
+      : e.painLocation ? [e.painLocation] : [],
+    easebrewUmaga: !!e.easebrewUmaga,
+    easebrewGabi: !!e.easebrewGabi,
+    mood: e.mood ?? 0,
+    notes: e.notes ?? "",
+  };
+}
+
 function getStoredTrackerEntries(storageKey: string): DayEntry[] {
-  return readProgressCache<DayEntry[]>(storageKey, []);
+  return readProgressCache<DayEntry[]>(storageKey, []).map(normalizeEntry);
 }
 
 function getStoredTodayEntry(storageKey: string): DayEntry {
@@ -134,6 +148,12 @@ function getStoredTodayEntry(storageKey: string): DayEntry {
   const legacy = found as DayEntry & { painLocation?: string };
   if (legacy.painLocation && !found.painLocations?.length) {
     found.painLocations = [legacy.painLocation];
+  }
+  // Guarantee an array — very old entries (pre-multi-location) may
+  // have `painLocations` undefined, which would crash any `.length`
+  // or `.includes(...)` access downstream.
+  if (!Array.isArray(found.painLocations)) {
+    found.painLocations = [];
   }
   return found;
 }
@@ -226,7 +246,7 @@ function VoiceButton({ onResult }: { onResult: (text: string) => void }) {
         display: "flex", alignItems: "center", gap: 8, flexShrink: 0, minHeight: 48,
       }}
     >
-      {listening ? <><CircleDot size={18} /> Nakikinig...</> : <><Mic size={18} /> Magsalita para i-type</>}
+      {listening ? <><CircleDot size={18} /> Nakikinig...</> : <><Mic size={18} /> I-record ang boses</>}
     </button>
   );
 }
@@ -293,6 +313,14 @@ export default function TrackerPage() {
   const [summaryCopied, setSummaryCopied] = useState(false);
   const [milestone, setMilestone] = useState<number | null>(null);
   const [prefilledFromYesterday, setPrefilledFromYesterday] = useState(false);
+  // Pain/location/mood/notes are optional — collapsed by default so the
+  // fast path (tap AM + PM + Save) stays under 10 seconds. Senior's
+  // preference for open/closed persists across sessions.
+  const [optionalExpanded, setOptionalExpanded] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setOptionalExpanded(localStorage.getItem("eb_tracker_optional_expanded") === "1");
+  }, []);
   const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingEntriesRef = useRef<DayEntry[] | null>(null);
   const todayDirtyRef = useRef(false);
@@ -324,7 +352,7 @@ export default function TrackerPage() {
       fetch('/api/progress?type=tracker')
         .then(r => r.json())
         .then(res => {
-          const remoteEntries: DayEntry[] = Array.isArray(res?.data?.entries) ? res.data.entries : [];
+          const remoteEntries: DayEntry[] = Array.isArray(res?.data?.entries) ? res.data.entries.map(normalizeEntry) : [];
           if (remoteEntries.length === 0) return;
 
           // Merge: prefer local entries where they exist (they're either
@@ -462,42 +490,18 @@ export default function TrackerPage() {
     <div className="customer-shell" style={{ maxWidth: 680, margin: "0 auto", background: CREAM, minHeight: "100dvh", paddingBottom: "calc(100px + env(safe-area-inset-bottom, 0px))" }}>
       {milestone && <MilestoneModal days={milestone} onClose={() => setMilestone(null)} />}
 
-      {/* ── HEADER ── */}
+      {/* ── HEADER (slimmed for senior UX) ──
+          Big stat widgets (Araw N logged / Streak) and the 3-stat row
+          (Avg Sakit / 2x/araw / Araw) moved to the History tab —
+          motivational info doesn't help complete today's check-in, so
+          it competes for attention on the Ngayon tab. */}
       <div style={{ background: G, padding: "24px 24px 0", color: WHITE }}>
         <Link href="/" style={{ color: GOLD, fontSize: 16, textDecoration: "none", display: "flex", alignItems: "center", gap: 6, minHeight: 44, marginBottom: 14, fontWeight: 600 }}>
           <ChevronLeft size={20} /> Bumalik sa Hub
         </Link>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><BarChart3 size={24} /> Pain Tracker</h1>
-            <p style={{ fontSize: 16, opacity: 0.8, margin: "4px 0 0 0" }}>I-track ang progress mo araw-araw</p>
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 14, padding: "10px 16px" }}>
-              <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: GOLD }}>Araw {totalDays}</p>
-              <p style={{ fontSize: 14, margin: 0, opacity: 0.8 }}>logged na</p>
-            </div>
-            {calcStreak(entries) > 0 && (
-              <div style={{ textAlign: "center", background: "rgba(255,200,0,0.2)", borderRadius: 14, padding: "10px 16px" }}>
-                <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: GOLD, display: "flex", alignItems: "center", gap: 4 }}><Flame size={22} />{calcStreak(entries)}</p>
-                <p style={{ fontSize: 14, margin: 0, opacity: 0.8 }}>sunod-sunod!</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Quick stats */}
-        <div style={{ display: "flex", gap: 10, marginBottom: 0 }}>
-          {[
-            { label: "Avg Sakit", value: avgPain     },
-            { label: "2x/araw",   value: `${consistRate}%` },
-            { label: "Araw",      value: `${totalDays}`    },
-          ].map((s, i) => (
-            <div key={i} style={{ flex: 1, background: "rgba(255,255,255,0.12)", borderRadius: 12, padding: "10px 14px", textAlign: "center" as const }}>
-              <p style={{ fontSize: 22, fontWeight: 700, color: GOLD, margin: 0 }}>{s.value}</p>
-              <p style={{ fontSize: 16, opacity: 0.8, margin: 0 }}>{s.label}</p>
-            </div>
-          ))}
+        <div style={{ marginBottom: 16 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><BarChart3 size={24} /> Pain Tracker</h1>
+          <p style={{ fontSize: 16, opacity: 0.8, margin: "4px 0 0 0" }}>I-track ang progress mo araw-araw</p>
         </div>
 
         {/* Tabs */}
@@ -540,13 +544,13 @@ export default function TrackerPage() {
             <CalendarDays size={16} style={{ display: "inline", verticalAlign: "middle" }} /> {todayStr}
           </p>
 
-          {/* ── EASEBREW 2x CHECK ── */}
+          {/* ── EASEBREW HERO ── Primary action; no numbered circle.
+              The two AM/PM buttons are the fast path — tap either or
+              both, then tap sticky Save. Total interaction under 10s. */}
           <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-              <div style={{ width: 34, height: 34, borderRadius: "50%", background: G, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, flexShrink: 0 }}>1</div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><Coffee size={20} /> EaseBrew Ngayon</h2>
-            </div>
-            <p style={{ fontSize: 18, color: MID, margin: "0 0 18px 0" }}>Na-inom mo na ba ang EaseBrew mo?</p>
+            <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 18px 0", display: "flex", alignItems: "center", gap: 8 }}>
+              <Coffee size={22} /> Na-inom mo na ba ang EaseBrew?
+            </h2>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
@@ -591,13 +595,33 @@ export default function TrackerPage() {
             )}
           </div>
 
-          {/* ── PAIN LEVEL ── */}
+          {/* ── OPTIONAL DETAILS EXPANDER ──
+              Everything below (pain, location, mood, notes) is optional.
+              Collapsed by default so the fast path is: EaseBrew AM/PM
+              -> sticky Save. Preference is remembered per browser. */}
+          <button
+            type="button"
+            onClick={() => {
+              const next = !optionalExpanded;
+              setOptionalExpanded(next);
+              try { localStorage.setItem("eb_tracker_optional_expanded", next ? "1" : "0"); } catch {}
+            }}
+            style={{
+              width: "100%", background: WHITE, color: G, border: `2px solid ${G}`,
+              borderRadius: 14, padding: "16px", fontSize: 17, fontWeight: 700,
+              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              fontFamily: "Georgia, serif", minHeight: 56, marginBottom: 16,
+            }}
+          >
+            {optionalExpanded
+              ? <><ChevronUp size={18} /> Itago</>
+              : <><ChevronDown size={18} /> Higit Pang Detalye (Opsyonal)</>}
+          </button>
+
+          {optionalExpanded && (<>
+          {/* ── PAIN LEVEL (optional) ── */}
           <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-              <div style={{ width: 34, height: 34, borderRadius: "50%", background: G, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, flexShrink: 0 }}>2</div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0 }}>Gaano kasakit ngayon?</h2>
-            </div>
-            <p style={{ fontSize: 18, color: MID, margin: "0 0 18px 0" }}>Piliin ang pinakamalapit sa nararamdaman mo</p>
+            <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 14px 0" }}>Gaano kasakit ngayon?</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {PAIN_LEVELS.map(p => (
                 <button
@@ -630,14 +654,33 @@ export default function TrackerPage() {
             )}
           </div>
 
-          {/* ── PAIN LOCATION ── */}
+          {/* ── PAIN LOCATION (optional) ── */}
           <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-              <div style={{ width: 34, height: 34, borderRadius: "50%", background: G, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, flexShrink: 0 }}>3</div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><MapPin size={20} /> Saan masakit?</h2>
-            </div>
-            <p style={{ fontSize: 18, color: MID, margin: "0 0 16px 0" }}>Pwede marami — i-tap lahat ng masakit</p>
+            <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 14px 0", display: "flex", alignItems: "center", gap: 8 }}><MapPin size={22} /> Saan masakit?</h2>
             <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 10 }}>
+              {/* "Walang sakit ngayon" one-tap for the good days — clears
+                  any previously selected locations. Placed first so it's
+                  the first thing seniors read. */}
+              {(() => {
+                const noneSelected = today.painLocations.length === 0;
+                return (
+                  <button
+                    key="none"
+                    onClick={() => setTodayDirty(e => ({ ...e, painLocations: [] }))}
+                    style={{
+                      padding: "16px 22px", borderRadius: 14,
+                      border: noneSelected ? `3px solid ${G}` : "2px solid #D9D0C0",
+                      minHeight: 58,
+                      background: noneSelected ? "#E8F5E0" : "#F0EDE6",
+                      color: noneSelected ? G : DARK,
+                      fontSize: 18, fontWeight: 700, cursor: "pointer",
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    {noneSelected && <CircleCheck size={16} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />}Walang sakit ngayon
+                  </button>
+                );
+              })()}
               {PAIN_LOCATIONS.map(loc => {
                 const selected = today.painLocations.includes(loc);
                 return (
@@ -667,20 +710,11 @@ export default function TrackerPage() {
                 );
               })}
             </div>
-            {today.painLocations.length === 0 && (
-              <p style={{ fontSize: 16, color: "#aaa", margin: "12px 0 0", textAlign: "center" as const, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                Walang sakit ngayon? Magaling! <CircleCheck size={16} color="#22c55e" />
-              </p>
-            )}
           </div>
 
-          {/* ── MOOD ── */}
+          {/* ── MOOD (optional) ── */}
           <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 16, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-              <div style={{ width: 34, height: 34, borderRadius: "50%", background: G, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, flexShrink: 0 }}>4</div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><Smile size={20} /> Paano ang mood mo?</h2>
-            </div>
-            <p style={{ fontSize: 18, color: MID, margin: "0 0 16px 0" }}>I-tap ang pinakamalapit sa pakiramdam mo ngayon</p>
+            <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 14px 0", display: "flex", alignItems: "center", gap: 8 }}><Smile size={22} /> Paano ang mood mo?</h2>
             <div style={{ display: "flex", gap: 6 }}>
               {MOOD_OPTIONS.map(m => (
                 <button
@@ -704,16 +738,9 @@ export default function TrackerPage() {
             </div>
           </div>
 
-          {/* ── NOTES ── */}
+          {/* ── NOTES (optional) ── */}
           <div style={{ background: WHITE, borderRadius: 20, padding: "24px 20px", marginBottom: 20, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-              <div style={{ width: 34, height: 34, borderRadius: "50%", background: G, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, flexShrink: 0 }}>5</div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><PenLine size={20} /> Ano ang nararamdaman mo?</h2>
-            </div>
-            <p style={{ fontSize: 18, color: MID, margin: "0 0 14px 0" }}>Opsyonal — pero makakatulong kung isusulat mo</p>
-            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
-              <VoiceButton onResult={(text) => setTodayDirty(p => ({ ...p, notes: p.notes ? p.notes + " " + text : text }))} />
-            </div>
+            <h2 style={{ fontSize: 22, fontWeight: 700, color: G, margin: "0 0 14px 0", display: "flex", alignItems: "center", gap: 8 }}><PenLine size={22} /> Notes (opsyonal)</h2>
             <textarea
               aria-label="Notes ng araw"
               value={today.notes}
@@ -722,26 +749,46 @@ export default function TrackerPage() {
               rows={5}
               style={{ width: "100%", padding: "16px", borderRadius: 14, border: `2px solid #D9D0C0`, fontSize: 18, resize: "none", outline: "none", background: "#FAFAF8", color: DARK, fontFamily: "inherit", boxSizing: "border-box" as const, lineHeight: 1.7 }}
             />
+            {/* Speech-to-text with explicit label — seniors know what
+                happens when they tap. */}
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
+              <VoiceButton onResult={(text) => setTodayDirty(p => ({ ...p, notes: p.notes ? p.notes + " " + text : text }))} />
+            </div>
           </div>
+          </>)}
 
-          {/* ── SAVE BUTTON ── */}
+          {/* Spacer to prevent sticky Save from covering the last card. */}
+          <div style={{ height: 96 }} aria-hidden="true" />
+        </div>
+      )}
+
+      {/* ── STICKY SAVE (Ngayon tab only) ──
+          Sits above the fixed "Bumalik sa Hub" nav so the primary daily
+          action is always one tap away regardless of scroll position. */}
+      {view === "today" && (
+        <div style={{
+          position: "fixed", left: "50%", transform: "translateX(-50%)",
+          bottom: "calc(72px + env(safe-area-inset-bottom, 0px))",
+          width: "100%", maxWidth: 680, zIndex: 90,
+          background: "linear-gradient(to top, rgba(238,229,212,1) 60%, rgba(238,229,212,0))",
+          padding: "18px 20px 12px",
+          pointerEvents: "none",
+        }}>
           <button
             onClick={saveEntry}
             style={{
-              width: "100%", padding: "22px",
+              width: "100%", padding: "20px",
               background: saved ? "#22c55e" : G,
               color: WHITE, border: "none", borderRadius: 18,
-              fontSize: 22, fontWeight: 700, cursor: "pointer",
+              fontSize: 20, fontWeight: 700, cursor: "pointer",
               transition: "background 0.3s", fontFamily: "Georgia, serif",
-              boxShadow: "0 4px 16px rgba(57,97,59,0.3)", minHeight: 68,
+              boxShadow: "0 6px 20px rgba(57,97,59,0.35)", minHeight: 64,
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+              pointerEvents: "auto",
             }}
           >
-            {saved ? <><CircleCheck size={22} /> Na-save na! Magaling!</> : <><Save size={22} /> I-save ang Record</>}
+            {saved ? <><CircleCheck size={22} /> Na-save na!</> : <><Save size={22} /> I-save ang Record</>}
           </button>
-
-          <p style={{ textAlign: "center", fontSize: 16, color: MID, marginTop: 14, lineHeight: 1.6 }}>
-            Gawin ito araw-araw para makita ang progress mo!
-          </p>
         </div>
       )}
 
