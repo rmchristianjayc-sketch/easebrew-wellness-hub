@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
-import { ChevronLeft, Home, Coffee, UtensilsCrossed, Pill, Lightbulb, Target, CircleCheck, Undo2, ChevronUp, ChevronDown, ShoppingCart } from "lucide-react";
+import { ChevronLeft, Home, Coffee, Pill, Target, CircleCheck, Undo2, ChevronUp, ChevronDown, ShoppingCart } from "lucide-react";
 
 const G     = "#39613B";
 const GOLD  = "#FED255";
@@ -114,7 +114,15 @@ export default function MealPlanPage() {
   const [completedDays, setCompletedDays] = useState<number[]>([]);
   const [expandedDay, setExpandedDay]     = useState<number | null>(null);
   const [autoNavigated, setAutoNavigated] = useState(false);
+  // Full 50-day browse view is collapsed by default so seniors focus on
+  // the Today Meal Hero. Preference is remembered per browser.
+  const [listExpanded, setListExpanded]   = useState(false);
   const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setListExpanded(localStorage.getItem("eb_mealplan_list_expanded") === "1");
+  }, []);
 
   useEffect(() => {
     if (checking || !session) return;
@@ -194,39 +202,120 @@ export default function MealPlanPage() {
             <h1 style={{ fontSize: 26, fontWeight: 900, margin: 0, color: WHITE, lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}>Anti-Inflammation<br />na Meal Plan</h1>
           </div>
         </div>
-        <div style={{ padding: "18px 24px 24px" }}>
-        <Link href="/" style={{ color: GOLD, fontSize: 18, textDecoration: "none", display: "flex", alignItems: "center", gap: 6, minHeight: 44, marginBottom: 14, fontWeight: 600 }}>
-          <ChevronLeft size={20} /> Bumalik sa Hub
-        </Link>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 8 }}><UtensilsCrossed size={22} /> 50-Day Meal Plan</h1>
-            <p style={{ fontSize: 16, opacity: 0.85, margin: "4px 0 0 0" }}>Anti-Inflammation Pinoy Meals</p>
-          </div>
-          <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 14, padding: "12px 18px" }}>
-            <p style={{ fontSize: 32, fontWeight: 700, margin: 0, color: GOLD }}>{completedDays.length}</p>
-            <p style={{ fontSize: 16, margin: 0, opacity: 0.8 }}>sa 50 araw</p>
-          </div>
+        {/* Slim inner strip: just the back link. Page title lives on the
+            hero image above; progress + counter moved into the collapsed
+            "Tingnan Lahat" section; EaseBrew 2x reminder now lives inside
+            the Today Meal Hero card so it's tied to a concrete action. */}
+        <div style={{ padding: "14px 24px 18px" }}>
+          <Link href="/" style={{ color: GOLD, fontSize: 18, textDecoration: "none", display: "flex", alignItems: "center", gap: 6, minHeight: 44, fontWeight: 600 }}>
+            <ChevronLeft size={20} /> Bumalik sa Hub
+          </Link>
         </div>
-
-        {/* Progress */}
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-          <p style={{ fontSize: 16, margin: 0, opacity: 0.85 }}>Progress mo</p>
-          <p style={{ fontSize: 16, margin: 0, color: GOLD, fontWeight: 700 }}>{progress}%</p>
-        </div>
-        <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 999, height: 10 }}>
-          <div style={{ width: `${progress}%`, background: GOLD, height: 10, borderRadius: 999, transition: "width 0.5s ease" }} />
-        </div>
-
-        {/* 2x per day reminder */}
-        <div style={{ marginTop: 16, background: "rgba(254,210,85,0.15)", borderRadius: 14, padding: "12px 16px", border: "1.5px solid rgba(254,210,85,0.4)" }}>
-          <p style={{ fontSize: 16, color: GOLD, fontWeight: 700, margin: "0 0 4px 0", display: "flex", alignItems: "center", gap: 6 }}><Coffee size={16} /> Huwag kalimutan!</p>
-          <p style={{ fontSize: 16, color: "rgba(255,255,255,0.9)", margin: 0 }}>
-            Uminom ng EaseBrew <strong style={{ color: GOLD }}>2x bawat araw</strong> — Umaga at Gabi
-          </p>
-        </div>
-        </div>{/* /inner padding */}
       </div>
+
+      {/* ── TODAY MEAL HERO ────────────────────────────────────
+          First uncompleted day = today. No collapse, no badges, no
+          decorative UI. Meal text is 20px for maximum readability.
+          Only two actions: read what to eat + tap "Tapos na". */}
+      {(() => {
+        const done = new Set(completedDays);
+        let tDay = 50;
+        for (let d = 1; d <= 50; d++) { if (!done.has(d)) { tDay = d; break; } }
+        const t = MEAL_PLAN.find(d => d.day === tDay) || MEAL_PLAN[0];
+        const isDone = done.has(t.day);
+        const meals: { label: string; value: string }[] = [
+          { label: "AGAHAN",     value: t.agahan },
+          { label: "TANGHALIAN", value: t.tanghalian },
+          { label: "MERIENDA",   value: t.merienda },
+          { label: "HAPUNAN",    value: t.hapunan },
+        ];
+        function markToday() {
+          const updated = done.has(t.day)
+            ? completedDays.filter(d => d !== t.day)
+            : [...completedDays, t.day];
+          setCompletedDays(updated);
+          writeProgressCache(storageKey, updated);
+          triggerSync(updated);
+        }
+        return (
+          <section aria-label="Pagkain ngayong araw" style={{ margin: "20px 20px 0", background: WHITE, border: `3px solid ${G}`, borderRadius: 22, padding: "22px 22px 24px" }}>
+            <p style={{ fontSize: 15, fontWeight: 700, color: MID, letterSpacing: 1.2, textTransform: "uppercase" as const, margin: 0 }}>
+              Ngayong araw · Day {t.day} · {t.weekday}
+            </p>
+            {meals.map((m, i) => (
+              <div key={m.label} style={{ marginTop: i === 0 ? 18 : 18 }}>
+                <p style={{ fontSize: 17, fontWeight: 700, color: G, margin: 0, letterSpacing: 0.6 }}>{m.label}</p>
+                <p style={{ fontSize: 20, color: DARK, margin: "6px 0 0 0", lineHeight: 1.55 }}>{m.value}</p>
+              </div>
+            ))}
+
+            {/* EaseBrew reminder — single line inside the same card so
+                seniors always see when to drink alongside what to eat. */}
+            <div style={{ marginTop: 22, padding: "14px 16px", background: "#FFFBF0", borderRadius: 12, border: `1.5px solid ${GOLD}`, display: "flex", alignItems: "center", gap: 10 }}>
+              <Coffee size={22} color={AMBER} style={{ flexShrink: 0 }} />
+              <p style={{ fontSize: 18, color: DARK, margin: 0, lineHeight: 1.4 }}>
+                Inumin ang <strong style={{ color: G }}>EaseBrew</strong> — <strong style={{ color: G }}>Umaga at Gabi</strong>
+              </p>
+            </div>
+
+            <button
+              onClick={markToday}
+              style={{
+                width: "100%", marginTop: 22, minHeight: 68,
+                background: isDone ? "#dc2626" : G, color: WHITE,
+                border: "none", borderRadius: 16, padding: "20px",
+                fontSize: 20, fontWeight: 700, cursor: "pointer",
+                fontFamily: "Georgia, serif",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+              }}
+            >
+              {isDone ? <><Undo2 size={22} /> I-undo</> : <><CircleCheck size={22} /> Tapos na ngayong araw!</>}
+            </button>
+          </section>
+        );
+      })()}
+
+      {/* ── TOGGLE FOR FULL 50-DAY VIEW ─────────────────────────
+          Collapsed by default. Everything below (progress widget,
+          week selector, grocery list button, day cards) lives here. */}
+      <div style={{ padding: "20px 20px 0" }}>
+        <button
+          type="button"
+          onClick={() => {
+            const next = !listExpanded;
+            setListExpanded(next);
+            try { localStorage.setItem("eb_mealplan_list_expanded", next ? "1" : "0"); } catch {}
+          }}
+          style={{
+            width: "100%", background: WHITE, color: G, border: `2px solid ${G}`,
+            borderRadius: 14, padding: "16px", fontSize: 17, fontWeight: 700,
+            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            fontFamily: "Georgia, serif", minHeight: 56,
+          }}
+        >
+          {listExpanded
+            ? <><ChevronUp size={18} /> Itago</>
+            : <><ChevronDown size={18} /> Tingnan Lahat ng Meal Plan</>}
+        </button>
+      </div>
+
+      {listExpanded && (
+        <>
+          {/* Progress widget — moved here from the header. Motivational,
+              not action-oriented, so it lives with the full plan view. */}
+          <div style={{ padding: "20px 20px 0" }}>
+            <div style={{ background: G, borderRadius: 18, padding: "18px 20px", color: WHITE }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                <p style={{ fontSize: 17, margin: 0, opacity: 0.9, fontWeight: 600 }}>
+                  {completedDays.length} sa 50 araw tapos na
+                </p>
+                <p style={{ fontSize: 17, margin: 0, color: GOLD, fontWeight: 700 }}>{progress}%</p>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 999, height: 10 }}>
+                <div style={{ width: `${progress}%`, background: GOLD, height: 10, borderRadius: 999, transition: "width 0.5s ease" }} />
+              </div>
+            </div>
+          </div>
 
       {/* ── WEEK SELECTOR ── */}
       <div style={{ padding: "20px 20px 0" }}>
@@ -365,23 +454,15 @@ export default function MealPlanPage() {
         })}
       </div>
 
-      {/* ── REMINDERS ── */}
-      <div style={{ padding: "8px 20px 20px" }}>
-        <div style={{ background: G, borderRadius: 20, padding: "22px 24px", color: WHITE }}>
-          <h3 style={{ fontSize: 19, fontWeight: 700, margin: "0 0 14px 0", color: GOLD, display: "flex", alignItems: "center", gap: 8 }}><Lightbulb size={20} /> Mga Paalala Araw-araw</h3>
-          {[
-            "EaseBrew — 2 sachet bawat araw (Umaga at Gabi)",
-            "8 baso ng tubig — mahalaga sa katawan",
-            "15-min lakad pagkatapos kumain — mabuti sa digestion",
-            "Brown rice (3/4 cup luto) — mas maraming fiber kaysa white rice",
-            "Luya at bawang — naka-tradition sa Pinoy cooking",
-          ].map((tip, i) => (
-            <p key={i} style={{ fontSize: 16, margin: "0 0 10px 0", opacity: 0.95, lineHeight: 1.5 }}>{tip}</p>
-          ))}
-        </div>
+        </>
+      )}
+      {/* "Mga Paalala Araw-araw" panel removed — was triple-redundant with
+          the EaseBrew reminder now living inside the Today Meal Hero. The
+          other tips were educational background, not action-oriented. */}
 
-        {/* Medical disclaimer */}
-        <div style={{ marginTop: 14, padding: "12px 14px", background: "#f3f4f6", borderRadius: 10, border: "1px solid #d1d5db" }}>
+      {/* Medical disclaimer — kept per wellness-rules policy. */}
+      <div style={{ padding: "16px 20px 20px" }}>
+        <div style={{ padding: "12px 14px", background: "#f3f4f6", borderRadius: 10, border: "1px solid #d1d5db" }}>
           <p style={{ fontSize: 12, color: "#4E504F", margin: 0, lineHeight: 1.5 }}>
             <strong>Paalala:</strong> Ang meal plan na ito ay general guide lang. Kung may diabetes, kidney condition, allergies, o iba pang health issue, magpakonsulta muna sa doctor o nutritionist bago sundin.
           </p>
