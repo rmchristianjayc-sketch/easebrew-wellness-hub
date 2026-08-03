@@ -149,7 +149,10 @@ html[data-customer-text="large"] body:not(:has(.admin-shell)) input {
   justify-content: center;
   gap: 10px;
   min-height: var(--c-btn-h);
-  padding: 0 24px;
+  /* Horizontal padding trimmed 24 -> 16 so that side-by-side buttons
+     (e.g. CoachCard Call/Facebook) fit their labels on narrow Android
+     viewports where the fallback serif renders wider than Georgia. */
+  padding: 0 16px;
   border-radius: 16px;
   border: none;
   font-family: Georgia, serif;
@@ -158,6 +161,10 @@ html[data-customer-text="large"] body:not(:has(.admin-shell)) input {
   cursor: pointer;
   transition: opacity 0.15s, transform 0.1s;
   width: 100%;
+  /* Allow the button to shrink below its inner min-content when a
+     flex/grid parent gives it a narrower track — prevents the button
+     box itself from pushing past its container's edge. */
+  min-width: 0;
   text-decoration: none;
   text-align: center;
 }

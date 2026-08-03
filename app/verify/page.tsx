@@ -127,11 +127,17 @@ function CoachCard({ coach }: { coach: Coach }) {
           <p className="c-body" style={{ margin: "3px 0 0", fontSize: 14 }}>{coach.display}</p>
         </div>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        <a href={`tel:${coach.number}`} className="c-btn c-btn-green" style={{ textDecoration: "none" }}>
+      {/* flex + `flex: 1 1 0` + `minWidth: 0` on both children so each
+          button shrinks to the allotted track width instead of forcing
+          the row past the card's right edge on Android — Georgia is not
+          installed there so "Facebook" renders wider via the fallback
+          serif, and the old grid `1fr 1fr` (= minmax(auto, 1fr)) honored
+          min-content and overflowed the card. */}
+      <div style={{ display: "flex", gap: 12 }}>
+        <a href={`tel:${coach.number}`} className="c-btn c-btn-green" style={{ textDecoration: "none", flex: "1 1 0", minWidth: 0 }}>
           <Phone size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Call
         </a>
-        <a href={coach.facebook} target="_blank" rel="noopener noreferrer" className="c-btn c-btn-fb" style={{ textDecoration: "none" }}>
+        <a href={coach.facebook} target="_blank" rel="noopener noreferrer" className="c-btn c-btn-fb" style={{ textDecoration: "none", flex: "1 1 0", minWidth: 0 }}>
           <MessageCircle size={16} style={{ display: "inline", verticalAlign: "middle" }} /> Facebook
         </a>
       </div>
