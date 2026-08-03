@@ -1524,10 +1524,12 @@ export default function Home() {
             >
               <span style={{ fontSize: 13 }}>A</span><span style={{ fontSize: 18 }}>A</span>
             </button>
-            <div style={{ background: "rgba(254,210,85,0.15)", border: "1.5px solid rgba(254,210,85,0.4)", borderRadius: 14, padding: "8px 14px", textAlign: "center" as const }}>
-              <p style={{ color: GOLD, fontSize: 20, fontWeight: 900, margin: 0, lineHeight: 1 }}>{unlockedProducts.length}</p>
-              <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 11, margin: "2px 0 0 0", fontWeight: 600 }}>Regalo</p>
-            </div>
+            {unlockedProducts.length > 0 && (
+              <div style={{ background: "rgba(254,210,85,0.15)", border: "1.5px solid rgba(254,210,85,0.4)", borderRadius: 14, padding: "8px 14px", textAlign: "center" as const }}>
+                <p style={{ color: GOLD, fontSize: 20, fontWeight: 900, margin: 0, lineHeight: 1 }}>{unlockedProducts.length}</p>
+                <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 11, margin: "2px 0 0 0", fontWeight: 600 }}>Regalo</p>
+              </div>
+            )}
           </div>
         </div>
         <nav className="customer-home-nav" aria-label="Main menu" style={{ display: "flex", marginTop: 8 }}>
@@ -1594,9 +1596,9 @@ export default function Home() {
               <UnusedFeatureNudge unlockedProducts={unlockedProducts} onDismiss={() => setUnusedFeatureDismissed(true)} />
             )}
             {session && <NextExercisePreview tier={customerTier} />}
-            {session && <ReferralCard coaches={coaches} />}
-            {session && <TestimonialSubmissionCard />}
-            {session && <FamilyShareCard />}
+            {/* ReferralCard, TestimonialSubmissionCard, and FamilyShareCard
+                moved to the Coach tab so the Home tab stays focused on
+                today's actions (log EaseBrew, check-in, next steps). */}
 
             {/* ── Quick Access to Unlocked Tools ── */}
             {unlockedProducts.length > 0 && (
@@ -1661,57 +1663,15 @@ export default function Home() {
               </div>
             </div>
 
-            {/* ── Daily Wellness Tip ── */}
-            <div style={{ background: "#FFFBF0", border: `2px solid ${GOLD}`, borderRadius: 18, padding: "20px 22px", marginBottom: 24 }}>
-              <p style={{ fontSize: 16, fontWeight: 700, color: AMBER, margin: "0 0 10px 0", textTransform: "uppercase" as const, letterSpacing: 1, display: "flex", alignItems: "center", gap: 6 }}><Lightbulb size={16} /> Tip para sa Araw</p>
-              <p style={{ fontSize: 18, color: DARK, margin: "0 0 16px 0", lineHeight: 1.75, display: "flex", alignItems: "flex-start", gap: 8 }}><Leaf size={18} color="#39613B" style={{ flexShrink: 0, marginTop: 4 }} /> {wellnessTips[tipIndex % wellnessTips.length]}</p>
-              <button
-                onClick={() => setTipIndex(i => (i + 1) % wellnessTips.length)}
-                className="c-btn c-btn-gold"
-                style={{ width: "100%" }}
-              >
-                Susunod na Tip →
-              </button>
-            </div>
-
+            {/* "Inumin 2x sa isang araw" — kept on Home as short reminder */}
             <div style={{ background: "#FEF9E7", border: `2.5px solid ${GOLD}`, borderRadius: 18, padding: "18px 20px", marginBottom: 24, textAlign: "center" }}>
               <p style={{ fontSize: 18, fontWeight: 700, color: AMBER, margin: "0 0 6px 0" }}>Inumin 2x sa isang araw</p>
               <p style={{ fontSize: 16, color: MID, margin: 0, lineHeight: 1.6 }}><strong style={{ color: G }}>Umaga</strong> at <strong style={{ color: G }}>Gabi</strong> — para sa pinakamagandang resulta!</p>
             </div>
 
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0", display: "flex", alignItems: "center", gap: 8 }}>Routine Mo Araw-araw <Sun size={24} color="#C0863B" /></h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Sundin ito araw-araw para sa pinakamagandang resulta.</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
-              {REMINDERS.map((r, i) => {
-                const RIcon = r.Icon;
-                return (
-                <div key={i} style={{ background: r.bg, border: `2px solid ${r.border}`, borderRadius: 18, padding: "18px 20px", display: "flex", alignItems: "center", gap: 16 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, background: r.iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: `0 2px 8px ${r.iconBg}40` }}>
-                    <RIcon size={22} color="#fff" strokeWidth={2.2} />
-                  </div>
-                  <div>
-                    <p style={{ fontSize: 16, fontWeight: 700, color: r.textColor, margin: "0 0 4px 0", textTransform: "uppercase" as const, letterSpacing: 1.2 }}>{r.time}</p>
-                    <p style={{ fontSize: 17, color: DARK, margin: 0, lineHeight: 1.45, fontWeight: 500 }}>{r.text}</p>
-                  </div>
-                </div>
-                );
-              })}
-            </div>
-
-            <DailyReminderCard
-              enabled={reminderOn}
-              onToggle={() => setReminderOn(v => {
-                const n = !v;
-                localStorage.setItem("eb_reminder_on", n ? "1" : "0");
-                if (n && typeof Notification !== "undefined" && Notification.permission === "default") {
-                  Notification.requestPermission();
-                }
-                const amHour = Number(localStorage.getItem("eb_reminder_am_hour")) || 7;
-                const pmHour = Number(localStorage.getItem("eb_reminder_pm_hour")) || 19;
-                navigator.serviceWorker?.ready.then(reg => reg.active?.postMessage({ type: "SET_REMINDER", enabled: n, amHour, pmHour }));
-                return n;
-              })}
-            />
+            {/* Daily Wellness Tip + Routine + DailyReminderCard moved to
+                the Tips tab so the Home tab stays focused on today's
+                priorities instead of educational content. */}
 
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0", display: "flex", alignItems: "center", gap: 8 }}>90-Araw na Journey Mo <Calendar size={24} color={G} /></h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Ito ang aasahan mo sa bawat yugto.</p>
@@ -1911,7 +1871,43 @@ export default function Home() {
               Susunod na Tip →
             </button>
 
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0", display: "flex", alignItems: "center", gap: 8 }}>Mga Kwento ng Customer <MessageCircle size={24} color={G} /></h2>
+            {/* Routine Mo Araw-araw — moved from Home so Home stays focused
+                on today's actions only. Fits naturally next to daily tips. */}
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "0 0 8px 0", display: "flex", alignItems: "center", gap: 8 }}>Routine Mo Araw-araw <Sun size={24} color="#C0863B" /></h2>
+            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Sundin ito araw-araw para sa pinakamagandang resulta.</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
+              {REMINDERS.map((r, i) => {
+                const RIcon = r.Icon;
+                return (
+                <div key={i} style={{ background: r.bg, border: `2px solid ${r.border}`, borderRadius: 18, padding: "18px 20px", display: "flex", alignItems: "center", gap: 16 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: r.iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: `0 2px 8px ${r.iconBg}40` }}>
+                    <RIcon size={22} color="#fff" strokeWidth={2.2} />
+                  </div>
+                  <div>
+                    <p style={{ fontSize: 16, fontWeight: 700, color: r.textColor, margin: "0 0 4px 0", textTransform: "uppercase" as const, letterSpacing: 1.2 }}>{r.time}</p>
+                    <p style={{ fontSize: 17, color: DARK, margin: 0, lineHeight: 1.45, fontWeight: 500 }}>{r.text}</p>
+                  </div>
+                </div>
+                );
+              })}
+            </div>
+
+            <DailyReminderCard
+              enabled={reminderOn}
+              onToggle={() => setReminderOn(v => {
+                const n = !v;
+                localStorage.setItem("eb_reminder_on", n ? "1" : "0");
+                if (n && typeof Notification !== "undefined" && Notification.permission === "default") {
+                  Notification.requestPermission();
+                }
+                const amHour = Number(localStorage.getItem("eb_reminder_am_hour")) || 7;
+                const pmHour = Number(localStorage.getItem("eb_reminder_pm_hour")) || 19;
+                navigator.serviceWorker?.ready.then(reg => reg.active?.postMessage({ type: "SET_REMINDER", enabled: n, amHour, pmHour }));
+                return n;
+              })}
+            />
+
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0", display: "flex", alignItems: "center", gap: 8 }}>Mga Kwento ng Customer <MessageCircle size={24} color={G} /></h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Totoong kwento mula sa mga katulad mo.</p>
             {testimonials.map((t, i) => {
               const isFemale = i !== 1;
@@ -1992,6 +1988,14 @@ export default function Home() {
                 </div>
               ))}
             </div>
+
+            {/* Family / referral / testimonial cards moved from Home tab so
+                the Home tab stays focused on today's actions only. These
+                three all involve reaching out to someone (family, friends,
+                or the coach team), which fits the Coach tab's intent. */}
+            {session && <div style={{ marginTop: 24 }}><FamilyShareCard /></div>}
+            {session && <ReferralCard coaches={coaches} />}
+            {session && <TestimonialSubmissionCard />}
             <div style={{ marginTop: 20, background: "#FEF9E7", borderRadius: 16, padding: "18px 20px", border: `2px solid ${GOLD}`, textAlign: "center" as const }}>
               <p style={{ fontSize: 17, color: AMBER, fontWeight: 700, margin: "0 0 6px 0", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><MessageCircle size={18} /> Huwag mag-atubili!</p>
               <p style={{ fontSize: 16, color: MID, margin: 0, lineHeight: 1.6 }}>Lagi kaming nandito para sa iyo. Ang kalusugan mo ang priority namin. <Heart size={16} color="#E74C3C" style={{ display: "inline", verticalAlign: "middle" }} /></p>
