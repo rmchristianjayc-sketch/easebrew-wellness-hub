@@ -6,7 +6,7 @@ import { useSessionGuard } from "@/lib/useSessionGuard";
 import { progressStorageKey, readProgressCache, writeProgressCache } from "@/lib/progressStorage";
 import { EXERCISE_PROGRAM } from "@/lib/exerciseProgram";
 import { exerciseSlug, parseExerciseVideos, youTubeEmbedUrl } from "@/lib/exerciseVideos";
-import { ChevronLeft, ChevronUp, ChevronDown, Dumbbell, Sprout, Trophy, Coffee, Lightbulb, Droplets, OctagonX, CalendarDays, CircleCheck, Moon as MoonIcon } from "lucide-react";
+import { ChevronLeft, ChevronUp, ChevronDown, Dumbbell, Sprout, Trophy, Coffee, Lightbulb, OctagonX, CircleCheck, Moon as MoonIcon } from "lucide-react";
 
 const G = "#39613B";
 const GOLD = "#FED255";
@@ -59,6 +59,17 @@ export default function ExercisePage() {
   const [completedDays, setCompletedDays] = useState<Set<number>>(new Set());
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [videoMap, setVideoMap] = useState<Record<string, string>>({});
+  // Safety guide: expanded on first visit, then persists collapsed
+  // after the senior acknowledges. Uses eb_exercise_safety_seen key.
+  const [safetyExpanded, setSafetyExpanded] = useState(true);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setSafetyExpanded(localStorage.getItem("eb_exercise_safety_seen") !== "1");
+  }, []);
+  const acknowledgeSafety = () => {
+    setSafetyExpanded(false);
+    try { localStorage.setItem("eb_exercise_safety_seen", "1"); } catch {}
+  };
   const syncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -167,19 +178,17 @@ export default function ExercisePage() {
         <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden" }}>
           <Image src="/images/exercise-home.jpg" alt="Home Exercise" fill style={{ objectFit: "cover", objectPosition: "top" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} priority />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(24,59,40,0.15) 0%, rgba(24,59,40,0.78) 100%)" }} />
-          <div style={{ position: "absolute", bottom: 16, left: 20 }}>
-            <div style={{ display: "inline-block", background: GOLD, color: G, borderRadius: 999, padding: "4px 14px", fontSize: 12, fontWeight: 900, letterSpacing: 1, marginBottom: 6 }}>
-              HOME EXERCISE
-            </div>
+          {/* HOME EXERCISE badge removed — duplicated the title. */}
+          <div style={{ position: "absolute", bottom: 16, left: 20, right: 20 }}>
             <h1 style={{ fontSize: 28, fontWeight: 900, margin: 0, color: "#fff", lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.4)" }}>30-Araw na Programa<br />Para sa Seniors</h1>
           </div>
         </div>
-        <div style={{ padding: "18px 24px 28px", position: "relative" }}>
-          <div style={{ position: "absolute", top: -20, right: 20, width: 120, height: 120, background: "rgba(254,210,85,0.08)", borderRadius: "50%" }} />
+        {/* Decorative gold circle overlay removed — pure clutter. */}
+        {/* Marketing body copy removed — never actionable, shown every visit. */}
+        <div style={{ padding: "18px 24px 22px" }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 17, fontWeight: 600, marginBottom: 16 }}>
             <ChevronLeft size={20} /> Bumalik sa Hub
           </Link>
-          <p style={{ fontSize: 17, opacity: 0.9, margin: "0 0 20px 0", lineHeight: 1.6 }}>Ligtas at magaan na exercises para sa seniors.<br />Walang gym equipment na kailangan!</p>
           <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: 12, height: 14, overflow: "hidden" }}>
             <div style={{ background: GOLD, height: "100%", width: `${progressPct}%`, transition: "width 0.4s ease", borderRadius: 12 }} />
           </div>
@@ -198,36 +207,71 @@ export default function ExercisePage() {
         </div>
       </div>
 
-      {/* ── PRE-WORKOUT SAFETY CHECKLIST ── */}
+      {/* ── SAFETY GUIDE (expander) ──
+          First-visit: expanded so senior reads it once. After they tap
+          "Naintindihan ko," persists collapsed via
+          eb_exercise_safety_seen so returning users aren't forced to
+          re-read the same wall of text on every visit. */}
       <div style={{ padding: "20px 24px 0" }}>
-        <div style={{ background: "#f0fdf4", border: `2px solid ${G}`, borderRadius: 16, padding: "16px 18px" }}>
-          <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 10px", display: "flex", alignItems: "center", gap: 8 }}>
-            <CircleCheck size={20} /> Bago Mag-simula (Safety Checklist)
-          </p>
-          <ul style={{ margin: 0, paddingLeft: 20, color: DARK, fontSize: 15, lineHeight: 1.75 }}>
-            <li>May matibay na upuan sa tabi mo bilang support</li>
-            <li>May tubig kang malapit para uminom habang exercise</li>
-            <li>Suot ang komportableng sapatos na may grip (hindi tsinelas)</li>
-            <li>Kumain nang konti 1-2 oras bago mag-exercise</li>
-            <li>Kung may hypertension o heart condition, sukatin ang BP mo muna</li>
-          </ul>
-        </div>
+        {!safetyExpanded && (
+          <button
+            type="button"
+            onClick={() => setSafetyExpanded(true)}
+            style={{
+              width: "100%", background: "#fff", color: G, border: `2px solid ${G}`,
+              borderRadius: 14, padding: "16px", fontSize: 17, fontWeight: 700,
+              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              fontFamily: "Georgia, serif", minHeight: 56,
+            }}
+          >
+            <ChevronDown size={18} /> Basahin muna: Safety Guide
+          </button>
+        )}
+        {safetyExpanded && (
+          <>
+            <div style={{ background: "#f0fdf4", border: `2px solid ${G}`, borderRadius: 16, padding: "16px 18px" }}>
+              <p style={{ fontSize: 16, fontWeight: 700, color: G, margin: "0 0 10px", display: "flex", alignItems: "center", gap: 8 }}>
+                <CircleCheck size={20} /> Bago Mag-simula (Safety Checklist)
+              </p>
+              <ul style={{ margin: 0, paddingLeft: 20, color: DARK, fontSize: 15, lineHeight: 1.75 }}>
+                <li>May matibay na upuan sa tabi mo bilang support</li>
+                <li>May tubig kang malapit para uminom habang exercise</li>
+                <li>Suot ang komportableng sapatos na may grip (hindi tsinelas)</li>
+                <li>Kumain nang konti 1-2 oras bago mag-exercise</li>
+                <li>Kung may hypertension o heart condition, sukatin ang BP mo muna</li>
+              </ul>
+            </div>
 
-        {/* ── STOP SIGNS ── */}
-        <div style={{ background: "#fef2f2", border: "2px solid #dc2626", borderRadius: 16, padding: "16px 18px", marginTop: 12 }}>
-          <p style={{ fontSize: 16, fontWeight: 700, color: "#991b1b", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 8 }}>
-            <OctagonX size={20} /> Tigilan Agad Kung Nararamdaman:
-          </p>
-          <ul style={{ margin: 0, paddingLeft: 20, color: "#7f1d1d", fontSize: 15, lineHeight: 1.75, fontWeight: 500 }}>
-            <li>Sakit ng dibdib o pananakit sa braso/leeg</li>
-            <li>Sobrang hirap huminga o pagkahilo</li>
-            <li>Malabo ang paningin o nawawala ang balanse</li>
-            <li>Malakas na sakit sa joint na hindi natural</li>
-          </ul>
-          <p style={{ fontSize: 14, color: "#991b1b", margin: "10px 0 0", fontWeight: 700 }}>
-            Kung anumang ito ay maramdaman mo — tumigil, umupo, at magpakonsulta sa doctor. Kung matindi, tumawag agad ng 911.
-          </p>
-        </div>
+            {/* ── STOP SIGNS ── */}
+            <div style={{ background: "#fef2f2", border: "2px solid #dc2626", borderRadius: 16, padding: "16px 18px", marginTop: 12 }}>
+              <p style={{ fontSize: 16, fontWeight: 700, color: "#991b1b", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 8 }}>
+                <OctagonX size={20} /> Tigilan Agad Kung Nararamdaman:
+              </p>
+              <ul style={{ margin: 0, paddingLeft: 20, color: "#7f1d1d", fontSize: 15, lineHeight: 1.75, fontWeight: 500 }}>
+                <li>Sakit ng dibdib o pananakit sa braso/leeg</li>
+                <li>Sobrang hirap huminga o pagkahilo</li>
+                <li>Malabo ang paningin o nawawala ang balanse</li>
+                <li>Malakas na sakit sa joint na hindi natural</li>
+              </ul>
+              <p style={{ fontSize: 14, color: "#991b1b", margin: "10px 0 0", fontWeight: 700 }}>
+                Kung anumang ito ay maramdaman mo — tumigil, umupo, at magpakonsulta sa doctor. Kung matindi, tumawag agad ng 911.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={acknowledgeSafety}
+              style={{
+                width: "100%", marginTop: 12, background: G, color: "#fff", border: "none",
+                borderRadius: 14, padding: "16px", fontSize: 17, fontWeight: 700,
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                fontFamily: "Georgia, serif", minHeight: 56,
+              }}
+            >
+              <CircleCheck size={18} /> Naintindihan ko
+            </button>
+          </>
+        )}
       </div>
 
       {/* ── PHASE SELECTOR ── */}
@@ -269,6 +313,11 @@ export default function ExercisePage() {
             const isOpen = expandedDay === day.day;
             const c = PHASE_COLORS[currentPhase.phase as keyof typeof PHASE_COLORS];
             const isRestDay = day.title.toLowerCase().includes("rest");
+            // Rough time estimate: ~3 min per exercise, minimum 5 min.
+            // Hidden on rest days.
+            const estMinutes = isRestDay || day.exercises.length === 0
+              ? null
+              : Math.max(5, day.exercises.length * 3);
             return (
               <div key={day.day} style={{ background: "#FFFFFB", border: `2px solid ${isDone ? c.border : "#C5B99A"}`, borderRadius: 18, overflow: "hidden", boxShadow: isDone ? `0 2px 8px ${c.border}40` : "none" }}>
                 <div onClick={() => setExpandedDay(isOpen ? null : day.day)} style={{ padding: "20px 22px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", background: isDone ? c.bg : "transparent", minHeight: 80 }}>
@@ -279,7 +328,12 @@ export default function ExercisePage() {
                     <div>
                       <p style={{ fontSize: 19, fontWeight: 700, color: DARK, margin: "0 0 4px 0", lineHeight: 1.3 }}>{day.title}</p>
                       <p style={{ fontSize: 16, color: MID, margin: 0 }}>
-                        {day.exercises.length} {day.exercises.length === 1 ? "gawain" : "ehersisyo"}
+                        {isRestDay ? "Pahinga lang" : (
+                          <>
+                            {day.exercises.length} ehersisyo
+                            {estMinutes && <> · ~{estMinutes} minuto</>}
+                          </>
+                        )}
                         {isDone && <span style={{ color: c.color, fontWeight: 700, marginLeft: 8, display: "inline-flex", alignItems: "center", gap: 4 }}><CircleCheck size={14} /> Tapos!</span>}
                       </p>
                     </div>
@@ -293,40 +347,57 @@ export default function ExercisePage() {
                     {day.exercises.map((ex, ei) => {
                       const exKey = `${day.day}-${ei}`;
                       const exDone = completedExercises.has(exKey);
+                      const rawUrl = videoMap[exerciseSlug(currentPhase.phase, day.day, ex.name)];
+                      const embed = rawUrl ? youTubeEmbedUrl(rawUrl) : null;
                       return (
-                        <div key={ei} onClick={() => toggleExercise(exKey)} style={{ padding: "20px 22px", borderBottom: "1px solid #F0EAE0", cursor: "pointer", background: exDone ? "#F4FAF0" : "transparent" }}>
-                          <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-                            <div style={{ width: 44, height: 44, borderRadius: 999, border: `3px solid ${exDone ? G : "#C5B99A"}`, background: exDone ? G : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                              {exDone && <CircleCheck size={20} color="#fff" />}
-                            </div>
-                            <div style={{ flex: 1 }}>
-                              <p style={{ fontSize: 19, fontWeight: 700, color: exDone ? G : DARK, margin: "0 0 6px 0", textDecoration: exDone ? "line-through" : "none" }}>{ex.name}</p>
-                              <div style={{ display: "inline-block", background: exDone ? "#D6EDCC" : "#E8F5E0", borderRadius: 8, padding: "4px 12px", marginBottom: 10 }}>
-                                <p style={{ fontSize: 16, color: G, fontWeight: 700, margin: 0 }}>
-                                  {ex.sets && ex.reps && `${ex.sets} sets × ${ex.reps}`}
-                                  {ex.duration && ex.duration}
-                                  {" · "}Rest: {ex.rest}
-                                </p>
-                              </div>
-                              {(() => {
-                                const rawUrl = videoMap[exerciseSlug(currentPhase.phase, day.day, ex.name)];
-                                const embed = rawUrl ? youTubeEmbedUrl(rawUrl) : null;
-                                if (!embed) return null;
-                                return (
-                                  <div onClick={e => e.stopPropagation()} style={{ marginBottom: 12, borderRadius: 12, overflow: "hidden", background: "#000", aspectRatio: "16/9", position: "relative" }}>
-                                    <iframe src={embed} title={`Video: ${ex.name}`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none" }} />
-                                  </div>
-                                );
-                              })()}
-                              <p style={{ fontSize: 17, color: DARK, margin: "0 0 8px 0", lineHeight: 1.6 }}>{ex.instruction}</p>
-                              {ex.modification && (
-                                <div style={{ background: "#FEF9E7", border: `1px solid ${AMBER}`, borderRadius: 10, padding: "10px 14px", marginTop: 6 }}>
-                                  <p style={{ fontSize: 16, color: AMBER, margin: 0, fontWeight: 600, display: "flex", alignItems: "flex-start", gap: 6 }}><Lightbulb size={16} style={{ flexShrink: 0, marginTop: 3 }} /> Modification: {ex.modification}</p>
-                                </div>
-                              )}
-                              {!exDone && <p style={{ fontSize: 16, color: MID, margin: "10px 0 0 0", opacity: 0.75 }}>I-tap para markahan na tapos</p>}
-                            </div>
+                        // Card body no longer clickable — tapping to read
+                        // never marks the exercise done. Only the checkbox
+                        // button below is the completion tap target.
+                        <div key={ei} style={{ padding: "20px 22px", borderBottom: "1px solid #F0EAE0", background: exDone ? "#F4FAF0" : "transparent" }}>
+                          <p style={{ fontSize: 19, fontWeight: 700, color: exDone ? G : DARK, margin: "0 0 6px 0", textDecoration: exDone ? "line-through" : "none" }}>{ex.name}</p>
+                          <div style={{ display: "inline-block", background: exDone ? "#D6EDCC" : "#E8F5E0", borderRadius: 8, padding: "4px 12px", marginBottom: 10 }}>
+                            <p style={{ fontSize: 16, color: G, fontWeight: 700, margin: 0 }}>
+                              {ex.sets && ex.reps && `${ex.sets} sets × ${ex.reps}`}
+                              {ex.duration && ex.duration}
+                              {" · "}Rest: {ex.rest}
+                            </p>
                           </div>
+                          {/* Instruction text FIRST — if the video fails to
+                              load, the senior still has guidance. */}
+                          <p style={{ fontSize: 17, color: DARK, margin: "0 0 10px 0", lineHeight: 1.6 }}>{ex.instruction}</p>
+                          {ex.modification && (
+                            <div style={{ background: "#FEF9E7", border: `1px solid ${AMBER}`, borderRadius: 10, padding: "10px 14px", marginBottom: 12 }}>
+                              <p style={{ fontSize: 16, color: AMBER, margin: 0, fontWeight: 600, display: "flex", alignItems: "flex-start", gap: 6 }}><Lightbulb size={16} style={{ flexShrink: 0, marginTop: 3 }} /> Modification: {ex.modification}</p>
+                            </div>
+                          )}
+                          {embed && (
+                            <div style={{ marginBottom: 14, borderRadius: 12, overflow: "hidden", background: "#000", aspectRatio: "16/9", position: "relative" }}>
+                              <iframe src={embed} title={`Video: ${ex.name}`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none" }} />
+                            </div>
+                          )}
+                          {/* Only the checkbox toggles complete. Micro-copy
+                              placed next to it so seniors know exactly which
+                              element is the tap target. */}
+                          <button
+                            type="button"
+                            onClick={() => toggleExercise(exKey)}
+                            aria-label={exDone ? "Alisin ang tapos" : "Markahan na tapos"}
+                            style={{
+                              display: "flex", alignItems: "center", gap: 14,
+                              width: "100%", padding: "12px 14px",
+                              background: exDone ? "#E8F5E0" : "#F8F5EE",
+                              border: `2px solid ${exDone ? G : "#C5B99A"}`,
+                              borderRadius: 14, cursor: "pointer",
+                              fontFamily: "Georgia, serif", minHeight: 64,
+                            }}
+                          >
+                            <span style={{ width: 44, height: 44, borderRadius: 999, border: `3px solid ${exDone ? G : "#C5B99A"}`, background: exDone ? G : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              {exDone && <CircleCheck size={22} color="#fff" />}
+                            </span>
+                            <span style={{ fontSize: 17, fontWeight: 700, color: exDone ? G : DARK, textAlign: "left" }}>
+                              {exDone ? "Tapos na — i-tap para i-undo" : "I-tap ang box para markahan na tapos"}
+                            </span>
+                          </button>
                         </div>
                       );
                     })}
@@ -344,25 +415,13 @@ export default function ExercisePage() {
         </div>
       </div>
 
-      {/* ── TIPS ── */}
-      <div style={{ padding: "36px 24px 0" }}>
-        <div style={{ background: "#FFFFFB", border: `2px solid ${G}`, borderRadius: 20, padding: "26px" }}>
-          <h3 style={{ fontSize: 21, fontWeight: 700, color: G, margin: "0 0 18px 0", display: "flex", alignItems: "center", gap: 8 }}><Lightbulb size={22} /> Tips para sa Best Results</h3>
-          {[
-            { Icon: Coffee, text: "Inumin ang Easebrew 30 mins bago mag-exercise para sa mas magaan na pakiramdam." },
-            { Icon: OctagonX, text: "Huwag pilitin — kung masakit, tumigil agad at magpahinga." },
-            { Icon: Droplets, text: "Uminom ng tubig bago, habang, at pagkatapos ng exercise." },
-            { Icon: CalendarDays, text: "Consistent lang — mas mabuti ang 15 mins araw-araw kaysa 1 oras minsan." },
-          ].map((tip, i) => (
-            <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: i < 3 ? 16 : 0, padding: "14px 16px", background: "#F6F2EA", borderRadius: 12 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: "#E8F5E0", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><tip.Icon size={20} color={G} /></div>
-              <p style={{ fontSize: 17, color: DARK, margin: 0, lineHeight: 1.6 }}>{tip.text}</p>
-            </div>
-          ))}
-        </div>
+      {/* Tips section removed — all 4 tips were either duplicated
+          elsewhere (EaseBrew reminder is in the gold strip at top) or
+          generic filler. Reducing clutter for seniors. */}
 
+      <div style={{ padding: "24px 24px 0" }}>
         {/* Medical disclaimer */}
-        <div style={{ marginTop: 14, padding: "12px 14px", background: "#f3f4f6", borderRadius: 10, border: "1px solid #d1d5db" }}>
+        <div style={{ padding: "12px 14px", background: "#f3f4f6", borderRadius: 10, border: "1px solid #d1d5db" }}>
           <p style={{ fontSize: 12, color: "#4E504F", margin: 0, lineHeight: 1.5 }}>
             <strong>Paalala:</strong> Bago simulan ang exercise program, magpakonsulta muna sa doctor kung may heart condition, joint injury, arthritis, o iba pang health issue. Tigilan agad ang exercise kung may sakit ng dibdib, hirap huminga, o pagkahilo.
           </p>

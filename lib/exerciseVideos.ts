@@ -26,5 +26,17 @@ export function parseExerciseVideos(raw: string | undefined): Record<string, str
 export function youTubeEmbedUrl(url: string): string | null {
   if (!url) return null;
   const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/);
-  return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+  if (!m) return null;
+  // Senior-friendly YouTube embed params:
+  //   rel=0             — no related-video overlay at end
+  //   modestbranding=1  — reduce YouTube logo
+  //   playsinline=1     — stays inline on iOS (does NOT take over screen)
+  //   loop=1&playlist=X — loops the clip (playlist=<id> required for loop)
+  //   iv_load_policy=3  — hide creator annotations
+  //   disablekb=1       — no keyboard shortcuts (irrelevant on mobile senior)
+  // Fullscreen button intentionally kept (allowFullScreen on iframe) —
+  // seniors may want larger viewing.
+  const id = m[1];
+  const params = "rel=0&modestbranding=1&playsinline=1&loop=1&playlist=" + id + "&iv_load_policy=3&disablekb=1";
+  return `https://www.youtube.com/embed/${id}?${params}`;
 }
