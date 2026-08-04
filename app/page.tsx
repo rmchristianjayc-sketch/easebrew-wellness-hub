@@ -592,88 +592,194 @@ function ReferralCard({ coaches }: { coaches: Coach[] }) {
 // ============================================================
 // FAMILY SHARE CARD — generate read-only weekly report link
 // ============================================================
+// Persisted share state — same JWT the server already returns and that
+// the customer sends to family via Messenger. localStorage adds no new
+// sensitive data beyond what's already in the Messenger chat.
+type FamilyShareState = { token: string; expiresAt: string; sharedAt: string };
+const FAMILY_SHARE_STORAGE_KEY = "eb_family_share_v1";
+
+function readFamilyShareState(): FamilyShareState | null {
+  try {
+    const raw = localStorage.getItem(FAMILY_SHARE_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    // Validate shape — drop corrupted entries silently
+    if (typeof parsed?.token !== "string" || typeof parsed?.expiresAt !== "string") {
+      localStorage.removeItem(FAMILY_SHARE_STORAGE_KEY);
+      return null;
+    }
+    // Drop expired entries so the senior never sees a stale "active" state
+    if (new Date(parsed.expiresAt).getTime() <= Date.now()) {
+      localStorage.removeItem(FAMILY_SHARE_STORAGE_KEY);
+      return null;
+    }
+    return parsed as FamilyShareState;
+  } catch {
+    // Corrupted JSON — nuke it
+    try { localStorage.removeItem(FAMILY_SHARE_STORAGE_KEY); } catch {}
+    return null;
+  }
+}
+
 function FamilyShareCard() {
-  const [generating, setGenerating] = useState(false);
-  const [link, setLink] = useState("");
-  const [expiresAt, setExpiresAt] = useState<Date | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [error, setError] = useState("");
+  const [active, setActive] = useState<FamilyShareState | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  async function generateLink() {
-    setError("");
-    setGenerating(true);
+  // Hydrate persisted share on mount — client-only.
+  useEffect(() => { setActive(readFamilyShareState()); }, []);
+
+  // Auto-dismiss toast after 4s (long enough for a senior to read).
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 4000);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  function buildShareMessage(token: string): { text: string; url: string } {
+    const url = `${window.location.origin}/family/${token}`;
+    const text = `Kumusta! Ito ang wellness update ko sa EaseBrew, para makita mo ang progress ko:\n\n${url}\n\n(7 araw silang makikita)`;
+    return { text, url };
+  }
+
+  // Single share flow — one tap does everything the senior needs.
+  // If there's an unexpired active share, reuse its token; otherwise
+  // POST /api/family/generate. Then either open Web Share, or fall back
+  // to clipboard + toast. Silent retry once on 401/403 (expired token
+  // edge case — fresh generate + share).
+  async function shareNow(forceFresh = false) {
+    if (busy) return;
+    setError(null);
+    setBusy(true);
     try {
-      const res = await fetch("/api/family/generate", { method: "POST" });
-      const data = await res.json();
-      if (!res.ok || !data.success) { setError(data.error || "Failed."); return; }
-      const url = `${window.location.origin}/family/${data.token}`;
-      setLink(url);
-      // Server returns the effective expiry (min of 7-day token TTL and
-      // the customer's pack expiry) so the displayed date matches when
-      // the link actually stops working.
-      if (typeof data.expiresAt === "string") {
-        setExpiresAt(new Date(data.expiresAt));
-      } else {
-        const fallback = new Date();
-        fallback.setDate(fallback.getDate() + 7);
-        setExpiresAt(fallback);
+      let state = forceFresh ? null : active;
+      if (!state) {
+        const res = await fetch("/api/family/generate", { method: "POST" });
+        // 401/403 recovery: session might be stale — bail with a clear
+        // senior-friendly message rather than dumping the raw error.
+        if (res.status === 401 || res.status === 403) {
+          setError("Hindi na-share. Mag-log in ulit sa hub.");
+          return;
+        }
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data?.success || typeof data.token !== "string") {
+          setError("Hindi ma-share. Subukan ulit.");
+          return;
+        }
+        const expiresAt = typeof data.expiresAt === "string"
+          ? data.expiresAt
+          : new Date(Date.now() + 7 * 86400_000).toISOString();
+        state = { token: data.token, expiresAt, sharedAt: new Date().toISOString() };
       }
-    } catch { setError("Network error."); }
-    finally { setGenerating(false); }
+
+      const { text, url } = buildShareMessage(state.token);
+
+      // Prefer Web Share when available — cleanest senior UX.
+      if (typeof navigator !== "undefined" && "share" in navigator) {
+        try {
+          await (navigator as unknown as { share: (d: { title: string; text: string; url: string }) => Promise<void> })
+            .share({ title: "EaseBrew Wellness Update", text, url });
+        } catch (e) {
+          // User cancelled the native share sheet — not an error. Only
+          // treat as failure if the API itself threw for a non-abort
+          // reason (permission, feature disabled).
+          const name = (e as { name?: string } | null)?.name;
+          if (name && name !== "AbortError") {
+            // Fall through to clipboard fallback below
+            await clipboardFallback(text);
+          }
+        }
+      } else {
+        await clipboardFallback(text);
+      }
+
+      // Persist AFTER the share attempt so the "Naibahagi na" state
+      // only appears when we actually delivered something.
+      const sharedState: FamilyShareState = { ...state, sharedAt: new Date().toISOString() };
+      try { localStorage.setItem(FAMILY_SHARE_STORAGE_KEY, JSON.stringify(sharedState)); } catch {}
+      setActive(sharedState);
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function copyLink() {
-    if (!link) return;
-    const msg = `Kumusta! Ito ang wellness update ko sa EaseBrew, para makita mo ang progress ko:\n\n${link}\n\n(7 araw na valid ang link)`;
-    navigator.clipboard.writeText(msg).then(() => {
-      setCopied(true); setTimeout(() => setCopied(false), 2500);
-    });
+  async function clipboardFallback(text: string) {
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        setToast("Naibahagi na — i-paste sa Messenger");
+      } else {
+        setError("Hindi ma-share sa phone na ito. Subukan sa Chrome o Safari.");
+      }
+    } catch {
+      // Clipboard permission denied — degrade gracefully.
+      setError("Hindi ma-share. Payagan ang clipboard access at subukan ulit.");
+    }
   }
 
-  function shareNative() {
-    if (!link || typeof navigator === "undefined" || !("share" in navigator)) return;
-    (navigator as unknown as { share: (data: { title: string; text: string; url: string }) => Promise<void> })
-      .share({ title: "EaseBrew Wellness Update", text: "Tingnan ang wellness progress ko sa EaseBrew:", url: link })
-      .catch(() => {});
+  function resetShare() {
+    try { localStorage.removeItem(FAMILY_SHARE_STORAGE_KEY); } catch {}
+    setActive(null);
+    // Immediately kick off a fresh share so the senior gets one action.
+    shareNow(true);
   }
+
+  const expiresLabel = active
+    ? new Date(active.expiresAt).toLocaleDateString("fil-PH", { month: "long", day: "numeric" })
+    : "";
 
   return (
+    // Visual consistency with ReferralCard: rounded-20, 2px accent
+    // border, 18px padding, icon + title header. Buttons bumped to
+    // 52px (senior tap-target minimum) — sibling ReferralCard uses 48px
+    // and should be tightened later if UAT surfaces the same friction.
     <div style={{ background: "#f0f9ff", border: `2px solid #0ea5e9`, borderRadius: 20, padding: 18, marginBottom: 20 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: active ? 12 : 8 }}>
         <Share2 size={20} color="#0369a1" />
         <p style={{ fontSize: 16, fontWeight: 700, color: "#0c4a6e", margin: 0 }}>Ipakita sa Pamilya</p>
       </div>
-      <p style={{ fontSize: 14, color: "#164e63", margin: "0 0 12px", lineHeight: 1.5 }}>
-        Gumawa ng link para sa anak o asawa mo — makikita lang nila ang lingguhang wellness progress mo, hindi maba-baguhan.
-      </p>
-      {!link ? (
-        <button onClick={generateLink} disabled={generating} style={{ width: "100%", background: "#0ea5e9", color: "#fff", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer", minHeight: 52, fontFamily: "Georgia, serif" }}>
-          {generating ? "Ginagawa..." : "Gumawa ng Family Link"}
-        </button>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ background: "#fff", border: "1.5px solid #7dd3fc", borderRadius: 10, padding: "10px 12px", fontSize: 12, color: "#0c4a6e", wordBreak: "break-all", fontFamily: "monospace" }}>
-            {link}
+
+      {active ? (
+        <>
+          {/* Success acknowledgement — green check + validity date. No
+              raw URL, no technical terms. */}
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 14, padding: "12px 14px", background: "#ecfdf5", borderRadius: 12, border: "1.5px solid #86efac" }}>
+            <CircleCheck size={22} color="#16a34a" style={{ flexShrink: 0, marginTop: 1 }} />
+            <div>
+              <p style={{ fontSize: 16, fontWeight: 700, color: "#166534", margin: 0 }}>Naibahagi na sa Pamilya</p>
+              <p style={{ fontSize: 14, color: "#166534", margin: "2px 0 0", opacity: 0.85 }}>Valid hanggang {expiresLabel}</p>
+            </div>
           </div>
-          {expiresAt && (
-            <p style={{ fontSize: 12, color: "#0c4a6e", margin: 0, fontWeight: 600 }}>
-              Valid hanggang {expiresAt.toLocaleDateString("fil-PH", { month: "long", day: "numeric", year: "numeric" })}
-            </p>
-          )}
-          <button onClick={copyLink} style={{ background: "#0ea5e9", color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
-            {copied ? "Na-copy na" : "I-copy ang mensahe"}
+          <button onClick={() => shareNow()} disabled={busy} style={{ width: "100%", background: "#0ea5e9", color: "#fff", border: "none", borderRadius: 12, padding: "14px", fontSize: 17, fontWeight: 700, cursor: busy ? "default" : "pointer", minHeight: 52, fontFamily: "Georgia, serif", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: busy ? 0.6 : 1 }}>
+            <Share2 size={18} /> {busy ? "Sandali lang..." : "I-share ulit sa Pamilya"}
           </button>
-          {typeof navigator !== "undefined" && "share" in navigator && (
-            <button onClick={shareNative} style={{ background: G, color: "#fff", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", minHeight: 48, fontFamily: "Georgia, serif" }}>
-              I-share sa Messenger o iba pang app
-            </button>
-          )}
-          <button onClick={generateLink} disabled={generating} style={{ background: "transparent", color: "#0369a1", border: "none", padding: "8px", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Georgia, serif", textDecoration: "underline" }}>
-            {generating ? "Ginagawa..." : "Gumawa ng bagong link"}
+          <button onClick={resetShare} disabled={busy} style={{ background: "transparent", color: "#0369a1", border: "none", padding: "10px 8px 0", fontSize: 14, fontWeight: 600, cursor: busy ? "default" : "pointer", fontFamily: "Georgia, serif", textDecoration: "underline", width: "100%", opacity: busy ? 0.6 : 1 }}>
+            Gumawa ng bago
           </button>
+        </>
+      ) : (
+        <>
+          <p style={{ fontSize: 14, color: "#164e63", margin: "0 0 14px", lineHeight: 1.5 }}>
+            I-share ang wellness update mo sa anak o asawa mo — 7 araw silang makikita.
+          </p>
+          <button onClick={() => shareNow()} disabled={busy} style={{ width: "100%", background: "#0ea5e9", color: "#fff", border: "none", borderRadius: 12, padding: "14px", fontSize: 17, fontWeight: 700, cursor: busy ? "default" : "pointer", minHeight: 52, fontFamily: "Georgia, serif", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: busy ? 0.6 : 1 }}>
+            <Share2 size={18} /> {busy ? "Sandali lang..." : "I-share sa Pamilya"}
+          </button>
+        </>
+      )}
+
+      {toast && (
+        <div role="status" style={{ marginTop: 12, padding: "12px 14px", background: "#ecfdf5", border: "1.5px solid #86efac", borderRadius: 12, display: "flex", alignItems: "center", gap: 10 }}>
+          <CircleCheck size={20} color="#16a34a" style={{ flexShrink: 0 }} />
+          <p style={{ fontSize: 15, color: "#166534", margin: 0, fontWeight: 600 }}>{toast}</p>
         </div>
       )}
-      {error && <p style={{ fontSize: 13, color: "#dc2626", margin: "8px 0 0" }}>{error}</p>}
+      {error && (
+        <div role="alert" style={{ marginTop: 12, padding: "12px 14px", background: "#fef2f2", border: "1.5px solid #fca5a5", borderRadius: 12 }}>
+          <p style={{ fontSize: 15, color: "#991b1b", margin: 0, fontWeight: 600 }}>{error}</p>
+        </div>
+      )}
     </div>
   );
 }
