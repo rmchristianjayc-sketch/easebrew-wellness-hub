@@ -54,11 +54,18 @@ const DEFAULT_FAQS = [
   { q: "May allergy ako sa ilang herbs — safe ba ito?",    a: "Palaging basahin muna ang ingredients list sa packaging. Kung may kilalang allergy ka, kumonsulta sa doktor bago inumin." },
 ];
 
-const DEFAULT_TESTIMONIALS = [
-  { name: "Nena R.",   age: 58, location: "Quezon City", quote: "Bahagi na ng aking daily routine ang EaseBrew — kasama sa umaga at gabi ko.", stars: 5, painBefore: 8, painAfter: 3 },
-  { name: "Mang Tony", age: 64, location: "Cebu City",   quote: "Sinubukan ko at naging habit ko na. Kasama ko lagi ang EaseBrew araw-araw.", stars: 5, painBefore: 7, painAfter: 2 },
-  { name: "Ate Susan", age: 52, location: "Davao",       quote: "Yung libreng meal plan at recipe book — super helpful sa pagpapalinis ng diet ko.", stars: 5, painBefore: 6, painAfter: 3 },
-];
+// Testimonials shape — no seeded defaults. Empty testimonial slots
+// leave `testimonials` empty and the Tips-tab section is hidden.
+// This prevents shipping fake/placeholder customer quotes.
+type Testimonial = {
+  name: string;
+  age: number;
+  location: string;
+  quote: string;
+  stars: number;
+  painBefore: number;
+  painAfter: number;
+};
 
 const REMINDERS = [
   { time: "Umaga",      Icon: Coffee,      iconBg: "#39613B", text: "Inumin ang EaseBrew — 1st sachet mo",       bg: "#E8F5E0", border: "#39613B", textColor: "#39613B" },
@@ -119,11 +126,11 @@ function buildFaqs(c: Record<string, string>, defaults: { q: string; a: string }
   return fromDB.length > 0 ? fromDB : defaults;
 }
 
-function buildTestimonials(
-  c: Record<string, string>,
-  defaults: typeof DEFAULT_TESTIMONIALS
-): typeof DEFAULT_TESTIMONIALS {
-  const fromDB = [1,2,3].map(n => {
+function buildTestimonials(c: Record<string, string>): Testimonial[] {
+  // Returns real testimonials only. If DB has none, returns [].
+  // The Tips-tab render block guards on `.length > 0` and hides the
+  // section entirely — no fake/placeholder testimonials are shown.
+  return [1,2,3].map(n => {
     const name  = c[`testimonial_${n}_name`]?.trim();
     const quote = c[`testimonial_${n}_quote`]?.trim();
     if (!name || !quote) return null;
@@ -136,8 +143,7 @@ function buildTestimonials(
       painBefore: parseInt(c[`testimonial_${n}_pain_before`]?.trim() || "0"),
       painAfter:  parseInt(c[`testimonial_${n}_pain_after`]?.trim()  || "0"),
     };
-  }).filter(Boolean) as typeof DEFAULT_TESTIMONIALS;
-  return fromDB.length > 0 ? fromDB : defaults;
+  }).filter((t): t is Testimonial => t !== null);
 }
 
 function buildVideos(
@@ -1395,7 +1401,7 @@ export default function Home() {
   const [heroSubtitle, setHeroSubtitle]     = useState("Salamat po sa pagtitiwala sa R&M EaseBrew. Kasama po namin kayo araw-araw.");
   const [wellnessTips, setWellnessTips]     = useState(DEFAULT_WELLNESS_TIPS);
   const [faqs, setFaqs]                     = useState(DEFAULT_FAQS);
-  const [testimonials, setTestimonials]     = useState(DEFAULT_TESTIMONIALS);
+  const [testimonials, setTestimonials]     = useState<Testimonial[]>([]);
   const [videos, setVideos]                 = useState(DEFAULT_VIDEOS);
   const DEFAULT_REORDER_TEMPLATE = "Hi po! Gusto ko po mag-order ulit ng EaseBrew.\n\nPackage: {{package}}{{expiry_line}}\n\nAvailable po ba? Salamat po!";
   const DEFAULT_COACH_MODAL_TITLE = "Pumili ng Coach";
@@ -1456,7 +1462,7 @@ export default function Home() {
         setCoaches(buildCoaches(c, DEFAULT_COACHES));
         setWellnessTips(buildTips(c, DEFAULT_WELLNESS_TIPS));
         setFaqs(buildFaqs(c, DEFAULT_FAQS));
-        setTestimonials(buildTestimonials(c, DEFAULT_TESTIMONIALS));
+        setTestimonials(buildTestimonials(c));
         setVideos(buildVideos(c, DEFAULT_VIDEOS));
 
         if (c.reorder_message_template?.trim())      setReorderTemplate(c.reorder_message_template.trim());
@@ -2013,42 +2019,50 @@ export default function Home() {
               })}
             />
 
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0", display: "flex", alignItems: "center", gap: 8 }}>Mga Kwento ng Customer <MessageCircle size={24} color={G} /></h2>
-            <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Totoong kwento mula sa mga katulad mo.</p>
-            {testimonials.map((t, i) => {
-              const isFemale = i !== 1;
-              const photoSrc = isFemale ? "/images/testimonial-female.jpg" : "/images/testimonial-male.jpg";
-              return (
-                <div key={i} style={{ background: WHITE, border: `2px solid ${LIGHT_G}`, borderRadius: 20, padding: "20px", marginBottom: 14, boxShadow: "0 4px 16px rgba(27,32,26,0.07)" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
-                    <div style={{ width: 64, height: 64, borderRadius: "50%", overflow: "hidden", border: `3px solid ${G}`, flexShrink: 0, background: CREAM, position: "relative" }}>
-                      <Image
-                        src={photoSrc}
-                        alt={t.name}
-                        fill
-                        style={{ objectFit: "cover" }}
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                      />
+            {/* Testimonials section hides entirely when there are no real
+                testimonials in the DB. Prevents shipping placeholder /
+                fake customer quotes. Section header, subtitle, and cards
+                are ALL gated on `testimonials.length > 0`. */}
+            {testimonials.length > 0 && (
+              <>
+                <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0", display: "flex", alignItems: "center", gap: 8 }}>Mga Kwento ng Customer <MessageCircle size={24} color={G} /></h2>
+                <p style={{ fontSize: 16, color: MID, margin: "0 0 18px 0", lineHeight: 1.6 }}>Totoong kwento mula sa mga katulad mo.</p>
+                {testimonials.map((t, i) => {
+                  const isFemale = i !== 1;
+                  const photoSrc = isFemale ? "/images/testimonial-female.jpg" : "/images/testimonial-male.jpg";
+                  return (
+                    <div key={i} style={{ background: WHITE, border: `2px solid ${LIGHT_G}`, borderRadius: 20, padding: "20px", marginBottom: 14, boxShadow: "0 4px 16px rgba(27,32,26,0.07)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
+                        <div style={{ width: 64, height: 64, borderRadius: "50%", overflow: "hidden", border: `3px solid ${G}`, flexShrink: 0, background: CREAM, position: "relative" }}>
+                          <Image
+                            src={photoSrc}
+                            alt={t.name}
+                            fill
+                            style={{ objectFit: "cover" }}
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                          />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <p style={{ fontSize: 17, fontWeight: 900, color: DARK, margin: 0 }}>{t.name}{t.age > 0 ? `, ${t.age} taong gulang` : ""}</p>
+                          <p style={{ fontSize: 13, color: MID, margin: "2px 0 0" }}>{t.location}</p>
+                          <StarRating count={t.stars} />
+                        </div>
+                      </div>
+                      <p style={{ fontSize: 17, color: DARK, margin: "0 0 14px", lineHeight: 1.75, fontStyle: "italic" }}>&ldquo;{t.quote}&rdquo;</p>
+                      {t.painBefore > 0 && t.painAfter > 0 && (
+                        <div style={{ background: "#F0F8F0", border: `1.5px solid ${LIGHT_G}`, borderRadius: 12, padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+                          <span style={{ fontSize: 14, color: MID }}>Pain Score:</span>
+                          <span style={{ fontSize: 16, fontWeight: 900, color: "#dc2626" }}>{t.painBefore}</span>
+                          <span style={{ fontSize: 18 }}>→</span>
+                          <span style={{ fontSize: 16, fontWeight: 900, color: G }}>{t.painAfter}</span>
+                          <span style={{ fontSize: 14, color: G, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}><CircleCheck size={14} /> Malaking pagbabago!</span>
+                        </div>
+                      )}
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: 17, fontWeight: 900, color: DARK, margin: 0 }}>{t.name}{t.age > 0 ? `, ${t.age} taong gulang` : ""}</p>
-                      <p style={{ fontSize: 13, color: MID, margin: "2px 0 0" }}>{t.location}</p>
-                      <StarRating count={t.stars} />
-                    </div>
-                  </div>
-                  <p style={{ fontSize: 17, color: DARK, margin: "0 0 14px", lineHeight: 1.75, fontStyle: "italic" }}>&ldquo;{t.quote}&rdquo;</p>
-                  {t.painBefore > 0 && t.painAfter > 0 && (
-                    <div style={{ background: "#F0F8F0", border: `1.5px solid ${LIGHT_G}`, borderRadius: 12, padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ fontSize: 14, color: MID }}>Pain Score:</span>
-                      <span style={{ fontSize: 16, fontWeight: 900, color: "#dc2626" }}>{t.painBefore}</span>
-                      <span style={{ fontSize: 18 }}>→</span>
-                      <span style={{ fontSize: 16, fontWeight: 900, color: G }}>{t.painAfter}</span>
-                      <span style={{ fontSize: 14, color: G, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}><CircleCheck size={14} /> Malaking pagbabago!</span>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                  );
+                })}
+              </>
+            )}
 
             <h2 style={{ fontSize: 24, fontWeight: 700, color: G, margin: "32px 0 8px 0", display: "flex", alignItems: "center", gap: 8 }}>Mga Tanong <HelpCircle size={24} color={G} /></h2>
             <p style={{ fontSize: 16, color: MID, margin: "0 0 8px 0", lineHeight: 1.6 }}>I-tap ang tanong para makita ang sagot.</p>

@@ -24,7 +24,7 @@
 ## Test 1 — Generate a code para sa bagong customer (5 min)
 
 - [ ] Sa sidebar, i-click ang **Codes**
-- [ ] I-click ang **"Bumuo ng Code"**
+- [ ] I-click ang **"Generate Code"** button
 - [ ] Pumili ng price tier (hal. ₱999)
 - [ ] Ilagay ang customer name (kahit test name lang)
 - [ ] Kopya-in ang code na na-generate (format: `EASE-XXXX-XXXX`)
@@ -37,7 +37,7 @@
 ## Test 2 — Edit ang content na nakikita ng customer (5 min)
 
 - [ ] Sa sidebar, i-click ang **Content**
-- [ ] Hanapin ang **`hero_greeting_title`** — dapat "Kamusta, Nanay at Tatay!" ang default
+- [ ] Hanapin ang **`hero_title`** key — check the current value
 - [ ] I-change sa kahit ano (hal. "Kamusta, Kaibigan!")
 - [ ] I-save
 - [ ] Buksan ang customer app sa phone → Home tab
@@ -47,8 +47,8 @@
 
 ## Test 3 — Test ang Family Share flow end-to-end (3 min)
 
-- [ ] Sa `/admin/customers`, hanapin ang test customer mo
-- [ ] I-click ang kanilang row para makita ang detail view
+- [ ] Sa `/admin/codes`, hanapin ang test customer mo (each code row is 1:1 with a customer — no separate customers page)
+- [ ] I-click ang kanilang code row para makita ang device_id + activity detail
 - [ ] Basahin: ilan ang na-share nila sa pamilya? Kailan?
   *(Note: this data is client-side only. Admin doesn't have visibility to individual share tokens for privacy reasons — this is by design.)*
 - [ ] Sa customer app, gawin ang Family Share (per Customer Checklist Araw 5)
@@ -60,8 +60,8 @@
 ## Test 4 — Handle a "customer lost their code" scenario (2 min)
 
 - [ ] Simulate: isang customer nagsabi na nawala nila ang code nila
-- [ ] Sa `/admin/codes`, hanapin ang code nila (by customer name)
-- [ ] I-click ang **"Kopyahin"** para makuha ulit ang code
+- [ ] Sa `/admin/codes`, hanapin ang code nila (by customer name — use the search / filter)
+- [ ] I-click ang code cell para ma-copy sa clipboard (auto-copies), tapos i-paste sa Messenger reply nila
 - [ ] O kaya, mag-generate ng bagong code para sa kanila kung expired na yung dati
 - [ ] **REPORT:** Kung mahirap hanapin ang customer, o kung wala kayong makitang "Kopyahin" action.
 

@@ -49,7 +49,7 @@
 Simulate common support tickets:
 
 - [ ] **"Nawala yung code ko"** → search by name, copy code back to customer
-- [ ] **"Bagong phone ako, hindi ma-log in"** → sa admin, unlock device_id at re-issue via `/admin/customers`
+- [ ] **"Bagong phone ako, hindi ma-log in"** → sa admin, hanapin ang code sa `/admin/codes`, unlock device_id at re-issue (each code row is 1:1 with a customer)
 - [ ] **"Expired na, gusto ko mag-order ulit"** → generate new code, mark old as retired
 - [ ] **"Mali ang tier ko"** → confirm price config, escalate if genuine issue
 - [ ] **"Family shared link ko hindi umandar"** → confirm the customer's code hasn't expired; token also expires with code

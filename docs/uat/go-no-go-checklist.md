@@ -20,13 +20,14 @@ Each item is BINARY. **All GO required for launch.**
 
 ## Section 2 — Content (must-have)
 
-- [ ] All PUBLIC_CONTENT_KEYS have production values (not empty / placeholder)
+- [ ] Daily tips filled — 8 unique tips so it doesn't repeat weekly (see CONTENT_READINESS_REPORT.md)
+- [ ] FAQs answered — at least 7 common questions
 - [ ] All 6 coach entries populated (name, photo, phone, facebook)
-- [ ] Daily tips filled — at least 7 unique tips so it doesn't repeat weekly
-- [ ] FAQs answered — at least 8 common questions
-- [ ] Testimonials populated — at least 3 real customer stories (with consent)
-- [ ] Promo banner text ready OR promo disabled
+- [ ] Promo banner text ready OR `promo_enabled = false`
 - [ ] Medical disclaimer visible on all health-tool pages
+- [ ] Testimonials — EITHER 3 real testimonials populated with customer consent, OR the section is hidden when empty (the app hides "Mga Kwento ng Customer" automatically if no populated slots). No fake / placeholder testimonials shipped.
+- [ ] Featured videos (`video_1..3`) — populated if desired, OR section hides when empty (non-blocking)
+- [ ] Exercise videos — coverage acceptable to owner (text-first fallback means empty slots render cleanly)
 
 ## Section 3 — Business ops (must-have)
 

@@ -14,7 +14,7 @@
 | [README.md](README.md) | Keep for yourself | This coordinator playbook |
 | [recruit-brief.md](recruit-brief.md) | Keep for yourself | How to find + invite testers |
 | [tester-guide-tagalog.md](tester-guide-tagalog.md) | Each customer tester (Messenger) | Welcome + install instructions |
-| [customer-checklist.md](customer-checklist.md) | Each customer tester (Messenger) | 5-day, ~15-min-total senior tasks |
+| [customer-checklist.md](customer-checklist.md) | Each customer tester (Messenger) | 5-day, ~15-min-total senior tasks (this is the current customer checklist — do NOT use any older `tester-checklist.md` if you see it referenced elsewhere) |
 | [coach-checklist.md](coach-checklist.md) | Assigned coach(es) — 1-2 people | One 20–30 min sitting on desktop |
 | [admin-checklist.md](admin-checklist.md) | R&M owner | One 45–60 min sitting on desktop |
 | [feedback-form.md](feedback-form.md) | Customer testers after Day 5 | Google Form or Messenger checklist |
